@@ -157,7 +157,7 @@ const MainLayout = () => {
       key: 'user-header',
       label: (
         <div className="p-2 min-w-[160px]">
-          <Text strong className="block text-gray-800">{user?.username || 'Trần Đức Anh'}</Text>
+          <Text strong className="block text-gray-800">{user?.fullname || user?.username || 'Thành viên'}</Text>
           <Text type="secondary" className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">{user?.role || 'User'}</Text>
         </div>
       ),
@@ -274,10 +274,10 @@ const MainLayout = () => {
                     size={44} 
                     className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
                    >
-                     {getInitialAvatar(user?.username || 'Trần Đức Anh')}
+                     {getInitialAvatar(user?.fullname || user?.username || 'U')}
                    </Avatar>
                    <div className="text-left flex flex-col justify-center">
-                     <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.username || 'Trần Đức Anh'}</Text>
+                     <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
                      <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
                    </div>
                    <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
