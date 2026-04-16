@@ -18,8 +18,10 @@ const updateUserRoleStatus = async (req, res) => {
     if (user) {
       user.role = role || user.role;
       user.status = status || user.status;
-      user.fullname = fullname || user.fullname;
-      user.email = email || user.email;
+      user.fullname = fullname !== undefined ? fullname : user.fullname;
+      user.email = email !== undefined ? email : user.email;
+      if (password) user.password = password;
+
       const updatedUser = await user.save();
 
       // Log action
@@ -29,6 +31,26 @@ const updateUserRoleStatus = async (req, res) => {
         status: user.status
       });
 
+      res.json({ success: true, data: updatedUser });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const { fullname, email, password } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.fullname = fullname !== undefined ? fullname : user.fullname;
+      user.email = email !== undefined ? email : user.email;
+      if (password) user.password = password;
+
+      const updatedUser = await user.save();
       res.json({ success: true, data: updatedUser });
     } else {
       res.status(404).json({ success: false, message: 'User not found' });
@@ -87,4 +109,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, updateUserRoleStatus, createUser, deleteUser };
+module.exports = { getUsers, updateUserRoleStatus, updateProfile, createUser, deleteUser };

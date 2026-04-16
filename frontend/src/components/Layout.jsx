@@ -11,7 +11,8 @@ import {
   GlobalOutlined,
   FileTextOutlined,
   SettingOutlined,
-  BellOutlined
+  BellOutlined,
+  BorderOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown } from 'lucide-react';
 
@@ -45,7 +46,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Thông tin tài khoản</span>,
     },
     {
-      key: '/journal-templates',
+      key: '/form-builder',
       icon: <FileTextOutlined className="text-lg" />,
       label: <span className="font-medium">Biểu mẫu nhật ký</span>,
     },
@@ -55,7 +56,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Mô hình nông nghiệp</span>,
     },
     {
-      key: '/journal-mgmt',
+      key: '/admin/journals',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý nhật ký</span>,
     },
@@ -69,13 +70,13 @@ const MainLayout = () => {
       ],
     },
     {
-      key: 'account-mgmt',
-      icon: <BoxSelect className="w-5 h-5" />,
+      key: '/admin/accounts-mgmt',
+      icon: <BorderOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý tài khoản</span>,
       children: [
+        { key: '/admin/users', label: 'Danh sách tài khoản' },
         { key: '/admin/rights', label: 'Danh sách quyền' },
         { key: '/admin/roles', label: 'Vai trò' },
-        { key: '/admin/users', label: 'Tài khoản' },
       ],
     },
     {
@@ -88,12 +89,12 @@ const MainLayout = () => {
       ],
     },
     {
-      key: 'system-logs',
+      key: '/admin/logs',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Nhật ký hệ thống</span>,
       children: [
-        { key: '/admin/logs/access', label: 'Log truy cập' },
-        { key: '/admin/logs/changes', label: 'Log thay đổi nội dung' },
+        { key: '/admin/logs/access', label: 'Lịch sử truy cập' },
+        { key: '/admin/logs/changes', label: 'Nhật ký thay đổi' },
       ],
     },
     {
@@ -182,44 +183,51 @@ const MainLayout = () => {
       danger: true,
       icon: <LogoutOutlined />,
       label: 'Đăng xuất',
-      onClick: handleLogout,
       className: 'rounded-lg'
     },
   ];
 
+  const handleMenuClick = ({ key }) => {
+    if (key === '1') {
+      navigate('/account-info');
+    } else if (key === '3') {
+      handleLogout();
+    }
+  };
+
   return (
     <Layout className="min-h-screen bg-[#f8fafc]">
-      <Sider 
-        trigger={null} 
-        collapsible 
-        collapsed={collapsed} 
-        theme="light" 
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        theme="light"
         width={280}
         className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
       >
         {/* Logo/Branding Section - Fixed at top */}
         <div className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300">
-           {collapsed ? (
-             <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
-               <Leaf className="w-6 h-6" />
-             </div>
-           ) : (
-             <div className="flex items-center gap-3">
-               <div className="w-12 h-12 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200 shrink-0">
-                 <Leaf className="w-7 h-7" />
-               </div>
-               <div className="flex flex-col">
-                 <Text className="text-green-600 font-bold text-base tracking-tight leading-tight">
-                   NHẬT KÝ SẢN XUẤT
-                 </Text>
-                 <Text className="text-gray-400 font-semibold text-[10px] tracking-widest uppercase mb-0">
-                   EBOOK FARM <span className="text-green-400">●</span> AI
-                 </Text>
-               </div>
-             </div>
-           )}
+          {collapsed ? (
+            <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
+              <Leaf className="w-6 h-6" />
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200 shrink-0">
+                <Leaf className="w-7 h-7" />
+              </div>
+              <div className="flex flex-col">
+                <Text className="text-green-600 font-bold text-base tracking-tight leading-tight">
+                  NHẬT KÝ SẢN XUẤT
+                </Text>
+                <Text className="text-gray-400 font-semibold text-[10px] tracking-widest uppercase mb-0">
+                  EBOOK FARM <span className="text-green-400">●</span> AI
+                </Text>
+              </div>
+            </div>
+          )}
         </div>
-        
+
         {/* Scrollable Menu Area */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden custom-sidebar-scroll transition-all duration-300">
           <Menu
@@ -232,7 +240,7 @@ const MainLayout = () => {
             expandIcon={({ isOpen }) => <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
           />
         </div>
-        
+
         {/* Support Card - Pushed to bottom */}
         {!collapsed && (
           <div className="p-6 mt-auto border-t border-gray-50 shrink-0 bg-white">
@@ -244,7 +252,7 @@ const MainLayout = () => {
           </div>
         )}
       </Sider>
-      
+
       <Layout>
         <Header className="bg-white/80 backdrop-blur-md p-0 flex justify-between items-center z-10 px-8 h-20 sticky top-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-b border-gray-50">
           <Button
@@ -253,39 +261,39 @@ const MainLayout = () => {
             onClick={() => setCollapsed(!collapsed)}
             className="w-12 h-12 flex items-center justify-center hover:bg-green-50 rounded-xl transition-all"
           />
-          
+
           <div className="flex items-center gap-6">
-             <Space size={16} className="mr-4">
-                <Button type="text" icon={<BellOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
-                <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
-             </Space>
-             
-             <div className="h-10 w-[1px] bg-gray-100"></div>
-             
-             <Dropdown 
-                menu={{ items: dropdownItems }} 
-                placement="bottomRight" 
-                trigger={['click']} 
-                arrow={{ pointAtCenter: true }}
-                overlayClassName="premium-auth-dropdown"
-              >
-                <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
-                   <Avatar 
-                    size={44} 
-                    className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
-                   >
-                     {getInitialAvatar(user?.fullname || user?.username || 'U')}
-                   </Avatar>
-                   <div className="text-left flex flex-col justify-center">
-                     <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
-                     <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
-                   </div>
-                   <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+            <Space size={16} className="mr-4">
+              <Button type="text" icon={<BellOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+              <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+            </Space>
+
+            <div className="h-10 w-[1px] bg-gray-100"></div>
+
+            <Dropdown
+              menu={{ items: dropdownItems, onClick: handleMenuClick }}
+              placement="bottomRight"
+              trigger={['click']}
+              arrow={{ pointAtCenter: true }}
+              overlayClassName="premium-auth-dropdown"
+            >
+              <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
+                <Avatar
+                  size={44}
+                  className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
+                >
+                  {getInitialAvatar(user?.fullname || user?.username || 'U')}
+                </Avatar>
+                <div className="text-left flex flex-col justify-center">
+                  <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
+                  <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
                 </div>
-             </Dropdown>
+                <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+              </div>
+            </Dropdown>
           </div>
         </Header>
-        
+
         <Content className="p-8 bg-[#f8fafc] min-h-[calc(100vh-80px)]">
           <Outlet />
         </Content>

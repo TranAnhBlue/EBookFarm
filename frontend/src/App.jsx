@@ -18,6 +18,10 @@ import UserManagement from './pages/Admin/UserManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
 import AdminInventory from './pages/Admin/AdminInventory';
 import CustomerManagement from './pages/Admin/CustomerManagement';
+import AgricultureModels from './pages/Admin/AgricultureModels';
+import AccountInfo from './pages/Admin/AccountInfo';
+import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
+import RolesManagement from './pages/Admin/RolesManagement';
 
 import { useAuthStore } from './store/authStore';
 
@@ -74,10 +78,16 @@ const App = () => {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="form-builder" element={<ProtectedRoute requireAdmin><FormBuilder /></ProtectedRoute>} />
                 <Route path="admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
+                <Route path="account-info" element={<ProtectedRoute><AccountInfo /></ProtectedRoute>} />
+                <Route path="admin/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
+                <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
+                <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
+                <Route path="admin/rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                 <Route path="admin/logs/access" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                 <Route path="admin/logs/changes" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                 <Route path="admin/customers" element={<ProtectedRoute requireAdmin><CustomerManagement /></ProtectedRoute>} />
-                <Route path="admin/customer-rights" element={<ProtectedRoute requireAdmin><CustomerManagement /></ProtectedRoute>} />
+                <Route path="agriculture-models" element={<ProtectedRoute requireAdmin><AgricultureModels /></ProtectedRoute>} />
+                <Route path="admin/customer-rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                 <Route path="inventory/items" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
                 <Route path="inventory/models" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
                 <Route path="journal" element={<JournalList />} />

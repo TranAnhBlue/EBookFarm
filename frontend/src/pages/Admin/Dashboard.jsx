@@ -113,7 +113,7 @@ const Dashboard = () => {
         {/* Weather Card */}
         <Col xs={24} lg={11}>
           <Card bordered={false} className="weather-gradient h-full !p-2">
-            {weatherLoading ? (
+            {weatherLoading ? (      
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : (
               <>
