@@ -1,0 +1,297 @@
+import React, { useState } from 'react';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import {
+  MenuOutlined,
+  LogoutOutlined,
+  UserOutlined,
+  CheckCircleOutlined,
+  AppstoreOutlined,
+  GlobalOutlined,
+  FileTextOutlined,
+  SettingOutlined,
+  BellOutlined
+} from '@ant-design/icons';
+import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown } from 'lucide-react';
+
+const { Header, Sider, Content } = Layout;
+const { Title, Text } = Typography;
+
+const MainLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const getInitialAvatar = (name) => {
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  };
+
+  const getAdminItems = () => [
+    {
+      key: '/dashboard',
+      icon: <AppstoreOutlined className="text-lg" />,
+      label: <span className="font-medium">Tổng quan</span>,
+    },
+    {
+      key: '/account-info',
+      icon: <UserOutlined className="text-lg" />,
+      label: <span className="font-medium">Thông tin tài khoản</span>,
+    },
+    {
+      key: '/journal-templates',
+      icon: <FileTextOutlined className="text-lg" />,
+      label: <span className="font-medium">Biểu mẫu nhật ký</span>,
+    },
+    {
+      key: '/agriculture-models',
+      icon: <GlobalOutlined className="text-lg" />,
+      label: <span className="font-medium">Mô hình nông nghiệp</span>,
+    },
+    {
+      key: '/journal-mgmt',
+      icon: <SettingOutlined className="text-lg" />,
+      label: <span className="font-medium">Quản lý nhật ký</span>,
+    },
+    {
+      key: 'inventory-mgmt',
+      icon: <Tractor className="w-5 h-5" />,
+      label: <span className="font-medium">Quản lý kho vật tư</span>,
+      children: [
+        { key: '/inventory/items', label: 'Danh mục kho vật tư' },
+        { key: '/inventory/models', label: 'Vật tư mẫu' },
+      ],
+    },
+    {
+      key: 'account-mgmt',
+      icon: <BoxSelect className="w-5 h-5" />,
+      label: <span className="font-medium">Quản lý tài khoản</span>,
+      children: [
+        { key: '/admin/rights', label: 'Danh sách quyền' },
+        { key: '/admin/roles', label: 'Vai trò' },
+        { key: '/admin/users', label: 'Tài khoản' },
+      ],
+    },
+    {
+      key: 'customer-mgmt',
+      icon: <GlobalOutlined className="text-lg" />,
+      label: <span className="font-medium">Quản lý khách hàng</span>,
+      children: [
+        { key: '/admin/customers', label: 'Danh sách khách hàng' },
+        { key: '/admin/customer-rights', label: 'Quản lý quyền tài khoản thành viên' },
+      ],
+    },
+    {
+      key: 'system-logs',
+      icon: <SettingOutlined className="text-lg" />,
+      label: <span className="font-medium">Nhật ký hệ thống</span>,
+      children: [
+        { key: '/admin/logs/access', label: 'Log truy cập' },
+        { key: '/admin/logs/changes', label: 'Log thay đổi nội dung' },
+      ],
+    },
+    {
+      key: 'system-config',
+      icon: <SettingOutlined className="text-lg" />,
+      label: <span className="font-medium">Cấu hình hệ thống</span>,
+      children: [
+        { key: '/admin/config/setup', label: 'Thiết lập hệ thống' },
+        { key: '/admin/config/backup', label: 'Backup dữ liệu' },
+      ],
+    },
+  ];
+
+  const getFarmerItems = () => [
+    {
+      key: '/dashboard',
+      icon: <AppstoreOutlined className="text-lg" />,
+      label: <span className="font-medium">Dashboard</span>,
+    },
+    {
+      key: 'vietgap',
+      icon: <CheckCircleOutlined className="text-lg text-green-500" />,
+      label: <span className="font-medium">Sản xuất VietGAP</span>,
+      children: [
+        { key: '/vietgap/trong-trot', label: 'VietGAP Trồng trọt' },
+        { key: '/vietgap/chan-nuoi', label: 'VietGAHP Chăn nuôi' },
+        { key: '/vietgap/thuy-san', label: 'VietGAP Thủy sản' },
+      ],
+    },
+    {
+      key: 'huuco',
+      icon: <Leaf className="w-5 h-5 text-green-500" />,
+      label: <span className="font-medium">Nông nghiệp hữu cơ</span>,
+      children: [
+        { key: '/huuco/cay-trong', label: 'Cây trồng' },
+        { key: '/huuco/chan-nuoi', label: 'Chăn nuôi' },
+        { key: '/huuco/thuy-san', label: 'Thủy sản' },
+      ],
+    },
+    {
+      key: 'thongminh',
+      icon: <GlobalOutlined className="text-lg text-green-500" />,
+      label: <span className="font-medium">Nông nghiệp thông minh</span>,
+      children: [
+        { key: '/thongminh/rau-cu-qua', label: 'Rau củ quả' },
+        { key: '/thongminh/lua', label: 'Lúa' },
+        { key: '/thongminh/chan-nuoi', label: 'Chăn nuôi' },
+      ],
+    },
+    {
+      key: '/journal',
+      icon: <FileTextOutlined className="text-lg" />,
+      label: <span className="font-medium">Nhật ký sản xuất</span>,
+    },
+  ];
+
+  const items = user?.role === 'Admin' ? getAdminItems() : getFarmerItems();
+
+  const dropdownItems = [
+    {
+      key: 'user-header',
+      label: (
+        <div className="p-2 min-w-[160px]">
+          <Text strong className="block text-gray-800">{user?.username || 'Trần Đức Anh'}</Text>
+          <Text type="secondary" className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">{user?.role || 'User'}</Text>
+        </div>
+      ),
+      disabled: true,
+    },
+    { type: 'divider' },
+    {
+      key: '1',
+      icon: <UserOutlined />,
+      label: 'Thông tin cá nhân',
+      className: 'rounded-lg mb-1'
+    },
+    {
+      key: '2',
+      icon: <SettingOutlined />,
+      label: 'Cài đặt hệ thống',
+      className: 'rounded-lg mb-1'
+    },
+    { type: 'divider' },
+    {
+      key: '3',
+      danger: true,
+      icon: <LogoutOutlined />,
+      label: 'Đăng xuất',
+      onClick: handleLogout,
+      className: 'rounded-lg'
+    },
+  ];
+
+  return (
+    <Layout className="min-h-screen bg-[#f8fafc]">
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed} 
+        theme="light" 
+        width={280}
+        className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
+      >
+        {/* Logo/Branding Section - Fixed at top */}
+        <div className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300">
+           {collapsed ? (
+             <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
+               <Leaf className="w-6 h-6" />
+             </div>
+           ) : (
+             <div className="flex items-center gap-3">
+               <div className="w-12 h-12 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200 shrink-0">
+                 <Leaf className="w-7 h-7" />
+               </div>
+               <div className="flex flex-col">
+                 <Text className="text-green-600 font-bold text-base tracking-tight leading-tight">
+                   NHẬT KÝ SẢN XUẤT
+                 </Text>
+                 <Text className="text-gray-400 font-semibold text-[10px] tracking-widest uppercase mb-0">
+                   EBOOK FARM <span className="text-green-400">●</span> AI
+                 </Text>
+               </div>
+             </div>
+           )}
+        </div>
+        
+        {/* Scrollable Menu Area */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-sidebar-scroll transition-all duration-300">
+          <Menu
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            defaultOpenKeys={[]}
+            items={items}
+            onClick={({ key }) => navigate(key)}
+            className="border-r-0 px-3 py-4"
+            expandIcon={({ isOpen }) => <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
+          />
+        </div>
+        
+        {/* Support Card - Pushed to bottom */}
+        {!collapsed && (
+          <div className="p-6 mt-auto border-t border-gray-50 shrink-0 bg-white">
+            <div className="bg-green-50 rounded-2xl p-4 border border-green-100 shadow-sm shadow-green-50/50">
+              <Text strong className="text-green-800 text-xs block mb-1">Hỗ trợ kỹ thuật?</Text>
+              <Text className="text-green-600 text-[10px] block mb-3">Liên hệ hotline: 1900 8888</Text>
+              <Button type="primary" size="small" block className="rounded-lg text-[10px] h-8 font-bold">Gửi yêu cầu</Button>
+            </div>
+          </div>
+        )}
+      </Sider>
+      
+      <Layout>
+        <Header className="bg-white/80 backdrop-blur-md p-0 flex justify-between items-center z-10 px-8 h-20 sticky top-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-b border-gray-50">
+          <Button
+            type="text"
+            icon={<MenuOutlined className="text-green-600 text-xl" />}
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-12 h-12 flex items-center justify-center hover:bg-green-50 rounded-xl transition-all"
+          />
+          
+          <div className="flex items-center gap-6">
+             <Space size={16} className="mr-4">
+                <Button type="text" icon={<BellOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+                <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+             </Space>
+             
+             <div className="h-10 w-[1px] bg-gray-100"></div>
+             
+             <Dropdown 
+                menu={{ items: dropdownItems }} 
+                placement="bottomRight" 
+                trigger={['click']} 
+                arrow={{ pointAtCenter: true }}
+                overlayClassName="premium-auth-dropdown"
+              >
+                <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
+                   <Avatar 
+                    size={44} 
+                    className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
+                   >
+                     {getInitialAvatar(user?.username || 'Trần Đức Anh')}
+                   </Avatar>
+                   <div className="text-left flex flex-col justify-center">
+                     <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.username || 'Trần Đức Anh'}</Text>
+                     <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
+                   </div>
+                   <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+                </div>
+             </Dropdown>
+          </div>
+        </Header>
+        
+        <Content className="p-8 bg-[#f8fafc] min-h-[calc(100vh-80px)]">
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default MainLayout;
