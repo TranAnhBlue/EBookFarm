@@ -55,4 +55,22 @@ const updateJournal = async (req, res) => {
     }
 }
 
-module.exports = { createJournal, getJournals, getJournalByQr, updateJournal };
+const getJournalById = async (req, res) => {
+  try {
+    const journal = await FarmJournal.findById(req.params.id)
+      .populate('schemaId')
+      .populate('userId', 'username fullname');
+    if (!journal) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
+    }
+    // Only owner or admin can view
+    if (journal.userId._id.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+      return res.status(403).json({ success: false, message: 'Không có quyền xem nhật ký này' });
+    }
+    res.json({ success: true, data: journal });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { createJournal, getJournals, getJournalByQr, getJournalById, updateJournal };

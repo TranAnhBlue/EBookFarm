@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -35,8 +36,36 @@ const JournalEntry = () => {
 
   useEffect(() => {
     if (isEditing && journalData && schema) {
-      const initValues = { ...journalData.entries, status: journalData.status };
-      form.setFieldsValue(initValues);
+      const rawEntries = journalData.entries || {};
+      const convertedEntries = {};
+
+      // Convert nested table date fields
+      schema.tables.forEach(table => {
+        const tableName = table.tableName;
+        convertedEntries[tableName] = {};
+        table.fields.forEach(field => {
+          const val = rawEntries[tableName]?.[field.name];
+          if (field.type === 'date' && val) {
+            convertedEntries[tableName][field.name] = dayjs(val);
+          } else {
+            convertedEntries[tableName][field.name] = val;
+          }
+        });
+      });
+
+      // Load basic flat fields (Địa chỉ, Diện tích, Lô sản xuất...)
+      const basicFields = ['Mã nông hộ', 'Họ và tên', 'Địa chỉ', 'Diện tích', 'Lô sản xuất', 'Tên cơ sở', 'Địa chỉ sản xuất', 'Mã số thửa'];
+      basicFields.forEach(key => {
+        if (rawEntries[key] !== undefined) {
+          convertedEntries[key] = rawEntries[key];
+        }
+      });
+      // Convert Ngày bắt đầu
+      if (rawEntries['Ngày bắt đầu']) {
+        convertedEntries['Ngày bắt đầu'] = dayjs(rawEntries['Ngày bắt đầu']);
+      }
+
+      form.setFieldsValue({ ...convertedEntries, status: journalData.status });
     }
   }, [isEditing, journalData, schema, form]);
 
@@ -66,12 +95,12 @@ const JournalEntry = () => {
           }
       },
       onSuccess: () => {
-          message.success(`Journal ${isEditing ? 'updated' : 'created'} successfully`);
+          message.success(`Lưu nhật ký ${isEditing ? 'thành công!' : 'thành công! Đã tạo sổ mới.'}`);
           queryClient.invalidateQueries({ queryKey: ['journals'] });
           navigate('/journal');
       },
       onError: (err) => {
-          message.error(err.response?.data?.message || 'Error saving journal');
+          message.error(err.response?.data?.message || 'Lỗi khi lưu nhật ký. Vui lòng thử lại.');
       }
   });
 
@@ -141,7 +170,8 @@ const JournalEntry = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-green-100">
+        {/* Sticky top bar */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-green-100 sticky top-0 z-10">
            <div>
              <Title level={3} className="!mb-0 text-gray-800 flex items-center gap-2">
                  {isEditing ? 'Sổ nhật ký:' : 'Tạo sổ nhật ký mới:'} <span className="text-green-600">{schema.name}</span>
@@ -149,37 +179,54 @@ const JournalEntry = () => {
              <p className="text-gray-500 mt-1 mb-0">{schema.description}</p>
            </div>
            <div className="flex gap-2">
-               <Button size="large" onClick={() => navigate('/journal')} className="rounded-xl">Quay lại</Button>
+               <Button size="large" onClick={() => navigate('/journal')} className="rounded-xl">← Quay lại</Button>
                <Button type="primary" size="large" onClick={() => form.submit()} loading={saveMutation.isPending} className="rounded-xl bg-green-600 font-bold px-8">
                    Lưu nhật ký
                </Button>
            </div>
         </div>
 
-        {/* Info Header as per Design */}
-        <Card bordered={false} className="shadow-sm rounded-[24px] border border-green-200 bg-green-50/30">
-            <Title level={5} className="text-green-700 !mb-4 border-b border-green-200 pb-2">Thông tin lô sản xuất</Title>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8 text-sm">
-                <div className="flex justify-between">
-                    <span className="text-gray-500 font-medium">Họ tên tổ chức/cá nhân:</span>
-                    <span className="font-bold text-gray-800">{journalData?.userId?.fullname || journalData?.userId?.username || 'Đang cập nhật'}</span>
-                </div>
-                <div className="flex justify-between">
-                    <span className="text-gray-500 font-medium">Quy mô/Diện tích:</span>
-                    <span className="font-bold text-gray-800">{form.getFieldValue('Diện tích') || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                    <span className="text-gray-500 font-medium">Địa chỉ sản xuất:</span>
-                    <span className="font-bold text-gray-800">{form.getFieldValue('Địa chỉ') || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                    <span className="text-gray-500 font-medium">Ngày bắt đầu:</span>
-                    <span className="font-bold text-gray-800">{journalData?.createdAt ? new Date(journalData.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN')}</span>
-                </div>
-            </div>
-        </Card>
-
         <Form form={form} layout="vertical" onFinish={(values) => saveMutation.mutate(values)}>
+            {/* ===== THÔNG TIN CƠ BẢN LÔ SẢN XUẤT ===== */}
+            <Card className="rounded-[28px] border border-green-200 bg-green-50/30 shadow-sm">
+                <Title level={5} className="text-green-700 !mb-6 border-b border-green-200 pb-3 flex items-center gap-2">
+                    Nhập thông tin lô sản xuất
+                </Title>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                    {/* Required fields */}
+                    <Form.Item name="Mã nông hộ" label={<span className="font-medium text-gray-700">Mã nông hộ <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập mã nông hộ' }]} className="mb-5">
+                        <Input size="large" placeholder="Mã nông hộ" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Họ và tên" label={<span className="font-medium text-gray-700">Họ và tên tổ chức/cá nhân sản xuất <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]} className="mb-5">
+                        <Input size="large" placeholder="Họ và tên tổ chức/cá nhân sản xuất" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Địa chỉ" label={<span className="font-medium text-gray-700">Địa chỉ <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]} className="mb-5">
+                        <Input size="large" placeholder="Địa chỉ" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Diện tích" label={<span className="font-medium text-gray-700">Diện tích <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập diện tích' }]} className="mb-5">
+                        <Input size="large" placeholder="Diện tích (VD: 500 m2)" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Ngày bắt đầu" label={<span className="font-medium text-gray-700">Ngày bắt đầu <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]} className="mb-5">
+                        <DatePicker size="large" className="w-full rounded-xl border-gray-200" placeholder="Ngày bắt đầu" format="DD/MM/YYYY" />
+                    </Form.Item>
+                    <Form.Item name="Lô sản xuất" label={<span className="font-medium text-gray-700">Lô sản xuất <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập lô sản xuất' }]} className="mb-5">
+                        <Input size="large" placeholder="Lô sản xuất (VD: Lô 01)" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+
+                    {/* Optional fields */}
+                    <Form.Item name="Tên cơ sở" label={<span className="font-medium text-gray-600">Tên cơ sở / hộ sản xuất</span>} className="mb-5">
+                        <Input size="large" placeholder="Tên cơ sở (không bắt buộc)" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Địa chỉ sản xuất" label={<span className="font-medium text-gray-600">Địa chỉ sản xuất</span>} className="mb-5">
+                        <Input size="large" placeholder="Địa chỉ sản xuất chi tiết (không bắt buộc)" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                    <Form.Item name="Mã số thửa" label={<span className="font-medium text-gray-600">Mã số thửa</span>} className="mb-5">
+                        <Input size="large" placeholder="Mã số thửa đất (không bắt buộc)" className="rounded-xl border-gray-200" />
+                    </Form.Item>
+                </div>
+            </Card>
+
+            {/* ===== TABS VietGAP ===== */}
             <Tabs 
                 activeKey={activeTab}
                 onChange={handleTabChange}
@@ -188,16 +235,15 @@ const JournalEntry = () => {
                 items={tabItems}
             />
 
+            {/* ===== TRẠNG THÁI ===== */}
             <Card className="mt-6 rounded-2xl shadow-sm border border-gray-100 bg-white">
-                <div className="flex justify-between items-center">
-                    <div className="w-1/2">
-                        <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
-                            <Select size="large" className="rounded-xl">
-                                <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
-                                <Option value="Completed">Hoàn tất (Kết thúc vụ mùa)</Option>
-                            </Select>
-                        </Form.Item>
-                    </div>
+                <div className="w-1/2">
+                    <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
+                        <Select size="large" className="rounded-xl">
+                            <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
+                            <Option value="Completed">Hoàn tất (Kết thúc vụ mùa)</Option>
+                        </Select>
+                    </Form.Item>
                 </div>
             </Card>
         </Form>
@@ -206,3 +252,4 @@ const JournalEntry = () => {
 };
 
 export default JournalEntry;
+

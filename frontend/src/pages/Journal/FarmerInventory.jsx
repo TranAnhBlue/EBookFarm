@@ -13,7 +13,7 @@ const FarmerInventory = () => {
   // Fetch inventory
   const { data: inventory, isLoading } = useQuery({
     queryKey: ['farmer-inventory'],
-    queryFn: () => api.get('/inventory/items').then(res => res.data.data)
+    queryFn: () => api.get('/inventory').then(res => res.data.data)
   });
 
   const getStockStatus = (qty, threshold = 10) => {
@@ -98,7 +98,7 @@ const FarmerInventory = () => {
                   title={<span className="text-gray-500 font-bold uppercase tracking-widest text-xs">Tổng mã Số vật tư</span>}
                   value={totalItems} 
                   prefix={<InboxOutlined className="text-green-500" />}
-                  valueStyle={{ fontSize: '36px', fontWeight: 800, color: '#166534' }}
+                  styles={{ content: { fontSize: '36px', fontWeight: 800, color: '#166534' } }}
                />
             </Card>
          </Col>
@@ -108,13 +108,13 @@ const FarmerInventory = () => {
                   title={<span className="text-gray-500 font-bold uppercase tracking-widest text-xs">Cần nhập thêm (Sắp hết hàng)</span>}
                   value={lowStockItems} 
                   prefix={<AlertOutlined className="text-orange-500" />}
-                  valueStyle={{ fontSize: '36px', fontWeight: 800, color: '#9a3412' }}
+                  styles={{ content: { fontSize: '36px', fontWeight: 800, color: '#9a3412' } }}
                />
             </Card>
          </Col>
       </Row>
 
-      <Card bordered={false} className="shadow-sm border border-gray-100 rounded-[24px] overflow-hidden">
+      <Card variant="borderless" className="shadow-sm border border-gray-100 rounded-[24px] overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
           <Input 
             placeholder="Tìm kiếm vật tư theo tên hoặc mã SKU..." 

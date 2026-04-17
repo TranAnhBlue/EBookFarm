@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Select, QRCode, Tag, Badge, Row, Col } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, DeleteOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -92,12 +92,12 @@ const JournalList = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <Title level={3} className="!mb-0 text-gray-800">Danh sách sổ nhật ký trồng trọt</Title>
         <div className="flex gap-2">
-          <Button.Group className="shadow-sm rounded-lg overflow-hidden bg-white">
+          <Space.Compact className="shadow-sm rounded-lg overflow-hidden bg-white">
             <Button 
               type={viewMode === 'table' ? 'primary' : 'default'} 
               icon={<BarsOutlined />} 
               onClick={() => setViewMode('table')}
-              className={viewMode === 'table' ? 'bg-green-600 hover:bg-green-700' : 'text-gray-500'}
+              className={viewMode === 'table' ? 'bg-green-600 hover:bg-green-700 border-0' : 'text-gray-500'}
             >
               Xem ở dạng bảng
             </Button>
@@ -105,16 +105,16 @@ const JournalList = () => {
               type={viewMode === 'card' ? 'primary' : 'default'} 
               icon={<AppstoreOutlined />} 
               onClick={() => setViewMode('card')}
-              className={viewMode === 'card' ? 'bg-green-600 hover:bg-green-700' : 'text-gray-500'}
+              className={viewMode === 'card' ? 'bg-green-600 hover:bg-green-700 border-0' : 'text-gray-500'}
             >
               Xem ở dạng thẻ
             </Button>
-          </Button.Group>
+          </Space.Compact>
         </div>
       </div>
 
       {/* Main Table/Card Content */}
-      <Card bordered={false} className="shadow-sm rounded-xl overflow-hidden border border-green-200 p-0" bodyStyle={{ padding: 0 }}>
+      <Card variant="borderless" className="shadow-sm rounded-xl overflow-hidden border border-green-200 p-0" styles={{ body: { padding: 0 } }}>
         {/* Toolbar in Card */}
         <div className="p-4 flex justify-end items-center bg-white border-b border-green-200">
            <Space>
@@ -139,7 +139,7 @@ const JournalList = () => {
                        <Card 
                          hoverable 
                          className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
-                         bodyStyle={{ padding: 0, display: 'flex', flexDirection: 'column', height: '100%' }}
+                         styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
                        >
                           <div className="p-5 flex-1 relative flex">
                              <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
@@ -151,19 +151,19 @@ const JournalList = () => {
                                  </div>
                                  <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
                                     <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
-                                    <div className="text-right"><Text strong>{journal.entries?.['Diện tích'] || '100 m2'}</Text></div>
+                                    <div className="text-right"><Text strong>{journal.entries?.['Diện tích'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
                                     
                                     <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày bắt đầu:</div>
                                     <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
                                     
                                     <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
-                                    <div className="text-right leading-tight"><Text strong>{journal.entries?.['Địa chỉ'] || journal.entries?.['Dia chi'] || 'Thôn Quyết Tiến, Thạch Xuân'}</Text></div>
+                                    <div className="text-right leading-tight"><Text strong>{journal.entries?.['Địa chỉ'] || journal.entries?.['Dia chi'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
                                     
-                                    <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
+                                    <div className="flex items-center gap-1.5 mt-2"><FileOutlined className="text-green-500" /> Loại sổ:</div>
                                     <div className="text-right mt-2"><Text strong>{journal.schemaId?.name}</Text></div>
                                     
                                     <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Lô sản xuất:</div>
-                                    <div className="text-right"><Text strong>{journal.entries?.['Lô sản xuất'] || journal.entries?.['Lo san xuat'] || 'Không'}</Text></div>
+                                    <div className="text-right"><Text strong>{journal.entries?.['Lô sản xuất'] || journal.entries?.['Lo san xuat'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
                                  </div>
                              </div>
                           </div>
