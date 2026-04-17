@@ -51,18 +51,6 @@ const Register = () => {
           className="premium-form"
         >
           <Form.Item
-            name="username"
-            rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
-            className="mb-5"
-          >
-            <Input 
-              prefix={<UserOutlined className="text-gray-400" />} 
-              placeholder="Họ và tên hoặc Biệt danh" 
-              className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
-            />
-          </Form.Item>
-
-          <Form.Item
             name="email"
             rules={[
               { required: true, message: 'Vui lòng nhập Email!' },
@@ -73,6 +61,18 @@ const Register = () => {
             <Input 
               prefix={<MailOutlined className="text-gray-400" />} 
               placeholder="Địa chỉ Gmail của bạn" 
+              className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
+            className="mb-5"
+          >
+            <Input 
+              prefix={<UserOutlined className="text-gray-400" />} 
+              placeholder="Tên tài khoản (Ví dụ: nva_2026)" 
               className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
             />
           </Form.Item>

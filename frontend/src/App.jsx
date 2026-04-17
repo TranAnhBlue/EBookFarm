@@ -22,6 +22,7 @@ import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import RolesManagement from './pages/Admin/RolesManagement';
+import ChangePassword from './pages/Admin/ChangePassword';
 
 import { useAuthStore } from './store/authStore';
 
@@ -81,6 +82,7 @@ const App = () => {
                 <Route path="account-info" element={<ProtectedRoute><AccountInfo /></ProtectedRoute>} />
                 <Route path="admin/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
                 <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
+                <Route path="change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                 <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                 <Route path="admin/rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                 <Route path="admin/logs/access" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />

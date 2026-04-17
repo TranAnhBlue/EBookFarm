@@ -72,13 +72,16 @@ const Login = () => {
           className="premium-form"
         >
           <Form.Item
-            name="username"
-            rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
+            name="email"
+            rules={[
+              { required: true, message: 'Vui lòng nhập địa chỉ Email!' },
+              { type: 'email', message: 'Email không hợp lệ!' }
+            ]}
             className="mb-6"
           >
             <Input 
               prefix={<UserOutlined className="text-gray-400" />} 
-              placeholder="Tên đăng nhập" 
+              placeholder="Email / Gmail" 
               className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
             />
           </Form.Item>

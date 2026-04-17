@@ -11,21 +11,23 @@ const generateToken = (id, role) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, fullname } = req.body;
     
-    // Check username or email
-    const userExists = await User.findOne({ 
-      $or: [{ username }, { email: email || 'never_match_empty' }] 
-    });
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email là bắt buộc' });
+    }
+
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'User or Email already exists' });
+      return res.status(400).json({ success: false, message: 'Email đã được sử dụng' });
     }
 
     const user = await User.create({
-      username,
+      username: username || email.split('@')[0], // Fallback username
       email,
       password,
+      fullname,
       role: role || 'User'
     });
 
@@ -50,11 +52,9 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    // Check by username OR email
-    const user = await User.findOne({
-      $or: [{ username }, { email: username }]
-    });
+    const { email, password } = req.body;
+    // Check by email only
+    const user = await User.findOne({ email });
 
     if (user && user.status === 'Active' && (await user.matchPassword(password))) {
       res.json({
@@ -62,12 +62,14 @@ const loginUser = async (req, res) => {
         data: {
           _id: user.id,
           username: user.username,
+          fullname: user.fullname,
+          email: user.email,
           role: user.role,
           token: generateToken(user.id, user.role),
         }
       });
     } else {
-      res.status(401).json({ success: false, message: 'Invalid username or password, or account inactive' });
+      res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác, hoặc tài khoản đã bị khóa' });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -76,11 +78,11 @@ const loginUser = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
   try {
-    const { username } = req.body;
-    const user = await User.findOne({ username });
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'Email không tồn tại trên hệ thống' });
     }
 
     const resetToken = user.getResetPasswordToken();

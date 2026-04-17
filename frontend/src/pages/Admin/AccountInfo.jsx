@@ -14,22 +14,16 @@ const AccountInfo = () => {
 
   const updateMutation = useMutation({
     mutationFn: (values) => {
-      if (values.newPassword && values.newPassword !== values.confirmPassword) {
-        throw new Error('Mật khẩu xác nhận không khớp!');
-      }
       const updateData = {
         fullname: values.fullname,
-        email: values.email,
-        password: values.newPassword || undefined
+        email: values.email
       };
       return api.put('/users/profile', updateData);
     },
     onSuccess: (res) => {
-      message.success('Cập nhật thông tin thành công!');
+      message.success('Cập nhật hồ sơ thành công!');
       setUser(res.data.data); // Update store
       queryClient.invalidateQueries(['users']);
-      form.setFieldValue('newPassword', '');
-      form.setFieldValue('confirmPassword', '');
     },
     onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')
   });
@@ -115,30 +109,7 @@ const AccountInfo = () => {
                     </Form.Item>
                 </div>
 
-                <Divider className="my-8" />
-                
-                <Title level={5} className="mb-6 flex items-center gap-2">
-                    <LockOutlined className="text-orange-500" />
-                    Bảo mật tài khoản
-                </Title>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Form.Item
-                        name="newPassword"
-                        label="Mật khẩu mới"
-                    >
-                        <Input.Password className="h-11 rounded-lg" placeholder="Để trống nếu không đổi" />
-                    </Form.Item>
-                    
-                    <Form.Item
-                        name="confirmPassword"
-                        label="Xác nhận mật khẩu"
-                    >
-                        <Input.Password className="h-11 rounded-lg" />
-                    </Form.Item>
-                </div>
-
-                <div className="flex justify-end mt-8">
+                <div className="flex justify-end mt-4">
                     <Button 
                         type="primary" 
                         icon={<SaveOutlined />} 

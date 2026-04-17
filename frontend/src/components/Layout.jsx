@@ -12,7 +12,8 @@ import {
   FileTextOutlined,
   SettingOutlined,
   BellOutlined,
-  BorderOutlined
+  BorderOutlined,
+  LockOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown } from 'lucide-react';
 
@@ -173,8 +174,8 @@ const MainLayout = () => {
     },
     {
       key: '2',
-      icon: <SettingOutlined />,
-      label: 'Cài đặt hệ thống',
+      icon: <LockOutlined />,
+      label: 'Đổi mật khẩu',
       className: 'rounded-lg mb-1'
     },
     { type: 'divider' },
@@ -190,6 +191,8 @@ const MainLayout = () => {
   const handleMenuClick = ({ key }) => {
     if (key === '1') {
       navigate('/account-info');
+    } else if (key === '2') {
+      navigate('/change-password');
     } else if (key === '3') {
       handleLogout();
     }
