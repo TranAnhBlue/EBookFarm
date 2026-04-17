@@ -10,6 +10,7 @@ const journalRoutes = require('./routes/journalRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const logRoutes = require('./routes/logRoutes');
 const agriModelRoutes = require('./routes/agriModelRoutes');
+const groupRoutes = require('./routes/groupRoutes');
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/journals', journalRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/agri-models', agriModelRoutes);
+app.use('/api/groups', groupRoutes);
 
 connectDB();
 

@@ -3,7 +3,7 @@ const { createLog } = require('./logController');
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-password');
+    const users = await User.find({}).select('-password').populate('groupId', 'name');
     res.json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -12,7 +12,7 @@ const getUsers = async (req, res) => {
 
 const updateUserRoleStatus = async (req, res) => {
   try {
-    const { role, status, fullname, email } = req.body;
+    const { role, status, fullname, email, password, groupId } = req.body;
     const user = await User.findById(req.params.id);
  
     if (user) {
@@ -20,6 +20,7 @@ const updateUserRoleStatus = async (req, res) => {
       user.status = status || user.status;
       user.fullname = fullname !== undefined ? fullname : user.fullname;
       user.email = email !== undefined ? email : user.email;
+      user.groupId = groupId !== undefined ? groupId : user.groupId;
       if (password) user.password = password;
 
       const updatedUser = await user.save();
@@ -62,7 +63,7 @@ const updateProfile = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { username, password, role, status, fullname, email } = req.body;
+    const { username, password, role, status, fullname, email, groupId } = req.body;
     const userExists = await User.findOne({ username });
 
     if (userExists) {
@@ -75,7 +76,8 @@ const createUser = async (req, res) => {
       role: role || 'User',
       status: status || 'Active',
       fullname,
-      email
+      email,
+      groupId
     });
 
     // Log action

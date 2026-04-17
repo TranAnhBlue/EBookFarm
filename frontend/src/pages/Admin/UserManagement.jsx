@@ -7,7 +7,8 @@ import {
   EditOutlined, 
   DeleteOutlined, 
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
+  MailOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -25,6 +26,12 @@ const UserManagement = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: () => api.get('/users').then(res => res.data.data)
+  });
+
+  // Fetch groups for selection
+  const { data: groups } = useQuery({
+    queryKey: ['groups'],
+    queryFn: () => api.get('/groups').then(res => res.data.data)
   });
 
   // Create/Update mutation
@@ -87,6 +94,16 @@ const UserManagement = () => {
         <Tag color={role === 'Admin' ? 'purple' : 'cyan'} className="rounded-md font-bold px-3">
           {role}
         </Tag>
+      )
+    },
+    {
+      title: 'Nhóm / HTX',
+      dataIndex: 'groupId',
+      key: 'groupId',
+      render: (group) => (
+        <Text italic className="text-gray-500">
+          {group?.name || 'Cá nhân / Tự do'}
+        </Text>
       )
     },
     {
@@ -264,6 +281,17 @@ const UserManagement = () => {
               </Select>
             </Form.Item>
           </div>
+
+          <Form.Item
+            name="groupId"
+            label="Nhóm / Hợp tác xã (Nếu có)"
+          >
+            <Select placeholder="Chọn nhóm sản xuất..." className="h-11 w-full" dropdownClassName="rounded-xl" allowClear>
+              {groups?.map(g => (
+                <Select.Option key={g._id} value={g._id}>{g.name}</Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
     </div>

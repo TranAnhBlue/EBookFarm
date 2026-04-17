@@ -76,6 +76,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Quản lý tài khoản</span>,
       children: [
         { key: '/admin/users', label: 'Danh sách tài khoản' },
+        { key: '/admin/groups', label: 'Cấu trúc nhóm' },
         { key: '/admin/rights', label: 'Danh sách quyền' },
         { key: '/admin/roles', label: 'Vai trò' },
       ],

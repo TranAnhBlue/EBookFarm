@@ -52,9 +52,14 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    // Check by email only
-    const user = await User.findOne({ email });
+    const { identifier, password } = req.body;
+    // Check by email or username
+    const user = await User.findOne({ 
+      $or: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    });
 
     if (user && user.status === 'Active' && (await user.matchPassword(password))) {
       res.json({
@@ -76,7 +81,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-export const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -101,7 +106,7 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-export const resetPassword = async (req, res) => {
+const resetPassword = async (req, res) => {
   try {
     const crypto = require('crypto');
     const resetPasswordToken = crypto

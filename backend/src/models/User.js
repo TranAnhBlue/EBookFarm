@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   googleId: { type: String, unique: true, sparse: true },
   role: { type: String, enum: ['Admin', 'User'], default: 'User' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, { timestamps: true });

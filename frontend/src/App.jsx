@@ -23,6 +23,7 @@ import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
+import GroupManagement from './pages/Admin/GroupManagement';
 
 import { useAuthStore } from './store/authStore';
 
@@ -87,6 +88,7 @@ const App = () => {
                 <Route path="admin/rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                 <Route path="admin/logs/access" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                 <Route path="admin/logs/changes" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
+                <Route path="admin/groups" element={<ProtectedRoute requireAdmin><GroupManagement /></ProtectedRoute>} />
                 <Route path="admin/customers" element={<ProtectedRoute requireAdmin><CustomerManagement /></ProtectedRoute>} />
                 <Route path="agriculture-models" element={<ProtectedRoute requireAdmin><AgricultureModels /></ProtectedRoute>} />
                 <Route path="admin/customer-rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
