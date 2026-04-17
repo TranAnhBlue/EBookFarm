@@ -6,7 +6,7 @@ const getUsers = async (req, res) => {
     const users = await User.find({}).select('-password').populate('groupId', 'name');
     res.json({ success: true, data: users });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách người dùng.' });
   }
 };
 
@@ -88,7 +88,10 @@ const createUser = async (req, res) => {
 
     res.status(201).json({ success: true, data: user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc email đã tồn tại.' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi khi tạo tài khoản mới.' });
   }
 };
 
@@ -102,13 +105,46 @@ const deleteUser = async (req, res) => {
       // Log action
       await createLog(req.user.id, 'Xóa tài khoản', req.params.id, 'User', { username });
 
-      res.json({ success: true, message: 'User removed' });
+      res.json({ success: true, message: 'Đã xóa người dùng thành công' });
     } else {
-      res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Lỗi khi xóa người dùng.' });
+  }
+}
+
+const bulkCreateUsers = async (req, res) => {
+  try {
+    const { users } = req.body;
+    const results = { count: 0, skipped: 0, errors: [] };
+
+    for (const userData of users) {
+      try {
+        const userExists = await User.findOne({ 
+          $or: [{ username: userData.username }, { email: userData.email }] 
+        });
+        
+        if (userExists) {
+          results.skipped++;
+          continue;
+        }
+
+        await User.create({
+          ...userData,
+          password: userData.password || '123456', // Mật khẩu mặc định
+          status: 'Active'
+        });
+        results.count++;
+      } catch (err) {
+        results.errors.push({ username: userData.username, error: err.message });
+      }
+    }
+
+    res.json({ success: true, data: results });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi khi xử lý nhập liệu hàng loạt.' });
   }
 };
 
-module.exports = { getUsers, updateUserRoleStatus, updateProfile, createUser, deleteUser };
+module.exports = { getUsers, updateUserRoleStatus, updateProfile, createUser, deleteUser, bulkCreateUsers };

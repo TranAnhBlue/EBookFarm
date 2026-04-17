@@ -13,7 +13,9 @@ import {
   SettingOutlined,
   BellOutlined,
   BorderOutlined,
-  LockOutlined
+  LockOutlined,
+  BarChartOutlined,
+  InboxOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown } from 'lucide-react';
 
@@ -40,6 +42,11 @@ const MainLayout = () => {
       key: '/dashboard',
       icon: <AppstoreOutlined className="text-lg" />,
       label: <span className="font-medium">Tổng quan</span>,
+    },
+    {
+      key: '/reports',
+      icon: <BarChartOutlined className="text-lg" />,
+      label: <span className="font-medium">Báo cáo & Thống kê</span>,
     },
     {
       key: '/account-info',
@@ -117,6 +124,11 @@ const MainLayout = () => {
       label: <span className="font-medium">Dashboard</span>,
     },
     {
+      key: '/reports',
+      icon: <BarChartOutlined className="text-lg" />,
+      label: <span className="font-medium">Báo cáo & Thống kê</span>,
+    },
+    {
       key: 'vietgap',
       icon: <CheckCircleOutlined className="text-lg text-green-500" />,
       label: <span className="font-medium">Sản xuất VietGAP</span>,
@@ -145,6 +157,11 @@ const MainLayout = () => {
         { key: '/thongminh/lua', label: 'Lúa' },
         { key: '/thongminh/chan-nuoi', label: 'Chăn nuôi' },
       ],
+    },
+    {
+      key: '/inventory/farmer',
+      icon: <InboxOutlined className="text-lg" />,
+      label: <span className="font-medium">Tồn kho</span>,
     },
     {
       key: '/journal',
@@ -279,7 +296,7 @@ const MainLayout = () => {
               placement="bottomRight"
               trigger={['click']}
               arrow={{ pointAtCenter: true }}
-              overlayClassName="premium-auth-dropdown"
+              classNames={{ root: 'premium-auth-dropdown' }}
             >
               <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
                 <Avatar

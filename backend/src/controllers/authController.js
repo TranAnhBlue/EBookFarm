@@ -43,10 +43,13 @@ const registerUser = async (req, res) => {
         }
       });
     } else {
-      res.status(400).json({ success: false, message: 'Invalid user data' });
+      res.status(400).json({ success: false, message: 'Dữ liệu không hợp lệ.' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Email hoặc tên đăng nhập đã tồn tại.' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đăng ký tài khoản.' });
   }
 };
 

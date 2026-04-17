@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Select, QRCode, Tag, Badge } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Table, Typography, Button, Space, Modal, Select, QRCode, Tag, Badge, Row, Col } from 'antd';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, DeleteOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined } from '@ant-design/icons';
+import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -13,6 +14,7 @@ const JournalList = () => {
   const [selectedSchema, setSelectedSchema] = useState();
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [currentQr, setCurrentQr] = useState('');
+  const [viewMode, setViewMode] = useState('card');
 
   const { data: journals, isLoading } = useQuery({ 
     queryKey: ['journals'], 
@@ -88,37 +90,111 @@ const JournalList = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div className="space-y-1">
-          <Title level={2} className="!mb-0 tracking-tight">Nhật ký sản xuất</Title>
-          <Text className="text-gray-400 font-medium">Quản lý và theo dõi toàn bộ lịch trình canh tác điện tử</Text>
+        <Title level={3} className="!mb-0 text-gray-800">Danh sách sổ nhật ký trồng trọt</Title>
+        <div className="flex gap-2">
+          <Button.Group className="shadow-sm rounded-lg overflow-hidden bg-white">
+            <Button 
+              type={viewMode === 'table' ? 'primary' : 'default'} 
+              icon={<BarsOutlined />} 
+              onClick={() => setViewMode('table')}
+              className={viewMode === 'table' ? 'bg-green-600 hover:bg-green-700' : 'text-gray-500'}
+            >
+              Xem ở dạng bảng
+            </Button>
+            <Button 
+              type={viewMode === 'card' ? 'primary' : 'default'} 
+              icon={<AppstoreOutlined />} 
+              onClick={() => setViewMode('card')}
+              className={viewMode === 'card' ? 'bg-green-600 hover:bg-green-700' : 'text-gray-500'}
+            >
+              Xem ở dạng thẻ
+            </Button>
+          </Button.Group>
         </div>
-        <Button 
-          type="primary" 
-          size="large" 
-          icon={<PlusOutlined />} 
-          onClick={() => setSchemaModalVisible(true)}
-          className="h-12 px-8 rounded-xl shadow-xl shadow-green-200 font-bold"
-        >
-          Tạo nhật ký mới
-        </Button>
       </div>
 
-      {/* Main Table Content */}
-      <Card bordered={false} className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-gray-50 rounded-[24px] overflow-hidden">
-        <div className="p-2">
-          <Table 
-            dataSource={journals} 
-            columns={columns} 
-            rowKey="_id" 
-            loading={isLoading} 
-            pagination={{ 
-              pageSize: 8, 
-              className: "px-6 py-4",
-              showSizeChanger: false
-            }}
-            className="premium-table-refined"
-          />
+      {/* Main Table/Card Content */}
+      <Card bordered={false} className="shadow-sm rounded-xl overflow-hidden border border-green-200 p-0" bodyStyle={{ padding: 0 }}>
+        {/* Toolbar in Card */}
+        <div className="p-4 flex justify-end items-center bg-white border-b border-green-200">
+           <Space>
+             <Button 
+               type="primary" 
+               icon={<PlusOutlined />} 
+               onClick={() => setSchemaModalVisible(true)}
+               className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
+             >
+               Tạo sổ nhật ký
+             </Button>
+             <Button icon={<QrcodeOutlined />} className="text-gray-500" />
+           </Space>
         </div>
+
+        {/* Card View */}
+        {viewMode === 'card' && (
+           <div className="p-6 bg-gray-50 min-h-[400px]">
+              <Row gutter={[24, 24]}>
+                 {journals?.map(journal => (
+                    <Col xs={24} sm={12} lg={8} key={journal._id}>
+                       <Card 
+                         hoverable 
+                         className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
+                         bodyStyle={{ padding: 0, display: 'flex', flexDirection: 'column', height: '100%' }}
+                       >
+                          <div className="p-5 flex-1 relative flex">
+                             <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
+                                <Leaf className="w-6 h-6" />
+                             </div>
+                             <div className="flex-1 space-y-3">
+                                 <div className="flex justify-between items-center mb-1">
+                                    <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0,6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
+                                 </div>
+                                 <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
+                                    <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
+                                    <div className="text-right"><Text strong>{journal.entries?.['Diện tích'] || '100 m2'}</Text></div>
+                                    
+                                    <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày bắt đầu:</div>
+                                    <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
+                                    
+                                    <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
+                                    <div className="text-right leading-tight"><Text strong>{journal.entries?.['Địa chỉ'] || journal.entries?.['Dia chi'] || 'Thôn Quyết Tiến, Thạch Xuân'}</Text></div>
+                                    
+                                    <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
+                                    <div className="text-right mt-2"><Text strong>{journal.schemaId?.name}</Text></div>
+                                    
+                                    <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Lô sản xuất:</div>
+                                    <div className="text-right"><Text strong>{journal.entries?.['Lô sản xuất'] || journal.entries?.['Lo san xuat'] || 'Không'}</Text></div>
+                                 </div>
+                             </div>
+                          </div>
+                          
+                          <div 
+                             className="p-3 text-center border-t border-gray-100 hover:bg-green-50 transition-colors cursor-pointer mt-auto bg-white"
+                             onClick={() => navigate(`/journal/edit/${journal._id}`)}
+                          >
+                             <Text className="text-green-600 font-medium">Vào sổ nhật ký <RightOutlined className="text-[10px] ml-1" /></Text>
+                          </div>
+                       </Card>
+                    </Col>
+                 ))}
+              </Row>
+           </div>
+        )}
+
+        {/* Table View */}
+        {viewMode === 'table' && (
+          <div className="p-0">
+            <Table 
+              dataSource={journals} 
+              columns={columns} 
+              rowKey="_id" 
+              loading={isLoading} 
+              pagination={{ pageSize: 8, className: "px-6 py-4" }}
+              className="border-0"
+              size="middle"
+            />
+          </div>
+        )}
       </Card>
 
       <Modal

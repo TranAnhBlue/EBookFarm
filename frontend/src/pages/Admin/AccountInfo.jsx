@@ -21,8 +21,8 @@ const AccountInfo = () => {
       return api.put('/users/profile', updateData);
     },
     onSuccess: (res) => {
+      setUser(res.data.data);
       message.success('Cập nhật hồ sơ thành công!');
-      setUser(res.data.data); // Update store
       queryClient.invalidateQueries(['users']);
     },
     onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')

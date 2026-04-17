@@ -6,7 +6,7 @@ const getGroups = async (req, res) => {
     const groups = await Group.find().populate('members', 'username fullname email');
     res.json({ success: true, data: groups });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Không thể lấy danh sách nhóm. Vui lòng thử lại sau.' });
   }
 };
 
@@ -22,7 +22,10 @@ const createGroup = async (req, res) => {
     
     res.status(201).json({ success: true, data: group });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Tên nhóm này đã tồn tại trên hệ thống.' });
+    }
+    res.status(500).json({ success: false, message: 'Lỗi khi tạo nhóm mới. Vui lòng kiểm tra lại thông tin.' });
   }
 };
 
@@ -52,7 +55,10 @@ const updateGroup = async (req, res) => {
 
     res.json({ success: true, data: group });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Tên nhóm mới bị trùng, vui lòng chọn tên khác.' });
+    }
+    res.status(500).json({ success: false, message: 'Không thể cập nhật thông tin nhóm.' });
   }
 };
 
@@ -67,7 +73,7 @@ const deleteGroup = async (req, res) => {
     await group.deleteOne();
     res.json({ success: true, message: 'Đã xóa nhóm thành công' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Lỗi khi xóa nhóm. Có thể nhóm đang được liên kết với dữ liệu khác.' });
   }
 };
 

@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import ExcelImport from '../../components/ExcelImport';
 
 const { Title, Text } = Typography;
 
@@ -34,6 +35,26 @@ const UserManagement = () => {
     queryFn: () => api.get('/groups').then(res => res.data.data)
   });
 
+  const importMutation = useMutation({
+    mutationFn: (users) => api.post('/users/bulk', { users }),
+    onSuccess: () => {
+      message.success('Đã nhập dữ liệu thành công!');
+      queryClient.invalidateQueries(['users']);
+    }
+  });
+
+  const excelColumns = [
+    { title: 'Tên đăng nhập', key: 'username' },
+    { title: 'Họ và tên', key: 'fullname' },
+    { title: 'Email', key: 'email' },
+    { title: 'Vai trò', key: 'role' }
+  ];
+
+  const userTemplate = [
+    { username: 'nguyenvana', fullname: 'Nguyễn Văn A', email: 'vana@ebookfarm.com', role: 'User' },
+    { username: 'tranvanc', fullname: 'Trần Văn C', email: 'vanc@ebookfarm.com', role: 'Farmer' }
+  ];
+
   // Create/Update mutation
   const mutation = useMutation({
     mutationFn: (values) => {
@@ -48,9 +69,6 @@ const UserManagement = () => {
       form.resetFields();
       setEditingUser(null);
       queryClient.invalidateQueries(['users']);
-    },
-    onError: (err) => {
-      message.error(err.response?.data?.message || 'Có lỗi xảy ra!');
     }
   });
 
@@ -172,23 +190,28 @@ const UserManagement = () => {
       </div>
 
       <Card bordered={false} className="shadow-sm rounded-[24px]">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-2">
+        <div className="flex justify-between items-center mb-6 bg-gray-50/50 p-4 rounded-3xl border border-gray-100/50">
+          <div className="flex gap-3">
             <Input 
               placeholder="Tìm kiếm..." 
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-64 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
               onChange={(e) => setSearchText(e.target.value)}
             />
-            <Button type="primary" className="h-10 rounded-xl px-6 bg-blue-500 hover:bg-blue-600 border-0 shadow-lg shadow-blue-100">Tìm kiếm</Button>
+            <ExcelImport 
+               title="Danh sách người dùng"
+               templateData={userTemplate}
+               columns={excelColumns}
+               onImport={(data) => importMutation.mutateAsync(data)}
+            />
           </div>
           <Button 
             type="primary" 
             icon={<PlusOutlined />} 
             onClick={() => setIsModalOpen(true)}
-            className="h-10 px-6 rounded-xl premium-gradient border-0 shadow-xl shadow-green-100 font-bold"
+            className="h-10 px-8 rounded-xl premium-gradient border-0 shadow-lg shadow-green-100 font-bold"
           >
-            Thêm mới
+            Thêm tài khoản mới
           </Button>
         </div>
 
