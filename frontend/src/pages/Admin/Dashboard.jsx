@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import 'moment/locale/vi';
 import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
+import { CalendarOutlined } from '@ant-design/icons';
 
 moment.locale('vi');
 
@@ -90,22 +92,22 @@ const Dashboard = () => {
 
   const quickAccessItems = user?.role === 'Admin' ? adminQuickAccess : farmerQuickAccess;
 
-  const newsItems = [
-    {
-      title: 'Hợp tác xã Krông Pắc đẩy mạnh xuất khẩu sầu riêng sang thị trường Trung Quốc',
-      description: 'Nhờ áp dụng nhật ký canh tác điện tử EBookFarm, các hộ nông dân tại Krông Pắc đã kiểm soát tốt quy trình VietGAP, giúp nâng cao giá trị thương phẩm...',
-      date: 'Hôm nay, 10:24',
-      image: 'https://images.unsplash.com/photo-1629851722883-9bd4b7b250de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'Sản xuất'
-    },
-    {
-      title: 'Xu hướng nông nghiệp thông minh: Chuyển đổi số trong quản lý trang trại',
-      description: 'Chuyên gia nông nghiệp nhận định việc quản lý dữ liệu realtime giúp giảm thiểu rủi ro dịch bệnh đến 30% và tiết kiệm 20% chi phí vật tư nông nghiệp...',
-      date: '16/04/2026',
-      image: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'Công nghệ'
+  // Fetch News
+  const { data: newsItems = [], isLoading: newsLoading } = useQuery({
+    queryKey: ['news'],
+    queryFn: async () => {
+      const { data } = await api.get('/news');
+      return data.data;
     }
-  ];
+  });
+
+  const [visibleNews, setVisibleNews] = useState(2);
+
+  const getFallbackImage = (category) => {
+    if (category === 'Công nghệ') return 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=800&q=80';
+    if (category === 'Thị trường') return 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80';
+    return 'https://images.unsplash.com/photo-1629851722883-9bd4b7b250de?auto=format&fit=crop&w=800&q=80';
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -117,7 +119,7 @@ const Dashboard = () => {
             {user?.role === 'Admin' ? 'Tổng quan hệ thống' : 'Tổng quan nông trại'}
           </Title>
           <Title level={2} className="!mb-0">Chào bạn, <span className="text-green-600">{user?.fullname || user?.username || 'Thành viên'}</span>! 👋</Title>
-          <Text className="text-gray-500 font-medium">Hôm nay là {moment().format('dddd, [ngày] D [tháng] M [năm] YYYY')}</Text>
+          <Text className="text-gray-500 font-medium whitespace-nowrap">Hôm nay là {new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}, ngày {moment().format('D [tháng] M [năm] YYYY')}</Text>
         </div>
         <Button icon={<CompassOutlined />} className="rounded-xl font-bold border-gray-200 text-gray-600 hover:text-green-600">Khám phá module</Button>
       </div>
@@ -136,7 +138,7 @@ const Dashboard = () => {
                     color="#22c55e"
                     text={<span className="font-bold text-gray-800 uppercase tracking-tight text-xs">Thời tiết {area?.areaName?.[0]?.value || 'Hà Nội'}</span>}
                   />
-                  <Text className="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full uppercase tracking-tighter">Real-time</Text>
+                  <Text className="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full uppercase tracking-tighter">Thời gian thực</Text>
                 </div>
 
                 <div className="flex items-center justify-between gap-4">
@@ -172,7 +174,7 @@ const Dashboard = () => {
                     {forecast.slice(1, 3).map((day, idx) => (
                       <React.Fragment key={idx}>
                         <div className="flex flex-col items-center">
-                          <Text className="text-[10px] text-gray-400 font-bold uppercase">{idx === 0 ? 'Ngày mai' : moment(day.date).format('dddd')}</Text>
+                          <Text className="text-[10px] text-gray-400 font-bold uppercase">{idx === 0 ? 'Ngày mai' : new Date(day.date).toLocaleDateString('vi-VN', { weekday: 'long' })}</Text>
                           {getWeatherIcon(day.hourly?.[4]?.weatherCode)}
                           <Text className="text-xs font-bold">{day.maxtempC}°</Text>
                         </div>
@@ -220,46 +222,83 @@ const Dashboard = () => {
       </Row>
 
       {/* News Section */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center px-2">
-          <Title level={4} className="!mb-0 !text-gray-800 font-bold">Tin tức hệ thống</Title>
-          <Button type="link" className="text-green-600 font-bold p-0">Tất cả bài viết <ArrowRightOutlined /></Button>
+      <div className="space-y-6">
+        <div className="text-center">
+          <Title level={3} className="!mb-2 !text-gray-800 font-bold">Tin tức</Title>
         </div>
 
-        <Row gutter={[24, 24]}>
-          {newsItems.map((news, index) => (
-            <Col xs={24} md={12} key={index}>
-              <div className="group flex flex-col sm:flex-row border border-gray-100 rounded-3xl overflow-hidden hover:shadow-xl hover:border-green-100 transition-all cursor-pointer bg-white h-auto sm:h-60">
-                <div className="w-full sm:w-2/5 shrink-0 relative overflow-hidden">
-                  <img
-                    src={news.image}
-                    alt="News"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute top-4 left-4 bg-green-500/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg backdrop-blur-sm uppercase tracking-widest">
-                    {news.category}
-                  </div>
-                </div>
-                <div className="w-full sm:w-3/5 p-6 flex flex-col justify-between">
-                  <div>
-                    <Text className="text-xs text-gray-400 font-bold mb-2 block">{news.date}</Text>
-                    <Title level={5} className="!text-gray-900 !mb-3 group-hover:text-green-600 transition-colors line-clamp-2 leading-snug">
-                      {news.title}
-                    </Title>
-                    <Paragraph className="text-gray-500 text-sm line-clamp-3 !mb-0 font-medium">
-                      {news.description}
-                    </Paragraph>
-                  </div>
-                  <div className="flex justify-end pt-4">
-                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-green-600 group-hover:text-white transition-all transform rotate-[-45deg] group-hover:rotate-0">
-                      <ArrowRightOutlined />
+        {newsLoading ? (
+          <Row gutter={[24, 24]}>
+            {[1, 2].map(i => (
+              <Col xs={24} lg={12} key={i}>
+                <Skeleton active avatar={{ size: 'large', shape: 'square' }} paragraph={{ rows: 3 }} />
+              </Col>
+            ))}
+          </Row>
+        ) : newsItems.length === 0 ? (
+          <div className="py-12 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-100 italic text-gray-400">
+            Chưa có tin tức mới nào được đăng tải.
+          </div>
+        ) : (
+          <>
+            <Row gutter={[24, 24]}>
+              {newsItems.slice(0, visibleNews).map((news, index) => (
+                <Col xs={24} lg={12} key={index}>
+                  <div
+                    onClick={() => navigate(`/news/${news._id}`)}
+                    className="group bg-white border border-gray-100 rounded-xl p-4 h-full hover:shadow-md transition-all flex flex-col sm:flex-row gap-5 cursor-pointer"
+                  >
+                    <div className="w-full sm:w-40 h-40 shrink-0 relative overflow-hidden rounded-xl">
+                      <img
+                        src={news.image || getFallbackImage(news.category)}
+                        alt="News"
+                        onError={(e) => { e.target.src = getFallbackImage(news.category); }}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div>
+                        <Title level={5} className="!text-gray-800 !mb-3 group-hover:text-green-600 transition-colors line-clamp-2 leading-snug">
+                          {news.title}
+                        </Title>
+                        <Paragraph className="text-gray-500 text-sm line-clamp-3 !mb-0 font-normal leading-relaxed">
+                          {news.summary}
+                        </Paragraph>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-4 mt-auto border-t border-gray-50">
+                        <Text className="text-[11px] text-gray-400 font-medium">
+                          {new Date(news.publishedAt).toLocaleDateString('vi-VN')} {new Date(news.publishedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
+                        <Button
+                          type="link"
+                          size="small"
+                          className="text-green-600 font-bold p-0 flex items-center gap-1 hover:gap-2 transition-all"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/news/${news._id}`); }}
+                        >
+                          Xem chi tiết <ArrowRightOutlined className="text-[10px]" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Col>
+              ))}
+            </Row>
+
+            {visibleNews < newsItems.length && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  size="large"
+                  onClick={() => setVisibleNews(prev => prev + 2)}
+                  className="bg-green-600 hover:bg-green-700 !text-white rounded-lg h-10 px-8 font-bold border-0 shadow-lg shadow-green-100 flex items-center justify-center transition-all hover:scale-105"
+                >
+                  Xem thêm
+                </Button>
               </div>
-            </Col>
-          ))}
-        </Row>
+            )}
+          </>
+        )}
       </div>
 
     </div>

@@ -61,6 +61,11 @@ const MainLayout = () => {
       label: <span className="font-medium">Biểu mẫu nhật ký</span>,
     },
     {
+      key: '/admin/news',
+      icon: <FileTextOutlined className="text-lg" />,
+      label: <span className="font-medium">Quản lý tin tức</span>,
+    },
+    {
       key: '/agriculture-models',
       icon: <GlobalOutlined className="text-lg" />,
       label: <span className="font-medium">Mô hình nông nghiệp</span>,
@@ -133,7 +138,7 @@ const MainLayout = () => {
     {
       key: 'vietgap',
       icon: <Sprout className="w-[18px] h-[18px] text-green-600" />,
-      label: <span className="text-green-600 text-[15px]">Sản xuất VietGAP</span>,
+      label: <span className="font-medium">Sản xuất VietGAP</span>,
       className: 'custom-farmer-submenu',
       children: [
         { key: '/vietgap/trong-trot', label: 'VietGAP Trồng trọt' },
@@ -144,7 +149,7 @@ const MainLayout = () => {
     {
       key: 'huuco',
       icon: <Leaf className="w-5 h-5 text-green-600" />,
-      label: <span className="text-green-600 text-[15px]">Nông nghiệp hữu cơ</span>,
+      label: <span className="font-medium">Nông nghiệp hữu cơ</span>,
       className: 'custom-farmer-submenu',
       children: [
         { key: '/huuco/cay-trong', label: 'Cây trồng' },
@@ -155,7 +160,7 @@ const MainLayout = () => {
     {
       key: 'thongminh',
       icon: <RefreshCcw className="w-[18px] h-[18px] text-green-600" />,
-      label: <span className="text-green-600 text-[15px] truncate">Nông nghiệp thông minh</span>,
+      label: <span className="font-medium">Nông nghiệp thông minh</span>,
       className: 'custom-farmer-submenu',
       children: [
         { key: '/thongminh/rau-cu-qua', label: 'Rau củ quả' },
@@ -232,7 +237,7 @@ const MainLayout = () => {
         className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
       >
         {/* Logo/Branding Section - Fixed at top */}
-        <div 
+        <div
           className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300 cursor-pointer hover:bg-gray-50/50"
           onClick={() => navigate('/')}
         >

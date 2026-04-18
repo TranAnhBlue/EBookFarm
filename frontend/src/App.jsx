@@ -26,6 +26,9 @@ import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
 import GroupManagement from './pages/Admin/GroupManagement';
 import BackupMgmt from './pages/Admin/BackupMgmt';
+import NewsManagement from './pages/Admin/NewsManagement';
+import NewsListAll from './pages/News/NewsListAll';
+import NewsDetail from './pages/News/NewsDetail';
 import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
 import NotFound from './pages/Auth/NotFound';
@@ -117,9 +120,14 @@ const App = () => {
                   <Route path="admin/customers" element={<ProtectedRoute requireAdmin><CustomerManagement /></ProtectedRoute>} />
                   <Route path="admin/customer-rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                   <Route path="admin/config/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
+                  <Route path="admin/news" element={<ProtectedRoute requireAdmin><NewsManagement /></ProtectedRoute>} />
                   <Route path="agriculture-models" element={<ProtectedRoute requireAdmin><AgricultureModels /></ProtectedRoute>} />
                   <Route path="inventory/items" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
                   <Route path="inventory/models" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
+
+                  {/* News routes */}
+                  <Route path="news" element={<ProtectedRoute><NewsListAll /></ProtectedRoute>} />
+                  <Route path="news/:id" element={<ProtectedRoute><NewsDetail /></ProtectedRoute>} />
 
                   {/* Farmer-only routes (Category-based nesting) */}
                   <Route path="vietgap/:subCategory">

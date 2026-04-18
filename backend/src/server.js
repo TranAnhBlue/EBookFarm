@@ -13,6 +13,7 @@ const agriModelRoutes = require('./routes/agriModelRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const systemRoutes = require('./routes/systemRoutes');
+const newsRoutes = require('./routes/newsRoutes');
 
 dotenv.config();
 
@@ -21,6 +22,11 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -32,6 +38,7 @@ app.use('/api/agri-models', agriModelRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/news', newsRoutes);
 
 connectDB();
 
