@@ -122,7 +122,7 @@ const CustomerManagement = () => {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
            <HomeOutlined />
-           <span>Dashboard</span>
+           <span>Tổng quan</span>
            <span className="text-gray-200">/</span>
            <span className="text-green-600">Quản lý khách hàng</span>
         </div>

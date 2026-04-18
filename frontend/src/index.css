@@ -133,3 +133,35 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Custom Farmer Submenu Styling matching reference */
+.custom-farmer-submenu .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: #16a34a !important;
+}
+
+.custom-farmer-submenu.ant-menu-submenu-open > .ant-menu-submenu-title {
+  background: transparent !important;
+}
+
+.custom-farmer-submenu .ant-menu-sub.ant-menu-inline {
+  background: #fafafa !important;
+}
+
+.custom-farmer-submenu .ant-menu-sub.ant-menu-inline .ant-menu-item {
+  color: #1f2937 !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+  padding-left: 56px !important;
+}
+
+.custom-farmer-submenu .ant-menu-sub.ant-menu-inline .ant-menu-item:hover {
+  background: #f3f4f6 !important;
+}
+
+.custom-farmer-submenu .ant-menu-sub.ant-menu-inline .ant-menu-item-selected {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+  font-weight: 600 !important;
+}

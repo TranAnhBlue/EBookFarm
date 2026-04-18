@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Input, Button, Modal, Form, Select, message, Badge, Popconfirm, InputNumber } from 'antd';
-import { 
-  HomeOutlined, 
-  SearchOutlined, 
-  PlusOutlined, 
+import {
+  HomeOutlined,
+  SearchOutlined,
+  PlusOutlined,
   AlertOutlined,
   EditOutlined,
   DeleteOutlined,
@@ -118,18 +118,18 @@ const AdminInventory = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Button 
-            type="text" 
-            icon={<SwapOutlined />} 
+          <Button
+            type="text"
+            icon={<SwapOutlined />}
             className="text-orange-500 hover:bg-orange-50 rounded-lg"
             onClick={() => {
               setSelectedItem(record);
               setIsStockModalOpen(true);
             }}
           />
-          <Button 
-            type="text" 
-            icon={<EditOutlined />} 
+          <Button
+            type="text"
+            icon={<EditOutlined />}
             className="text-blue-500 hover:bg-blue-50 rounded-lg"
             onClick={() => {
               setEditingItem(record);
@@ -145,10 +145,10 @@ const AdminInventory = () => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
               className="hover:bg-red-50 rounded-lg"
             />
           </Popconfirm>
@@ -161,10 +161,10 @@ const AdminInventory = () => {
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
-           <HomeOutlined />
-           <span>Dashboard</span>
-           <span className="text-gray-200">/</span>
-           <span className="text-green-600">Quản lý kho vật tư</span>
+          <HomeOutlined />
+          <span>Tổng quan</span>
+          <span className="text-gray-200">/</span>
+          <span className="text-green-600">Quản lý kho vật tư</span>
         </div>
         <Title level={4} className="!mb-0">Danh mục kho tổng</Title>
       </div>
@@ -172,16 +172,16 @@ const AdminInventory = () => {
       <Card bordered={false} className="shadow-sm rounded-[24px]">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-2">
-            <Input 
-              placeholder="Tìm kiếm vật tư..." 
+            <Input
+              placeholder="Tìm kiếm vật tư..."
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-64 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
               onChange={e => setSearchText(e.target.value)}
             />
           </div>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
             className="h-10 px-6 rounded-xl premium-gradient border-0 shadow-lg shadow-green-100 font-bold"
           >
@@ -189,10 +189,10 @@ const AdminInventory = () => {
           </Button>
         </div>
 
-        <Table 
-          columns={columns} 
-          dataSource={items?.filter(i => i.name.toLowerCase().includes(searchText.toLowerCase()))} 
-          rowKey="_id" 
+        <Table
+          columns={columns}
+          dataSource={items?.filter(i => i.name.toLowerCase().includes(searchText.toLowerCase()))}
+          rowKey="_id"
           loading={isLoading}
           pagination={{ pageSize: 8 }}
           className="premium-table-refined"
@@ -226,7 +226,7 @@ const AdminInventory = () => {
           >
             <Input className="h-11 rounded-lg" placeholder="Ví dụ: Phân bón NPK 20-20-15" />
           </Form.Item>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="category"
@@ -241,7 +241,7 @@ const AdminInventory = () => {
                 <Select.Option value="Khác">Khác</Select.Option>
               </Select>
             </Form.Item>
-            
+
             <Form.Item
               name="unit"
               label="Đơn vị tính"
@@ -259,7 +259,7 @@ const AdminInventory = () => {
             >
               <InputNumber className="w-full h-11 rounded-lg flex items-center" min={0} />
             </Form.Item>
-            
+
             <Form.Item
               name="minQuantity"
               label="Số lượng tối thiểu (Cảnh báo)"
@@ -292,11 +292,11 @@ const AdminInventory = () => {
           className="mt-4"
         >
           <div className="bg-gray-50 p-4 rounded-xl mb-6 flex justify-between items-center border border-gray-100">
-             <div>
-               <Text type="secondary" className="text-xs block">Tồn kho hiện tại</Text>
-               <Text strong className="text-lg">{selectedItem?.quantity} {selectedItem?.unit}</Text>
-             </div>
-             <Tractor className="w-8 h-8 text-green-500/30" />
+            <div>
+              <Text type="secondary" className="text-xs block">Tồn kho hiện tại</Text>
+              <Text strong className="text-lg">{selectedItem?.quantity} {selectedItem?.unit}</Text>
+            </div>
+            <Tractor className="w-8 h-8 text-green-500/30" />
           </div>
 
           <Form.Item

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Tag, Input, Modal, Form, Select, message, Popconfirm, Breadcrumb, Divider } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
   TeamOutlined,
   HomeOutlined,
   UnlockOutlined,
@@ -88,9 +88,9 @@ const GroupManagement = () => {
             </div>
           ))}
           {members?.length > 3 && (
-             <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-400">
-               +{members.length - 3}
-             </div>
+            <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-400">
+              +{members.length - 3}
+            </div>
           )}
           <Text className="ml-3 text-xs text-gray-400 font-medium">{members?.length || 0} người</Text>
         </div>
@@ -115,9 +115,9 @@ const GroupManagement = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Button 
-            type="text" 
-            icon={<EditOutlined />} 
+          <Button
+            type="text"
+            icon={<EditOutlined />}
             className="text-blue-500 hover:bg-blue-50 rounded-lg"
             onClick={() => {
               setEditingGroup(record);
@@ -136,10 +136,10 @@ const GroupManagement = () => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
               className="hover:bg-red-50 rounded-lg"
             />
           </Popconfirm>
@@ -148,7 +148,7 @@ const GroupManagement = () => {
     }
   ];
 
-  const filteredData = groups?.filter(g => 
+  const filteredData = groups?.filter(g =>
     g.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -156,10 +156,10 @@ const GroupManagement = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
-           <HomeOutlined />
-           <span>Dashboard</span>
-           <span className="text-gray-200">/</span>
-           <span className="text-green-600 font-bold">Cấu trúc Nhóm</span>
+          <HomeOutlined />
+          <span>Tổng quan</span>
+          <span className="text-gray-200">/</span>
+          <span className="text-green-600 font-bold">Cấu trúc Nhóm</span>
         </div>
         <Title level={3} className="!mb-0 flex items-center gap-3">
           <TeamOutlined className="text-green-500" /> Quản lý nhóm người dùng
@@ -169,16 +169,16 @@ const GroupManagement = () => {
       <Card bordered={false} className="shadow-2xl shadow-gray-100 rounded-[32px] border-white/50 bg-white/80 backdrop-blur-xl overflow-hidden">
         <div className="flex justify-between items-center mb-8 p-1">
           <div className="flex gap-3">
-            <Input 
-              placeholder="Tìm tên nhóm..." 
+            <Input
+              placeholder="Tìm tên nhóm..."
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-72 h-12 rounded-2xl border-gray-100 hover:border-green-300 focus:border-green-500 shadow-sm"
               onChange={(e) => setSearchText(e.target.value)}
             />
           </div>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
             onClick={() => {
               setEditingGroup(null);
               form.resetFields();
@@ -190,10 +190,10 @@ const GroupManagement = () => {
           </Button>
         </div>
 
-        <Table 
-          columns={columns} 
-          dataSource={filteredData} 
-          rowKey="_id" 
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="_id"
           loading={isLoading}
           pagination={{ pageSize: 8, className: "px-6 pb-4" }}
           className="premium-table-refined"
@@ -271,9 +271,9 @@ const GroupManagement = () => {
             name="members"
             label={<Text strong className="text-gray-600">Chọn thành viên tham gia</Text>}
           >
-            <Select 
-              mode="multiple" 
-              placeholder="Tìm kiếm người dùng..." 
+            <Select
+              mode="multiple"
+              placeholder="Tìm kiếm người dùng..."
               className="w-full"
               dropdownClassName="rounded-xl"
               optionFilterProp="children"

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Tag, Input, Modal, Form, Select, message, Popconfirm, Breadcrumb } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
   UserOutlined,
   HomeOutlined,
   MailOutlined
@@ -129,8 +129,8 @@ const UserManagement = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <Tag 
-          color={status === 'Active' ? 'success' : 'default'} 
+        <Tag
+          color={status === 'Active' ? 'success' : 'default'}
           className="rounded-full px-4 border-0 font-bold"
         >
           {status === 'Active' ? 'Hoạt động' : 'Tạm khóa'}
@@ -142,9 +142,9 @@ const UserManagement = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Button 
-            type="text" 
-            icon={<EditOutlined />} 
+          <Button
+            type="text"
+            icon={<EditOutlined />}
             className="text-blue-500 hover:bg-blue-50 rounded-lg"
             onClick={() => {
               setEditingUser(record);
@@ -160,10 +160,10 @@ const UserManagement = () => {
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
           >
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
               className="hover:bg-red-50 rounded-lg"
             />
           </Popconfirm>
@@ -172,7 +172,7 @@ const UserManagement = () => {
     }
   ];
 
-  const filteredData = users?.filter(u => 
+  const filteredData = users?.filter(u =>
     u.username.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -181,10 +181,10 @@ const UserManagement = () => {
       {/* Breadcrumb Section */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
-           <HomeOutlined />
-           <span>Dashboard</span>
-           <span className="text-gray-200">/</span>
-           <span className="text-green-600">Tài khoản quản trị</span>
+          <HomeOutlined />
+          <span>Tổng quan</span>
+          <span className="text-gray-200">/</span>
+          <span className="text-green-600">Tài khoản quản trị</span>
         </div>
         <Title level={4} className="!mb-0">Danh sách</Title>
       </div>
@@ -192,22 +192,22 @@ const UserManagement = () => {
       <Card bordered={false} className="shadow-sm rounded-[24px]">
         <div className="flex justify-between items-center mb-6 bg-gray-50/50 p-4 rounded-3xl border border-gray-100/50">
           <div className="flex gap-3">
-            <Input 
-              placeholder="Tìm kiếm..." 
+            <Input
+              placeholder="Tìm kiếm..."
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-64 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
               onChange={(e) => setSearchText(e.target.value)}
             />
-            <ExcelImport 
-               title="Danh sách người dùng"
-               templateData={userTemplate}
-               columns={excelColumns}
-               onImport={(data) => importMutation.mutateAsync(data)}
+            <ExcelImport
+              title="Danh sách người dùng"
+              templateData={userTemplate}
+              columns={excelColumns}
+              onImport={(data) => importMutation.mutateAsync(data)}
             />
           </div>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
             className="h-10 px-8 rounded-xl premium-gradient border-0 shadow-lg shadow-green-100 font-bold"
           >
@@ -215,10 +215,10 @@ const UserManagement = () => {
           </Button>
         </div>
 
-        <Table 
-          columns={columns} 
-          dataSource={filteredData} 
-          rowKey="_id" 
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="_id"
           loading={isLoading}
           pagination={{ pageSize: 8, className: "px-2" }}
           className="premium-table-refined"
@@ -261,7 +261,7 @@ const UserManagement = () => {
             >
               <Input prefix={<UserOutlined />} className="h-11 rounded-lg" disabled={!!editingUser} />
             </Form.Item>
-            
+
             <Form.Item
               name="email"
               label="Email"
@@ -270,7 +270,7 @@ const UserManagement = () => {
               <Input prefix={<MailOutlined className="text-gray-400" />} placeholder="admin@gmail.com" className="h-11 rounded-lg" />
             </Form.Item>
           </div>
-          
+
           {!editingUser && (
             <Form.Item
               name="password"

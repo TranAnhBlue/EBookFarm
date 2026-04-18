@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Space, Modal, Form, Input, Select, message, Popconfirm, Empty, Spin } from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  HomeOutlined, 
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  HomeOutlined,
   NodeIndexOutlined,
   BlockOutlined,
   TagOutlined
@@ -109,27 +109,27 @@ const AgricultureModels = () => {
               <TagOutlined className="text-xs opacity-50" />
             )}
           </Space>
-          
+
           <Space>
             {btnLabel && (
-              <Button 
-                type="primary" 
-                size="small" 
+              <Button
+                type="primary"
+                size="small"
                 className="text-[10px] font-bold h-7 rounded-md px-4"
                 onClick={() => handleAdd(level + 1, node._id)}
               >
                 {btnLabel}
               </Button>
             )}
-            <Button 
-              size="small" 
-              icon={<EditOutlined />} 
-              type="text" 
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              type="text"
               className="text-blue-600 hover:bg-white"
               onClick={() => handleEdit(node)}
             />
-            <Popconfirm 
-              title="Xác nhận xóa?" 
+            <Popconfirm
+              title="Xác nhận xóa?"
               description="Hành động này sẽ xóa cả các thư mục con."
               onConfirm={() => deleteMutation.mutate(node._id)}
               okText="Xóa"
@@ -140,7 +140,7 @@ const AgricultureModels = () => {
             </Popconfirm>
           </Space>
         </div>
-        
+
         {node.children && node.children.map(child => (
           <RenderNode key={child._id} node={child} level={level + 1} />
         ))}
@@ -152,21 +152,21 @@ const AgricultureModels = () => {
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
-           <HomeOutlined />
-           <span>Dashboard</span>
-           <span className="text-gray-200">/</span>
-           <span className="text-green-600">Mô hình nông nghiệp</span>
+          <HomeOutlined />
+          <span>Tổng quan</span>
+          <span className="text-gray-200">/</span>
+          <span className="text-green-600">Mô hình nông nghiệp</span>
         </div>
         <div className="flex justify-between items-center">
-            <Title level={4} className="!mb-0">Cây phân cấp mô hình sản xuất</Title>
-            <Button 
-                type="primary" 
-                icon={<PlusOutlined />} 
-                className="premium-gradient border-0 rounded-lg font-bold h-10 px-6 shadow-lg shadow-green-100"
-                onClick={() => handleAdd(0)}
-            >
-                Thêm mới mô hình nông nghiệp
-            </Button>
+          <Title level={4} className="!mb-0">Cây phân cấp mô hình sản xuất</Title>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="premium-gradient border-0 rounded-lg font-bold h-10 px-6 shadow-lg shadow-green-100"
+            onClick={() => handleAdd(0)}
+          >
+            Thêm mới mô hình nông nghiệp
+          </Button>
         </div>
       </div>
 
@@ -213,8 +213,8 @@ const AgricultureModels = () => {
               label="Gắn liên kết Biểu mẫu Nhật ký"
               tooltip="Đối tượng sản xuất cuối cùng cần có một biểu mẫu nhật ký đi kèm."
             >
-              <Select 
-                placeholder="Chọn biểu mẫu nhật ký..." 
+              <Select
+                placeholder="Chọn biểu mẫu nhật ký..."
                 className="h-11 rounded-lg"
                 options={schemas?.map(s => ({ value: s._id, label: s.name }))}
               />
@@ -226,7 +226,7 @@ const AgricultureModels = () => {
             label="Thứ tự hiển thị"
             initialValue={0}
           >
-             <Input type="number" className="h-11 rounded-lg" />
+            <Input type="number" className="h-11 rounded-lg" />
           </Form.Item>
         </Form>
       </Modal>

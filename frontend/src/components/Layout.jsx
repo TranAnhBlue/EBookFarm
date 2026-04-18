@@ -15,9 +15,11 @@ import {
   BorderOutlined,
   LockOutlined,
   BarChartOutlined,
-  InboxOutlined
+  InboxOutlined,
+  ReadOutlined
 } from '@ant-design/icons';
-import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown } from 'lucide-react';
+import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
+import logoImg from '../assets/logo-ebookfarm.jpg';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -130,18 +132,20 @@ const MainLayout = () => {
     },
     {
       key: 'vietgap',
-      icon: <CheckCircleOutlined className="text-lg text-green-500" />,
-      label: <span className="font-medium">Sản xuất VietGAP</span>,
+      icon: <Sprout className="w-[18px] h-[18px] text-green-600" />,
+      label: <span className="text-green-600 text-[15px]">Sản xuất VietGAP</span>,
+      className: 'custom-farmer-submenu',
       children: [
         { key: '/vietgap/trong-trot', label: 'VietGAP Trồng trọt' },
-        { key: '/vietgap/chan-nuoi', label: 'VietGAHP Chăn nuôi' },
+        { key: '/vietgap/chan-nuoi', label: 'VietGAP Chăn nuôi' },
         { key: '/vietgap/thuy-san', label: 'VietGAP Thủy sản' },
       ],
     },
     {
       key: 'huuco',
-      icon: <Leaf className="w-5 h-5 text-green-500" />,
-      label: <span className="font-medium">Nông nghiệp hữu cơ</span>,
+      icon: <Leaf className="w-5 h-5 text-green-600" />,
+      label: <span className="text-green-600 text-[15px]">Nông nghiệp hữu cơ</span>,
+      className: 'custom-farmer-submenu',
       children: [
         { key: '/huuco/cay-trong', label: 'Cây trồng' },
         { key: '/huuco/chan-nuoi', label: 'Chăn nuôi' },
@@ -150,8 +154,9 @@ const MainLayout = () => {
     },
     {
       key: 'thongminh',
-      icon: <GlobalOutlined className="text-lg text-green-500" />,
-      label: <span className="font-medium">Nông nghiệp thông minh</span>,
+      icon: <RefreshCcw className="w-[18px] h-[18px] text-green-600" />,
+      label: <span className="text-green-600 text-[15px] truncate">Nông nghiệp thông minh</span>,
+      className: 'custom-farmer-submenu',
       children: [
         { key: '/thongminh/rau-cu-qua', label: 'Rau củ quả' },
         { key: '/thongminh/lua', label: 'Lúa' },
@@ -164,9 +169,9 @@ const MainLayout = () => {
       label: <span className="font-medium">Tồn kho</span>,
     },
     {
-      key: '/journal',
-      icon: <FileTextOutlined className="text-lg" />,
-      label: <span className="font-medium">Nhật ký sản xuất</span>,
+      key: '/docs',
+      icon: <ReadOutlined className="text-lg" />,
+      label: <span className="font-medium">Tiêu chuẩn & Quy trình</span>,
     },
   ];
 
@@ -229,21 +234,15 @@ const MainLayout = () => {
         {/* Logo/Branding Section - Fixed at top */}
         <div className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300">
           {collapsed ? (
-            <div className="w-10 h-10 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
-              <Leaf className="w-6 h-6" />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src={logoImg} alt="Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 premium-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200 shrink-0">
-                <Leaf className="w-7 h-7" />
-              </div>
-              <div className="flex flex-col">
-                <Text className="text-green-600 font-bold text-base tracking-tight leading-tight">
-                  NHẬT KÝ SẢN XUẤT
-                </Text>
-                <Text className="text-gray-400 font-semibold text-[10px] tracking-widest uppercase mb-0">
-                  EBOOK FARM <span className="text-green-400">●</span> AI
-                </Text>
+            <div className="flex items-center gap-4 w-full justify-center">
+              <img src={logoImg} alt="EBook Farm Logo" className="w-[65px] h-[65px] object-contain mix-blend-multiply" />
+              <div className="flex flex-col text-center">
+                <span className="text-green-600 font-bold text-[15px] leading-[1.2]">NHẬT KÝ SẢN XUẤT</span>
+                <span className="text-green-600 font-bold text-[15px] leading-[1.2]">ĐIỆN TỬ</span>
               </div>
             </div>
           )}

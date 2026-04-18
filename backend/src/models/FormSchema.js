@@ -16,6 +16,11 @@ const FormTableSchema = new mongoose.Schema({
 const formSchemaSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
+  category: { 
+    type: String, 
+    enum: ['trongtrot', 'channuoi', 'thuyssan', 'huuco', 'huuco_caytrong', 'huuco_channuoi', 'huuco_thuyssan', 'thongminh'],
+    default: 'trongtrot'
+  },
   tables: [FormTableSchema]
 }, { timestamps: true });
 

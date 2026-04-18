@@ -28,15 +28,28 @@ import GroupManagement from './pages/Admin/GroupManagement';
 import BackupMgmt from './pages/Admin/BackupMgmt';
 import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
+import NotFound from './pages/Auth/NotFound';
+import Forbidden from './pages/Auth/Forbidden';
 
 import { useAuthStore } from './store/authStore';
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children, requireAdmin }) => {
+// Redirect về đúng trang của mỗi role sau khi đăng nhập
+const RoleBasedRedirect = () => {
+  const { user } = useAuthStore();
+  if (user?.role === 'Admin') return <Navigate to="/dashboard" replace />;
+  return <Navigate to="/dashboard" replace />;
+};
+
+// Bảo vệ route có phân quyền
+const ProtectedRoute = ({ children, requireAdmin, farmerOnly }) => {
   const { user } = useAuthStore();
   if (!user) return <Navigate to="/login" replace />;
-  if (requireAdmin && user.role !== 'Admin') return <Navigate to="/journal" replace />;
+  // Admin cố tình vào trang Farmer-only → hiện 403
+  if (farmerOnly && user.role === 'Admin') return <Navigate to="/403" replace />;
+  // Farmer cố vào trang Admin-only → hiện 403
+  if (requireAdmin && user.role !== 'Admin') return <Navigate to="/403" replace />;
   return children;
 };
 
@@ -44,9 +57,9 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID_HERE">
-        <ConfigProvider 
-          theme={{ 
-            token: { 
+        <ConfigProvider
+          theme={{
+            token: {
               colorPrimary: '#22c55e',
               borderRadius: 12,
               fontFamily: "'Outfit', sans-serif",
@@ -75,41 +88,51 @@ const App = () => {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/trace/:qrCode" element={<JournalTrace />} />
+                <Route path="/403" element={<Forbidden />} />
+                <Route path="/404" element={<NotFound />} />
+                {/* Top-level catch-all 404 */}
+                <Route path="*" element={<NotFound />} />
 
                 <Route path="/" element={
                   <ProtectedRoute>
                     <MainLayout />
                   </ProtectedRoute>
                 }>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
+                  <Route index element={<RoleBasedRedirect />} />
                   <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="account-info" element={<AccountInfo />} />
+                  <Route path="change-password" element={<ChangePassword />} />
+
+                  {/* Admin-only routes */}
                   <Route path="form-builder" element={<ProtectedRoute requireAdmin><FormBuilder /></ProtectedRoute>} />
                   <Route path="admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
-                  <Route path="account-info" element={<ProtectedRoute><AccountInfo /></ProtectedRoute>} />
                   <Route path="admin/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
                   <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
-                  <Route path="change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                   <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                   <Route path="admin/rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                   <Route path="admin/logs/access" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                   <Route path="admin/logs/changes" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                   <Route path="admin/groups" element={<ProtectedRoute requireAdmin><GroupManagement /></ProtectedRoute>} />
                   <Route path="admin/customers" element={<ProtectedRoute requireAdmin><CustomerManagement /></ProtectedRoute>} />
-                  <Route path="agriculture-models" element={<ProtectedRoute requireAdmin><AgricultureModels /></ProtectedRoute>} />
                   <Route path="admin/customer-rights" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
+                  <Route path="admin/config/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
+                  <Route path="agriculture-models" element={<ProtectedRoute requireAdmin><AgricultureModels /></ProtectedRoute>} />
                   <Route path="inventory/items" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
                   <Route path="inventory/models" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
-                  <Route path="admin/config/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
-                  <Route path="journal" element={<JournalList />} />
-                  <Route path="journal/new/:schemaId" element={<JournalEntry />} />
-                  <Route path="journal/edit/:id" element={<JournalEntry />} />
-                  
-                  {/* Farmer Specific Routes */}
-                  <Route path="vietgap/*" element={<ProductionTech />} />
-                  <Route path="huuco/*" element={<ProductionTech />} />
-                  <Route path="thongminh/*" element={<ProductionTech />} />
-                  <Route path="inventory/farmer" element={<FarmerInventory />} />
+
+                  {/* Farmer-only routes (Admin bị redirect về dashboard) */}
+                  <Route path="journal" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                  <Route path="journal/new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  <Route path="journal/edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  <Route path="vietgap/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                  <Route path="huuco/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                  <Route path="thongminh/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                  <Route path="docs" element={<ProtectedRoute farmerOnly><ProductionTech /></ProtectedRoute>} />
+                  <Route path="inventory/farmer" element={<ProtectedRoute farmerOnly><FarmerInventory /></ProtectedRoute>} />
+
+                  {/* Catch-all: 404 */}
+                  <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
             </Router>

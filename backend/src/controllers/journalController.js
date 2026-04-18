@@ -16,8 +16,19 @@ const createJournal = async (req, res) => {
 const getJournals = async (req, res) => {
   try {
     const filter = req.user.role === 'Admin' ? {} : { userId: req.user._id };
-    const journals = await FarmJournal.find(filter).populate('schemaId', 'name').populate('userId', 'username');
-    res.json({ success: true, data: journals });
+
+    // Lấy tất cả journals với category của schema
+    const journals = await FarmJournal.find(filter)
+      .populate('schemaId', 'name category')
+      .populate('userId', 'username');
+
+    // Nếu có query ?category= thì lọc theo category của schema
+    const { category } = req.query;
+    const result = category
+      ? journals.filter(j => j.schemaId?.category === category)
+      : journals;
+
+    res.json({ success: true, data: result });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
