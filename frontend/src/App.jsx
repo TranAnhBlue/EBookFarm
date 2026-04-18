@@ -121,13 +121,25 @@ const App = () => {
                   <Route path="inventory/items" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
                   <Route path="inventory/models" element={<ProtectedRoute requireAdmin><AdminInventory /></ProtectedRoute>} />
 
-                  {/* Farmer-only routes (Admin bị redirect về dashboard) */}
-                  <Route path="journal" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                  <Route path="journal/new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                  <Route path="journal/edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                  <Route path="vietgap/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                  <Route path="huuco/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                  <Route path="thongminh/*" element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                  {/* Farmer-only routes (Category-based nesting) */}
+                  <Route path="vietgap/:subCategory">
+                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  </Route>
+
+                  <Route path="huuco/:subCategory">
+                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  </Route>
+
+                  <Route path="thongminh/:subCategory">
+                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  </Route>
+
                   <Route path="docs" element={<ProtectedRoute farmerOnly><ProductionTech /></ProtectedRoute>} />
                   <Route path="inventory/farmer" element={<ProtectedRoute farmerOnly><FarmerInventory /></ProtectedRoute>} />
 

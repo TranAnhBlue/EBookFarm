@@ -123,7 +123,7 @@ const MainLayout = () => {
     {
       key: '/dashboard',
       icon: <AppstoreOutlined className="text-lg" />,
-      label: <span className="font-medium">Dashboard</span>,
+      label: <span className="font-medium">Tổng quan</span>,
     },
     {
       key: '/reports',
@@ -232,7 +232,10 @@ const MainLayout = () => {
         className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
       >
         {/* Logo/Branding Section - Fixed at top */}
-        <div className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300">
+        <div 
+          className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300 cursor-pointer hover:bg-gray-50/50"
+          onClick={() => navigate('/')}
+        >
           {collapsed ? (
             <div className="w-10 h-10 flex items-center justify-center">
               <img src={logoImg} alt="Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
@@ -252,7 +255,10 @@ const MainLayout = () => {
         <div className="flex-1 overflow-y-auto overflow-x-hidden custom-sidebar-scroll transition-all duration-300">
           <Menu
             mode="inline"
-            selectedKeys={[location.pathname]}
+            selectedKeys={[
+              items.flatMap(item => item.children ? [item, ...item.children] : [item])
+                .find(item => item.key && location.pathname.startsWith(item.key))?.key || location.pathname
+            ]}
             defaultOpenKeys={[]}
             items={items}
             onClick={({ key }) => navigate(key)}

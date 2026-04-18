@@ -85,7 +85,7 @@ const Dashboard = () => {
     { title: 'VietGAP Thủy sản', icon: <Fish className="w-8 h-8" />, path: '/vietgap/thuy-san', color: '#06b6d4' },
     { title: 'Nhật ký sản xuất', icon: <LinkIcon className="w-8 h-8" />, path: '/journal', color: '#f59e0b' },
     { title: 'Tồn kho', icon: <Package className="w-8 h-8" />, path: '/inventory/farmer', color: '#ec4899' },
-    { title: 'Quy trình kỹ thuật', icon: <Settings className="w-8 h-8" />, path: '/vietgap/trong-trot', color: '#6366f1' },
+    { title: 'Quy trình kỹ thuật', icon: <Settings className="w-8 h-8" />, path: '/d', color: '#6366f1' },
   ];
 
   const quickAccessItems = user?.role === 'Admin' ? adminQuickAccess : farmerQuickAccess;

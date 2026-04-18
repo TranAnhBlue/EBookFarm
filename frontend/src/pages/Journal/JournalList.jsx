@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -126,7 +126,7 @@ const JournalList = () => {
             type="text"
             className="flex items-center justify-center hover:bg-green-50 text-green-600 rounded-lg"
             icon={<EditOutlined />}
-            onClick={() => navigate(`/journal/edit/${record._id}`)}
+            onClick={() => navigate(`${location.pathname}/edit/${record._id}`)}
           />
           <Button
             type="text"
@@ -201,51 +201,70 @@ const JournalList = () => {
         {/* Card View */}
         {viewMode === 'card' && (
           <div className="p-6 bg-gray-50 min-h-[400px]">
-            <Row gutter={[24, 24]}>
-              {journals?.map(journal => (
-                <Col xs={24} sm={12} lg={8} key={journal._id}>
-                  <Card
-                    hoverable
-                    className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
-                    styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
-                  >
-                    <div className="p-5 flex-1 relative flex">
-                      <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
-                        <Leaf className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 space-y-3">
-                        <div className="flex justify-between items-center mb-1">
-                          <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
-                        </div>
-                        <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
-                          <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
-                          <div className="text-right"><Text strong>{journal.entries?.['Diện tích'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
-
-                          <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày bắt đầu:</div>
-                          <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
-
-                          <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
-                          <div className="text-right leading-tight"><Text strong>{journal.entries?.['Địa chỉ'] || journal.entries?.['Dia chi'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
-
-                          <div className="flex items-center gap-1.5 mt-2"><FileOutlined className="text-green-500" /> Loại sổ:</div>
-                          <div className="text-right mt-2"><Text strong>{journal.schemaId?.name}</Text></div>
-
-                          <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Lô sản xuất:</div>
-                          <div className="text-right"><Text strong>{journal.entries?.['Lô sản xuất'] || journal.entries?.['Lo san xuat'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      className="p-3 text-center border-t border-gray-100 hover:bg-green-50 transition-colors cursor-pointer mt-auto bg-white"
-                      onClick={() => navigate(`/journal/edit/${journal._id}`)}
+            {journals && journals.length > 0 ? (
+              <Row gutter={[24, 24]}>
+                {journals?.map(journal => (
+                  <Col xs={24} sm={12} lg={8} key={journal._id}>
+                    <Card
+                      hoverable
+                      className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
+                      styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
                     >
-                      <Text className="text-green-600 font-medium">Vào sổ nhật ký <RightOutlined className="text-[10px] ml-1" /></Text>
-                    </div>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
+                      <div className="p-5 flex-1 relative flex">
+                        <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
+                          <Leaf className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex justify-between items-center mb-1">
+                            <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
+                          </div>
+                          <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
+                            <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
+                            <div className="text-right"><Text strong>{journal.entries?.['Diện tích'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
+
+                            <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày bắt đầu:</div>
+                            <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
+
+                            <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
+                            <div className="text-right leading-tight"><Text strong>{journal.entries?.['Địa chỉ'] || journal.entries?.['Dia chi'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
+
+                            <div className="flex items-center gap-1.5 mt-2"><FileOutlined className="text-green-500" /> Loại sổ:</div>
+                            <div className="text-right mt-2"><Text strong>{journal.schemaId?.name}</Text></div>
+
+                            <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Lô sản xuất:</div>
+                            <div className="text-right"><Text strong>{journal.entries?.['Lô sản xuất'] || journal.entries?.['Lo san xuat'] || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}</Text></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className="p-3 text-center border-t border-gray-100 hover:bg-green-50 transition-colors cursor-pointer mt-auto bg-white"
+                        onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
+                      >
+                        <Text className="text-green-600 font-medium">Vào sổ nhật ký <RightOutlined className="text-[10px] ml-1" /></Text>
+                      </div>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            ) : !isLoading && (
+              <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-gray-200">
+                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                   <FileTextOutlined className="text-4xl text-gray-200" />
+                </div>
+                <Title level={4} className="!mb-1 text-gray-400">Chưa có sổ nhật ký nào</Title>
+                <Text className="text-gray-400 mb-8">Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.</Text>
+                <Button 
+                  type="primary" 
+                  size="large" 
+                  icon={<PlusOutlined />} 
+                  onClick={() => setSchemaModalVisible(true)}
+                  className="bg-green-600 hover:bg-green-700 rounded-xl px-8 h-12 shadow-lg shadow-green-200"
+                >
+                  Tạo sổ ngay
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -260,6 +279,14 @@ const JournalList = () => {
               pagination={{ pageSize: 8, className: "px-6 py-4" }}
               className="border-0"
               size="middle"
+              locale={{
+                emptyText: (
+                  <div className="py-12 text-center text-gray-400">
+                    <FileOutlined className="text-3xl mb-4 block opacity-20" />
+                    Danh sách trống
+                  </div>
+                )
+              }}
             />
           </div>
         )}
@@ -282,7 +309,7 @@ const JournalList = () => {
             disabled={!selectedSchema}
             onClick={() => {
               if (selectedSchema) {
-                navigate(`/journal/new/${selectedSchema}`);
+                navigate(`${location.pathname}/new/${selectedSchema}`);
               }
             }}
           >
@@ -385,7 +412,7 @@ const JournalList = () => {
                       <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
                         {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
                       </Tag>
-                      <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`/journal/edit/${fullJournal._id}`)}>
+                      <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`${location.pathname}/edit/${fullJournal._id}`)}>
                         Chỉnh sửa nhật ký
                       </Button>
                     </div>
