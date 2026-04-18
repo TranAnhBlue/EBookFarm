@@ -31,6 +31,7 @@ import NewsListAll from './pages/News/NewsListAll';
 import NewsDetail from './pages/News/NewsDetail';
 import TCVNReference from './pages/Reference/TCVNReference';
 import LandingPage from './pages/Landing/LandingPage';
+import PublicLayout from './components/PublicLayout';
 import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
 import NotFound from './pages/Auth/NotFound';
@@ -45,6 +46,13 @@ const RoleBasedRedirect = () => {
   const { user } = useAuthStore();
   if (user?.role === 'Admin') return <Navigate to="/dashboard" replace />;
   return <Navigate to="/dashboard" replace />;
+};
+
+// Route cho khách, nếu đã login thì đẩy vào dashboard
+const AnonymousRoute = ({ children }) => {
+  const { token } = useAuthStore();
+  if (token) return <Navigate to="/dashboard" replace />;
+  return children;
 };
 
 // Bảo vệ route có phân quyền
@@ -88,7 +96,14 @@ const App = () => {
           <AntdApp>
             <Router>
               <Routes>
-                <Route path="/" element={<LandingPage />} />
+                {/* Public Guest Portal */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="reference/tcvn" element={<TCVNReference />} />
+                  <Route path="news" element={<NewsListAll />} />
+                  <Route path="news/:id" element={<NewsDetail />} />
+                </Route>
+
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -126,11 +141,6 @@ const App = () => {
                   <Route path="inventory/items" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
                   <Route path="inventory/models" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
                   
-                  {/* News routes */}
-                  <Route path="news" element={<ProtectedRoute><NewsListAll /></ProtectedRoute>} />
-                  <Route path="news/:id" element={<ProtectedRoute><NewsDetail /></ProtectedRoute>} />
-                  <Route path="reference/tcvn" element={<ProtectedRoute><TCVNReference /></ProtectedRoute>} />
-
                   {/* Farmer-only routes (Category-based nesting) */}
                   <Route path="vietgap/:subCategory">
                     <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />

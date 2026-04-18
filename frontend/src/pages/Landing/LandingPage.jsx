@@ -11,7 +11,8 @@ import {
     QrcodeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo-ebookfarm.jpg';
+import PublicNavbar from '../../components/PublicNavbar';
+import PublicFooter from '../../components/PublicFooter';
 import './LandingStyles.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -21,29 +22,7 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen bg-white overflow-x-hidden">
-            {/* Header / Navbar */}
-            <nav className="fixed top-0 w-full z-50 glass-card border-b border-gray-100 flex justify-center">
-                <div className="w-full max-w-7xl px-6 md:px-12 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-gray-50">
-                            <img src={logo} alt="EBookFarm Logo" className="w-[140%] h-[140%] object-contain mix-blend-multiply" />
-                        </div>
-                        <div className="flex flex-col justify-center">
-                            <span className="text-green-600 font-bold text-[16px] leading-[1.2] uppercase tracking-wide">Nhật ký sản xuất</span>
-                            <span className="text-green-600 font-bold text-[16px] leading-[1.2] uppercase tracking-wide">Điện tử</span>
-                        </div>
-                    </div>
-                    <Space size="large" className="hidden md:flex">
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600">Giải pháp</Button>
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600">Về chúng tôi</Button>
-                    </Space>
-                    <Space>
-                        <Button type="text" className="font-bold text-green-600" onClick={() => navigate('/login')}>Đăng nhập</Button>
-                        <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
-                    </Space>
-                </div>
-            </nav>
+            <PublicNavbar />
 
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 hero-mask bg-slate-50 overflow-hidden">
@@ -258,63 +237,7 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
-
-            {/* Footer */}
-            <footer className="bg-white border-t border-gray-100 py-16 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <Row gutter={[48, 48]}>
-                        <Col xs={24} md={10} className="space-y-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm">
-                                    <img src={logo} alt="EBookFarm Logo" className="w-[140%] h-[140%] object-contain mix-blend-multiply" />
-                                </div>
-                                <div className="flex flex-col justify-center">
-                                    <span className="text-green-600 font-extrabold text-[14px] leading-[1.1] uppercase tracking-tight">Nhật ký sản xuất</span>
-                                    <span className="text-green-600 font-bold text-[14px] leading-[1.1] uppercase tracking-tight">Điện tử</span>
-                                </div>
-                            </div>
-                            <Paragraph className="text-gray-500 max-w-sm">
-                                Giải pháp quản lý sản xuất và truy xuất nguồn gốc nông sản hàng đầu Việt Nam. Đồng hành cùng nông dân xây dựng tương lai bền vững.
-                            </Paragraph>
-                        </Col>
-                        <Col xs={24} md={14}>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 text-sm">
-                                <div className="space-y-4">
-                                    <Text strong className="text-gray-900 block uppercase tracking-widest text-[11px]">Về chúng tôi</Text>
-                                    <Space direction="vertical" className="text-gray-500">
-                                        <Text className="hover:text-green-600 cursor-pointer">Sứ mệnh</Text>
-                                        <Text className="hover:text-green-600 cursor-pointer">Đội ngũ</Text>
-                                        <Text className="hover:text-green-600 cursor-pointer">Cơ hội nghệ nghiệp</Text>
-                                    </Space>
-                                </div>
-                                <div className="space-y-4">
-                                    <Text strong className="text-gray-900 block uppercase tracking-widest text-[11px]">Hỗ trợ</Text>
-                                    <Space direction="vertical" className="text-gray-500">
-                                        <Text className="hover:text-green-600 cursor-pointer">Hướng dẫn sử dụng</Text>
-                                        <Text className="hover:text-green-600 cursor-pointer">Câu hỏi thường gặp</Text>
-                                        <Text className="hover:text-green-600 cursor-pointer">Điều khoản dịch vụ</Text>
-                                    </Space>
-                                </div>
-                                <div className="space-y-4">
-                                    <Text strong className="text-gray-900 block uppercase tracking-widest text-[11px]">Liên hệ</Text>
-                                    <Space direction="vertical" className="text-gray-500">
-                                        <Text className="hover:text-green-600 cursor-pointer">Email: contact@ebookfarm.com</Text>
-                                        <Text className="hover:text-green-600 cursor-pointer">Hotline: 1900 6688</Text>
-                                    </Space>
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Divider className="my-12" />
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <Text className="text-gray-400 text-xs">© 2026 EBookFarm. Tất cả quyền được bảo lưu.</Text>
-                        <Space className="text-gray-400 text-xl" size="large">
-                            <GlobalOutlined className="hover:text-green-600 cursor-pointer" />
-                            <ThunderboltFilled className="hover:text-green-600 cursor-pointer" />
-                        </Space>
-                    </div>
-                </div>
-            </footer>
+            <PublicFooter />
         </div>
     );
 };

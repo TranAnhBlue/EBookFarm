@@ -20,7 +20,7 @@ const Login = () => {
       const { data } = await api.post('/auth/login', values);
       setCredentials(data.data, data.data.token);
       message.success('Đăng nhập thành công! Chào mừng trở lại.');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       message.error(error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
     } finally {
@@ -35,7 +35,7 @@ const Login = () => {
         const { data } = await api.post('/auth/google', { tokenId: tokenResponse.access_token });
         setCredentials(data.data, data.data.token);
         message.success('Đăng nhập Google thành công! Chào mừng đến với EBookFarm.');
-        navigate('/');
+        navigate('/dashboard');
       } catch (error) {
         message.error('Đăng nhập Google thất bại. Vui lòng thử lại sau.');
       } finally {

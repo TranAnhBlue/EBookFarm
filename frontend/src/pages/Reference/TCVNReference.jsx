@@ -77,11 +77,11 @@ const TCVNReference = () => {
                     </div>
                     <Button 
                         icon={<ArrowLeftOutlined />} 
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate('/')}
                         size="large"
                         className="rounded-xl border-gray-200 text-gray-600 font-bold hover:text-green-600 transition-all"
                     >
-                        Quay lại
+                        Quay lại trang chủ
                     </Button>
                 </div>
             </div>
