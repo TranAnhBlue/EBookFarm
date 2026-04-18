@@ -222,7 +222,7 @@ const Dashboard = () => {
       </Row>
 
       {/* News Section */}
-      <div className="space-y-6">
+      <div id="news-section" className="space-y-6">
         <div className="text-center">
           <Title level={3} className="!mb-2 !text-gray-800 font-bold">Tin tức</Title>
         </div>
@@ -286,15 +286,30 @@ const Dashboard = () => {
               ))}
             </Row>
 
-            {visibleNews < newsItems.length && (
-              <div className="flex justify-center mt-6">
-                <Button
-                  size="large"
-                  onClick={() => setVisibleNews(prev => prev + 2)}
-                  className="bg-green-600 hover:bg-green-700 !text-white rounded-lg h-10 px-8 font-bold border-0 shadow-lg shadow-green-100 flex items-center justify-center transition-all hover:scale-105"
-                >
-                  Xem thêm
-                </Button>
+            {(visibleNews < newsItems.length || visibleNews > 2) && (
+              <div className="flex justify-center items-center gap-4 mt-6">
+                {visibleNews < newsItems.length && (
+                  <Button
+                    size="large"
+                    onClick={() => setVisibleNews(prev => prev + 2)}
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-10 px-8 font-bold border-0 shadow-lg shadow-green-100 flex items-center justify-center transition-all hover:scale-105"
+                  >
+                    Xem thêm
+                  </Button>
+                )}
+
+                {visibleNews > 2 && (
+                  <Button
+                    size="large"
+                    onClick={() => {
+                      setVisibleNews(2);
+                      document.getElementById('news-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-10 px-8 font-bold border-0 shadow-lg shadow-green-100 flex items-center justify-center transition-all hover:scale-105"
+                  >
+                    Thu gọn
+                  </Button>
+                )}
               </div>
             )}
           </>

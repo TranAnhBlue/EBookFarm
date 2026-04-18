@@ -14,6 +14,7 @@ const groupRoutes = require('./routes/groupRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const newsRoutes = require('./routes/newsRoutes');
+const tcvnRoutes = require('./routes/tcvnRoutes');
 
 dotenv.config();
 
@@ -39,11 +40,12 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/tcvn', tcvnRoutes);
 
 connectDB();
 
 app.get('/', (req, res) => {
-  res.send('Farm Management System API is running.');
+  res.send('EBook Farm API is running.');
 });
 
 app.use((err, req, res, next) => {

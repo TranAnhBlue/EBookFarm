@@ -61,6 +61,11 @@ const MainLayout = () => {
       label: <span className="font-medium">Biểu mẫu nhật ký</span>,
     },
     {
+      key: '/reference/tcvn',
+      icon: <ReadOutlined className="text-lg" />,
+      label: <span className="font-medium">Tra cứu TCVN</span>,
+    },
+    {
       key: '/admin/news',
       icon: <FileTextOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý tin tức</span>,
@@ -174,9 +179,13 @@ const MainLayout = () => {
       label: <span className="font-medium">Tồn kho</span>,
     },
     {
-      key: '/docs',
+      key: 'docs-submenu',
       icon: <ReadOutlined className="text-lg" />,
       label: <span className="font-medium">Tiêu chuẩn & Quy trình</span>,
+      children: [
+        { key: '/docs', label: 'Quy trình kỹ thuật' },
+        { key: '/reference/tcvn', label: 'Tra cứu TCVN' },
+      ],
     },
   ];
 

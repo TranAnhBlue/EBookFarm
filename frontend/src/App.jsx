@@ -29,6 +29,7 @@ import BackupMgmt from './pages/Admin/BackupMgmt';
 import NewsManagement from './pages/Admin/NewsManagement';
 import NewsListAll from './pages/News/NewsListAll';
 import NewsDetail from './pages/News/NewsDetail';
+import TCVNReference from './pages/Reference/TCVNReference';
 import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
 import NotFound from './pages/Auth/NotFound';
@@ -128,6 +129,7 @@ const App = () => {
                   {/* News routes */}
                   <Route path="news" element={<ProtectedRoute><NewsListAll /></ProtectedRoute>} />
                   <Route path="news/:id" element={<ProtectedRoute><NewsDetail /></ProtectedRoute>} />
+                  <Route path="reference/tcvn" element={<ProtectedRoute><TCVNReference /></ProtectedRoute>} />
 
                   {/* Farmer-only routes (Category-based nesting) */}
                   <Route path="vietgap/:subCategory">
