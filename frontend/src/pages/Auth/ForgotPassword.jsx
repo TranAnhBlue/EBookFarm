@@ -9,17 +9,15 @@ const { Title, Text, Paragraph } = Typography;
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
-  const [resetLink, setResetLink] = useState('');
+  const [isSent, setIsSent] = useState(false);
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
       // Backend expects { email }
-      const { data } = await api.post('/auth/forgot-password', { email: values.email });
+      await api.post('/auth/forgot-password', { email: values.email });
       message.success('Yêu cầu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
-      if (data.resetLink) {
-          setResetLink(data.resetLink);
-      }
+      setIsSent(true);
     } catch (error) {
       message.error(error.response?.data?.message || 'Không tìm thấy tài khoản với Email này.');
     } finally {
@@ -44,7 +42,7 @@ const ForgotPassword = () => {
           </Text>
         </div>
 
-        {!resetLink ? (
+        {!isSent ? (
           <Form
             name="forgot-password"
             onFinish={onFinish}
@@ -81,29 +79,22 @@ const ForgotPassword = () => {
           </Form>
         ) : (
           <div className="space-y-8 animate-in zoom-in duration-500">
-            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-start gap-4">
+            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-start gap-4 text-left">
                <CheckCircleFilled className="text-emerald-500 text-2xl mt-1" />
                <div>
                    <Text className="text-emerald-900 font-bold block mb-1 text-lg">Kiểm tra Email của bạn</Text>
                    <Text className="text-emerald-700/80 leading-relaxed font-medium">
-                       Hệ thống đã gửi hướng dẫn khôi phục mật khẩu. (Dưới đây là link mô phỏng cho quá trình thử nghiệm)
+                       Hệ thống đã gửi hướng dẫn khôi phục mật khẩu vào hòm thư của bạn. Vui lòng kiểm tra cả thư rác (Spam) nếu không thấy.
                    </Text>
                </div>
             </div>
-            
-            <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-emerald-200">
-                <Text strong className="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-3">Link mô phỏng (Test Only):</Text>
-                <a href={resetLink} className="text-emerald-600 font-black break-all text-sm hover:underline">
-                    {resetLink}
-                </a>
-            </div>
 
             <Alert
-              message="Lưu ý"
-              description="Link này chỉ có hiệu lực trong vòng 10 phút. Nếu không nhận được email, hãy kiểm tra thư rác."
+              message="Thời hạn liên kết"
+              description="Link khôi phục chỉ có hiệu lực trong vòng 10 phút vì lý do bảo mật. Sau thời gian này bạn cần thực hiện yêu cầu mới."
               type="info"
               showIcon
-              className="rounded-2xl border-blue-50 bg-blue-50/50"
+              className="rounded-2xl border-blue-50 bg-blue-50/50 text-left"
             />
           </div>
         )}

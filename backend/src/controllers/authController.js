@@ -96,14 +96,64 @@ const forgotPassword = async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    // In production, we'd send an email. For testing, return the link.
+    const sendEmail = require('../utils/sendEmail');
     const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Reset token generated (returned link for testing)',
-      resetLink: resetUrl // This is what the user asked for
-    });
+    const html = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #16a34a; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">EBookFarm</h1>
+          <p style="color: #666; margin: 5px 0 0 0; font-weight: bold;">GIẢI PHÁP NÔNG NGHIỆP SỐ</p>
+        </div>
+        
+        <div style="background-color: #f0fdf4; border-radius: 16px; padding: 30px; border: 1px solid #dcfce7;">
+          <h2 style="margin-top: 0; color: #16a34a;">Yêu cầu đặt lại mật khẩu</h2>
+          <p>Chào bạn,</p>
+          <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>${user.email}</strong> trên hệ thống EBookFarm.</p>
+          <p>Để tiếp tục, vui lòng nhấn vào nút bên dưới:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #16a34a; color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+              Đặt lại mật khẩu ngay
+            </a>
+          </div>
+          
+          <p style="font-size: 13px; color: #666;">
+            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn.
+          </p>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcfce7; font-size: 11px; color: #999;">
+            <p>Liên kết này sẽ hết hạn sau <strong>10 phút</strong> vì lý do bảo mật.</p>
+            <p>Nếu nút bấm không hoạt động, hãy copy đường dẫn sau vào trình duyệt:</p>
+            <p style="word-break: break-all; color: #16a34a;">${resetUrl}</p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #aaa;">
+          <p>© 2026 EBookFarm. Tất cả quyền được bảo lưu.</p>
+        </div>
+      </div>
+    `;
+
+    try {
+      console.log(`Attempting to send reset email to: ${user.email}`);
+      await sendEmail({
+        email: user.email,
+        subject: '[EBookFarm] Yêu cầu khôi phục mật khẩu tài khoản',
+        html: html
+      });
+
+      res.status(200).json({ 
+        success: true, 
+        message: 'Hệ thống đã gửi link khôi phục mật khẩu vào Email của bạn.'
+      });
+    } catch (err) {
+      console.error('Email send error:', err);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+      return res.status(500).json({ success: false, message: 'Không thể gửi email lúc này. Vui lòng thử lại sau.' });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
