@@ -1,13 +1,13 @@
 import React from 'react';
-import { Form, Input, Button, Card, message, Typography, Space, Divider } from 'antd';
-import { UserOutlined, LockOutlined, ArrowRightOutlined, GoogleOutlined } from '@ant-design/icons';
-import { useGoogleLogin } from '@react-oauth/google';
+import { Form, Input, Button, Card, message, Typography, Space, Divider, Checkbox } from 'antd';
+import { LockOutlined, ArrowRightOutlined, GoogleOutlined, MailOutlined } from '@ant-design/icons';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { Leaf } from 'lucide-react';
+import logo from '../../assets/logo-ebookfarm.jpg';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,129 +17,168 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/login', values);
+      const { data } = await api.post('/auth/login', {
+          identifier: values.email, // Backend expects identifier (email/username)
+          password: values.password
+      });
       setCredentials(data.data, data.data.token);
-      message.success('Đăng nhập thành công! Chào mừng trở lại.');
+      message.success('Đăng nhập thành công! Chào mừng trở lại EBookFarm.');
       navigate('/dashboard');
     } catch (error) {
-      message.error(error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
+      message.error(error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.');
     } finally {
       setLoading(false);
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+  const handleGoogleSuccess = async (credentialResponse) => {
       try {
-        setLoading(true);
-        const { data } = await api.post('/auth/google', { tokenId: tokenResponse.access_token });
-        setCredentials(data.data, data.data.token);
-        message.success('Đăng nhập Google thành công! Chào mừng đến với EBookFarm.');
-        navigate('/dashboard');
+          setLoading(true);
+          const { data } = await api.post('/auth/google', { 
+              tokenId: credentialResponse.credential // Pass the ID Token (JWT)
+          });
+          setCredentials(data.data, data.data.token);
+          message.success('Đăng nhập Google thành công!');
+          navigate('/dashboard');
       } catch (error) {
-        message.error('Đăng nhập Google thất bại. Vui lòng thử lại sau.');
+          message.error('Xác thực Google thất bại. Vui lòng thử lại.');
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
-    },
-    onError: () => message.error('Không thể kết nối với tài khoản Google.')
-  });
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f0fdf4] relative overflow-hidden p-6">
-      {/* Decorative Elements */}
-      <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-green-200/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-[-10%] right-[-5%] w-[30%] h-[30%] bg-green-300/20 rounded-full blur-3xl"></div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-slate-50">
+      {/* Dynamic Background */}
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-green-100/40 rounded-full blur-[100px]"></div>
       
-      <Card className="w-full max-w-[480px] shadow-2xl rounded-[32px] border-white/50 bg-white/80 backdrop-blur-xl p-8 md:p-12 relative z-10 overflow-hidden">
-        {/* Progress bar top */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 premium-gradient"></div>
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-white/70 backdrop-blur-2xl rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
         
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 premium-gradient rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 mb-6 transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-            <Leaf className="w-9 h-9" />
-          </div>
-          <Title level={2} className="!mb-1 !text-gray-800 font-bold tracking-tight">Chào mừng trở lại</Title>
-          <Text className="text-gray-400 font-medium">Hệ thống quản lý nông trại EBookFarm AI</Text>
+        {/* Left Side: Branding/Visual */}
+        <div className="hidden md:flex md:w-1/2 bg-emerald-600 p-12 flex-col justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-green-800"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+            
+            <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-12">
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center">
+                        <img src={logo} alt="Logo" className="w-10 h-10 object-contain p-1 mix-blend-multiply" />
+                    </div>
+                    <div className="flex flex-col text-white">
+                        <span className="font-black text-lg leading-none uppercase tracking-tighter">EBookFarm</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Agri-tech Solution</span>
+                    </div>
+                </div>
+
+                <Title level={1} className="!text-white !font-black !text-4xl !mb-6 leading-tight">
+                    Chào mừng bạn quay lại hệ thống
+                </Title>
+                <Paragraph className="text-emerald-50/80 text-lg leading-relaxed max-w-[320px]">
+                    Tiếp tục quản lý nông trại và theo dõi nhật ký sản xuất chuẩn quốc gia ngay hôm nay.
+                </Paragraph>
+            </div>
+
+            <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10">
+                <div className="flex items-center gap-4 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-300">
+                        <ArrowRightOutlined className="text-xl" />
+                    </div>
+                    <Text className="text-white font-bold">500+ Nông trại đã tin dùng</Text>
+                </div>
+            </div>
         </div>
-        
-        <Form
-          name="login"
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          layout="vertical"
-          size="large"
-          className="premium-form"
-        >
-          <Form.Item
-            name="identifier"
-            rules={[
-              { required: true, message: 'Vui lòng nhập Email hoặc Tên đăng nhập!' }
-            ]}
-            className="mb-6"
-          >
-            <Input 
-              prefix={<UserOutlined className="text-gray-400" />} 
-              placeholder="Email hoặc Tên đăng nhập" 
-              className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
-            />
-          </Form.Item>
-          
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
-            className="mb-2"
-          >
-            <Input.Password 
-              prefix={<LockOutlined className="text-gray-400" />} 
-              placeholder="Mật khẩu" 
-              className="rounded-xl h-12 border-gray-100 hover:border-green-400 focus:border-green-500"
-            />
-          </Form.Item>
 
-          <div className="text-right mb-8">
-            <Link to="/forgot-password" size="small" className="text-green-600 font-bold text-xs hover:text-green-700">
-              Quên mật khẩu?
-            </Link>
-          </div>
+        {/* Right Side: Form */}
+        <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center">
+            <div className="mb-10 block md:hidden">
+                <img src={logo} alt="Logo" className="h-12 w-auto mb-6" />
+            </div>
 
-          <Form.Item className="mb-6">
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              className="w-full h-12 rounded-xl text-md font-bold shadow-xl shadow-green-200" 
-              loading={loading}
-              icon={<ArrowRightOutlined />}
+            <div className="mb-10">
+                <Title level={2} className="!font-black !text-gray-800 !mb-2">Đăng nhập</Title>
+                <Text className="text-gray-400 font-medium tracking-tight">Vui lòng nhập thông tin để truy cập hệ thống</Text>
+            </div>
+
+            <Form
+                name="login"
+                layout="vertical"
+                size="large"
+                onFinish={onFinish}
+                autoComplete="off"
+                className="premium-form"
             >
-              Đăng nhập ngay
-            </Button>
-          </Form.Item>
-          
-          <Divider plain className="border-gray-100">
-            <Text className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">Hoặc tiếp tục với</Text>
-          </Divider>
+                <Form.Item
+                    name="email"
+                    label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Email hoặc Tên tài khoản</span>}
+                    rules={[{ required: true, message: 'Thông tin này là bắt buộc!' }]}
+                >
+                    <Input 
+                        prefix={<MailOutlined className="text-gray-300" />} 
+                        placeholder="example@farm.com" 
+                        className="rounded-2xl h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium"
+                    />
+                </Form.Item>
 
-          <Button 
-            block 
-            icon={<GoogleOutlined />} 
-            onClick={() => googleLogin()}
-            className="h-12 rounded-xl font-bold border-gray-100 shadow-sm hover:border-green-400 hover:text-green-600 mb-6 flex items-center justify-center gap-2"
-          >
-            Tài khoản Google
-          </Button>
+                <Form.Item
+                    name="password"
+                    label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Mật khẩu bảo mật</span>}
+                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                >
+                    <Input.Password 
+                        prefix={<LockOutlined className="text-gray-300" />} 
+                        placeholder="••••••••" 
+                        className="rounded-2xl h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium"
+                    />
+                </Form.Item>
 
-          <div className="text-center mt-6">
-            <Text className="text-gray-400 font-medium">Chưa có tài khoản? </Text>
-            <Link to="/register" className="text-green-600 font-bold hover:underline">
-              Sẵn sàng tham gia!
-            </Link>
-          </div>
-        </Form>
-      </Card>
-      
-      {/* Footer Branding */}
-      <div className="absolute bottom-8 text-center w-full text-green-800/40 text-[10px] uppercase font-bold tracking-widest pointer-events-none">
-        Copyright © 2026 EBookFarm AI Ecosystem
+                <div className="flex justify-between items-center mb-8">
+                    <Form.Item name="remember" valuePropName="checked" noStyle>
+                        <Checkbox className="text-gray-500 font-bold text-xs capitalize">Ghi nhớ tôi</Checkbox>
+                    </Form.Item>
+                    <Link to="/forgot-password" className="text-emerald-600 font-bold text-xs hover:underline">
+                        Quên mật khẩu?
+                    </Link>
+                </div>
+
+                <Form.Item className="mb-8">
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={loading}
+                        className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg border-0 shadow-xl shadow-emerald-200"
+                    >
+                        Đăng nhập ngay
+                    </Button>
+                </Form.Item>
+
+                <Divider plain className="border-gray-100">
+                    <span className="text-[10px] text-gray-300 font-bold uppercase tracking-[2px]">Hoặc sử dụng Google</span>
+                </Divider>
+
+                <div className="flex justify-center mt-6">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => message.error('Không thể kết nối với máy chủ Google.')}
+                        useOneTap
+                        shape="pill"
+                        theme="outline"
+                        width="100%"
+                    />
+                </div>
+            </Form>
+
+            <div className="mt-12 text-center">
+                <Text className="text-gray-400 font-medium">Bạn chưa có tài khoản? </Text>
+                <Link to="/register" className="text-emerald-600 font-black hover:underline px-1">
+                    Đăng ký miễn phí
+                </Link>
+            </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-bold tracking-[3px] text-gray-400/50 pointer-events-none">
+        Copyright 2026 © EBookFarm Security Standard
       </div>
     </div>
   );

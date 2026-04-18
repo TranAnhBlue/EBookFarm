@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Alert } from 'antd';
-import { UserOutlined, MailOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Card, message, Typography, Alert, Space } from 'antd';
+import { MailOutlined, ArrowLeftOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
-import { Leaf, ExternalLink } from 'lucide-react';
+import logo from '../../assets/logo-ebookfarm.jpg';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -14,50 +14,57 @@ const ForgotPassword = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/forgot-password', values);
-      message.success('Đã tạo link khôi phục mật khẩu!');
-      // Catch the simulated link for testing
+      // Backend expects { email }
+      const { data } = await api.post('/auth/forgot-password', { email: values.email });
+      message.success('Yêu cầu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
       if (data.resetLink) {
           setResetLink(data.resetLink);
       }
     } catch (error) {
-      message.error(error.response?.data?.message || 'Không tìm thấy người dùng này.');
+      message.error(error.response?.data?.message || 'Không tìm thấy tài khoản với Email này.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f0fdf4] relative overflow-hidden p-6">
-      <div className="absolute top-[20%] left-[-10%] w-[40%] h-[40%] bg-green-200/30 rounded-full blur-3xl"></div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-slate-50">
+      {/* Background Decor */}
+      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px]"></div>
       
-      <Card className="w-full max-w-[480px] shadow-2xl rounded-[32px] border-white/50 bg-white/80 backdrop-blur-xl p-8 md:p-12 relative z-10 overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1.5 premium-gradient"></div>
+      <div className="w-full max-w-[540px] bg-white/70 backdrop-blur-2xl rounded-[40px] shadow-2xl p-10 md:p-16 border border-white relative z-10 animate-in fade-in slide-in-from-bottom duration-700">
         
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 premium-gradient rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 mb-6">
+          <div className="w-16 h-16 bg-emerald-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-emerald-200 mb-8">
             <MailOutlined className="text-3xl" />
           </div>
-          <Title level={2} className="!mb-1 !text-gray-800 font-bold tracking-tight">Quên mật khẩu?</Title>
-          <Text className="text-gray-400 font-medium text-center">Đừng lo, hãy nhập tên đăng nhập để nhận link khôi phục.</Text>
+          <Title level={2} className="!font-black !text-gray-800 !mb-2 text-center">Quên mật khẩu?</Title>
+          <Text className="text-gray-400 font-medium text-center px-4">
+              Nhập email liên kết với tài khoản của bạn để nhận liên kết đặt lại mật khẩu.
+          </Text>
         </div>
-        
+
         {!resetLink ? (
           <Form
             name="forgot-password"
             onFinish={onFinish}
             layout="vertical"
             size="large"
+            className="premium-form"
           >
             <Form.Item
-              name="username"
-              rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
-              className="mb-8"
+              name="email"
+              label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email của bạn</span>}
+              rules={[
+                  { required: true, message: 'Vui lòng nhập Email!' },
+                  { type: 'email', message: 'Email không hợp lệ!' }
+              ]}
+              className="mb-10"
             >
               <Input 
-                prefix={<UserOutlined className="text-gray-400" />} 
-                placeholder="Tên đăng nhập" 
-                className="rounded-xl h-12 border-gray-100"
+                prefix={<MailOutlined className="text-gray-300" />} 
+                placeholder="example@farm.com" 
+                className="rounded-2xl h-14 border-gray-100 focus:border-emerald-500"
               />
             </Form.Item>
 
@@ -65,42 +72,53 @@ const ForgotPassword = () => {
               <Button 
                 type="primary" 
                 htmlType="submit" 
-                className="w-full h-12 rounded-xl text-md font-bold shadow-xl shadow-green-200" 
                 loading={loading}
+                className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg border-0 shadow-xl shadow-emerald-200"
               >
                 Gửi link khôi phục
               </Button>
             </Form.Item>
           </Form>
         ) : (
-          <div className="space-y-6">
-            <Alert
-              message="Yêu cầu thành công"
-              description="Hệ thống đã tạo link khôi phục (Đây là bản mô phỏng trả về từ API)."
-              type="success"
-              showIcon
-              className="rounded-xl border-green-100 bg-green-50"
-            />
+          <div className="space-y-8 animate-in zoom-in duration-500">
+            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-start gap-4">
+               <CheckCircleFilled className="text-emerald-500 text-2xl mt-1" />
+               <div>
+                   <Text className="text-emerald-900 font-bold block mb-1 text-lg">Kiểm tra Email của bạn</Text>
+                   <Text className="text-emerald-700/80 leading-relaxed font-medium">
+                       Hệ thống đã gửi hướng dẫn khôi phục mật khẩu. (Dưới đây là link mô phỏng cho quá trình thử nghiệm)
+                   </Text>
+               </div>
+            </div>
             
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 break-all">
-                <Text strong className="text-[10px] text-gray-400 uppercase tracking-widest block mb-1">Mô phỏng Email Link:</Text>
-                <a href={resetLink} className="text-green-600 font-bold text-xs hover:underline flex items-center gap-2">
-                    {resetLink} <ExternalLink className="w-3 h-3" />
+            <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-emerald-200">
+                <Text strong className="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-3">Link mô phỏng (Test Only):</Text>
+                <a href={resetLink} className="text-emerald-600 font-black break-all text-sm hover:underline">
+                    {resetLink}
                 </a>
             </div>
 
-            <Text className="text-[11px] text-gray-400 block text-center">
-                Link khôi phục này sẽ hết hạn sau 10 phút.
-            </Text>
+            <Alert
+              message="Lưu ý"
+              description="Link này chỉ có hiệu lực trong vòng 10 phút. Nếu không nhận được email, hãy kiểm tra thư rác."
+              type="info"
+              showIcon
+              className="rounded-2xl border-blue-50 bg-blue-50/50"
+            />
           </div>
         )}
 
-        <div className="text-center mt-12">
-            <Link to="/login" className="text-green-600 font-bold hover:underline">
+        <div className="mt-12 text-center">
+            <Link to="/login" className="flex items-center justify-center gap-2 text-emerald-600 font-black hover:underline group">
+              <ArrowLeftOutlined className="group-hover:-translate-x-1 transition-transform" /> 
               Quay lại Đăng nhập
             </Link>
         </div>
-      </Card>
+      </div>
+
+      <div className="absolute bottom-8 text-[10px] uppercase font-bold tracking-[3px] text-gray-400/50 pointer-events-none w-full text-center">
+        EBookFarm identity protection system
+      </div>
     </div>
   );
 };

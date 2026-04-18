@@ -69,7 +69,7 @@ const ProtectedRoute = ({ children, requireAdmin, farmerOnly }) => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID_HERE">
+      <GoogleOAuthProvider clientId="147676468818-86oa6l06us45c8as6272v1mbc6egenf5.apps.googleusercontent.com">
         <ConfigProvider
           theme={{
             token: {
