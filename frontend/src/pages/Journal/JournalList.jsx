@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form } from 'antd';
+import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps } from 'antd';
 import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -78,6 +78,15 @@ const JournalList = () => {
     return false;
   });
 
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedJournalId, setSelectedJournalId] = useState(null);
+
+  const { data: fullJournal, isLoading: isFetchingFull } = useQuery({
+    queryKey: ['journal-detail', selectedJournalId],
+    queryFn: () => api.get(`/journals/${selectedJournalId}`).then(res => res.data.data),
+    enabled: !!selectedJournalId
+  });
+
   const columns = [
     {
       title: 'Tên quy trình',
@@ -132,7 +141,10 @@ const JournalList = () => {
             type="text"
             className="flex items-center justify-center hover:bg-gray-100 text-gray-400 rounded-lg"
             icon={<EyeOutlined />}
-            onClick={() => window.open(`/trace/${record.qrCode}`)}
+            onClick={() => {
+              setSelectedJournalId(record._id);
+              setViewModalVisible(true);
+            }}
           />
         </Space>
       )
@@ -329,6 +341,100 @@ const JournalList = () => {
             <a href={currentQr} target="_blank" rel="noreferrer" className="text-green-600 hover:underline">{currentQr}</a>
           </Text>
         </div>
+      </Modal>
+
+      {/* Journal View Modal (Trace Mode) */}
+      <Modal
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setSelectedJournalId(null);
+        }}
+        footer={null}
+        width={900}
+        centered
+        className="trace-modal"
+        styles={{ body: { padding: 0 } }}
+      >
+        {isFetchingFull ? (
+          <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl">
+             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+             <Text className="text-gray-400">Đang tải thông tin chi tiết...</Text>
+          </div>
+        ) : fullJournal && (
+          <div className="overflow-hidden rounded-2xl">
+            {/* Header Banner - Like JournalTrace.jsx */}
+            <div className="bg-green-600 text-white p-8 text-center relative">
+              <div className="absolute top-4 right-4">
+                 <Button shape="circle" icon={<span>✕</span>} onClick={() => setViewModalVisible(false)} className="border-0 bg-white/20 text-white hover:bg-white/40" />
+              </div>
+              <Title level={2} className="!text-white !mb-2">EBookFarm Traceability</Title>
+              <p className="opacity-90">Transparent Agricultural Product Information</p>
+              <div className="mt-4 inline-block bg-white text-green-700 px-4 py-1 rounded-full font-bold shadow-md">
+                  ID: {fullJournal.qrCode}
+              </div>
+            </div>
+
+            <div className="p-8 max-h-[70vh] overflow-y-auto custom-sidebar-scroll bg-white">
+                <div className="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
+                    <div>
+                        <Title level={3} className="!mb-1">Product: {fullJournal.schemaId?.name}</Title>
+                        <p className="text-gray-500 font-medium">Producer: {fullJournal.userId?.fullname || fullJournal.userId?.username}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
+                        {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
+                      </Tag>
+                      <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`/journal/edit/${fullJournal._id}`)}>
+                        Chỉnh sửa nhật ký
+                      </Button>
+                    </div>
+                </div>
+
+                <div className="mb-10">
+                   <Title level={4} className="!mb-8 flex items-center gap-2">
+                     <div className="w-1.5 h-6 bg-green-500 rounded-full"></div>
+                     Production Timeline
+                   </Title>
+                   
+                   <Steps
+                      direction="vertical"
+                      current={fullJournal?.schemaId?.tables?.length || 0}
+                      items={(fullJournal?.schemaId?.tables || []).map((table) => {
+                          const entryData = fullJournal.entries?.[table.tableName] || {};
+                          const hasData = Object.keys(entryData).length > 0;
+                          
+                          return {
+                            title: <span className="text-lg font-bold text-gray-800">{table.tableName}</span>,
+                            status: hasData ? 'finish' : 'wait',
+                            description: (
+                                <div className={`bg-gray-50 p-6 rounded-2xl mt-3 mb-6 border shadow-sm ${hasData ? 'border-green-100' : 'border-gray-100 opacity-60'}`}>
+                                    {hasData ? (
+                                      <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                                          {table.fields.map((field) => (
+                                              <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
+                                                  <span className="text-gray-800 font-medium">
+                                                    {field.type === 'date' && entryData[field.name] 
+                                                      ? new Date(entryData[field.name]).toLocaleDateString('vi-VN')
+                                                      : field.type === 'boolean' 
+                                                        ? (entryData[field.name] ? 'Có' : 'Không')
+                                                        : (entryData[field.name]?.toString() || '---')}
+                                                  </span>
+                                              </Descriptions.Item>
+                                          ))}
+                                      </Descriptions>
+                                    ) : (
+                                      <div className="text-gray-400 italic text-sm py-2">Chưa cập nhật thông tin cho phần này</div>
+                                    )}
+                                </div>
+                            )
+                          };
+                      })}
+                   />
+                </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -19,7 +19,7 @@ const getJournals = async (req, res) => {
 
     // Lấy tất cả journals với category của schema
     const journals = await FarmJournal.find(filter)
-      .populate('schemaId', 'name category')
+      .populate('schemaId')
       .populate('userId', 'username');
 
     // Nếu có query ?category= thì lọc theo category của schema
