@@ -37,7 +37,7 @@ const Dashboard = () => {
     queryKey: ['weather', coords],
     queryFn: async () => {
       if (!coords) return null;
-      const { data } = await axios.get(`https://wttr.in/${coords.lat},${coords.lon}?format=j1`);
+      const { data } = await axios.get(`https://wttr.in/${coords.lat},${coords.lon}?format=j1&lang=vi`);
       return data;
     },
     enabled: !!coords
@@ -55,20 +55,39 @@ const Dashboard = () => {
   };
 
   const translateCondition = (text) => {
+    if (!text) return 'Có Mây';
+
+    // Dictionary of common terms
     const dict = {
       'Sunny': 'Trời Nắng',
       'Clear': 'Trời Quang',
-      'Partly cloudy': 'Nhiều Mây',
+      'Partly cloudy': 'Trời Nhiều Mây',
       'Cloudy': 'Có Mây',
-      'Overcast': 'U Ám',
-      'Light rain': 'Mưa Nhẹ',
+      'Overcast': 'Trời U Ám',
+      'Mist': 'Có Sương Mù Nhẹ',
+      'Fog': 'Sương Mù',
       'Patchy rain possible': 'Có Thể Có Mưa',
-      'Heavy rain': 'Mưa Lớn'
+      'Thundery outbreaks possible': 'Có Thể Có Dong',
+      'Light rain': 'Mưa Nhẹ',
+      'Moderate rain': 'Mưa Vừa',
+      'Heavy rain': 'Mưa Lớn',
+      'Thunderstorm': 'Giông Bão',
+      'with': 'Kèm',
+      'and': 'Và'
     };
-    return dict[text] || text;
+
+    let translated = text;
+    // Replace each term found in dict (longest terms first to avoid partial matches)
+    Object.keys(dict).sort((a, b) => b.length - a.length).forEach(key => {
+      const regex = new RegExp(`\\b${key}\\b`, 'gi');
+      translated = translated.replace(regex, dict[key]);
+    });
+
+    return translated;
   };
 
   const current = weather?.current_condition?.[0];
+  const weatherText = current?.lang_vi?.[0]?.value || current?.weatherDesc?.[0]?.value;
   const area = weather?.nearest_area?.[0];
   const forecast = weather?.weather || [];
 
@@ -85,7 +104,7 @@ const Dashboard = () => {
     { title: 'VietGAP Trồng trọt', icon: <Leaf className="w-8 h-8" />, path: '/vietgap/trong-trot', color: '#22c55e' },
     { title: 'VietGAP Chăn nuôi', icon: <PawPrint className="w-8 h-8" />, path: '/vietgap/chan-nuoi', color: '#10b981' },
     { title: 'VietGAP Thủy sản', icon: <Fish className="w-8 h-8" />, path: '/vietgap/thuy-san', color: '#06b6d4' },
-    { title: 'Nhật ký sản xuất', icon: <LinkIcon className="w-8 h-8" />, path: '/journal', color: '#f59e0b' },
+    { title: 'Báo cáo & Thống kê', icon: <LinkIcon className="w-8 h-8" />, path: '/reports', color: '#f59e0b' },
     { title: 'Tồn kho', icon: <Package className="w-8 h-8" />, path: '/inventory/farmer', color: '#ec4899' },
     { title: 'Quy trình kỹ thuật', icon: <Settings className="w-8 h-8" />, path: '/d', color: '#6366f1' },
   ];
@@ -149,7 +168,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-7xl font-bold tracking-tighter text-gray-900 leading-none">{current?.temp_C || '--'}°</span>
-                      <span className="text-lg text-gray-800 font-bold ml-1">{translateCondition(current?.weatherDesc?.[0]?.value) || 'Có Mây'}</span>
+                      <span className="text-lg text-gray-800 font-bold ml-1">{translateCondition(weatherText)}</span>
                     </div>
                   </div>
 
