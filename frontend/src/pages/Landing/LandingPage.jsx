@@ -1,5 +1,5 @@
-import React from 'react';
-import { Typography, Button, Row, Col, Card, Space, Tag, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Typography, Button, Row, Col, Card, Space, Tag, Divider, Form, Input, message, Steps } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleFilled,
@@ -8,7 +8,20 @@ import {
     GlobalOutlined,
     SearchOutlined,
     EditOutlined,
-    QrcodeOutlined
+    QrcodeOutlined,
+    TrophyOutlined,
+    RocketOutlined,
+    TeamOutlined,
+    DollarOutlined,
+    SafetyOutlined,
+    LineChartOutlined,
+    BlockOutlined,
+    CloudServerOutlined,
+    PhoneOutlined,
+    MailOutlined,
+    UserOutlined,
+    ShopOutlined,
+    CheckOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -21,12 +34,41 @@ const { Title, Text, Paragraph } = Typography;
 const LandingPage = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     const handleGetStarted = () => {
         if (user) {
             navigate('/dashboard');
         } else {
             navigate('/login');
+        }
+    };
+
+    const handleConsultationSubmit = async (values) => {
+        setLoading(true);
+        try {
+            const response = await fetch('http://localhost:5000/api/consultations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                message.success(data.message || 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong 24h.');
+                form.resetFields();
+            } else {
+                message.error(data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+            }
+        } catch (error) {
+            console.error('Consultation submit error:', error);
+            message.error('Không thể kết nối đến server. Vui lòng thử lại sau!');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -214,6 +256,405 @@ const LandingPage = () => {
                 </div>
             </section>
 
+            {/* Benefits Section */}
+            <section className="bg-white py-24 md:py-32 px-6">
+                <div className="max-w-7xl mx-auto space-y-16">
+                    <div className="text-center max-w-3xl mx-auto space-y-4">
+                        <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Lợi ích</Tag>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Giá trị mà doanh nghiệp nhận được</Title>
+                        <Paragraph className="text-gray-500 text-lg">Khi triển khai hệ thống truy xuất nguồn gốc với EBookFarm</Paragraph>
+                    </div>
+
+                    <Row gutter={[32, 32]}>
+                        {[
+                            {
+                                icon: <TrophyOutlined />,
+                                title: 'Tạo ưu thế cạnh tranh',
+                                desc: 'Áp dụng truy xuất nguồn gốc giúp tăng cơ hội đàm phán và bán được giá tốt hơn.',
+                                color: '#f59e0b'
+                            },
+                            {
+                                icon: <LineChartOutlined />,
+                                title: 'Tối ưu quy trình sản xuất',
+                                desc: 'Quản lý hiệu quả vùng sản xuất, kiểm soát rủi ro, tối ưu nhân sự và chi phí.',
+                                color: '#3b82f6'
+                            },
+                            {
+                                icon: <SafetyOutlined />,
+                                title: 'Nâng cao uy tín thương hiệu',
+                                desc: 'Minh bạch thông tin làm tăng niềm tin người tiêu dùng, bảo vệ thương hiệu.',
+                                color: '#10b981'
+                            },
+                            {
+                                icon: <GlobalOutlined />,
+                                title: 'Mở rộng thị trường xuất khẩu',
+                                desc: 'Đáp ứng tiêu chuẩn quốc tế, dễ dàng tiếp cận thị trường nước ngoài.',
+                                color: '#8b5cf6'
+                            },
+                            {
+                                icon: <TeamOutlined />,
+                                title: 'Minh bạch chuỗi cung ứng',
+                                desc: 'Hỗ trợ minh bạch toàn bộ hoạt động để chứng minh năng lực doanh nghiệp.',
+                                color: '#ec4899'
+                            },
+                            {
+                                icon: <DollarOutlined />,
+                                title: 'Tăng doanh thu bền vững',
+                                desc: 'Quảng bá thông tin sản phẩm, tăng độ nhận diện và doanh số bán hàng.',
+                                color: '#06b6d4'
+                            }
+                        ].map((item, idx) => (
+                            <Col xs={24} sm={12} lg={8} key={idx}>
+                                <div className="flex gap-4 p-6 rounded-2xl hover:bg-gray-50 transition-all">
+                                    <div 
+                                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
+                                        style={{ background: `${item.color}15`, color: item.color }}
+                                    >
+                                        <span className="text-2xl">{item.icon}</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Title level={4} className="!mb-0 !text-gray-900">{item.title}</Title>
+                                        <Text className="text-gray-500 text-sm leading-relaxed">{item.desc}</Text>
+                                    </div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
+            </section>
+
+            {/* Technology & Standards Section */}
+            <section className="bg-gradient-to-br from-blue-50 to-green-50 py-24 md:py-32 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                        <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Công nghệ</Tag>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Công nghệ & Tiêu chuẩn</Title>
+                        <Paragraph className="text-gray-500 text-lg">Đảm bảo tuân thủ các tiêu chuẩn quốc gia và quốc tế</Paragraph>
+                    </div>
+
+                    <Row gutter={[32, 32]} align="middle">
+                        <Col xs={24} md={12}>
+                            <div className="space-y-6">
+                                {[
+                                    {
+                                        icon: <BlockOutlined />,
+                                        title: 'Công nghệ Blockchain',
+                                        desc: 'Sử dụng thuật toán blockchain đảm bảo minh bạch tuyệt đối, dữ liệu không thể thay đổi.'
+                                    },
+                                    {
+                                        icon: <SafetyCertificateFilled />,
+                                        title: 'Tiêu chuẩn TCVN Quốc gia',
+                                        desc: 'Hệ thống được xây dựng theo 35+ tiêu chuẩn TCVN về truy xuất nguồn gốc.'
+                                    },
+                                    {
+                                        icon: <GlobalOutlined />,
+                                        title: 'Chuẩn GS1 toàn cầu',
+                                        desc: 'Tương thích với chuẩn GS1, dễ dàng tích hợp với hệ thống quốc tế.'
+                                    },
+                                    {
+                                        icon: <CloudServerOutlined />,
+                                        title: 'Tích hợp Cổng TXNG Quốc gia',
+                                        desc: 'Đồng bộ dữ liệu với Cổng Truy xuất nguồn gốc Quốc gia của Bộ Khoa học.'
+                                    }
+                                ].map((item, idx) => (
+                                    <div key={idx} className="flex gap-4 p-6 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all">
+                                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                            <span className="text-xl">{item.icon}</span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Title level={5} className="!mb-0 !text-gray-900">{item.title}</Title>
+                                            <Text className="text-gray-500 text-sm">{item.desc}</Text>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden">
+                                <div className="p-8 space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <Text className="text-xs font-black text-gray-400 uppercase tracking-widest">Chứng nhận & Tiêu chuẩn</Text>
+                                        <CheckCircleFilled className="text-green-500 text-2xl" />
+                                    </div>
+                                    <div className="space-y-4">
+                                        {['VietGAP', 'GlobalGAP', 'HACCP', 'ISO 22000', 'Organic', 'TCVN 12827:2023'].map((cert, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                                <Text strong className="text-gray-900">{cert}</Text>
+                                                <Tag color="green" className="rounded-full">Hỗ trợ</Tag>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+            </section>
+
+            {/* Implementation Process Section */}
+            <section className="bg-white py-24 md:py-32 px-6">
+                <div className="max-w-5xl mx-auto space-y-16">
+                    <div className="text-center space-y-4">
+                        <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Quy trình</Tag>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Triển khai chỉ trong 3 bước</Title>
+                        <Paragraph className="text-gray-500 text-lg">Đơn giản, nhanh chóng và được hỗ trợ toàn diện</Paragraph>
+                    </div>
+
+                    <Steps
+                        direction="vertical"
+                        current={-1}
+                        items={[
+                            {
+                                title: <Text strong className="text-xl">Đăng ký & Tư vấn</Text>,
+                                description: (
+                                    <div className="mt-4 space-y-2">
+                                        <Paragraph className="text-gray-500">
+                                            Liên hệ với EBookFarm qua form đăng ký hoặc hotline. Đội ngũ chuyên gia sẽ tư vấn giải pháp phù hợp với quy mô và nhu cầu của bạn.
+                                        </Paragraph>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Tag color="blue">Tư vấn miễn phí</Tag>
+                                            <Tag color="blue">Khảo sát nhu cầu</Tag>
+                                            <Tag color="blue">Báo giá chi tiết</Tag>
+                                        </div>
+                                    </div>
+                                )
+                            },
+                            {
+                                title: <Text strong className="text-xl">Triển khai & Đào tạo</Text>,
+                                description: (
+                                    <div className="mt-4 space-y-2">
+                                        <Paragraph className="text-gray-500">
+                                            Cài đặt hệ thống, tạo tài khoản và đào tạo sử dụng cho đội ngũ. Hỗ trợ nhập liệu ban đầu và tùy chỉnh theo quy trình riêng.
+                                        </Paragraph>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Tag color="green">Đào tạo trực tiếp</Tag>
+                                            <Tag color="green">Tài liệu hướng dẫn</Tag>
+                                            <Tag color="green">Hỗ trợ 24/7</Tag>
+                                        </div>
+                                    </div>
+                                )
+                            },
+                            {
+                                title: <Text strong className="text-xl">Vận hành & Tối ưu</Text>,
+                                description: (
+                                    <div className="mt-4 space-y-2">
+                                        <Paragraph className="text-gray-500">
+                                            Bắt đầu sử dụng hệ thống, ghi nhật ký sản xuất và tạo mã QR truy xuất. Đội ngũ kỹ thuật luôn sẵn sàng hỗ trợ và tối ưu hóa.
+                                        </Paragraph>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Tag color="orange">Giám sát hiệu suất</Tag>
+                                            <Tag color="orange">Cập nhật tính năng</Tag>
+                                            <Tag color="orange">Tối ưu liên tục</Tag>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                        ]}
+                    />
+                </div>
+            </section>
+
+            {/* Success Stories Section */}
+            <section className="bg-slate-50 py-24 md:py-32 px-6">
+                <div className="max-w-7xl mx-auto space-y-16">
+                    <div className="text-center max-w-3xl mx-auto space-y-4">
+                        <Tag color="purple" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Khách hàng</Tag>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Câu chuyện thành công</Title>
+                        <Paragraph className="text-gray-500 text-lg">Hàng trăm doanh nghiệp và HTX đã tin tưởng sử dụng EBookFarm</Paragraph>
+                    </div>
+
+                    <Row gutter={[32, 32]}>
+                        {[
+                            {
+                                name: 'HTX Nông nghiệp Hiệp Hòa',
+                                location: 'Bắc Giang',
+                                area: '500 ha',
+                                product: 'Vải thiều',
+                                result: 'Quản lý 500ha vải thiều, số hóa toàn bộ quy trình từ chăm sóc đến thu hoạch. Sản phẩm đạt chuẩn VietGAP và xuất khẩu thành công.',
+                                stats: ['500+ nông hộ', 'VietGAP', 'Xuất khẩu']
+                            },
+                            {
+                                name: 'Công ty TNHH Ogasachi',
+                                location: 'Tây Nguyên',
+                                area: '20 ha',
+                                product: 'Sachi hữu cơ',
+                                result: 'Quản lý 20ha sachi và nhà xưởng 3000m². Minh bạch toàn bộ quy trình với đối tác xuất khẩu Đài Loan.',
+                                stats: ['20 ha', 'Hữu cơ', 'Xuất Đài Loan']
+                            },
+                            {
+                                name: 'Traphaco Pharma',
+                                location: 'Toàn quốc',
+                                area: '100+ ha',
+                                product: 'Dược liệu',
+                                result: 'Truy xuất nguồn gốc dược liệu từ vùng trồng đến sản xuất. Đảm bảo chất lượng và minh bạch với đối tác.',
+                                stats: ['100+ ha', 'GMP', 'Dược phẩm']
+                            }
+                        ].map((story, idx) => (
+                            <Col xs={24} md={8} key={idx}>
+                                <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100">
+                                    <div className="space-y-6">
+                                        <div className="flex items-start justify-between">
+                                            <div className="space-y-1">
+                                                <Title level={4} className="!mb-0 !text-gray-900">{story.name}</Title>
+                                                <Text className="text-gray-400 text-xs flex items-center gap-1">
+                                                    <GlobalOutlined /> {story.location}
+                                                </Text>
+                                            </div>
+                                            <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
+                                                <ShopOutlined className="text-xl" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex gap-4 text-center">
+                                            <div className="flex-1 p-3 bg-gray-50 rounded-xl">
+                                                <Text className="block text-lg font-black text-gray-900">{story.area}</Text>
+                                                <Text className="text-xs text-gray-500">Diện tích</Text>
+                                            </div>
+                                            <div className="flex-1 p-3 bg-gray-50 rounded-xl">
+                                                <Text className="block text-lg font-black text-gray-900">{story.product}</Text>
+                                                <Text className="text-xs text-gray-500">Sản phẩm</Text>
+                                            </div>
+                                        </div>
+
+                                        <Paragraph className="text-gray-500 text-sm leading-relaxed">
+                                            {story.result}
+                                        </Paragraph>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {story.stats.map((stat, i) => (
+                                                <Tag key={i} color="green" className="rounded-full">{stat}</Tag>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
+            </section>
+
+            {/* Consultation Form Section */}
+            <section className="bg-white py-24 md:py-32 px-6">
+                <div className="max-w-4xl mx-auto">
+                    <Row gutter={[48, 48]} align="middle">
+                        <Col xs={24} md={12}>
+                            <div className="space-y-6">
+                                <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Liên hệ</Tag>
+                                <Title level={2} className="!text-gray-900 !mb-0 md:!text-4xl font-black">
+                                    Nhận tư vấn & trải nghiệm ngay
+                                </Title>
+                                <Paragraph className="text-gray-500 text-lg leading-relaxed">
+                                    Để lại thông tin và chuyên viên sẽ liên hệ tư vấn chi tiết cho bạn trong 24h.
+                                </Paragraph>
+                                <div className="space-y-4 pt-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                                            <PhoneOutlined />
+                                        </div>
+                                        <div>
+                                            <Text className="block text-xs text-gray-400 uppercase font-bold">Hotline</Text>
+                                            <Text strong className="text-gray-900">1900 xxxx</Text>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                                            <MailOutlined />
+                                        </div>
+                                        <div>
+                                            <Text className="block text-xs text-gray-400 uppercase font-bold">Email</Text>
+                                            <Text strong className="text-gray-900">contact@ebookfarm.vn</Text>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Card className="rounded-3xl shadow-xl border-0">
+                                <Form
+                                    form={form}
+                                    layout="vertical"
+                                    onFinish={handleConsultationSubmit}
+                                    className="space-y-2"
+                                >
+                                    <Form.Item
+                                        name="fullname"
+                                        label="Họ và tên"
+                                        rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+                                    >
+                                        <Input 
+                                            size="large" 
+                                            placeholder="Nguyễn Văn A" 
+                                            prefix={<UserOutlined className="text-gray-300" />}
+                                            className="rounded-xl"
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="phone"
+                                        label="Số điện thoại"
+                                        rules={[
+                                            { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                                            { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }
+                                        ]}
+                                    >
+                                        <Input 
+                                            size="large" 
+                                            placeholder="0912345678" 
+                                            prefix={<PhoneOutlined className="text-gray-300" />}
+                                            className="rounded-xl"
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="email"
+                                        label="Email"
+                                        rules={[
+                                            { required: true, message: 'Vui lòng nhập email!' },
+                                            { type: 'email', message: 'Email không hợp lệ!' }
+                                        ]}
+                                    >
+                                        <Input 
+                                            size="large" 
+                                            placeholder="email@example.com" 
+                                            prefix={<MailOutlined className="text-gray-300" />}
+                                            className="rounded-xl"
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="organization"
+                                        label="Tên doanh nghiệp/HTX"
+                                    >
+                                        <Input 
+                                            size="large" 
+                                            placeholder="HTX Nông nghiệp..." 
+                                            prefix={<ShopOutlined className="text-gray-300" />}
+                                            className="rounded-xl"
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item className="!mb-0 !mt-6">
+                                        <Button
+                                            type="primary"
+                                            htmlType="submit"
+                                            size="large"
+                                            block
+                                            loading={loading}
+                                            className="h-12 rounded-xl bg-green-600 hover:bg-green-700 border-0 font-bold text-base"
+                                        >
+                                            Đăng ký tư vấn miễn phí
+                                        </Button>
+                                    </Form.Item>
+                                    <Text className="text-xs text-gray-400 block text-center mt-3">
+                                        Chúng tôi cam kết bảo mật thông tin cá nhân của bạn
+                                    </Text>
+                                </Form>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+            </section>
+
             {/* Bottom CTA Section */}
             <section className="py-24 px-6">
                 <div className="max-w-7xl mx-auto relative group">
@@ -247,7 +688,6 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
-            <PublicFooter />
         </div>
     );
 };

@@ -17,7 +17,8 @@ import {
   LockOutlined,
   BarChartOutlined,
   InboxOutlined,
-  ReadOutlined
+  ReadOutlined,
+  PhoneOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
 import logoImg from '../assets/logo-ebookfarm.jpg';
@@ -66,6 +67,11 @@ const MainLayout = () => {
       key: '/admin/news',
       icon: <FileTextOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý tin tức</span>,
+    },
+    {
+      key: '/admin/consultations',
+      icon: <PhoneOutlined className="text-lg" />,
+      label: <span className="font-medium">Yêu cầu tư vấn</span>,
     },
     {
       key: '/agriculture-models',

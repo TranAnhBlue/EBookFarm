@@ -17,6 +17,7 @@ const systemRoutes = require('./routes/systemRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const tcvnRoutes = require('./routes/tcvnRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const consultationRoutes = require('./routes/consultationRoutes');
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use('/api/system', systemRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/tcvn', tcvnRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/consultations', consultationRoutes);
 
 connectDB();
 
