@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Typography, Button, Space, Modal, Form, Input, Select, message, Popconfirm, Empty, Spin } from 'antd';
+import { Card, Typography, Button, Space, Modal, Form, Input, Select, message, Popconfirm, Empty, Spin, Tag } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
@@ -57,19 +57,27 @@ const AgricultureModels = () => {
 
   // Tree Processing
   const buildTree = (data) => {
-    if (!data) return [];
+    if (!data || !Array.isArray(data)) return [];
     const map = {};
     const tree = [];
-    data.forEach(node => {
-      map[node._id] = { ...node, children: [] };
-    });
-    data.forEach(node => {
-      if (node.parentId) {
-        if (map[node.parentId]) map[node.parentId].children.push(map[node._id]);
-      } else {
-        tree.push(map[node._id]);
-      }
-    });
+    
+    try {
+      data.forEach(node => {
+        map[node._id] = { ...node, children: [] };
+      });
+      
+      data.forEach(node => {
+        if (node.parentId && map[node.parentId]) {
+          map[node.parentId].children.push(map[node._id]);
+        } else if (!node.parentId) {
+          tree.push(map[node._id]);
+        }
+      });
+    } catch (error) {
+      console.error('Error building tree:', error);
+      return [];
+    }
+    
     return tree;
   };
 
@@ -89,25 +97,42 @@ const AgricultureModels = () => {
     setIsModalOpen(true);
   };
 
-  const RenderNode = ({ node, level }) => {
+  const RenderNode = ({ node, level, index, parentNumber = '' }) => {
     const colors = [
-      'bg-blue-100 border-blue-200 text-blue-700', // Level 0
-      'bg-green-100 border-green-200 text-green-700 ml-8', // Level 1
-      'bg-orange-50 border-orange-100 text-orange-700 ml-16' // Level 2
+      'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 hover:from-blue-100 hover:to-blue-200', // Level 0
+      'bg-gradient-to-r from-green-50 to-green-100 border-green-200 hover:from-green-100 hover:to-green-200 ml-8', // Level 1
+      'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200 hover:from-orange-100 hover:to-orange-200 ml-16' // Level 2
+    ];
+
+    const icons = [
+      <BlockOutlined className="text-blue-600 text-lg" />, // Level 0
+      <NodeIndexOutlined className="text-green-600 text-base" />, // Level 1
+      <TagOutlined className="text-orange-600 text-sm" /> // Level 2
     ];
 
     const btnLabel = level === 0 ? 'Thêm danh mục' : level === 1 ? 'Thêm đối tượng sản xuất' : null;
+    
+    // Generate number
+    const number = parentNumber ? `${parentNumber}.${index + 1}` : `${index + 1}`;
 
     return (
-      <div className="mb-2">
-        <div className={`flex items-center justify-between p-2 rounded-lg border shadow-sm transition-all hover:shadow-md ${colors[level]}`}>
-          <Space>
-            <Text strong className="text-inherit">
-              {level === 0 ? '1' : level === 1 ? '1.1' : '1.1.1'} {node.name}
-            </Text>
-            {node.schemaId && (
-              <TagOutlined className="text-xs opacity-50" />
-            )}
+      <div className="mb-3">
+        <div className={`flex items-center justify-between p-4 rounded-xl border-2 shadow-sm transition-all ${colors[level]}`}>
+          <Space size="middle">
+            {icons[level]}
+            <div>
+              <Space>
+                <Text strong className="text-gray-700 text-sm font-mono">{number}</Text>
+                <Text strong className="text-gray-900 text-base">{node.name}</Text>
+              </Space>
+              {node.schemaId && (
+                <div className="mt-1">
+                  <Tag color="blue" className="text-xs rounded-full">
+                    📋 {schemas?.find(s => s._id === node.schemaId)?.name || 'Biểu mẫu'}
+                  </Tag>
+                </div>
+              )}
+            </div>
           </Space>
 
           <Space>
@@ -115,7 +140,8 @@ const AgricultureModels = () => {
               <Button
                 type="primary"
                 size="small"
-                className="text-[10px] font-bold h-7 rounded-md px-4"
+                icon={<PlusOutlined />}
+                className="text-xs font-bold h-8 rounded-lg px-4 bg-green-600 border-0"
                 onClick={() => handleAdd(level + 1, node._id)}
               >
                 {btnLabel}
@@ -124,10 +150,11 @@ const AgricultureModels = () => {
             <Button
               size="small"
               icon={<EditOutlined />}
-              type="text"
-              className="text-blue-600 hover:bg-white"
+              className="text-blue-600 hover:bg-blue-50 border-blue-200 rounded-lg h-8"
               onClick={() => handleEdit(node)}
-            />
+            >
+              Sửa
+            </Button>
             <Popconfirm
               title="Xác nhận xóa?"
               description="Hành động này sẽ xóa cả các thư mục con."
@@ -136,17 +163,50 @@ const AgricultureModels = () => {
               cancelText="Hủy"
               okButtonProps={{ danger: true }}
             >
-              <Button size="small" icon={<DeleteOutlined />} type="text" danger className="hover:bg-white" />
+              <Button 
+                size="small" 
+                icon={<DeleteOutlined />} 
+                danger 
+                className="hover:bg-red-50 rounded-lg h-8"
+              >
+                Xóa
+              </Button>
             </Popconfirm>
           </Space>
         </div>
 
-        {node.children && node.children.map(child => (
-          <RenderNode key={child._id} node={child} level={level + 1} />
-        ))}
+        {node.children && node.children.length > 0 && (
+          <div className="mt-2">
+            {node.children.map((child, idx) => (
+              <RenderNode 
+                key={child._id} 
+                node={child} 
+                level={level + 1} 
+                index={idx}
+                parentNumber={number}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
+
+  // Calculate statistics
+  const stats = {
+    total: nodes?.length || 0,
+    level0: nodes?.filter(n => n.level === 0).length || 0,
+    level1: nodes?.filter(n => n.level === 1).length || 0,
+    level2: nodes?.filter(n => n.level === 2).length || 0,
+    withSchema: nodes?.filter(n => n.schemaId).length || 0
+  };
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('Nodes data:', nodes);
+    console.log('Tree data:', treeData);
+    console.log('Stats:', stats);
+  }, [nodes, treeData]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
@@ -162,7 +222,7 @@ const AgricultureModels = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            className="premium-gradient border-0 rounded-lg font-bold h-10 px-6 shadow-lg shadow-green-100"
+            className="bg-green-600 border-0 rounded-xl font-bold h-11 px-6 shadow-lg shadow-green-100 hover:bg-green-700"
             onClick={() => handleAdd(0)}
           >
             Thêm mới mô hình nông nghiệp
@@ -170,25 +230,101 @@ const AgricultureModels = () => {
         </div>
       </div>
 
-      <Card bordered={false} className="shadow-sm rounded-[24px] p-4 min-h-[500px]">
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="rounded-2xl border-gray-100 shadow-sm">
+          <Space direction="vertical" size={2}>
+            <Text className="text-gray-400 uppercase text-xs font-bold">Tổng số</Text>
+            <Title level={3} className="!mb-0 text-gray-900">{stats.total}</Title>
+          </Space>
+        </Card>
+        <Card className="rounded-2xl border-blue-100 shadow-sm">
+          <Space direction="vertical" size={2}>
+            <Text className="text-blue-500 uppercase text-xs font-bold flex items-center gap-1">
+              <BlockOutlined /> Mô hình
+            </Text>
+            <Title level={3} className="!mb-0 text-blue-600">{stats.level0}</Title>
+          </Space>
+        </Card>
+        <Card className="rounded-2xl border-green-100 shadow-sm">
+          <Space direction="vertical" size={2}>
+            <Text className="text-green-500 uppercase text-xs font-bold flex items-center gap-1">
+              <NodeIndexOutlined /> Danh mục
+            </Text>
+            <Title level={3} className="!mb-0 text-green-600">{stats.level1}</Title>
+          </Space>
+        </Card>
+        <Card className="rounded-2xl border-orange-100 shadow-sm">
+          <Space direction="vertical" size={2}>
+            <Text className="text-orange-500 uppercase text-xs font-bold flex items-center gap-1">
+              <TagOutlined /> Đối tượng
+            </Text>
+            <Title level={3} className="!mb-0 text-orange-600">{stats.level2}</Title>
+          </Space>
+        </Card>
+        <Card className="rounded-2xl border-purple-100 shadow-sm">
+          <Space direction="vertical" size={2}>
+            <Text className="text-purple-500 uppercase text-xs font-bold">Có biểu mẫu</Text>
+            <Title level={3} className="!mb-0 text-purple-600">{stats.withSchema}</Title>
+          </Space>
+        </Card>
+      </div>
+
+      <Card bordered={false} className="shadow-sm rounded-2xl p-6 min-h-[500px]">
         {isLoading ? (
-          <div className="flex justify-center items-center h-64"><Spin size="large" /></div>
-        ) : treeData.length > 0 ? (
-          treeData.map(model => (
-            <RenderNode key={model._id} node={model} level={0} />
-          ))
+          <div className="flex justify-center items-center h-64">
+            <Spin size="large" tip="Đang tải dữ liệu..." />
+          </div>
+        ) : treeData && treeData.length > 0 ? (
+          <div className="space-y-4">
+            {treeData.map((model, idx) => (
+              <RenderNode 
+                key={model._id} 
+                node={model} 
+                level={0} 
+                index={idx}
+                parentNumber=""
+              />
+            ))}
+          </div>
         ) : (
-          <Empty description="Chưa có mô hình nào được khởi tạo. Hãy nhấn nút phía trên để bắt đầu." />
+          <Empty 
+            description={
+              <div className="space-y-2">
+                <Text className="text-gray-500">Chưa có mô hình nào được khởi tạo</Text>
+                <Text className="block text-sm text-gray-400">Hãy nhấn nút "Thêm mới mô hình nông nghiệp" để bắt đầu</Text>
+              </div>
+            }
+            className="py-20"
+          />
         )}
       </Card>
 
       <Modal
-        title={<span className="font-bold">{modalMode === 'add' ? 'Thêm mới' : 'Chỉnh sửa'} thành phần</span>}
+        title={
+          <div className="flex items-center gap-2">
+            <PlusOutlined className="text-green-600" />
+            <Text strong className="text-lg">
+              {modalMode === 'add' ? 'Thêm mới' : 'Chỉnh sửa'} thành phần
+            </Text>
+          </div>
+        }
         open={isModalOpen}
         onOk={() => form.submit()}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={modalMode === 'add' ? 'Thêm mới' : 'Cập nhật'}
+        cancelText="Hủy"
+        okButtonProps={{
+          className: 'bg-green-600 hover:bg-green-700 border-0 rounded-lg h-10 px-6'
+        }}
+        cancelButtonProps={{
+          className: 'rounded-lg h-10 px-6'
+        }}
+        width={600}
         centered
-        className="rounded-2xl overflow-hidden"
       >
         <Form
           form={form}
@@ -201,32 +337,44 @@ const AgricultureModels = () => {
 
           <Form.Item
             name="name"
-            label="Tên thành phần"
+            label={<Text strong>Tên thành phần</Text>}
             rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
           >
-            <Input className="h-11 rounded-lg" placeholder="Ví dụ: VietGAP Trồng trọt, Chè búp..." />
+            <Input 
+              className="h-11 rounded-xl" 
+              placeholder="Ví dụ: VietGAP Trồng trọt, Chè búp..." 
+              prefix={<TagOutlined className="text-gray-400" />}
+            />
           </Form.Item>
 
           {activeNode?.level === 2 && (
             <Form.Item
               name="schemaId"
-              label="Gắn liên kết Biểu mẫu Nhật ký"
+              label={<Text strong>Gắn liên kết Biểu mẫu Nhật ký</Text>}
               tooltip="Đối tượng sản xuất cuối cùng cần có một biểu mẫu nhật ký đi kèm."
             >
               <Select
                 placeholder="Chọn biểu mẫu nhật ký..."
-                className="h-11 rounded-lg"
+                className="rounded-xl"
+                size="large"
                 options={schemas?.map(s => ({ value: s._id, label: s.name }))}
+                allowClear
               />
             </Form.Item>
           )}
 
           <Form.Item
             name="order"
-            label="Thứ tự hiển thị"
+            label={<Text strong>Thứ tự hiển thị</Text>}
             initialValue={0}
+            tooltip="Số thứ tự để sắp xếp hiển thị (0 = đầu tiên)"
           >
-            <Input type="number" className="h-11 rounded-lg" />
+            <Input 
+              type="number" 
+              className="h-11 rounded-xl" 
+              min={0}
+              placeholder="0"
+            />
           </Form.Item>
         </Form>
       </Modal>
