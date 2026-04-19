@@ -11,6 +11,7 @@ import {
     QrcodeOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import PublicNavbar from '../../components/PublicNavbar';
 import PublicFooter from '../../components/PublicFooter';
 import './LandingStyles.css';
@@ -19,6 +20,15 @@ const { Title, Text, Paragraph } = Typography;
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
+
+    const handleGetStarted = () => {
+        if (user) {
+            navigate('/dashboard');
+        } else {
+            navigate('/login');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-white overflow-x-hidden">
@@ -52,7 +62,7 @@ const LandingPage = () => {
                                     type="primary"
                                     size="large"
                                     className="bg-green-600 hover:bg-green-700 h-16 px-10 rounded-2xl font-black text-lg border-0 shadow-2xl shadow-green-200"
-                                    onClick={() => navigate('/login')}
+                                    onClick={handleGetStarted}
                                 >
                                     Số hóa nông trại ngay <ArrowRightOutlined />
                                 </Button>
@@ -223,7 +233,7 @@ const LandingPage = () => {
                                 type="primary"
                                 size="large"
                                 className="bg-green-600 hover:bg-green-700 h-16 px-12 rounded-2xl font-black text-xl border-0 shadow-2xl shadow-green-200/50"
-                                onClick={() => navigate('/login')}
+                                onClick={handleGetStarted}
                             >
                                 Bắt đầu miễn phí <ArrowRightOutlined />
                             </Button>
