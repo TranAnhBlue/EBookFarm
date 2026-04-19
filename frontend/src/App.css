@@ -182,3 +182,29 @@
     border-right-color: var(--border);
   }
 }
+
+/* Upload component styles */
+.ant-upload-list {
+  margin-top: 16px !important;
+}
+
+.ant-upload-list-item {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.ant-upload-list-item-thumbnail img {
+  object-fit: cover !important;
+  border-radius: 4px !important;
+}
+
+.ant-upload-list-item-name {
+  color: #374151 !important;
+  font-weight: 500 !important;
+}
+
+.ant-upload-list-item:hover {
+  background-color: #f9fafb !important;
+}

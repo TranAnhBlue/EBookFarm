@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs } from 'antd';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
@@ -12,8 +13,10 @@ const { Option } = Select;
 const JournalEntry = () => {
   const { schemaId, id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
   
   // Decide if we are creating or editing based on route params
   const isEditing = !!id;
@@ -81,6 +84,54 @@ const JournalEntry = () => {
       message.success(`Đã thêm: "${text}"`);
   };
 
+  const uploadProps = {
+      name: 'file',
+      multiple: true,
+      fileList: fileList,
+      showUploadList: true,
+      beforeUpload: (file) => {
+          // Kiểm tra kích thước file (giới hạn 10MB)
+          const isLt10M = file.size / 1024 / 1024 < 10;
+          if (!isLt10M) {
+              message.error('File phải nhỏ hơn 10MB!');
+              return Upload.LIST_IGNORE;
+          }
+          
+          // Tạo preview URL cho file
+          const reader = new FileReader();
+          reader.onload = (e) => {
+              const newFile = {
+                  uid: file.uid,
+                  name: file.name,
+                  status: 'done',
+                  url: e.target.result,
+                  originFileObj: file,
+                  thumbUrl: file.type.startsWith('image/') ? e.target.result : null
+              };
+              setFileList(prev => [...prev, newFile]);
+          };
+          reader.readAsDataURL(file);
+          
+          return false; // Ngăn upload tự động
+      },
+      onRemove: (file) => {
+          setFileList(prev => prev.filter(item => item.uid !== file.uid));
+      },
+      onPreview: async (file) => {
+          // Xử lý preview file
+          if (file.url) {
+              window.open(file.url, '_blank');
+          }
+      },
+      itemRender: (originNode, file) => {
+          return (
+              <div className="inline-block m-2">
+                  {originNode}
+              </div>
+          );
+      }
+  };
+
   const saveMutation = useMutation({
       mutationFn: (values) => {
           const payload = {
@@ -97,7 +148,13 @@ const JournalEntry = () => {
       onSuccess: () => {
           message.success(`Lưu nhật ký ${isEditing ? 'thành công!' : 'thành công! Đã tạo sổ mới.'}`);
           queryClient.invalidateQueries({ queryKey: ['journals'] });
-          navigate('/journal');
+          
+          // Lấy đường dẫn danh sách từ URL hiện tại
+          // Ví dụ: /vietgap/trong-trot/new/123 -> /vietgap/trong-trot
+          // hoặc: /vietgap/trong-trot/edit/456 -> /vietgap/trong-trot
+          const pathParts = location.pathname.split('/');
+          const listPath = `/${pathParts[1]}/${pathParts[2]}`;
+          navigate(listPath);
       },
       onError: (err) => {
           message.error(err.response?.data?.message || 'Lỗi khi lưu nhật ký. Vui lòng thử lại.');
@@ -179,7 +236,12 @@ const JournalEntry = () => {
              <p className="text-gray-500 mt-1 mb-0">{schema.description}</p>
            </div>
            <div className="flex gap-2">
-               <Button size="large" onClick={() => navigate('/journal')} className="rounded-xl">← Quay lại</Button>
+               <Button size="large" onClick={() => {
+                   // Quay lại trang danh sách dựa trên URL hiện tại
+                   const pathParts = location.pathname.split('/');
+                   const listPath = `/${pathParts[1]}/${pathParts[2]}`;
+                   navigate(listPath);
+               }} className="rounded-xl">← Quay lại</Button>
                <Button type="primary" size="large" onClick={() => form.submit()} loading={saveMutation.isPending} className="rounded-xl bg-green-600 font-bold px-8">
                    Lưu nhật ký
                </Button>
@@ -224,6 +286,29 @@ const JournalEntry = () => {
                         <Input size="large" placeholder="Mã số thửa đất (không bắt buộc)" className="rounded-xl border-gray-200" />
                     </Form.Item>
                 </div>
+            </Card>
+
+            {/* ===== TÀI LIỆU ĐÍNH KÈM ===== */}
+            <Card className="rounded-[28px] border border-blue-200 bg-blue-50/30 shadow-sm">
+                <Title level={5} className="text-blue-700 !mb-6 border-b border-blue-200 pb-3 flex items-center gap-2">
+                    📎 Tài liệu đính kèm
+                </Title>
+                <Upload.Dragger 
+                    {...uploadProps}
+                    className="bg-white"
+                    style={{ padding: '20px', border: '2px dashed #93c5fd', borderRadius: '16px' }}
+                >
+                    <div className="flex flex-col items-center justify-center py-4">
+                        <InboxOutlined className="text-blue-400 text-5xl mb-3" />
+                        <p className="text-gray-700 font-semibold mb-1">Tải sơ đồ lên tại đây</p>
+                        <p className="text-gray-500 text-sm mb-2">
+                            Nhấp hoặc kéo tệp vào khu vực này để tải lên
+                        </p>
+                        <p className="text-xs text-gray-400">
+                            Hỗ trợ: PDF, Word, Excel, Hình ảnh (tối đa 10MB/file)
+                        </p>
+                    </div>
+                </Upload.Dragger>
             </Card>
 
             {/* ===== TABS VietGAP ===== */}

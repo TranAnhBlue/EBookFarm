@@ -144,19 +144,19 @@ const App = () => {
                   {/* Farmer-only routes (Category-based nesting) */}
                   <Route path="vietgap/:subCategory">
                     <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                     <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                   </Route>
 
                   <Route path="huuco/:subCategory">
                     <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                     <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                   </Route>
 
                   <Route path="thongminh/:subCategory">
                     <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                     <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                   </Route>
 
