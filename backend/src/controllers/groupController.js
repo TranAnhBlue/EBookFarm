@@ -1,4 +1,5 @@
 const Group = require('../models/Group');
+const { createLog } = require('./logController');
 const User = require('../models/User');
 
 const getGroups = async (req, res) => {
@@ -19,6 +20,12 @@ const createGroup = async (req, res) => {
     if (members && members.length > 0) {
       await User.updateMany({ _id: { $in: members } }, { groupId: group._id });
     }
+    
+    // Log action
+    await createLog(req.user._id, 'Tạo nhóm người dùng', group._id, 'Group', {
+      name: group.name,
+      memberCount: members?.length || 0
+    });
     
     res.status(201).json({ success: true, data: group });
   } catch (error) {
@@ -53,6 +60,12 @@ const updateGroup = async (req, res) => {
       await User.updateMany({ _id: { $in: members } }, { groupId: group._id });
     }
 
+    // Log action
+    await createLog(req.user._id, 'Cập nhật nhóm người dùng', group._id, 'Group', {
+      name: group.name,
+      memberCount: members?.length || 0
+    });
+
     res.json({ success: true, data: group });
   } catch (error) {
     if (error.code === 11000) {
@@ -69,6 +82,11 @@ const deleteGroup = async (req, res) => {
 
     // Clear groupId for members
     await User.updateMany({ groupId: group._id }, { groupId: null });
+    
+    // Log action
+    await createLog(req.user._id, 'Xóa nhóm người dùng', group._id, 'Group', {
+      name: group.name
+    });
     
     await group.deleteOne();
     res.json({ success: true, message: 'Đã xóa nhóm thành công' });

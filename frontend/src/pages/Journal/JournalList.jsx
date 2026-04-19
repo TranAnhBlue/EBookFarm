@@ -16,13 +16,13 @@ const JournalList = () => {
   const getCategoryFromPath = (path) => {
     if (path.startsWith('/vietgap')) {
       if (path.includes('chan-nuoi')) return { key: 'channuoi', label: 'VietGAP Chăn nuôi', desc: 'Quản lý nhật ký chăn nuôi theo tiêu chuẩn VietGAP' };
-      if (path.includes('thuy-san')) return { key: 'thuyssan', label: 'VietGAP Thủy sản', desc: 'Quản lý nhật ký nuôi trồng thủy sản theo VietGAP' };
+      if (path.includes('thuy-san')) return { key: 'thuysan', label: 'VietGAP Thủy sản', desc: 'Quản lý nhật ký nuôi trồng thủy sản theo VietGAP' };
       return { key: 'trongtrot', label: 'VietGAP Trồng trọt', desc: 'Quản lý nhật ký sản xuất trồng trọt theo tiêu chuẩn VietGAP' };
     }
     if (path.startsWith('/huuco')) {
       if (path.includes('cay-trong')) return { key: 'huuco_caytrong', label: 'Hữu cơ - Cây trồng', desc: 'Nhật ký sản xuất cây trồng hữu cơ' };
       if (path.includes('chan-nuoi')) return { key: 'huuco_channuoi', label: 'Hữu cơ - Chăn nuôi', desc: 'Nhật ký chăn nuôi hữu cơ' };
-      if (path.includes('thuy-san')) return { key: 'huuco_thuyssan', label: 'Hữu cơ - Thủy sản', desc: 'Nhật ký thủy sản hữu cơ' };
+      if (path.includes('thuy-san')) return { key: 'huuco_thuysan', label: 'Hữu cơ - Thủy sản', desc: 'Nhật ký thủy sản hữu cơ' };
       return { key: 'huuco', label: 'Nông nghiệp Hữu cơ', desc: 'Nhật ký sản xuất hữu cơ, không sử dụng hoá chất tổng hợp' };
     }
     if (path.startsWith('/thongminh')) return { key: 'thongminh', label: 'Nông nghiệp Thông minh', desc: 'Nhật ký sản xuất ứng dụng công nghệ cao' };

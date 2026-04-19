@@ -5,7 +5,8 @@ const {
   forgotPassword, 
   resetPassword,
   googleLogin,
-  forceChangePassword
+  forceChangePassword,
+  logoutUser
 } = require('../controllers/authController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/logout', protect, logoutUser);
 router.post('/google', googleLogin);
 router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);

@@ -65,6 +65,14 @@ const loginUser = async (req, res) => {
     });
 
     if (user && user.status === 'Active' && (await user.matchPassword(password))) {
+      // Log successful login
+      const { createLog } = require('./logController');
+      await createLog(user._id, 'Đăng nhập hệ thống', user._id, 'User', { 
+        username: user.username,
+        email: user.email,
+        ip: req.ip || req.connection.remoteAddress
+      });
+
       res.json({
         success: true,
         data: {
@@ -269,4 +277,23 @@ const forceChangePassword = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin, forceChangePassword };
+// Logout - Log activity
+const logoutUser = async (req, res) => {
+  try {
+    const { createLog } = require('./logController');
+    await createLog(req.user.id, 'Đăng xuất hệ thống', req.user.id, 'User', { 
+      username: req.user.username,
+      email: req.user.email,
+      ip: req.ip || req.connection.remoteAddress
+    });
+
+    res.json({
+      success: true,
+      message: 'Đăng xuất thành công'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin, forceChangePassword, logoutUser };

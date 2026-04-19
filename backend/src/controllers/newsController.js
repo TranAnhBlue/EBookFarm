@@ -1,4 +1,5 @@
 const News = require('../models/News');
+const { createLog } = require('./logController');
 
 const getNews = async (req, res) => {
   try {
@@ -30,6 +31,13 @@ const createNews = async (req, res) => {
     const newsData = { ...req.body, author: req.user.id };
     const news = new News(newsData);
     const createdNews = await news.save();
+    
+    // Log action
+    await createLog(req.user.id, 'Tạo tin tức', createdNews._id, 'News', {
+      title: createdNews.title,
+      category: createdNews.category
+    });
+    
     res.status(201).json({ success: true, data: createdNews });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -40,6 +48,11 @@ const updateNews = async (req, res) => {
   try {
     const news = await News.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (news) {
+      // Log action
+      await createLog(req.user.id, 'Cập nhật tin tức', news._id, 'News', {
+        title: news.title
+      });
+      
       res.json({ success: true, data: news });
     } else {
       res.status(404).json({ success: false, message: 'News article not found' });
@@ -53,6 +66,11 @@ const deleteNews = async (req, res) => {
   try {
     const news = await News.findByIdAndDelete(req.params.id);
     if (news) {
+      // Log action
+      await createLog(req.user.id, 'Xóa tin tức', news._id, 'News', {
+        title: news.title
+      });
+      
       res.json({ success: true, message: 'News article removed' });
     } else {
       res.status(404).json({ success: false, message: 'News article not found' });

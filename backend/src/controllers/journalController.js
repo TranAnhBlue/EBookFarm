@@ -1,4 +1,5 @@
 const FarmJournal = require('../models/FarmJournal');
+const { createLog } = require('./logController');
 
 const createJournal = async (req, res) => {
   try {
@@ -7,6 +8,13 @@ const createJournal = async (req, res) => {
       userId: req.user._id,
     });
     const createdJournal = await journal.save();
+    
+    // Log action
+    await createLog(req.user._id, 'Tạo nhật ký sản xuất', createdJournal._id, 'FarmJournal', {
+      qrCode: createdJournal.qrCode,
+      schemaId: createdJournal.schemaId
+    });
+    
     res.status(201).json({ success: true, data: createdJournal });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -57,6 +65,13 @@ const updateJournal = async (req, res) => {
           journal.entries = req.body.entries || journal.entries;
           journal.status = req.body.status || journal.status;
           const updated = await journal.save();
+          
+          // Log action
+          await createLog(req.user._id, 'Cập nhật nhật ký sản xuất', updated._id, 'FarmJournal', {
+            qrCode: updated.qrCode,
+            status: updated.status
+          });
+          
           res.json({ success: true, data: updated });
       } else {
           res.status(404).json({ success: false, message: 'Journal not found' });

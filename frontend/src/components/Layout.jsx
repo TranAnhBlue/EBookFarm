@@ -3,6 +3,7 @@ import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getAvatarUrl, getInitialAvatar } from '../utils/helpers';
+import api from '../services/api';
 import {
   MenuOutlined,
   LogoutOutlined,
@@ -32,9 +33,17 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Call logout API to log the activity
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always logout from frontend
+      logout();
+      navigate('/login');
+    }
   };
 
   const getAdminItems = () => [
@@ -115,10 +124,6 @@ const MainLayout = () => {
       key: '/admin/logs',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Nhật ký hệ thống</span>,
-      children: [
-        { key: '/admin/logs/access', label: 'Lịch sử truy cập' },
-        { key: '/admin/logs/changes', label: 'Nhật ký thay đổi' },
-      ],
     },
     {
       key: 'system-config',
