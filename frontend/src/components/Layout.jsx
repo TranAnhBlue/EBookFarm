@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { getAvatarUrl, getInitialAvatar } from '../utils/helpers';
 import {
   MenuOutlined,
   LogoutOutlined,
@@ -33,10 +34,6 @@ const MainLayout = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const getInitialAvatar = (name) => {
-    return name ? name.charAt(0).toUpperCase() : 'U';
   };
 
   const getAdminItems = () => [
@@ -320,9 +317,10 @@ const MainLayout = () => {
               <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
                 <Avatar
                   size={44}
+                  src={getAvatarUrl(user?.avatar)}
                   className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
                 >
-                  {getInitialAvatar(user?.fullname || user?.username || 'U')}
+                  {!user?.avatar && getInitialAvatar(user?.fullname || user?.username || 'U')}
                 </Avatar>
                 <div className="text-left flex flex-col justify-center">
                   <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>

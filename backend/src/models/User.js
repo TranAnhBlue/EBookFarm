@@ -10,6 +10,28 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['Admin', 'User'], default: 'User' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
+  
+  // Thông tin cá nhân
+  phone: { type: String },
+  dateOfBirth: { type: Date },
+  gender: { type: String, enum: ['Nam', 'Nữ', 'Khác'] },
+  avatar: { type: String }, // URL ảnh đại diện
+  bio: { type: String }, // Giới thiệu ngắn
+  
+  // Địa chỉ
+  address: { type: String },
+  province: { type: String },
+  district: { type: String },
+  ward: { type: String },
+  
+  // Thông tin nông trại (cho User/Farmer)
+  farmName: { type: String },
+  farmCode: { type: String },
+  farmArea: { type: Number }, // Diện tích (m²)
+  farmType: { type: String, enum: ['Trồng trọt', 'Chăn nuôi', 'Thủy sản', 'Hỗn hợp'] },
+  certifications: [{ type: String }], // VietGAP, Hữu cơ, GlobalGAP...
+  organization: { type: String }, // Tổ chức/HTX/Công ty
+  
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, { timestamps: true });

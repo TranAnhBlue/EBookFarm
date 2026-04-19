@@ -43,15 +43,52 @@ const updateUserRoleStatus = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { fullname, email, password } = req.body;
+    const { 
+      fullname, 
+      phone, 
+      dateOfBirth, 
+      gender, 
+      address, 
+      province, 
+      district, 
+      ward,
+      farmName,
+      farmCode,
+      farmArea,
+      farmType,
+      certifications,
+      organization,
+      bio,
+      avatar
+    } = req.body;
+    
     const user = await User.findById(req.user._id);
 
     if (user) {
       user.fullname = fullname !== undefined ? fullname : user.fullname;
-      user.email = email !== undefined ? email : user.email;
-      if (password) user.password = password;
+      user.phone = phone !== undefined ? phone : user.phone;
+      user.dateOfBirth = dateOfBirth !== undefined ? dateOfBirth : user.dateOfBirth;
+      user.gender = gender !== undefined ? gender : user.gender;
+      user.address = address !== undefined ? address : user.address;
+      user.province = province !== undefined ? province : user.province;
+      user.district = district !== undefined ? district : user.district;
+      user.ward = ward !== undefined ? ward : user.ward;
+      user.farmName = farmName !== undefined ? farmName : user.farmName;
+      user.farmCode = farmCode !== undefined ? farmCode : user.farmCode;
+      user.farmArea = farmArea !== undefined ? farmArea : user.farmArea;
+      user.farmType = farmType !== undefined ? farmType : user.farmType;
+      user.certifications = certifications !== undefined ? certifications : user.certifications;
+      user.organization = organization !== undefined ? organization : user.organization;
+      user.bio = bio !== undefined ? bio : user.bio;
+      user.avatar = avatar !== undefined ? avatar : user.avatar;
 
       const updatedUser = await user.save();
+      
+      // Log action
+      await createLog(req.user._id, 'Cập nhật hồ sơ cá nhân', user._id, 'User', { 
+        fullname: user.fullname 
+      });
+      
       res.json({ success: true, data: updatedUser });
     } else {
       res.status(404).json({ success: false, message: 'User not found' });

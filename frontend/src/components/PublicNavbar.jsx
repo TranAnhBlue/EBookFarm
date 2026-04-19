@@ -2,6 +2,7 @@ import { Button, Space, Typography, Avatar, Dropdown, Divider as AntdDivider } f
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { UserOutlined, LogoutOutlined, DashboardOutlined } from '@ant-design/icons';
+import { getAvatarUrl } from '../utils/helpers';
 import logo from '../assets/logo-ebookfarm.jpg';
 
 const { Title } = Typography;
@@ -77,14 +78,15 @@ const PublicNavbar = () => {
                                 <div className="flex items-center gap-3 cursor-pointer p-1.5 hover:bg-gray-50/80 rounded-2xl transition-all border border-transparent hover:border-gray-100">
                                     <Avatar
                                         size={40}
+                                        src={getAvatarUrl(user?.avatar)}
                                         style={{ backgroundColor: '#16a34a' }}
-                                        icon={<UserOutlined />}
+                                        icon={!user?.avatar && <UserOutlined />}
                                         className="shadow-sm border-2 border-white"
                                     />
                                     <div className="hidden md:flex flex-col justify-center min-w-[80px]">
                                         <span className="text-[10px] text-gray-400 font-black uppercase leading-none tracking-widest mb-0.5">Xin chào</span>
                                         <span className="text-[14px] text-gray-800 font-extrabold leading-none truncate">
-                                            {user?.username || user?.email?.split('@')[0] || 'Người dùng'}
+                                            {user?.fullname || user?.username || user?.email?.split('@')[0] || 'Người dùng'}
                                         </span>
                                     </div>
                                 </div>
