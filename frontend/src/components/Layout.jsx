@@ -99,8 +99,7 @@ const MainLayout = () => {
       children: [
         { key: '/admin/users', label: 'Danh sách tài khoản' },
         { key: '/admin/groups', label: 'Cấu trúc nhóm' },
-        { key: '/admin/rights', label: 'Danh sách quyền' },
-        { key: '/admin/roles', label: 'Vai trò' },
+        { key: '/admin/roles', label: 'Phân quyền & Vai trò' },
       ],
     },
     {

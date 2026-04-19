@@ -73,6 +73,7 @@ const loginUser = async (req, res) => {
           fullname: user.fullname,
           email: user.email,
           role: user.role,
+          mustChangePassword: user.mustChangePassword || false, // Thêm flag này
           token: generateToken(user.id, user.role),
         }
       });
@@ -228,4 +229,44 @@ const googleLogin = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin };
+// Đổi mật khẩu bắt buộc lần đầu
+const forceChangePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không đúng' });
+    }
+
+    // Update password and clear flag
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    user.lastPasswordChange = new Date();
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Đổi mật khẩu thành công',
+      data: {
+        _id: user.id,
+        username: user.username,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        mustChangePassword: false,
+        token: generateToken(user.id, user.role),
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin, forceChangePassword };

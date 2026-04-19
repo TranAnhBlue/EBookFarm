@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Table, Typography, Tag, Space, Breadcrumb, Button, Tooltip, Row, Col, Alert } from 'antd';
+import { Card, Table, Typography, Tag, Space, Breadcrumb, Button, Alert } from 'antd';
 import { 
   HomeOutlined, 
   SafetyCertificateOutlined, 
@@ -123,44 +123,50 @@ const RolesManagement = () => {
          className="rounded-2xl border-blue-100 bg-blue-50"
       />
 
-      <Row gutter={[24, 24]}>
-         <Col span={24} lg={14}>
-            <Card bordered={false} className="shadow-sm rounded-[24px]" title={<Space><SafetyCertificateOutlined className="text-green-600" /> Định nghĩa Vai trò</Space>}>
-               <Table 
-                 columns={roleColumns} 
-                 dataSource={rolesData} 
-                 pagination={false} 
-                 className="premium-table"
-               />
-            </Card>
-         </Col>
-         
-         <Col span={24} lg={10}>
-            <Card bordered={false} className="shadow-sm rounded-[24px] bg-green-50/50" title={<Space><ThunderboltOutlined className="text-yellow-600" /> Bản đồ Quyền hạn</Space>}>
-               <Table 
-                 columns={rightColumns} 
-                 dataSource={rightsData} 
-                 pagination={false} 
-                 size="small"
-                 className="premium-table transparent-table"
-               />
-               <div className="mt-6 flex justify-end">
-                  <Button type="primary" className="rounded-xl h-10 px-6 font-bold bg-green-600 border-0 shadow-lg shadow-green-100">Áp dụng thay đổi</Button>
-               </div>
-            </Card>
-         </Col>
-      </Row>
+      <Card bordered={false} className="shadow-sm rounded-2xl mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <SafetyCertificateOutlined className="text-green-600 text-lg" />
+          <Title level={5} className="!mb-0">Định nghĩa Vai trò</Title>
+        </div>
+        <Table 
+          columns={roleColumns} 
+          dataSource={rolesData} 
+          pagination={false} 
+          className="premium-table"
+        />
+      </Card>
 
-      <Card bordered={false} className="shadow-sm rounded-[24px] p-2 bg-gray-900 text-white">
-          <div className="flex items-start gap-4 p-4">
-              <InfoCircleOutlined className="text-xl text-green-400" />
-              <div>
-                  <Title level={5} className="!text-white !mb-2">Mô hình phân quyền RBAC</Title>
-                  <Paragraph className="text-gray-400 text-xs !mb-0 max-w-2xl leading-relaxed">
-                      EBookFarm AI sử dụng mô hình Phân quyền dựa trên vai trò (Role-Based Access Control). Mỗi vai trò đại diện cho một nhóm nghiệp vụ cụ thể. Việc duy trì tính tách biệt giữa các quyền giúp bảo vệ dữ liệu sản xuất và đảm bảo tính trung thực của Nhật ký VietGAP.
-                  </Paragraph>
-              </div>
+      <Card bordered={false} className="shadow-sm rounded-2xl bg-green-50/50">
+        <div className="flex items-center gap-2 mb-4">
+          <ThunderboltOutlined className="text-yellow-600 text-lg" />
+          <Title level={5} className="!mb-0">Bản đồ Quyền hạn</Title>
+        </div>
+        <div className="overflow-x-auto">
+          <Table 
+            columns={rightColumns} 
+            dataSource={rightsData} 
+            pagination={false} 
+            size="middle"
+            scroll={{ x: 600 }}
+          />
+        </div>
+        <div className="mt-6 flex justify-end">
+          <Button type="primary" className="rounded-xl h-10 px-6 font-bold bg-green-600 border-0 shadow-lg shadow-green-100">
+            Áp dụng thay đổi
+          </Button>
+        </div>
+      </Card>
+
+      <Card bordered={false} className="shadow-sm rounded-2xl p-2 bg-gray-900 text-white">
+        <div className="flex items-start gap-4 p-4">
+          <InfoCircleOutlined className="text-xl text-green-400 flex-shrink-0 mt-1" />
+          <div className="flex-1">
+            <Title level={5} className="!text-white !mb-2">Mô hình phân quyền RBAC</Title>
+            <Paragraph className="text-gray-400 text-sm !mb-0 leading-relaxed">
+              EBookFarm AI sử dụng mô hình Phân quyền dựa trên vai trò (Role-Based Access Control). Mỗi vai trò đại diện cho một nhóm nghiệp vụ cụ thể. Việc duy trì tính tách biệt giữa các quyền giúp bảo vệ dữ liệu sản xuất và đảm bảo tính trung thực của Nhật ký VietGAP.
+            </Paragraph>
           </div>
+        </div>
       </Card>
     </div>
   );

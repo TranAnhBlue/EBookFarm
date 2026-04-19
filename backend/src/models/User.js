@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   
+  // Bảo mật
+  mustChangePassword: { type: Boolean, default: false }, // Bắt buộc đổi mật khẩu lần đầu
+  lastPasswordChange: { type: Date }, // Lần đổi mật khẩu cuối
+  
   // Thông tin cá nhân
   phone: { type: String },
   dateOfBirth: { type: Date },

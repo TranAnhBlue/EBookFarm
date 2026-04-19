@@ -114,7 +114,8 @@ const createUser = async (req, res) => {
       status: status || 'Active',
       fullname,
       email,
-      groupId
+      groupId,
+      mustChangePassword: true, // Bắt buộc đổi mật khẩu lần đầu
     });
 
     // Log action

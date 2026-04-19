@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntdApp } from 'antd';
@@ -37,6 +37,7 @@ import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
 import NotFound from './pages/Auth/NotFound';
 import Forbidden from './pages/Auth/Forbidden';
+import ForceChangePasswordModal from './components/ForceChangePasswordModal';
 
 import { useAuthStore } from './store/authStore';
 
@@ -68,6 +69,18 @@ const ProtectedRoute = ({ children, requireAdmin, farmerOnly }) => {
 };
 
 const App = () => {
+  const { user } = useAuthStore();
+  const [showForceChangePassword, setShowForceChangePassword] = useState(false);
+
+  useEffect(() => {
+    // Check if user needs to change password
+    if (user && user.mustChangePassword) {
+      setShowForceChangePassword(true);
+    } else {
+      setShowForceChangePassword(false);
+    }
+  }, [user]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId="147676468818-86oa6l06us45c8as6272v1mbc6egenf5.apps.googleusercontent.com">
@@ -95,6 +108,10 @@ const App = () => {
           }}
         >
           <AntdApp>
+            <ForceChangePasswordModal 
+              visible={showForceChangePassword}
+              onSuccess={() => setShowForceChangePassword(false)}
+            />
             <Router>
               <Routes>
                 {/* Public Guest Portal */}
