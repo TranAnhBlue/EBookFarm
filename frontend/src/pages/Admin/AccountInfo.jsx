@@ -224,42 +224,134 @@ const AccountInfo = () => {
                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
                         <UserOutlined />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                         <Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text>
-                        <Text strong>@{user?.username}</Text>
+                        <Text strong className="block truncate">@{user?.username}</Text>
                     </div>
                 </div>
+                
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
                         <MailOutlined />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                         <Text type="secondary" className="text-[10px] uppercase font-bold block">Email</Text>
-                        <Text strong className="text-xs">{user?.email}</Text>
+                        <Text strong className="text-xs block truncate">{user?.email}</Text>
                     </div>
                 </div>
+                
                 {user?.phone && (
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
                             <PhoneOutlined />
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                             <Text type="secondary" className="text-[10px] uppercase font-bold block">Điện thoại</Text>
-                            <Text strong>{user.phone}</Text>
+                            <Text strong className="block truncate">{user.phone}</Text>
                         </div>
                     </div>
                 )}
+                
+                {user?.dateOfBirth && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <IdcardOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Ngày sinh</Text>
+                            <Text strong className="block truncate">{dayjs(user.dateOfBirth).format('DD/MM/YYYY')}</Text>
+                        </div>
+                    </div>
+                )}
+                
+                {user?.gender && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <UserOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Giới tính</Text>
+                            <Text strong className="block truncate">{user.gender}</Text>
+                        </div>
+                    </div>
+                )}
+                
+                {user?.organization && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <ShopOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Tổ chức</Text>
+                            <Text strong className="block truncate">{user.organization}</Text>
+                        </div>
+                    </div>
+                )}
+                
+                {(user?.province || user?.district || user?.ward || user?.address) && (
+                    <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <EnvironmentOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Địa chỉ</Text>
+                            <Text strong className="text-xs block">
+                                {[user?.address, user?.ward, user?.district, user?.province]
+                                    .filter(Boolean)
+                                    .join(', ')}
+                            </Text>
+                        </div>
+                    </div>
+                )}
+                
                 {user?.farmName && (
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
                             <ShopOutlined />
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                             <Text type="secondary" className="text-[10px] uppercase font-bold block">Nông trại</Text>
-                            <Text strong>{user.farmName}</Text>
+                            <Text strong className="block truncate">{user.farmName}</Text>
                         </div>
                     </div>
                 )}
+                
+                {user?.farmCode && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <IdcardOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Mã nông trại</Text>
+                            <Text strong className="block truncate">{user.farmCode}</Text>
+                        </div>
+                    </div>
+                )}
+                
+                {user?.farmArea && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <EnvironmentOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Diện tích</Text>
+                            <Text strong className="block truncate">{user.farmArea.toLocaleString()} m²</Text>
+                        </div>
+                    </div>
+                )}
+                
+                {user?.farmType && (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                            <ShopOutlined />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <Text type="secondary" className="text-[10px] uppercase font-bold block">Loại hình</Text>
+                            <Text strong className="block truncate">{user.farmType}</Text>
+                        </div>
+                    </div>
+                )}
+                
                 {user?.certifications && user.certifications.length > 0 && (
                     <div>
                         <Text type="secondary" className="text-[10px] uppercase font-bold block mb-2">Chứng nhận</Text>
