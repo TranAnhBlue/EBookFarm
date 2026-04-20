@@ -1,17 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Input, Avatar, Badge, Tooltip } from 'antd';
+import { Button, Input, Avatar, Badge, Tooltip, Alert, Progress } from 'antd';
 import {
     MessageOutlined,
     SendOutlined,
     CloseOutlined,
     RobotOutlined,
-    UserOutlined
+    UserOutlined,
+    CrownOutlined,
+    LoginOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import './AIChatWidget.css';
 
 const { TextArea } = Input;
 
 const AIChatWidget = () => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
@@ -25,18 +29,44 @@ const AIChatWidget = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [hasNewMessage, setHasNewMessage] = useState(false);
     const [showWelcome, setShowWelcome] = useState(true);
+    const [chatInfo, setChatInfo] = useState(null);
+    const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // Show welcome notification after 3 seconds
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!isOpen) {
-                setHasNewMessage(true);
-            }
-        }, 3000);
+    // Lấy thông tin user từ localStorage
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
 
-        return () => clearTimeout(timer);
+    // Lấy thông tin chat khi mở widget
+    useEffect(() => {
+        if (isOpen && !chatInfo) {
+            fetchChatInfo();
+        }
     }, [isOpen]);
+
+    const fetchChatInfo = async () => {
+        try {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch('http://localhost:5000/api/chat/my-info', {
+                headers
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                setChatInfo(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch chat info:', error);
+        }
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -119,14 +149,21 @@ const AIChatWidget = () => {
         setMessages([...messages, userMessage]);
         setInputValue('');
         setIsTyping(true);
+        setShowUpgradeAlert(false);
 
         try {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             // Call Groq API (Free & Super Fast!)
             const response = await fetch('http://localhost:5000/api/groq/chat', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({
                     message: inputValue,
                     conversationHistory: messages.slice(-10) // Send last 10 messages for context
@@ -138,6 +175,24 @@ const AIChatWidget = () => {
             let botResponseText;
             if (data.success && data.data && data.data.response) {
                 botResponseText = data.data.response;
+                
+                // Cập nhật thông tin chat
+                if (data.data.chatLevel && data.data.remainingChats !== undefined) {
+                    setChatInfo(prev => ({
+                        ...prev,
+                        chatLevel: data.data.chatLevel,
+                        remainingChats: data.data.remainingChats,
+                        dailyUsed: prev ? prev.dailyUsed + 1 : 1
+                    }));
+                }
+            } else if (data.requireUpgrade) {
+                // Hết lượt chat
+                botResponseText = data.message;
+                setShowUpgradeAlert(true);
+                setChatInfo(prev => ({
+                    ...prev,
+                    upgradeInfo: data.upgradeInfo
+                }));
             } else if (data.fallbackResponse) {
                 botResponseText = data.fallbackResponse;
             } else {
@@ -179,6 +234,44 @@ const AIChatWidget = () => {
         setIsOpen(!isOpen);
         if (!isOpen) {
             setHasNewMessage(false);
+            fetchChatInfo();
+        }
+    };
+
+    const getChatLevelIcon = (level) => {
+        switch (level) {
+            case 'admin':
+            case 'vip':
+                return <CrownOutlined className="text-yellow-400" />;
+            case 'user':
+                return <UserOutlined className="text-blue-400" />;
+            default:
+                return <UserOutlined className="text-gray-400" />;
+        }
+    };
+
+    const getChatLevelColor = (level) => {
+        switch (level) {
+            case 'admin':
+            case 'vip':
+                return 'gold';
+            case 'user':
+                return 'blue';
+            default:
+                return 'default';
+        }
+    };
+
+    const getChatLevelText = (level) => {
+        switch (level) {
+            case 'admin':
+                return 'Admin';
+            case 'vip':
+                return 'VIP';
+            case 'user':
+                return 'User';
+            default:
+                return 'Guest';
         }
     };
 
@@ -236,11 +329,11 @@ const AIChatWidget = () => {
                                 <div>
                                     <div className="font-bold text-white flex items-center gap-2">
                                         AI Assistant
-                                        <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Llama-3.1-8B</span>
                                     </div>
                                     <div className="text-xs text-green-100 flex items-center gap-1">
                                         <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
                                         Đang hoạt động
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -251,6 +344,92 @@ const AIChatWidget = () => {
                                 className="text-white hover:bg-white/20"
                             />
                         </div>
+
+                        {/* Chat Level Info */}
+                        {chatInfo && (
+                            <div className="px-4 py-2 bg-gray-50 border-b">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        {getChatLevelIcon(chatInfo.chatLevel)}
+                                        <span className="text-sm font-medium">
+                                            {getChatLevelText(chatInfo.chatLevel)}
+                                        </span>
+                                        {!user && (
+                                            <Button
+                                                size="small"
+                                                type="link"
+                                                icon={<LoginOutlined />}
+                                                onClick={() => navigate('/login')}
+                                                className="p-0 h-auto"
+                                            >
+                                                Đăng nhập
+                                            </Button>
+                                        )}
+                                    </div>
+                                    
+                                    {chatInfo.dailyLimit > 0 && (
+                                        <div className="text-xs text-gray-500">
+                                            {chatInfo.remainingChats}/{chatInfo.dailyLimit} lượt
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {chatInfo.dailyLimit > 0 && (
+                                    <Progress
+                                        percent={((chatInfo.dailyLimit - chatInfo.remainingChats) / chatInfo.dailyLimit) * 100}
+                                        size="small"
+                                        strokeColor={chatInfo.chatLevel === 'guest' ? '#ff4d4f' : '#52c41a'}
+                                        className="mt-1"
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {/* Upgrade Alert */}
+                        {showUpgradeAlert && chatInfo?.upgradeInfo && (
+                            <div className="p-3 bg-orange-50 border-b">
+                                <Alert
+                                    type="warning"
+                                    message="Đã hết lượt chat!"
+                                    description={
+                                        <div>
+                                            <p className="mb-2">
+                                                {chatInfo.upgradeInfo.current === 'guest' 
+                                                    ? 'Đăng ký miễn phí để có thêm 50 lượt/ngày!'
+                                                    : 'Nâng cấp VIP để không giới hạn!'
+                                                }
+                                            </p>
+                                            <div className="text-xs">
+                                                <strong>Quyền lợi {chatInfo.upgradeInfo.next.toUpperCase()}:</strong>
+                                                <ul className="mt-1 ml-4">
+                                                    {chatInfo.upgradeInfo.benefits.map((benefit, index) => (
+                                                        <li key={index}>• {benefit}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <Button
+                                                size="small"
+                                                type="primary"
+                                                className="mt-2"
+                                                onClick={() => {
+                                                    if (chatInfo.upgradeInfo.current === 'guest') {
+                                                        navigate('/register');
+                                                    } else {
+                                                        // Liên hệ admin để nâng cấp VIP
+                                                        window.open('tel:1900xxxx');
+                                                    }
+                                                }}
+                                            >
+                                                {chatInfo.upgradeInfo.current === 'guest' ? 'Đăng ký ngay' : 'Liên hệ nâng cấp'}
+                                            </Button>
+                                        </div>
+                                    }
+                                    showIcon
+                                    closable
+                                    onClose={() => setShowUpgradeAlert(false)}
+                                />
+                            </div>
+                        )}
 
                         {/* Messages */}
                         <div className="ai-chat-messages">

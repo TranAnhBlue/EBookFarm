@@ -19,7 +19,9 @@ import {
   BarChartOutlined,
   InboxOutlined,
   ReadOutlined,
-  PhoneOutlined
+  PhoneOutlined,
+  RobotOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
 import logoImg from '../assets/logo-ebookfarm.jpg';
@@ -91,6 +93,16 @@ const MainLayout = () => {
       key: '/admin/openai-test',
       icon: <RobotOutlined className="text-lg" />,
       label: <span className="font-medium">Test OpenAI GPT</span>,
+    },
+    {
+      key: '/admin/groq-test',
+      icon: <ThunderboltOutlined className="text-lg" />,
+      label: <span className="font-medium">Test Groq AI</span>,
+    },
+    {
+      key: '/admin/chat-stats',
+      icon: <BarChartOutlined className="text-lg" />,
+      label: <span className="font-medium">Thống kê Chat AI</span>,
     },
     {
       key: '/agriculture-models',
