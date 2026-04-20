@@ -172,7 +172,7 @@ const MainLayout = () => {
       className: 'custom-farmer-submenu',
       children: [
         { key: '/vietgap/trong-trot', label: 'VietGAP Trồng trọt' },
-        { key: '/vietgap/chan-nuoi', label: 'VietGAP Chăn nuôi' },
+        { key: '/vietgap/chan-nuoi', label: 'VietGAHP Chăn nuôi' },
         { key: '/vietgap/thuy-san', label: 'VietGAP Thủy sản' },
       ],
     },

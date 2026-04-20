@@ -102,7 +102,7 @@ const Dashboard = () => {
 
   const farmerQuickAccess = [
     { title: 'VietGAP Trồng trọt', icon: <Leaf className="w-8 h-8" />, path: '/vietgap/trong-trot', color: '#22c55e' },
-    { title: 'VietGAP Chăn nuôi', icon: <PawPrint className="w-8 h-8" />, path: '/vietgap/chan-nuoi', color: '#10b981' },
+    { title: 'VietGAHP Chăn nuôi', icon: <PawPrint className="w-8 h-8" />, path: '/vietgap/chan-nuoi', color: '#10b981' },
     { title: 'VietGAP Thủy sản', icon: <Fish className="w-8 h-8" />, path: '/vietgap/thuy-san', color: '#06b6d4' },
     { title: 'Báo cáo & Thống kê', icon: <LinkIcon className="w-8 h-8" />, path: '/reports', color: '#f59e0b' },
     { title: 'Tồn kho', icon: <Package className="w-8 h-8" />, path: '/inventory/farmer', color: '#ec4899' },
