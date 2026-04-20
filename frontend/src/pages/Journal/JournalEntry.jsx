@@ -123,7 +123,7 @@ const JournalEntry = () => {
               window.open(file.url, '_blank');
           }
       },
-      itemRender: (originNode, file) => {
+      itemRender: (originNode) => {
           return (
               <div className="inline-block m-2">
                   {originNode}
@@ -133,12 +133,59 @@ const JournalEntry = () => {
   };
 
   const saveMutation = useMutation({
-      mutationFn: (values) => {
+      mutationFn: async (values) => {
+          // Validation bổ sung trước khi gửi
+          const errors = [];
+          
+          // Kiểm tra ít nhất một tab phải có dữ liệu
+          const hasData = schema.tables.some(table => {
+              const tableData = values[table.tableName];
+              return tableData && Object.values(tableData).some(value => value !== undefined && value !== null && value !== '');
+          });
+          
+          if (!hasData) {
+              errors.push('Vui lòng nhập ít nhất một thông tin trong các tab!');
+          }
+          
+          // Kiểm tra logic nghiệp vụ
+          const thongTinChung = values['Thông tin chung'];
+          if (thongTinChung) {
+              // Kiểm tra năm sản xuất hợp lý
+              if (thongTinChung.namSanXuat) {
+                  const currentYear = new Date().getFullYear();
+                  if (thongTinChung.namSanXuat < currentYear - 5 || thongTinChung.namSanXuat > currentYear + 2) {
+                      errors.push(`Năm sản xuất phải từ ${currentYear - 5} đến ${currentYear + 2}!`);
+                  }
+              }
+              
+              // Kiểm tra diện tích hợp lý
+              if (thongTinChung.dienTich && thongTinChung.dienTich > 1000000) {
+                  errors.push('Diện tích không được vượt quá 1,000,000 m²!');
+              }
+          }
+          
+          // Kiểm tra thời gian hợp lý trong thực hành sản xuất
+          const thucHanhSanXuat = values['Nhật ký thực hành sản xuất'];
+          if (thucHanhSanXuat) {
+              if (thucHanhSanXuat.ngayTrong && thucHanhSanXuat.duKienThuHoachTu) {
+                  const ngayTrong = new Date(thucHanhSanXuat.ngayTrong);
+                  const ngayThuHoach = new Date(thucHanhSanXuat.duKienThuHoachTu);
+                  if (ngayThuHoach <= ngayTrong) {
+                      errors.push('Ngày thu hoạch phải sau ngày trồng!');
+                  }
+              }
+          }
+          
+          if (errors.length > 0) {
+              throw new Error(errors.join('\n'));
+          }
+          
           const payload = {
               schemaId: activeSchemaId,
               status: values.status || 'Draft',
               entries: values
           };
+          
           if(isEditing) {
               return api.put(`/journals/${id}`, payload);
           } else {
@@ -157,9 +204,173 @@ const JournalEntry = () => {
           navigate(listPath);
       },
       onError: (err) => {
-          message.error(err.response?.data?.message || 'Lỗi khi lưu nhật ký. Vui lòng thử lại.');
+          const errorMessage = err.message || err.response?.data?.message || 'Lỗi khi lưu nhật ký. Vui lòng thử lại.';
+          
+          // Hiển thị lỗi validation chi tiết
+          if (errorMessage.includes('\n')) {
+              const errors = errorMessage.split('\n');
+              errors.forEach(error => {
+                  message.error(error, 5); // Hiển thị 5 giây
+              });
+          } else {
+              message.error(errorMessage);
+          }
       }
   });
+
+  // Validation rules cho các trường khác nhau
+  const getValidationRules = (field) => {
+    const rules = [];
+    
+    // Required validation
+    if (field.required) {
+      rules.push({ 
+        required: true, 
+        message: `Vui lòng nhập ${field.label}` 
+      });
+    }
+
+    // Validation theo loại trường
+    switch (field.type) {
+      case 'text':
+        // Validation cho các trường text cụ thể
+        if (field.name.includes('email') || field.label.toLowerCase().includes('email')) {
+          rules.push({
+            type: 'email',
+            message: 'Email không hợp lệ!'
+          });
+        }
+        
+        if (field.name.includes('phone') || field.label.toLowerCase().includes('điện thoại')) {
+          rules.push({
+            pattern: /^[0-9]{10,11}$/,
+            message: 'Số điện thoại phải có 10-11 chữ số!'
+          });
+        }
+
+        if (field.name.includes('maSo') || field.name.includes('maHo')) {
+          rules.push({
+            pattern: /^[A-Z0-9]{3,20}$/,
+            message: 'Mã số chỉ chứa chữ hoa và số, từ 3-20 ký tự!'
+          });
+        }
+
+        // Giới hạn độ dài
+        if (field.name.includes('tenCoSo') || field.name.includes('hoTen')) {
+          rules.push({
+            min: 2,
+            max: 100,
+            message: 'Tên phải từ 2-100 ký tự!'
+          });
+        }
+
+        if (field.name.includes('diaChi')) {
+          rules.push({
+            min: 10,
+            max: 200,
+            message: 'Địa chỉ phải từ 10-200 ký tự!'
+          });
+        }
+
+        break;
+
+      case 'number':
+        rules.push({
+          type: 'number',
+          min: 0,
+          message: 'Giá trị phải là số dương!'
+        });
+
+        // Validation cụ thể cho từng trường số
+        if (field.name.includes('dienTich')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 1000000,
+            message: 'Diện tích phải từ 1 đến 1,000,000 m²!'
+          });
+        }
+
+        if (field.name.includes('matDo')) {
+          rules.push({
+            type: 'number',
+            min: 0.1,
+            max: 1000,
+            message: 'Mật độ phải từ 0.1 đến 1000 cây/m²!'
+          });
+        }
+
+        if (field.name.includes('soLuong')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            message: 'Số lượng phải lớn hơn 0!'
+          });
+        }
+
+        if (field.name.includes('namSanXuat')) {
+          const currentYear = new Date().getFullYear();
+          rules.push({
+            type: 'number',
+            min: currentYear - 5,
+            max: currentYear + 2,
+            message: `Năm sản xuất phải từ ${currentYear - 5} đến ${currentYear + 2}!`
+          });
+        }
+
+        if (field.name.includes('thoiGianCachLy')) {
+          rules.push({
+            type: 'number',
+            min: 0,
+            max: 365,
+            message: 'Thời gian cách ly phải từ 0-365 ngày!'
+          });
+        }
+
+        break;
+
+      case 'date':
+        // Validation cho ngày tháng
+        if (field.name.includes('hanSuDung')) {
+          rules.push({
+            validator: (_, value) => {
+              if (!value) return Promise.resolve();
+              const today = new Date();
+              const selectedDate = new Date(value);
+              if (selectedDate <= today) {
+                return Promise.reject(new Error('Hạn sử dụng phải sau ngày hôm nay!'));
+              }
+              return Promise.resolve();
+            }
+          });
+        }
+
+        if (field.name.includes('ngayTrong') || field.name.includes('ngayBatDau')) {
+          rules.push({
+            validator: (_, value) => {
+              if (!value) return Promise.resolve();
+              const today = new Date();
+              const selectedDate = new Date(value);
+              const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+              const oneYearLater = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+              
+              if (selectedDate < oneYearAgo || selectedDate > oneYearLater) {
+                return Promise.reject(new Error('Ngày phải trong khoảng 1 năm trước đến 1 năm sau!'));
+              }
+              return Promise.resolve();
+            }
+          });
+        }
+
+        break;
+
+      case 'select':
+        // Select không cần validation đặc biệt vì đã giới hạn options
+        break;
+    }
+
+    return rules;
+  };
 
   const [activeTab, setActiveTab] = useState("0");
 
@@ -204,14 +415,47 @@ const JournalEntry = () => {
                                     )}
                                 </Space>
                             }
-                            rules={[{ required: field.required, message: `Vui lòng nhập ${field.label}` }]}
+                            rules={getValidationRules(field)}
                             className="mb-4"
                         >
-                            {field.type === 'text' && <Input size="large" className="rounded-xl border-gray-200" />}
-                            {field.type === 'number' && <InputNumber size="large" className="w-full rounded-xl border-gray-200" />}
-                            {field.type === 'date' && <DatePicker size="large" className="w-full rounded-xl border-gray-200" />}
+                            {field.type === 'text' && (
+                                <Input 
+                                    size="large" 
+                                    className="rounded-xl border-gray-200"
+                                    placeholder={`Nhập ${field.label.toLowerCase()}`}
+                                    maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('tenCoSo') || field.name.includes('hoTen') ? 100 : 50}
+                                    showCount={field.name.includes('diaChi') || field.name.includes('tenCoSo') || field.name.includes('hoTen')}
+                                />
+                            )}
+                            {field.type === 'number' && (
+                                <InputNumber 
+                                    size="large" 
+                                    className="w-full rounded-xl border-gray-200"
+                                    placeholder={`Nhập ${field.label.toLowerCase()}`}
+                                    min={0}
+                                    max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
+                                    formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
+                                    parser={field.name.includes('dienTich') ? (value) => value.replace(/\$\s?|(,*)/g, '') : undefined}
+                                />
+                            )}
+                            {field.type === 'date' && (
+                                <DatePicker 
+                                    size="large" 
+                                    className="w-full rounded-xl border-gray-200"
+                                    placeholder={`Chọn ${field.label.toLowerCase()}`}
+                                    format="DD/MM/YYYY"
+                                    disabledDate={field.name.includes('hanSuDung') ? (current) => current && current < new Date() : undefined}
+                                />
+                            )}
                             {field.type === 'select' && (
-                                <Select size="large" className="rounded-xl border-gray-200">
+                                <Select 
+                                    size="large" 
+                                    className="rounded-xl border-gray-200"
+                                    placeholder={`Chọn ${field.label.toLowerCase()}`}
+                                    allowClear
+                                    showSearch
+                                    optionFilterProp="children"
+                                >
                                     {field.options?.map((opt) => (
                                         <Option value={opt} key={opt}>{opt}</Option>
                                     ))}
@@ -249,45 +493,6 @@ const JournalEntry = () => {
         </div>
 
         <Form form={form} layout="vertical" onFinish={(values) => saveMutation.mutate(values)}>
-            {/* ===== THÔNG TIN CƠ BẢN LÔ SẢN XUẤT ===== */}
-            <Card className="rounded-[28px] border border-green-200 bg-green-50/30 shadow-sm">
-                <Title level={5} className="text-green-700 !mb-6 border-b border-green-200 pb-3 flex items-center gap-2">
-                    Nhập thông tin lô sản xuất
-                </Title>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                    {/* Required fields */}
-                    <Form.Item name="Mã nông hộ" label={<span className="font-medium text-gray-700">Mã nông hộ <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập mã nông hộ' }]} className="mb-5">
-                        <Input size="large" placeholder="Mã nông hộ" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Họ và tên" label={<span className="font-medium text-gray-700">Họ và tên tổ chức/cá nhân sản xuất <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]} className="mb-5">
-                        <Input size="large" placeholder="Họ và tên tổ chức/cá nhân sản xuất" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Địa chỉ" label={<span className="font-medium text-gray-700">Địa chỉ <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]} className="mb-5">
-                        <Input size="large" placeholder="Địa chỉ" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Diện tích" label={<span className="font-medium text-gray-700">Diện tích <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập diện tích' }]} className="mb-5">
-                        <Input size="large" placeholder="Diện tích (VD: 500 m2)" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Ngày bắt đầu" label={<span className="font-medium text-gray-700">Ngày bắt đầu <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]} className="mb-5">
-                        <DatePicker size="large" className="w-full rounded-xl border-gray-200" placeholder="Ngày bắt đầu" format="DD/MM/YYYY" />
-                    </Form.Item>
-                    <Form.Item name="Lô sản xuất" label={<span className="font-medium text-gray-700">Lô sản xuất <span className="text-red-500">*</span></span>} rules={[{ required: true, message: 'Vui lòng nhập lô sản xuất' }]} className="mb-5">
-                        <Input size="large" placeholder="Lô sản xuất (VD: Lô 01)" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-
-                    {/* Optional fields */}
-                    <Form.Item name="Tên cơ sở" label={<span className="font-medium text-gray-600">Tên cơ sở / hộ sản xuất</span>} className="mb-5">
-                        <Input size="large" placeholder="Tên cơ sở (không bắt buộc)" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Địa chỉ sản xuất" label={<span className="font-medium text-gray-600">Địa chỉ sản xuất</span>} className="mb-5">
-                        <Input size="large" placeholder="Địa chỉ sản xuất chi tiết (không bắt buộc)" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                    <Form.Item name="Mã số thửa" label={<span className="font-medium text-gray-600">Mã số thửa</span>} className="mb-5">
-                        <Input size="large" placeholder="Mã số thửa đất (không bắt buộc)" className="rounded-xl border-gray-200" />
-                    </Form.Item>
-                </div>
-            </Card>
-
             {/* ===== TÀI LIỆU ĐÍNH KÈM ===== */}
             <Card className="rounded-[28px] border border-blue-200 bg-blue-50/30 shadow-sm">
                 <Title level={5} className="text-blue-700 !mb-6 border-b border-blue-200 pb-3 flex items-center gap-2">
@@ -337,4 +542,3 @@ const JournalEntry = () => {
 };
 
 export default JournalEntry;
-
