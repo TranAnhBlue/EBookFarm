@@ -28,6 +28,8 @@ import GroupManagement from './pages/Admin/GroupManagement';
 import BackupMgmt from './pages/Admin/BackupMgmt';
 import NewsManagement from './pages/Admin/NewsManagement';
 import ConsultationManagement from './pages/Admin/ConsultationManagement';
+import GeminiTest from './pages/Admin/GeminiTest';
+import OpenAITest from './pages/Admin/OpenAITest';
 import NewsListAll from './pages/News/NewsListAll';
 import NewsDetail from './pages/News/NewsDetail';
 import TCVNReference from './pages/Reference/TCVNReference';
@@ -152,6 +154,8 @@ const App = () => {
                   <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                   <Route path="admin/news" element={<ProtectedRoute requireAdmin><NewsManagement /></ProtectedRoute>} />
                   <Route path="admin/consultations" element={<ProtectedRoute requireAdmin><ConsultationManagement /></ProtectedRoute>} />
+                  <Route path="admin/gemini-test" element={<ProtectedRoute requireAdmin><GeminiTest /></ProtectedRoute>} />
+                  <Route path="admin/openai-test" element={<ProtectedRoute requireAdmin><OpenAITest /></ProtectedRoute>} />
                   <Route path="admin/logs" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                   <Route path="admin/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
 

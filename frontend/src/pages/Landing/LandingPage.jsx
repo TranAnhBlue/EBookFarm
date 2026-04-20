@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import PublicNavbar from '../../components/PublicNavbar';
 import PublicFooter from '../../components/PublicFooter';
+import AIChatWidget from '../../components/AIChatWidget';
 import './LandingStyles.css';
 import './LandingAnimations.css';
 
@@ -76,6 +77,9 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-white overflow-x-hidden">
             <PublicNavbar />
+
+            {/* AI Chat Widget */}
+            <AIChatWidget />
 
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 hero-mask bg-slate-50 overflow-hidden">
@@ -141,7 +145,7 @@ const LandingPage = () => {
                                             <CheckCircleFilled className="text-green-500 text-xl" />
                                             <Text strong>Đã xác minh</Text>
                                         </div>
-                                        <Text className="text-xs text-gray-500 block mb-1">Cà phê Arabica Cầu Đất</Text>
+                                        <Text className="text-xs text-gray-500 block mb-1">Rau Cải Ngọt</Text>
                                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                                             <div className="h-full bg-green-500 progress-animate" style={{ width: '85%' }}></div>
                                         </div>

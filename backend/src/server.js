@@ -18,6 +18,7 @@ const newsRoutes = require('./routes/newsRoutes');
 const tcvnRoutes = require('./routes/tcvnRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 dotenv.config();
 
@@ -49,6 +50,10 @@ app.use('/api/news', newsRoutes);
 app.use('/api/tcvn', tcvnRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/consultations', consultationRoutes);
+app.use('/api/gemini', geminiRoutes);
+app.use('/api/openai', require('./routes/openaiRoutes'));
+app.use('/api/groq', require('./routes/groqRoutes'));
+app.use('/api/xai', require('./routes/xaiRoutes'));
 
 connectDB();
 

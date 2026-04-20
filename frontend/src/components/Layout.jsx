@@ -83,6 +83,16 @@ const MainLayout = () => {
       label: <span className="font-medium">Yêu cầu tư vấn</span>,
     },
     {
+      key: '/admin/gemini-test',
+      icon: <RobotOutlined className="text-lg" />,
+      label: <span className="font-medium">Test Gemini AI</span>,
+    },
+    {
+      key: '/admin/openai-test',
+      icon: <RobotOutlined className="text-lg" />,
+      label: <span className="font-medium">Test OpenAI GPT</span>,
+    },
+    {
       key: '/agriculture-models',
       icon: <GlobalOutlined className="text-lg" />,
       label: <span className="font-medium">Mô hình nông nghiệp</span>,
