@@ -21,7 +21,8 @@ import {
   ReadOutlined,
   PhoneOutlined,
   RobotOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
 import logoImg from '../assets/logo-ebookfarm.jpg';
@@ -85,19 +86,14 @@ const MainLayout = () => {
       label: <span className="font-medium">Yêu cầu tư vấn</span>,
     },
     {
-      key: '/admin/gemini-test',
-      icon: <RobotOutlined className="text-lg" />,
-      label: <span className="font-medium">Test Gemini AI</span>,
-    },
-    {
-      key: '/admin/openai-test',
-      icon: <RobotOutlined className="text-lg" />,
-      label: <span className="font-medium">Test OpenAI GPT</span>,
-    },
-    {
       key: '/admin/groq-test',
       icon: <ThunderboltOutlined className="text-lg" />,
       label: <span className="font-medium">Test Groq AI</span>,
+    },
+    {
+      key: '/admin/rag-test',
+      icon: <DatabaseOutlined className="text-lg" />,
+      label: <span className="font-medium">Test RAG System</span>,
     },
     {
       key: '/admin/chat-stats',

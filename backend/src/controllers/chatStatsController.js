@@ -93,7 +93,7 @@ const getMyChatInfo = async (req, res) => {
         let dailyLimit = CHAT_LIMITS.guest;
         
         if (req.user) {
-            if (req.user.role === 'admin') {
+            if (req.user.role === 'Admin') {
                 chatLevel = 'admin';
                 dailyLimit = CHAT_LIMITS.admin;
             } else {

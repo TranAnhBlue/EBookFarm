@@ -160,8 +160,8 @@ const AIChatWidget = () => {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            // Call Groq API (Free & Super Fast!)
-            const response = await fetch('http://localhost:5000/api/groq/chat', {
+            // Call RAG API (Real Data + AI!)
+            const response = await fetch('http://localhost:5000/api/rag/chat', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({

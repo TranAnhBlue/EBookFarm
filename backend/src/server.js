@@ -55,6 +55,7 @@ app.use('/api/openai', require('./routes/openaiRoutes'));
 app.use('/api/groq', require('./routes/groqRoutes'));
 app.use('/api/xai', require('./routes/xaiRoutes'));
 app.use('/api/chat', require('./routes/chatStatsRoutes'));
+app.use('/api/rag', require('./routes/ragRoutes'));
 
 connectDB();
 

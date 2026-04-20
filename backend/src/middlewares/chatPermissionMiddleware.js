@@ -35,7 +35,7 @@ const checkChatPermission = async (req, res, next) => {
         let dailyLimit = CHAT_LIMITS.guest;
         
         if (user) {
-            if (user.role === 'admin') {
+            if (user.role === 'Admin') {  // Sửa từ 'admin' thành 'Admin'
                 chatLevel = 'admin';
                 dailyLimit = CHAT_LIMITS.admin;
             } else {
