@@ -253,6 +253,135 @@ const JournalEntry = () => {
               }
           }
 
+          // === VALIDATION ĐẶC BIỆT CHO NẤM ĐÔNG TRÙNG - LOGIC NGHIỆP VỤ ===
+
+          // 2. Kiểm tra thông tin nấm Đông trùng
+          if (thongTinChung && thongTinChung.giongNam) {
+              // Kiểm tra mật độ túi phôi hợp lý
+              if (thongTinChung.matDo && thongTinChung.matDo > 150) {
+                  errors.push('Mật độ túi phôi quá cao (>150 túi/m²), có thể ảnh hưởng đến chất lượng nấm!');
+              }
+              if (thongTinChung.matDo && thongTinChung.matDo < 20) {
+                  errors.push('Mật độ túi phôi quá thấp (<20 túi/m²), không hiệu quả kinh tế!');
+              }
+
+              // Kiểm tra tổng túi phôi phù hợp với diện tích và mật độ
+              if (thongTinChung.tongTuiPhoi && thongTinChung.dienTich && thongTinChung.matDo) {
+                  const tongTuiUocTinh = thongTinChung.dienTich * thongTinChung.matDo;
+                  const chenhLech = Math.abs(thongTinChung.tongTuiPhoi - tongTuiUocTinh) / tongTuiUocTinh;
+                  
+                  if (chenhLech > 0.2) { // Chênh lệch > 20%
+                      errors.push(`Tổng túi phôi ${thongTinChung.tongTuiPhoi} không khớp với tính toán ${tongTuiUocTinh.toFixed(0)} túi (diện tích × mật độ)!`);
+                  }
+              }
+          }
+
+          // 3. Kiểm tra đánh giá ATTP (nấm)
+          const danhGiaATTP = values['Bảng 1: Đánh giá các chỉ tiêu gây mất ATTP trong đất/giá thể, nước tưới, nước phục vụ sơ chế và sản phẩm'];
+          if (danhGiaATTP) {
+              // Cảnh báo nếu có chỉ tiêu không đạt
+              if (danhGiaATTP.danhGiaHienTaiDat === 'Không đạt' && !danhGiaATTP.bienPhapXuLyDat) {
+                  errors.push('Đất/giá thể không đạt ATTP cần có biện pháp xử lý cụ thể!');
+              }
+              if (danhGiaATTP.danhGiaHienTaiNuoc === 'Không đạt' && !danhGiaATTP.bienPhapXuLyNuoc) {
+                  errors.push('Nước tưới không đạt ATTP cần có biện pháp xử lý cụ thể!');
+              }
+              if (danhGiaATTP.danhGiaHienTaiSanPham === 'Không đạt' && !danhGiaATTP.bienPhapXuLySanPham) {
+                  errors.push('Sản phẩm không đạt ATTP cần có biện pháp xử lý cụ thể!');
+              }
+          }
+
+          // 4. Kiểm tra giống nấm (nấm)
+          const giongNam = values['Bảng 2: Theo dõi mua hoặc tự sản xuất giống đầu vào'];
+          if (giongNam && thongTinChung) {
+              // Kiểm tra ngày mua giống phải trước ngày bắt đầu đặt túi phôi
+              if (giongNam.ngayMua && thongTinChung.ngayBatDauDatTreoTuiPhoi) {
+                  const ngayMua = new Date(giongNam.ngayMua);
+                  const ngayBatDau = new Date(thongTinChung.ngayBatDauDatTreoTuiPhoi);
+                  const soNgayBaoQuan = (ngayBatDau - ngayMua) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgayBaoQuan < 0) {
+                      errors.push('Ngày mua giống phải trước ngày bắt đầu đặt túi phôi!');
+                  }
+                  if (soNgayBaoQuan > 30) {
+                      errors.push(`Giống nấm bảo quản ${Math.round(soNgayBaoQuan)} ngày quá lâu, có thể mất hoạt tính!`);
+                  }
+              }
+
+              // Kiểm tra tên giống phù hợp
+              if (giongNam.tenGiong && thongTinChung.giongNam) {
+                  if (giongNam.tenGiong !== thongTinChung.giongNam) {
+                      errors.push('Tên giống trong bảng mua phải khớp với thông tin chung!');
+                  }
+              }
+          }
+
+          // 5. Kiểm tra quá trình sản xuất (nấm)
+          const quaTrinhSanXuat = values['Bảng 4: Nhật ký quá trình sản xuất'];
+          if (quaTrinhSanXuat) {
+              // Kiểm tra nhiệt độ và độ ẩm hợp lý cho nấm Đông trùng
+              if (quaTrinhSanXuat.nhietDo) {
+                  if (quaTrinhSanXuat.nhietDo < 18 || quaTrinhSanXuat.nhietDo > 28) {
+                      errors.push(`Nhiệt độ ${quaTrinhSanXuat.nhietDo}°C không tối ưu cho nấm Đông trùng (nên 18-28°C)!`);
+                  }
+              }
+
+              if (quaTrinhSanXuat.doAm) {
+                  if (quaTrinhSanXuat.doAm < 70 || quaTrinhSanXuat.doAm > 90) {
+                      errors.push(`Độ ẩm ${quaTrinhSanXuat.doAm}% không tối ưu cho nấm Đông trùng (nên 70-90%)!`);
+                  }
+              }
+
+              // Kiểm tra diện tích phù hợp với thông tin chung
+              if (quaTrinhSanXuat.dienTichM2 && thongTinChung?.dienTich) {
+                  if (quaTrinhSanXuat.dienTichM2 > thongTinChung.dienTich) {
+                      errors.push('Diện tích sản xuất không được lớn hơn tổng diện tích!');
+                  }
+              }
+          }
+
+          // 6. Kiểm tra thu hoạch (nấm)
+          const thuHoachNam = values['Bảng 5: Thu hoạch và tiêu thụ sản phẩm'];
+          if (thuHoachNam && thongTinChung) {
+              // Kiểm tra chu kỳ sản xuất nấm hợp lý
+              if (thuHoachNam.thoiGianThuHoach && thongTinChung.ngayBatDauDatTreoTuiPhoi) {
+                  const ngayThu = new Date(thuHoachNam.thoiGianThuHoach);
+                  const ngayBatDau = new Date(thongTinChung.ngayBatDauDatTreoTuiPhoi);
+                  const soNgaySanXuat = (ngayThu - ngayBatDau) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgaySanXuat < 30) {
+                      errors.push(`Chu kỳ sản xuất nấm ${Math.round(soNgaySanXuat)} ngày quá ngắn (tối thiểu 30 ngày)!`);
+                  }
+                  if (soNgaySanXuat > 120) {
+                      errors.push(`Chu kỳ sản xuất nấm ${Math.round(soNgaySanXuat)} ngày quá dài (tối đa 120 ngày)!`);
+                  }
+              }
+
+              // Kiểm tra số lượng bán không vượt quá sản lượng
+              if (thuHoachNam.soLuongBanKg && thuHoachNam.sanLuongKg) {
+                  if (thuHoachNam.soLuongBanKg > thuHoachNam.sanLuongKg) {
+                      errors.push('Số lượng bán không được lớn hơn sản lượng thu hoạch!');
+                  }
+              }
+
+              // Ước tính năng suất nấm hợp lý
+              if (thuHoachNam.sanLuongKg && thongTinChung.tongTuiPhoi) {
+                  const nangSuatTrenTui = thuHoachNam.sanLuongKg / thongTinChung.tongTuiPhoi;
+                  
+                  if (nangSuatTrenTui < 0.05) {
+                      errors.push(`Năng suất ${nangSuatTrenTui.toFixed(3)}kg/túi thấp, cần kiểm tra kỹ thuật nuôi cấy!`);
+                  }
+                  if (nangSuatTrenTui > 0.5) {
+                      errors.push(`Năng suất ${nangSuatTrenTui.toFixed(3)}kg/túi cao bất thường, kiểm tra lại số liệu!`);
+                  }
+              }
+
+              // Kiểm tra vệ sinh thu hoạch
+              if (thuHoachNam.veSinhDungCuThuHoach === 'Không đạt (K)') {
+                  errors.push('Cảnh báo: Dụng cụ thu hoạch không đạt vệ sinh, có thể ảnh hưởng chất lượng sản phẩm!');
+              }
+          }
+
           // 3. Kiểm tra logic thức ăn (gia cầm)
           const nhapThucAnGiaCam = values['Biểu 2: Theo dõi nhập thức ăn/nguyên liệu thô'];
           const suDungThucAnGiaCam = values['Biểu 5: Theo dõi sử dụng thức ăn'];
@@ -867,6 +996,58 @@ const JournalEntry = () => {
             min: 1,
             max: 50000,
             message: 'Số lượng con phải từ 1 đến 50,000 con!'
+          });
+        }
+
+        // === VALIDATION ĐẶC BIỆT CHO TRỒNG NẤM ===
+
+        // Mật độ túi phôi nấm (/m²)
+        if (field.name.includes('matDo') && field.label.toLowerCase().includes('m²')) {
+          rules.push({
+            type: 'number',
+            min: 10,
+            max: 200,
+            message: 'Mật độ túi phôi nấm phải từ 10-200 túi/m²!'
+          });
+        }
+
+        // Tổng túi phôi (bịch)
+        if (field.name.includes('tongTuiPhoi')) {
+          rules.push({
+            type: 'number',
+            min: 100,
+            max: 100000,
+            message: 'Tổng túi phôi phải từ 100 đến 100,000 bịch!'
+          });
+        }
+
+        // Nhiệt độ nuôi cấy nấm (°C)
+        if (field.name.includes('nhietDo')) {
+          rules.push({
+            type: 'number',
+            min: 15,
+            max: 35,
+            message: 'Nhiệt độ nuôi cấy nấm phải từ 15-35°C!'
+          });
+        }
+
+        // Độ ẩm nuôi cấy nấm (%)
+        if (field.name.includes('doAm')) {
+          rules.push({
+            type: 'number',
+            min: 60,
+            max: 95,
+            message: 'Độ ẩm nuôi cấy nấm phải từ 60-95%!'
+          });
+        }
+
+        // Sản lượng nấm (kg)
+        if (field.name.includes('sanLuong') || field.name.includes('soLuongBan')) {
+          rules.push({
+            type: 'number',
+            min: 0.1,
+            max: 10000,
+            message: 'Sản lượng nấm phải từ 0.1 đến 10,000 kg!'
           });
         }
 
