@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message } from 'antd';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -80,12 +80,154 @@ const JournalList = () => {
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedJournalId, setSelectedJournalId] = useState(null);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [importSchemaId, setImportSchemaId] = useState(null);
+  const [selectedJournals, setSelectedJournals] = useState([]);
 
   const { data: fullJournal, isLoading: isFetchingFull } = useQuery({
     queryKey: ['journal-detail', selectedJournalId],
     queryFn: () => api.get(`/journals/${selectedJournalId}`).then(res => res.data.data),
     enabled: !!selectedJournalId
   });
+
+  // Export single journal
+  const handleExportSingle = async (journalId) => {
+    try {
+      const response = await api.get(`/journals/export/${journalId}`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nhat-ky-${Date.now()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+      Modal.error({
+        title: 'Lỗi xuất dữ liệu',
+        content: error.response?.data?.message || 'Không thể xuất nhật ký'
+      });
+    }
+  };
+
+  // Export multiple journals
+  const handleExportMultiple = async () => {
+    if (selectedJournals.length === 0) {
+      Modal.warning({
+        title: 'Chưa chọn nhật ký',
+        content: 'Vui lòng chọn ít nhất một nhật ký để xuất'
+      });
+      return;
+    }
+
+    try {
+      const response = await api.post('/journals/export-multiple', {
+        journalIds: selectedJournals
+      }, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nhat-ky-nhieu-${Date.now()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      setSelectedJournals([]);
+    } catch (error) {
+      console.error('Export error:', error);
+      Modal.error({
+        title: 'Lỗi xuất dữ liệu',
+        content: error.response?.data?.message || 'Không thể xuất nhật ký'
+      });
+    }
+  };
+
+  // Download import template
+  const handleDownloadTemplate = async (schemaId) => {
+    try {
+      const response = await api.get(`/journals/template/${schemaId}`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `mau-import-${Date.now()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Template download error:', error);
+      Modal.error({
+        title: 'Lỗi tải mẫu',
+        content: error.response?.data?.message || 'Không thể tải mẫu import'
+      });
+    }
+  };
+
+  // Import journal
+  const handleImport = async () => {
+    if (!selectedFile || !importSchemaId) {
+      Modal.warning({
+        title: 'Thiếu thông tin',
+        content: 'Vui lòng chọn loại sổ và file để import'
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('schemaId', importSchemaId);
+
+    try {
+      const response = await api.post('/journals/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      Modal.success({
+        title: 'Import thành công',
+        content: (
+          <div>
+            <p>Đã tạo nhật ký mới từ file Excel</p>
+            {response.data.data.results.warnings.length > 0 && (
+              <div className="mt-2">
+                <p className="font-bold">Cảnh báo:</p>
+                <ul className="list-disc pl-4">
+                  {response.data.data.results.warnings.map((w, i) => (
+                    <li key={i} className="text-sm">{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ),
+        onOk: () => {
+          setImportModalVisible(false);
+          setSelectedFile(null);
+          setImportSchemaId(null);
+          window.location.reload();
+        }
+      });
+    } catch (error) {
+      console.error('Import error:', error);
+      Modal.error({
+        title: 'Lỗi import dữ liệu',
+        content: error.response?.data?.message || 'Không thể import nhật ký'
+      });
+    }
+  };
 
   const columns = [
     {
@@ -127,6 +269,13 @@ const JournalList = () => {
             className="flex items-center justify-center hover:bg-green-50 text-green-600 rounded-lg"
             icon={<EditOutlined />}
             onClick={() => navigate(`${location.pathname}/edit/${record._id}`)}
+          />
+          <Button
+            type="text"
+            className="flex items-center justify-center hover:bg-blue-50 text-blue-600 rounded-lg"
+            icon={<DownloadOutlined />}
+            onClick={() => handleExportSingle(record._id)}
+            title="Xuất Excel"
           />
           <Button
             type="text"
@@ -184,8 +333,37 @@ const JournalList = () => {
       {/* Main Table/Card Content */}
       <Card variant="borderless" className="shadow-sm rounded-xl overflow-hidden border border-green-200 p-0" styles={{ body: { padding: 0 } }}>
         {/* Toolbar in Card */}
-        <div className="p-4 flex justify-end items-center bg-white border-b border-green-200">
+        <div className="p-4 flex justify-between items-center bg-white border-b border-green-200">
           <Space>
+            {selectedJournals.length > 0 && (
+              <>
+                <Text className="text-gray-600">Đã chọn: <strong>{selectedJournals.length}</strong></Text>
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportMultiple}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  Xuất {selectedJournals.length} nhật ký
+                </Button>
+                <Button
+                  size="small"
+                  type="text"
+                  onClick={() => setSelectedJournals([])}
+                  className="text-gray-400"
+                >
+                  Bỏ chọn
+                </Button>
+              </>
+            )}
+          </Space>
+          <Space>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={() => setImportModalVisible(true)}
+              className="text-green-600 border-green-300 hover:bg-green-50"
+            >
+              Import
+            </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -194,7 +372,6 @@ const JournalList = () => {
             >
               Tạo sổ nhật ký
             </Button>
-            <Button icon={<QrcodeOutlined />} className="text-gray-500" />
           </Space>
         </div>
 
@@ -279,6 +456,15 @@ const JournalList = () => {
               pagination={{ pageSize: 8, className: "px-6 py-4" }}
               className="border-0"
               size="middle"
+              rowSelection={{
+                selectedRowKeys: selectedJournals,
+                onChange: (selectedRowKeys) => setSelectedJournals(selectedRowKeys),
+                selections: [
+                  Table.SELECTION_ALL,
+                  Table.SELECTION_INVERT,
+                  Table.SELECTION_NONE,
+                ]
+              }}
               locale={{
                 emptyText: (
                   <div className="py-12 text-center text-gray-400">
@@ -462,6 +648,117 @@ const JournalList = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Import Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <FileExcelOutlined className="text-green-600 text-xl" />
+            <span className="text-lg font-bold">Import nhật ký từ Excel</span>
+          </div>
+        }
+        open={importModalVisible}
+        onCancel={() => {
+          setImportModalVisible(false);
+          setSelectedFile(null);
+          setImportSchemaId(null);
+        }}
+        onOk={handleImport}
+        okText="Import"
+        cancelText="Hủy"
+        width={600}
+        okButtonProps={{
+          className: 'bg-green-600 hover:bg-green-700',
+          disabled: !selectedFile || !importSchemaId
+        }}
+      >
+        <div className="space-y-6 py-4">
+          {/* Step 1: Select Schema */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">1</div>
+              <Text strong className="text-base">Chọn loại sổ nhật ký</Text>
+            </div>
+            <Select
+              style={{ width: '100%' }}
+              placeholder="Chọn loại sổ"
+              className="h-10"
+              onChange={(value) => setImportSchemaId(value)}
+              value={importSchemaId}
+            >
+              {schemas?.map((s) => (
+                <Select.Option value={s._id} key={s._id}>
+                  {s.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Step 2: Download Template */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">2</div>
+              <Text strong className="text-base">Tải mẫu Excel</Text>
+            </div>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => importSchemaId && handleDownloadTemplate(importSchemaId)}
+              disabled={!importSchemaId}
+              className="w-full h-10 border-dashed border-2 border-green-300 text-green-600 hover:bg-green-50"
+            >
+              Tải mẫu import cho loại sổ đã chọn
+            </Button>
+            <Text className="text-xs text-gray-400 mt-2 block">
+              Tải mẫu Excel, điền dữ liệu vào các ô tương ứng, sau đó upload lại
+            </Text>
+          </div>
+
+          {/* Step 3: Upload File */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">3</div>
+              <Text strong className="text-base">Upload file đã điền</Text>
+            </div>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={(e) => setSelectedFile(e.target.files[0])}
+                className="hidden"
+                id="file-upload"
+              />
+              <label htmlFor="file-upload" className="cursor-pointer">
+                <UploadOutlined className="text-4xl text-gray-300 mb-2" />
+                <div className="text-gray-600">
+                  {selectedFile ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <FileExcelOutlined className="text-green-600" />
+                      <Text strong className="text-green-600">{selectedFile.name}</Text>
+                    </div>
+                  ) : (
+                    <>
+                      <Text className="block">Nhấn để chọn file Excel</Text>
+                      <Text className="text-xs text-gray-400">Hỗ trợ: .xlsx, .xls, .csv (tối đa 10MB)</Text>
+                    </>
+                  )}
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <Text strong className="text-blue-800 block mb-2">📌 Lưu ý:</Text>
+            <ul className="text-sm text-blue-700 space-y-1 list-disc pl-5">
+              <li>Không thay đổi tên các sheet trong file mẫu</li>
+              <li>Không thay đổi tên các trường trong cột "Trường"</li>
+              <li>Chỉ nhập dữ liệu vào cột "Giá trị"</li>
+              <li>Định dạng ngày: DD/MM/YYYY hoặc YYYY-MM-DD</li>
+              <li>Định dạng boolean: "Có" hoặc "Không"</li>
+            </ul>
+          </div>
+        </div>
       </Modal>
     </div>
   );

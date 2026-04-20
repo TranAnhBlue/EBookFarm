@@ -40,6 +40,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/schemas', formSchemaRoutes);
 app.use('/api/journals', journalRoutes);
+const journalImportExportRoutes = require('./routes/journalImportExportRoutes');
+app.use('/api/journals', journalImportExportRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/agri-models', agriModelRoutes);
