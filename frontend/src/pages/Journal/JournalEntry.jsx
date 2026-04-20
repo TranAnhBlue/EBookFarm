@@ -224,6 +224,225 @@ const JournalEntry = () => {
               }
           }
 
+          // === VALIDATION ĐẶC BIỆT CHO LÚA HỮU CƠ - LOGIC NGHIỆP VỤ ===
+
+          // 2. Kiểm tra thông tin chung lúa hữu cơ
+          const thongTinChungLuaHuuCo = values['Thông tin chung'];
+          if (thongTinChungLuaHuuCo) {
+              // Kiểm tra diện tích canh tác hợp lý
+              if (thongTinChungLuaHuuCo.dienTichCanhTac) {
+                  if (thongTinChungLuaHuuCo.dienTichCanhTac < 100) {
+                      errors.push('Diện tích canh tác quá nhỏ (<100m²), có thể không hiệu quả kinh tế!');
+                  }
+                  if (thongTinChungLuaHuuCo.dienTichCanhTac > 100000) {
+                      errors.push('Diện tích canh tác quá lớn (>10ha), kiểm tra lại đơn vị tính!');
+                  }
+              }
+
+              // Kiểm tra năm sản xuất hợp lý
+              if (thongTinChungLuaHuuCo.namSanXuat) {
+                  const currentYear = new Date().getFullYear();
+                  if (thongTinChungLuaHuuCo.namSanXuat < currentYear - 1 || thongTinChungLuaHuuCo.namSanXuat > currentYear + 1) {
+                      errors.push(`Năm sản xuất phải từ ${currentYear - 1} đến ${currentYear + 1}!`);
+                  }
+              }
+
+              // Kiểm tra thời gian trồng phù hợp với vụ mùa
+              if (thongTinChungLuaHuuCo.thoiGianTrong) {
+                  const thoiGianTrong = new Date(thongTinChungLuaHuuCo.thoiGianTrong);
+                  const thang = thoiGianTrong.getMonth() + 1;
+                  
+                  // Vụ Xuân: tháng 12-2, Vụ Mùa: tháng 5-7
+                  if (!(thang >= 12 || thang <= 2) && !(thang >= 5 && thang <= 7)) {
+                      errors.push(`Thời gian trồng tháng ${thang} không phù hợp với vụ mùa lúa (Xuân: 12-2, Mùa: 5-7)!`);
+                  }
+              }
+          }
+
+          // 3. Kiểm tra đánh giá ATTP (lúa hữu cơ)
+          const danhGiaATTPLuaHuuCo = values['Bảng 1: Đánh giá chỉ tiêu gây mất ATTP trong đất/giá thể, nước tưới, nước phục vụ sơ chế và sản phẩm'];
+          if (danhGiaATTPLuaHuuCo) {
+              // Cảnh báo nếu có chỉ tiêu không đạt - quan trọng cho hữu cơ
+              if (danhGiaATTPLuaHuuCo.ketQuaDat === 'Không đạt' && !danhGiaATTPLuaHuuCo.nguyenNhanBienPhapDat) {
+                  errors.push('Đất không đạt ATTP cần có nguyên nhân và biện pháp khắc phục cụ thể cho sản xuất hữu cơ!');
+              }
+              if (danhGiaATTPLuaHuuCo.ketQuaNuoc === 'Không đạt' && !danhGiaATTPLuaHuuCo.nguyenNhanBienPhapNuoc) {
+                  errors.push('Nước tưới không đạt ATTP cần có nguyên nhân và biện pháp khắc phục cụ thể cho sản xuất hữu cơ!');
+              }
+              if (danhGiaATTPLuaHuuCo.ketQuaSanPham === 'Không đạt' && !danhGiaATTPLuaHuuCo.nguyenNhanBienPhapSanPham) {
+                  errors.push('Sản phẩm không đạt ATTP cần có nguyên nhân và biện pháp khắc phục cụ thể cho sản xuất hữu cơ!');
+              }
+          }
+
+          // 4. Kiểm tra giống lúa hữu cơ
+          const giongLuaHuuCo = values['Bảng 2: Theo dõi mua hoặc tự sản xuất giống'];
+          if (giongLuaHuuCo && thongTinChungLuaHuuCo) {
+              // Kiểm tra ngày mua giống phải trước thời gian trồng
+              if (giongLuaHuuCo.thoiGianMuaHoacSanXuat && thongTinChungLuaHuuCo.thoiGianTrong) {
+                  const ngayMua = new Date(giongLuaHuuCo.thoiGianMuaHoacSanXuat);
+                  const ngayTrong = new Date(thongTinChungLuaHuuCo.thoiGianTrong);
+                  const soNgayBaoQuan = (ngayTrong - ngayMua) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgayBaoQuan < 0) {
+                      errors.push('Ngày mua giống phải trước thời gian trồng!');
+                  }
+                  if (soNgayBaoQuan > 365) {
+                      errors.push(`Giống lúa bảo quản ${Math.round(soNgayBaoQuan)} ngày quá lâu, có thể mất sức nảy mầm!`);
+                  }
+              }
+
+              // Kiểm tra tên giống phù hợp
+              if (giongLuaHuuCo.tenGiong && thongTinChungLuaHuuCo.giongCayTrong) {
+                  if (giongLuaHuuCo.tenGiong !== thongTinChungLuaHuuCo.giongCayTrong) {
+                      errors.push('Tên giống trong bảng mua phải khớp với thông tin chung!');
+                  }
+              }
+
+              // Kiểm tra lượng giống hợp lý cho diện tích
+              if (giongLuaHuuCo.soLuongKg && thongTinChungLuaHuuCo.dienTichCanhTac) {
+                  const dienTichHa = thongTinChungLuaHuuCo.dienTichCanhTac / 10000; // Chuyển m² sang ha
+                  const luongGiongTrenHa = giongLuaHuuCo.soLuongKg / dienTichHa;
+                  
+                  // Lúa cần 80-120 kg giống/ha
+                  if (luongGiongTrenHa < 80) {
+                      errors.push(`Lượng giống ${luongGiongTrenHa.toFixed(1)}kg/ha thấp (nên 80-120kg/ha)!`);
+                  }
+                  if (luongGiongTrenHa > 150) {
+                      errors.push(`Lượng giống ${luongGiongTrenHa.toFixed(1)}kg/ha cao (nên 80-120kg/ha)!`);
+                  }
+              }
+
+              // Cảnh báo nếu sử dụng hóa chất xử lý giống (không phù hợp hữu cơ)
+              if (giongLuaHuuCo.xuLyGiong === 'Có' && giongLuaHuuCo.tenHoaChatXuLyGiong) {
+                  errors.push('Cảnh báo: Sản xuất hữu cơ không nên sử dụng hóa chất xử lý giống!');
+              }
+          }
+
+          // 5. Kiểm tra vật tư đầu vào hữu cơ
+          const vatTuDauVaoHuuCo = values['Bảng 3: Theo dõi mua hoặc tự sản xuất vật tư đầu vào'];
+          if (vatTuDauVaoHuuCo) {
+              // Kiểm tra hạn sử dụng vật tư
+              if (vatTuDauVaoHuuCo.hanSuDung && vatTuDauVaoHuuCo.thoiGianMuaHoacSanXuat) {
+                  const hanSuDung = new Date(vatTuDauVaoHuuCo.hanSuDung);
+                  const ngayMua = new Date(vatTuDauVaoHuuCo.thoiGianMuaHoacSanXuat);
+                  
+                  if (hanSuDung < ngayMua) {
+                      errors.push('Hạn sử dụng vật tư không được trước ngày mua!');
+                  }
+                  
+                  const soNgayConHan = (hanSuDung - new Date()) / (1000 * 60 * 60 * 24);
+                  if (soNgayConHan < 0) {
+                      errors.push('Vật tư đã hết hạn sử dụng!');
+                  }
+              }
+
+              // Kiểm tra số lượng vật tư hợp lý
+              if (vatTuDauVaoHuuCo.soLuong) {
+                  if (vatTuDauVaoHuuCo.soLuong <= 0) {
+                      errors.push('Số lượng vật tư phải lớn hơn 0!');
+                  }
+                  if (vatTuDauVaoHuuCo.soLuong > 10000) {
+                      errors.push('Số lượng vật tư quá lớn, kiểm tra lại đơn vị tính!');
+                  }
+              }
+          }
+
+          // 6. Kiểm tra quá trình sản xuất hữu cơ
+          const quaTrinhSanXuatHuuCo = values['Bảng 4: Theo dõi quá trình sản xuất'];
+          if (quaTrinhSanXuatHuuCo && thongTinChungLuaHuuCo) {
+              // Kiểm tra liều lượng phân bón hợp lý
+              if (quaTrinhSanXuatHuuCo.lieuLuongKgHa && quaTrinhSanXuatHuuCo.congViec) {
+                  const lieuLuong = quaTrinhSanXuatHuuCo.lieuLuongKgHa;
+                  const congViec = quaTrinhSanXuatHuuCo.congViec;
+                  
+                  // Kiểm tra liều lượng theo công việc
+                  if (congViec === 'Bón vôi bột' && (lieuLuong < 200 || lieuLuong > 800)) {
+                      errors.push(`Liều lượng vôi bột ${lieuLuong}kg/ha không hợp lý (nên 200-800kg/ha)!`);
+                  }
+                  if (congViec === 'Bón lót' && (lieuLuong < 300 || lieuLuong > 1000)) {
+                      errors.push(`Liều lượng phân lót ${lieuLuong}kg/ha không hợp lý (nên 300-1000kg/ha)!`);
+                  }
+                  if (congViec.includes('Bón thúc') && (lieuLuong < 50 || lieuLuong > 300)) {
+                      errors.push(`Liều lượng phân thúc ${lieuLuong}kg/ha không hợp lý (nên 50-300kg/ha)!`);
+                  }
+              }
+
+              // Kiểm tra tổng lượng sử dụng phù hợp với diện tích
+              if (quaTrinhSanXuatHuuCo.tongLuongSuDung && quaTrinhSanXuatHuuCo.lieuLuongKgHa && thongTinChungLuaHuuCo.dienTichCanhTac) {
+                  const dienTichHa = thongTinChungLuaHuuCo.dienTichCanhTac / 10000;
+                  const tongLuongUocTinh = quaTrinhSanXuatHuuCo.lieuLuongKgHa * dienTichHa;
+                  const chenhLech = Math.abs(quaTrinhSanXuatHuuCo.tongLuongSuDung - tongLuongUocTinh) / tongLuongUocTinh;
+                  
+                  if (chenhLech > 0.2) { // Chênh lệch > 20%
+                      errors.push(`Tổng lượng sử dụng ${quaTrinhSanXuatHuuCo.tongLuongSuDung}kg không khớp với tính toán ${tongLuongUocTinh.toFixed(1)}kg!`);
+                  }
+              }
+
+              // Cảnh báo nếu sử dụng thuốc BVTV hóa học (không phù hợp hữu cơ)
+              if (quaTrinhSanXuatHuuCo.congViec === 'Phun thuốc BVTV' && quaTrinhSanXuatHuuCo.nguyenVatLieu) {
+                  const thuocBVTV = quaTrinhSanXuatHuuCo.nguyenVatLieu.toLowerCase();
+                  const hoaChatCamList = ['glyphosate', 'paraquat', '2,4-d', 'atrazine', 'carbofuran'];
+                  const coHoaChatCam = hoaChatCamList.some(hoaChat => thuocBVTV.includes(hoaChat));
+                  
+                  if (coHoaChatCam) {
+                      errors.push('Cảnh báo: Sản xuất hữu cơ không được sử dụng thuốc BVTV hóa học tổng hợp!');
+                  }
+              }
+          }
+
+          // 7. Kiểm tra thu hoạch lúa hữu cơ
+          const thuHoachLuaHuuCo = values['Bảng 5: Theo dõi thu hoạch/tiêu thụ sản phẩm'];
+          if (thuHoachLuaHuuCo && thongTinChungLuaHuuCo) {
+              // Kiểm tra chu kỳ sản xuất lúa hợp lý
+              if (thuHoachLuaHuuCo.ngayThangNamThuHoach && thongTinChungLuaHuuCo.thoiGianTrong) {
+                  const ngayThu = new Date(thuHoachLuaHuuCo.ngayThangNamThuHoach);
+                  const ngayTrong = new Date(thongTinChungLuaHuuCo.thoiGianTrong);
+                  const soNgaySanXuat = (ngayThu - ngayTrong) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgaySanXuat < 90) {
+                      errors.push(`Chu kỳ sản xuất lúa ${Math.round(soNgaySanXuat)} ngày quá ngắn (tối thiểu 90 ngày)!`);
+                  }
+                  if (soNgaySanXuat > 150) {
+                      errors.push(`Chu kỳ sản xuất lúa ${Math.round(soNgaySanXuat)} ngày quá dài (tối đa 150 ngày)!`);
+                  }
+              }
+
+              // Kiểm tra khối lượng tiêu thụ không vượt quá sản lượng
+              if (thuHoachLuaHuuCo.khoiLuongTieuThuKg && thuHoachLuaHuuCo.sanLuongKg) {
+                  if (thuHoachLuaHuuCo.khoiLuongTieuThuKg > thuHoachLuaHuuCo.sanLuongKg) {
+                      errors.push('Khối lượng tiêu thụ không được lớn hơn sản lượng thu hoạch!');
+                  }
+              }
+
+              // Ước tính năng suất lúa hợp lý
+              if (thuHoachLuaHuuCo.sanLuongKg && thongTinChungLuaHuuCo.dienTichCanhTac) {
+                  const dienTichHa = thongTinChungLuaHuuCo.dienTichCanhTac / 10000;
+                  const nangSuatTrenHa = thuHoachLuaHuuCo.sanLuongKg / dienTichHa;
+                  
+                  // Năng suất lúa hữu cơ thường thấp hơn: 3-6 tấn/ha
+                  if (nangSuatTrenHa < 3000) {
+                      errors.push(`Năng suất ${(nangSuatTrenHa/1000).toFixed(1)} tấn/ha thấp, cần cải thiện kỹ thuật canh tác!`);
+                  }
+                  if (nangSuatTrenHa > 8000) {
+                      errors.push(`Năng suất ${(nangSuatTrenHa/1000).toFixed(1)} tấn/ha cao bất thường cho lúa hữu cơ, kiểm tra lại số liệu!`);
+                  }
+              }
+
+              // Kiểm tra thời gian xuất bán sau thu hoạch
+              if (thuHoachLuaHuuCo.thoiGianXuatBan && thuHoachLuaHuuCo.ngayThangNamThuHoach) {
+                  const ngayXuat = new Date(thuHoachLuaHuuCo.thoiGianXuatBan);
+                  const ngayThu = new Date(thuHoachLuaHuuCo.ngayThangNamThuHoach);
+                  const soNgayBaoQuan = (ngayXuat - ngayThu) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgayBaoQuan < 0) {
+                      errors.push('Thời gian xuất bán phải sau ngày thu hoạch!');
+                  }
+                  if (soNgayBaoQuan > 365) {
+                      errors.push(`Lúa bảo quản ${Math.round(soNgayBaoQuan)} ngày quá lâu, có thể mất chất lượng!`);
+                  }
+              }
+          }
+
           // === VALIDATION ĐẶC BIỆT CHO BÒ THỊT - LOGIC NGHIỆP VỤ ===
 
           // 2. Kiểm tra lý lịch giống bò thịt
@@ -1205,6 +1424,69 @@ const JournalEntry = () => {
             min: 0.1,
             max: 10000,
             message: 'Sản lượng nấm phải từ 0.1 đến 10,000 kg!'
+          });
+        }
+
+        // === VALIDATION ĐẶC BIỆT CHO LÚA HỮU CƠ ===
+
+        // Diện tích canh tác (m²)
+        if (field.name.includes('dienTichCanhTac')) {
+          rules.push({
+            type: 'number',
+            min: 100,
+            max: 1000000,
+            message: 'Diện tích canh tác phải từ 100m² đến 100ha (1,000,000m²)!'
+          });
+        }
+
+        // Năm sản xuất
+        if (field.name.includes('namSanXuat')) {
+          const currentYear = new Date().getFullYear();
+          rules.push({
+            type: 'number',
+            min: currentYear - 1,
+            max: currentYear + 1,
+            message: `Năm sản xuất phải từ ${currentYear - 1} đến ${currentYear + 1}!`
+          });
+        }
+
+        // Số lượng giống (kg)
+        if (field.name.includes('soLuongKg') && field.label.toLowerCase().includes('giống')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 1000,
+            message: 'Số lượng giống phải từ 1-1000 kg!'
+          });
+        }
+
+        // Liều lượng phân bón (kg/ha)
+        if (field.name.includes('lieuLuongKgHa')) {
+          rules.push({
+            type: 'number',
+            min: 10,
+            max: 2000,
+            message: 'Liều lượng phải từ 10-2000 kg/ha!'
+          });
+        }
+
+        // Sản lượng lúa (kg)
+        if (field.name.includes('sanLuong') && field.label.toLowerCase().includes('sản lượng')) {
+          rules.push({
+            type: 'number',
+            min: 10,
+            max: 100000,
+            message: 'Sản lượng phải từ 10-100,000 kg!'
+          });
+        }
+
+        // Tổng lượng sử dụng (kg)
+        if (field.name.includes('tongLuongSuDung')) {
+          rules.push({
+            type: 'number',
+            min: 0.1,
+            max: 10000,
+            message: 'Tổng lượng sử dụng phải từ 0.1-10,000 kg!'
           });
         }
 
