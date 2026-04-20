@@ -224,9 +224,166 @@ const JournalEntry = () => {
               }
           }
 
+          // === VALIDATION ĐẶC BIỆT CHO BÒ THỊT - LOGIC NGHIỆP VỤ ===
+
+          // 2. Kiểm tra lý lịch giống bò thịt
+          const lyLichGiongBo = values['Biểu 1: Lý lịch giống'];
+          if (lyLichGiongBo) {
+              // Kiểm tra thông tin cơ bản con giống
+              if (lyLichGiongBo.ngaySinhCon) {
+                  const ngaySinh = new Date(lyLichGiongBo.ngaySinhCon);
+                  const hienTai = new Date();
+                  const tuoiThang = (hienTai - ngaySinh) / (1000 * 60 * 60 * 24 * 30);
+                  
+                  if (tuoiThang < 0) {
+                      errors.push('Ngày sinh con không được trong tương lai!');
+                  }
+                  if (tuoiThang > 120) { // 10 năm
+                      errors.push(`Con bò ${Math.round(tuoiThang)} tháng tuổi quá già để làm giống!`);
+                  }
+              }
+
+              // Kiểm tra tính nhất quán huyết thống
+              if (lyLichGiongBo.capGiongCon && lyLichGiongBo.capGiongBo && lyLichGiongBo.capGiongMe) {
+                  const capCon = lyLichGiongBo.capGiongCon;
+                  const capBo = lyLichGiongBo.capGiongBo;
+                  const capMe = lyLichGiongBo.capGiongMe;
+                  
+                  // Logic cấp giống: F1 = Ông bà x Ông bà, F2 = F1 x F1, etc.
+                  if (capCon === 'F1' && (capBo !== 'Ông bà' || capMe !== 'Ông bà')) {
+                      errors.push('Bò F1 phải có bố mẹ đều là cấp "Ông bà"!');
+                  }
+                  if (capCon === 'F2' && (capBo !== 'F1' || capMe !== 'F1')) {
+                      errors.push('Bò F2 phải có bố mẹ đều là cấp "F1"!');
+                  }
+              }
+          }
+
+          // 3. Kiểm tra mua/chuyển bò giống
+          const muaChuyenBoGiong = values['Biểu 2: Ghi chép mua/chuyển bò thịt giống vào nuôi thương phẩm'];
+          if (muaChuyenBoGiong) {
+              // Kiểm tra số lượng hợp lý
+              if (muaChuyenBoGiong.soLuongCon) {
+                  if (muaChuyenBoGiong.soLuongCon > 1000) {
+                      errors.push('Số lượng bò mua quá lớn (>1000 con), kiểm tra lại!');
+                  }
+                  if (muaChuyenBoGiong.soLuongCon < 1) {
+                      errors.push('Số lượng bò phải ít nhất 1 con!');
+                  }
+              }
+
+              // Kiểm tra ngày mua hợp lý
+              if (muaChuyenBoGiong.ngayThangNam) {
+                  const ngayMua = new Date(muaChuyenBoGiong.ngayThangNam);
+                  const hienTai = new Date();
+                  const soNgay = (hienTai - ngayMua) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgay < 0) {
+                      errors.push('Ngày mua bò không được trong tương lai!');
+                  }
+                  if (soNgay > 365 * 3) { // 3 năm
+                      errors.push(`Ngày mua bò ${Math.round(soNgay)} ngày trước quá lâu!`);
+                  }
+              }
+          }
+
+          // 4. Kiểm tra sinh trưởng bò thịt
+          const sinhTruongBo = values['Biểu 3: Theo dõi sinh trưởng'];
+          if (sinhTruongBo && muaChuyenBoGiong) {
+              // Kiểm tra khối lượng trung bình hợp lý
+              if (sinhTruongBo.khoiLuongTrungBinhConKg) {
+                  const khoiLuong = sinhTruongBo.khoiLuongTrungBinhConKg;
+                  if (khoiLuong < 50) {
+                      errors.push(`Khối lượng bò ${khoiLuong}kg quá nhẹ (tối thiểu 50kg)!`);
+                  }
+                  if (khoiLuong > 800) {
+                      errors.push(`Khối lượng bò ${khoiLuong}kg quá nặng (tối đa 800kg)!`);
+                  }
+              }
+
+              // Kiểm tra tổng khối lượng = số lượng × khối lượng trung bình
+              if (sinhTruongBo.tongKhoiLuongBoKg && sinhTruongBo.soLuongCon && sinhTruongBo.khoiLuongTrungBinhConKg) {
+                  const tongUocTinh = sinhTruongBo.soLuongCon * sinhTruongBo.khoiLuongTrungBinhConKg;
+                  const chenhLech = Math.abs(sinhTruongBo.tongKhoiLuongBoKg - tongUocTinh) / tongUocTinh;
+                  
+                  if (chenhLech > 0.15) { // Chênh lệch > 15%
+                      errors.push(`Tổng khối lượng ${sinhTruongBo.tongKhoiLuongBoKg}kg không khớp với tính toán ${tongUocTinh.toFixed(1)}kg!`);
+                  }
+              }
+
+              // Kiểm tra lượng thức ăn/con/ngày hợp lý
+              if (sinhTruongBo.luongThucAnSuDungKg && sinhTruongBo.soLuongCon && sinhTruongBo.khoiLuongTrungBinhConKg) {
+                  const luongThucAnTrenCon = sinhTruongBo.luongThucAnSuDungKg / sinhTruongBo.soLuongCon;
+                  const khoiLuong = sinhTruongBo.khoiLuongTrungBinhConKg;
+                  
+                  // Bò ăn khoảng 2-4% trọng thể mỗi ngày
+                  const expectedMin = khoiLuong * 0.02;
+                  const expectedMax = khoiLuong * 0.04;
+                  
+                  if (luongThucAnTrenCon < expectedMin) {
+                      errors.push(`Lượng thức ăn ${luongThucAnTrenCon.toFixed(1)}kg/con/ngày thấp (nên ${expectedMin.toFixed(1)}-${expectedMax.toFixed(1)}kg)!`);
+                  }
+                  if (luongThucAnTrenCon > expectedMax) {
+                      errors.push(`Lượng thức ăn ${luongThucAnTrenCon.toFixed(1)}kg/con/ngày cao (nên ${expectedMin.toFixed(1)}-${expectedMax.toFixed(1)}kg)!`);
+                  }
+              }
+          }
+
+          // 5. Kiểm tra phối trộn thức ăn bò
+          const phoiTronThucAnBo = values['Biểu 5: Theo dõi phối trộn thức ăn (Tỷ lệ phối trộn)'];
+          if (phoiTronThucAnBo) {
+              // Tổng tỷ lệ phối trộn phải = 100%
+              const tongTyLe = (phoiTronThucAnBo.coRomCayKhacPhanTram || 0) + 
+                              (phoiTronThucAnBo.botCamGaoNgoPhanTram || 0) + 
+                              (phoiTronThucAnBo.botCayLacPhanTram || 0) + 
+                              (phoiTronThucAnBo.botDauXanhPhanTram || 0);
+              
+              if (Math.abs(tongTyLe - 100) > 5) { // Cho phép sai số 5%
+                  errors.push(`Tổng tỷ lệ phối trộn ${tongTyLe}% phải bằng 100%!`);
+              }
+
+              // Cỏ + rơm nên chiếm 60-80% khẩu phần bò thịt
+              if (phoiTronThucAnBo.coRomCayKhacPhanTram) {
+                  if (phoiTronThucAnBo.coRomCayKhacPhanTram < 50) {
+                      errors.push(`Tỷ lệ cỏ + rơm ${phoiTronThucAnBo.coRomCayKhacPhanTram}% quá thấp (nên 60-80%)!`);
+                  }
+                  if (phoiTronThucAnBo.coRomCayKhacPhanTram > 90) {
+                      errors.push(`Tỷ lệ cỏ + rơm ${phoiTronThucAnBo.coRomCayKhacPhanTram}% quá cao (nên 60-80%)!`);
+                  }
+              }
+
+              // Cám + ngô nên chiếm 15-35%
+              if (phoiTronThucAnBo.botCamGaoNgoPhanTram) {
+                  if (phoiTronThucAnBo.botCamGaoNgoPhanTram > 40) {
+                      errors.push(`Tỷ lệ cám + ngô ${phoiTronThucAnBo.botCamGaoNgoPhanTram}% quá cao (nên 15-35%)!`);
+                  }
+              }
+          }
+
+          // 6. Kiểm tra sử dụng thức ăn bò
+          const suDungThucAnBo = values['Biểu 6: Theo dõi sử dụng thức ăn'];
+          if (suDungThucAnBo && sinhTruongBo) {
+              // Kiểm tra lượng thức ăn phù hợp với đối tượng
+              if (suDungThucAnBo.soLuongKg && suDungThucAnBo.doiTuongBoSuDung) {
+                  const doiTuong = suDungThucAnBo.doiTuongBoSuDung;
+                  const luong = suDungThucAnBo.soLuongKg;
+                  
+                  // Ước tính lượng ăn theo độ tuổi
+                  if (doiTuong === 'Bò con (dưới 6 tháng)' && luong > 5) {
+                      errors.push('Bò con dưới 6 tháng không nên ăn quá 5kg/ngày!');
+                  }
+                  if (doiTuong === 'Bò tơ (6-12 tháng)' && luong > 15) {
+                      errors.push('Bò tơ 6-12 tháng không nên ăn quá 15kg/ngày!');
+                  }
+                  if (doiTuong === 'Bò thịt (12-24 tháng)' && luong > 25) {
+                      errors.push('Bò thịt 12-24 tháng không nên ăn quá 25kg/ngày!');
+                  }
+              }
+          }
+
           // === VALIDATION ĐẶC BIỆT CHO GIA CẦM - LOGIC NGHIỆP VỤ ===
 
-          // 2. Kiểm tra mua/chuyển giống (gia cầm)
+          // 7. Kiểm tra mua/chuyển giống (gia cầm)
           const muaChuyenGiongGiaCam = values['Biểu 1: Theo dõi mua/chuyển giống vào nuôi thương phẩm'];
           if (muaChuyenGiongGiaCam && thongTinChung) {
               // Kiểm tra ngày mua giống phải trước hoặc bằng ngày bắt đầu ghi chép
@@ -1048,6 +1205,58 @@ const JournalEntry = () => {
             min: 0.1,
             max: 10000,
             message: 'Sản lượng nấm phải từ 0.1 đến 10,000 kg!'
+          });
+        }
+
+        // === VALIDATION ĐẶC BIỆT CHO BÒ THỊT ===
+
+        // Khối lượng bò (kg)
+        if (field.name.includes('khoiLuong') || field.name.includes('tongKhoiLuong')) {
+          rules.push({
+            type: 'number',
+            min: 30,
+            max: 1000,
+            message: 'Khối lượng bò phải từ 30-1000 kg!'
+          });
+        }
+
+        // Số lượng bò (con)
+        if (field.name.includes('soLuongCon') && field.label.toLowerCase().includes('bò')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 1000,
+            message: 'Số lượng bò phải từ 1-1000 con!'
+          });
+        }
+
+        // Tỷ lệ phối trộn thức ăn (%)
+        if (field.name.includes('PhanTram')) {
+          rules.push({
+            type: 'number',
+            min: 0,
+            max: 100,
+            message: 'Tỷ lệ phối trộn phải từ 0-100%!'
+          });
+        }
+
+        // Lượng thức ăn bò (kg)
+        if (field.name.includes('luongThucAn') || (field.name.includes('soLuongKg') && field.label.toLowerCase().includes('thức ăn'))) {
+          rules.push({
+            type: 'number',
+            min: 0.1,
+            max: 100,
+            message: 'Lượng thức ăn phải từ 0.1-100 kg!'
+          });
+        }
+
+        // Đơn giá thức ăn (đồng/kg)
+        if (field.name.includes('donGia')) {
+          rules.push({
+            type: 'number',
+            min: 1000,
+            max: 100000,
+            message: 'Đơn giá phải từ 1,000-100,000 đồng/kg!'
           });
         }
 
