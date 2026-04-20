@@ -28,6 +28,7 @@ import { useAuthStore } from '../../store/authStore';
 import PublicNavbar from '../../components/PublicNavbar';
 import PublicFooter from '../../components/PublicFooter';
 import './LandingStyles.css';
+import './LandingAnimations.css';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -79,70 +80,70 @@ const LandingPage = () => {
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 hero-mask bg-slate-50 overflow-hidden">
                 <div className="absolute top-0 right-0 w-full h-full z-0 opacity-20">
-                    <img src="/images/hero.png" alt="Agriculture Background" className="w-full h-full object-cover" />
+                    <img src="/images/hero.png" alt="Agriculture Background" className="w-full h-full object-cover parallax-slow" />
                 </div>
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-400/20 blur-[120px] rounded-full"></div>
-                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-400/10 blur-[120px] rounded-full"></div>
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-400/20 blur-[120px] rounded-full blob-animate"></div>
+                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-400/10 blur-[120px] rounded-full blob-animate" style={{ animationDelay: '2s' }}></div>
 
                 <div className="max-w-7xl mx-auto relative z-10">
                     <Row gutter={[48, 48]} align="middle">
                         <Col xs={24} lg={14} className="space-y-8">
-                            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-1.5 rounded-full mb-4">
+                            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-1.5 rounded-full mb-4 scroll-reveal pulse-badge">
                                 <Tag color="green" className="m-0 rounded-full font-bold">New</Tag>
                                 <Text className="text-green-700 font-bold text-xs uppercase tracking-wider">Hệ thống truy xuất chuẩn quốc gia TCVN</Text>
                             </div>
-                            <Title className="!text-gray-900 !mb-6 leading-[1.1] md:!text-7xl font-black">
-                                Minh bạch <span className="text-green-600">Nguồn gốc</span>,<br />
-                                Nâng tầm <span className="text-green-600">Giá trị</span> Nông sản.
+                            <Title className="!text-gray-900 !mb-6 leading-[1.1] md:!text-7xl font-black scroll-reveal">
+                                Minh bạch <span className="gradient-text">Nguồn gốc</span>,<br />
+                                Nâng tầm <span className="gradient-text">Giá trị</span> Nông sản.
                             </Title>
-                            <Paragraph className="text-gray-500 text-lg md:text-xl max-w-2xl leading-relaxed">
+                            <Paragraph className="text-gray-500 text-lg md:text-xl max-w-2xl leading-relaxed scroll-reveal">
                                 EBookFarm cung cấp giải pháp chuyển đổi số toàn diện cho nông trại, HTX và doanh nghiệp:
                                 Từ Nhật ký sản xuất điện tử đến Truy xuất nguồn gốc bằng mã QR chuẩn quốc gia.
                             </Paragraph>
-                            <Space size="middle" className="pt-4 flex-wrap">
+                            <Space size="middle" className="pt-4 flex-wrap scroll-reveal">
                                 <Button
                                     type="primary"
                                     size="large"
-                                    className="bg-green-600 hover:bg-green-700 h-16 px-10 rounded-2xl font-black text-lg border-0 shadow-2xl shadow-green-200"
+                                    className="bg-green-600 hover:bg-green-700 h-16 px-10 rounded-2xl font-black text-lg border-0 shadow-2xl shadow-green-200 shine-effect hover-lift"
                                     onClick={handleGetStarted}
                                 >
                                     Số hóa nông trại ngay <ArrowRightOutlined />
                                 </Button>
                                 <Button
                                     size="large"
-                                    className="h-16 px-10 rounded-2xl font-bold text-lg border-2 border-gray-100 hover:border-green-500 hover:text-green-600 transition-all shadow-sm"
+                                    className="h-16 px-10 rounded-2xl font-bold text-lg border-2 border-gray-100 hover:border-green-500 hover:text-green-600 transition-all shadow-sm hover-lift"
                                     onClick={() => navigate('/reference/tcvn')}
                                 >
                                     Tra cứu tiêu chuẩn <SearchOutlined />
                                 </Button>
                             </Space>
-                            <div className="flex flex-wrap items-center gap-x-12 gap-y-6 pt-12">
-                                <div className="flex flex-col">
+                            <div className="flex flex-wrap items-center gap-x-12 gap-y-6 pt-12 scroll-reveal">
+                                <div className="flex flex-col count-up">
                                     <span className="text-3xl font-black text-gray-900">500+</span>
                                     <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Nông trại</span>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col count-up" style={{ animationDelay: '0.2s' }}>
                                     <span className="text-3xl font-black text-gray-900">35+</span>
                                     <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Tiêu chuẩn TCVN</span>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col count-up" style={{ animationDelay: '0.4s' }}>
                                     <span className="text-3xl font-black text-gray-900">100%</span>
                                     <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Minh bạch</span>
                                 </div>
                             </div>
                         </Col>
                         <Col xs={24} lg={10} className="hidden lg:block relative">
-                            <div className="floating">
-                                <div className="glass-card rounded-[40px] p-4 shadow-2xl border-white relative z-10">
+                            <div className="floating-element">
+                                <div className="glass-card rounded-[40px] p-4 shadow-2xl border-white relative z-10 hover-lift">
                                     <img src="/images/trace.png" alt="QR Traceability" className="w-full rounded-[32px] shadow-sm" />
-                                    <div className="absolute -bottom-10 -right-10 glass-card p-6 rounded-3xl shadow-xl w-64 border-white animate-pulse">
+                                    <div className="absolute -bottom-10 -right-10 glass-card p-6 rounded-3xl shadow-xl w-64 border-white bounce-in">
                                         <div className="flex items-center gap-3 mb-3">
                                             <CheckCircleFilled className="text-green-500 text-xl" />
                                             <Text strong>Đã xác minh</Text>
                                         </div>
                                         <Text className="text-xs text-gray-500 block mb-1">Cà phê Arabica Cầu Đất</Text>
                                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                            <div className="w-[85%] h-full bg-green-500"></div>
+                                            <div className="h-full bg-green-500 progress-animate" style={{ width: '85%' }}></div>
                                         </div>
                                     </div>
                                 </div>
@@ -157,12 +158,12 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto">
                     <Row gutter={[48, 48]} align="middle">
                         <Col xs={24} md={12}>
-                            <div className="relative">
-                                <div className="absolute -inset-10 bg-blue-100/30 blur-[100px] rounded-full"></div>
-                                <Card variant="borderless" className="shadow-2xl rounded-[40px] p-6 border-gray-50 glass-card relative z-10">
+                            <div className="relative scroll-reveal">
+                                <div className="absolute -inset-10 bg-blue-100/30 blur-[100px] rounded-full blob-animate"></div>
+                                <Card variant="borderless" className="shadow-2xl rounded-[40px] p-6 border-gray-50 glass-card relative z-10 hover-lift">
                                     <div className="space-y-6">
                                         {[1, 2, 3].map((i) => (
-                                            <div key={i} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-white/80 transition-all border border-transparent hover:border-blue-50">
+                                            <div key={i} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-white/80 transition-all border border-transparent hover:border-blue-50 hover-lift">
                                                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
                                                     <SafetyCertificateFilled className="text-white text-xl" />
                                                 </div>
@@ -178,7 +179,7 @@ const LandingPage = () => {
                                         <Button
                                             block
                                             size="large"
-                                            className="h-14 rounded-xl border-blue-100 text-blue-600 font-bold hover:bg-blue-50 transition-all"
+                                            className="h-14 rounded-xl border-blue-100 text-blue-600 font-bold hover:bg-blue-50 transition-all shine-effect"
                                             onClick={() => navigate('/reference/tcvn')}
                                         >
                                             Tra cứu toàn bộ 35 tiêu chuẩn <ArrowRightOutlined />
@@ -187,20 +188,25 @@ const LandingPage = () => {
                                 </Card>
                             </div>
                         </Col>
-                        <Col xs={24} md={12} className="space-y-6">
-                            <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Compliance</Tag>
-                            <Title className="!text-gray-900 !mb-6 leading-tight md:!text-5xl">Gốc gác rõ ràng,<br />Niềm tin vững chắc.</Title>
+                        <Col xs={24} md={12} className="space-y-6 scroll-reveal">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                                    <SafetyCertificateFilled className="text-2xl text-blue-600" />
+                                </div>
+                                <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Compliance</Tag>
+                            </div>
+                            <Title className="!text-gray-900 !mb-6 leading-tight md:!text-5xl gradient-text">Gốc gác rõ ràng,<br />Niềm tin vững chắc.</Title>
                             <Paragraph className="text-gray-500 text-lg leading-relaxed">
                                 Hệ thống của chúng tôi được xây dựng dựa trên danh mục đầy đủ các tiêu chuẩn quốc gia về truy xuất nguồn gốc (TCVN).
                                 Giúp sản phẩm của bạn dễ dàng vượt qua các rào cản kỹ thuật và tiến xa ra thị trường quốc tế.
                             </Paragraph>
                             <Divider className="my-10" />
                             <div className="grid grid-cols-2 gap-8">
-                                <div className="space-y-2">
+                                <div className="space-y-2 count-up">
                                     <Text className="text-blue-600 font-black text-4xl block">100%</Text>
                                     <Text className="text-gray-600 font-medium">Phù hợp quy định nhà nước</Text>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 count-up" style={{ animationDelay: '0.2s' }}>
                                     <Text className="text-blue-600 font-black text-4xl block">24/7</Text>
                                     <Text className="text-gray-600 font-medium">Tra cứu & Kiểm soát</Text>
                                 </div>
@@ -213,9 +219,15 @@ const LandingPage = () => {
             {/* Feature Cards Section */}
             <section className="bg-slate-50 py-24 md:py-32 px-6">
                 <div className="max-w-7xl mx-auto space-y-20">
-                    <div className="text-center max-w-3xl mx-auto space-y-4">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                                <RocketOutlined className="text-2xl text-green-600" />
+                            </div>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Giải pháp</Tag>
+                        </div>
                         <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Giải pháp số hóa toàn diện</Title>
-                        <Paragraph className="text-gray-500 text-lg">Hành trình nông sản tử nông trại tới bàn ăn chưa bao giờ dễ dàng và minh bạch đến thế.</Paragraph>
+                        <Paragraph className="text-gray-500 text-lg">Hành trình nông sản từ nông trại tới bàn ăn chưa bao giờ dễ dàng và minh bạch đến thế.</Paragraph>
                     </div>
 
                     <Row gutter={[32, 32]}>
@@ -224,25 +236,34 @@ const LandingPage = () => {
                                 title: 'Nhật ký sản xuất điện tử',
                                 desc: 'Thay thế ghi chép tay bằng ứng dụng di động thông minh. Lưu trữ lịch sử chăm sóc, bón phân, tưới tiêu theo thời gian thực.',
                                 icon: <EditOutlined />,
-                                color: '#10b981'
+                                color: '#10b981',
+                                bgImage: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
                             },
                             {
                                 title: 'Hệ thống Truy xuất QR',
                                 desc: 'Tạo mã QR định danh cho từng lô sản phẩm. Người dùng chỉ cần quét để thấy toàn bộ hành trình nông sản.',
                                 icon: <QrcodeOutlined />,
-                                color: '#059669'
+                                color: '#059669',
+                                bgImage: 'linear-gradient(135deg, #059669 0%, #047857 100%)'
                             },
                             {
                                 title: 'Quản trị Chuỗi giá trị',
                                 desc: 'Kết nối Nhà cung cấp - Nông trại - HTX - Nhà bán lẻ. Kiểm soát chất lượng đồng bộ trên toàn chuỗi.',
                                 icon: <ThunderboltFilled />,
-                                color: '#3b82f6'
+                                color: '#3b82f6',
+                                bgImage: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
                             }
                         ].map((item, idx) => (
                             <Col xs={24} md={8} key={idx}>
-                                <Card variant="borderless" className="h-full rounded-[32px] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden card-hover-up border-gray-100 group">
+                                <Card variant="borderless" className="h-full rounded-[32px] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border-gray-100 group hover-lift scroll-reveal">
+                                    {/* Decorative background gradient */}
+                                    <div 
+                                        className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full blur-2xl"
+                                        style={{ background: item.bgImage }}
+                                    ></div>
+                                    
                                     <div
-                                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transform group-hover:rotate-12 transition-transform shadow-xl"
+                                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transform group-hover:rotate-12 transition-transform shadow-xl rotate-hover relative z-10"
                                         style={{ background: `${item.color}15`, color: item.color }}
                                     >
                                         <span className="text-3xl">{item.icon}</span>
@@ -257,11 +278,24 @@ const LandingPage = () => {
             </section>
 
             {/* Benefits Section */}
-            <section className="bg-white py-24 md:py-32 px-6">
-                <div className="max-w-7xl mx-auto space-y-16">
-                    <div className="text-center max-w-3xl mx-auto space-y-4">
-                        <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Lợi ích</Tag>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Giá trị mà doanh nghiệp nhận được</Title>
+            <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Background decorative image */}
+                <div className="absolute top-1/2 left-0 w-1/3 h-96 opacity-5 -translate-y-1/2">
+                    <img src="/images/supply.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="absolute top-1/2 right-0 w-1/3 h-96 opacity-5 -translate-y-1/2">
+                    <img src="/images/trace.png" alt="" className="w-full h-full object-contain" />
+                </div>
+
+                <div className="max-w-7xl mx-auto space-y-16 relative z-10">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                                <TrophyOutlined className="text-2xl text-green-600" />
+                            </div>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Lợi ích</Tag>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Giá trị mà doanh nghiệp nhận được</Title>
                         <Paragraph className="text-gray-500 text-lg">Khi triển khai hệ thống truy xuất nguồn gốc với EBookFarm</Paragraph>
                     </div>
 
@@ -305,9 +339,9 @@ const LandingPage = () => {
                             }
                         ].map((item, idx) => (
                             <Col xs={24} sm={12} lg={8} key={idx}>
-                                <div className="flex gap-4 p-6 rounded-2xl hover:bg-gray-50 transition-all">
+                                <div className="flex gap-4 p-6 rounded-2xl hover:bg-gray-50 transition-all scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.1}s` }}>
                                     <div 
-                                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
+                                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg pulse-glow rotate-hover"
                                         style={{ background: `${item.color}15`, color: item.color }}
                                     >
                                         <span className="text-2xl">{item.icon}</span>
@@ -324,17 +358,26 @@ const LandingPage = () => {
             </section>
 
             {/* Technology & Standards Section */}
-            <section className="bg-gradient-to-br from-blue-50 to-green-50 py-24 md:py-32 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                        <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Công nghệ</Tag>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Công nghệ & Tiêu chuẩn</Title>
+            <section className="bg-gradient-to-br from-blue-50 to-green-50 py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Background decorative elements */}
+                <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-200/30 blur-[100px] rounded-full blob-animate"></div>
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-200/30 blur-[100px] rounded-full blob-animate" style={{ animationDelay: '3s' }}></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                                <BlockOutlined className="text-2xl text-blue-600" />
+                            </div>
+                            <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Công nghệ</Tag>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Công nghệ & Tiêu chuẩn</Title>
                         <Paragraph className="text-gray-500 text-lg">Đảm bảo tuân thủ các tiêu chuẩn quốc gia và quốc tế</Paragraph>
                     </div>
 
                     <Row gutter={[32, 32]} align="middle">
                         <Col xs={24} md={12}>
-                            <div className="space-y-6">
+                            <div className="space-y-6 scroll-reveal">
                                 {[
                                     {
                                         icon: <BlockOutlined />,
@@ -357,8 +400,8 @@ const LandingPage = () => {
                                         desc: 'Đồng bộ dữ liệu với Cổng Truy xuất nguồn gốc Quốc gia của Bộ Khoa học.'
                                     }
                                 ].map((item, idx) => (
-                                    <div key={idx} className="flex gap-4 p-6 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all">
-                                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div key={idx} className="flex gap-4 p-6 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all hover-lift" style={{ animationDelay: `${idx * 0.1}s` }}>
+                                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 pulse-glow">
                                             <span className="text-xl">{item.icon}</span>
                                         </div>
                                         <div className="space-y-1">
@@ -370,7 +413,7 @@ const LandingPage = () => {
                             </div>
                         </Col>
                         <Col xs={24} md={12}>
-                            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden">
+                            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden scroll-reveal hover-lift">
                                 <div className="p-8 space-y-6">
                                     <div className="flex items-center justify-between">
                                         <Text className="text-xs font-black text-gray-400 uppercase tracking-widest">Chứng nhận & Tiêu chuẩn</Text>
@@ -378,7 +421,7 @@ const LandingPage = () => {
                                     </div>
                                     <div className="space-y-4">
                                         {['VietGAP', 'GlobalGAP', 'HACCP', 'ISO 22000', 'Organic', 'TCVN 12827:2023'].map((cert, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all hover-lift" style={{ animationDelay: `${idx * 0.05}s` }}>
                                                 <Text strong className="text-gray-900">{cert}</Text>
                                                 <Tag color="green" className="rounded-full">Hỗ trợ</Tag>
                                             </div>
@@ -392,17 +435,28 @@ const LandingPage = () => {
             </section>
 
             {/* Implementation Process Section */}
-            <section className="bg-white py-24 md:py-32 px-6">
-                <div className="max-w-5xl mx-auto space-y-16">
-                    <div className="text-center space-y-4">
-                        <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Quy trình</Tag>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Triển khai chỉ trong 3 bước</Title>
+            <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Background decorative circles */}
+                <div className="absolute top-20 right-10 w-96 h-96 border-4 border-green-100 rounded-full opacity-30"></div>
+                <div className="absolute bottom-20 left-10 w-80 h-80 border-4 border-blue-100 rounded-full opacity-30"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-gray-100 rounded-full opacity-20"></div>
+
+                <div className="max-w-5xl mx-auto space-y-16 relative z-10">
+                    <div className="text-center space-y-4 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                                <CheckCircleFilled className="text-2xl text-green-600" />
+                            </div>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Quy trình</Tag>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Triển khai chỉ trong 3 bước</Title>
                         <Paragraph className="text-gray-500 text-lg">Đơn giản, nhanh chóng và được hỗ trợ toàn diện</Paragraph>
                     </div>
 
                     <Steps
                         direction="vertical"
                         current={-1}
+                        className="scroll-reveal"
                         items={[
                             {
                                 title: <Text strong className="text-xl">Đăng ký & Tư vấn</Text>,
@@ -455,11 +509,29 @@ const LandingPage = () => {
             </section>
 
             {/* Success Stories Section */}
-            <section className="bg-slate-50 py-24 md:py-32 px-6">
-                <div className="max-w-7xl mx-auto space-y-16">
-                    <div className="text-center max-w-3xl mx-auto space-y-4">
-                        <Tag color="purple" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Khách hàng</Tag>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Câu chuyện thành công</Title>
+            <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-5">
+                    <div className="absolute top-10 left-10 w-32 h-32">
+                        <QrcodeOutlined className="text-9xl text-green-600" />
+                    </div>
+                    <div className="absolute bottom-10 right-10 w-32 h-32">
+                        <CheckCircleFilled className="text-9xl text-blue-600" />
+                    </div>
+                    <div className="absolute top-1/2 left-1/4 w-24 h-24 -translate-y-1/2">
+                        <TrophyOutlined className="text-8xl text-yellow-600" />
+                    </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto space-y-16 relative z-10">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                                <TeamOutlined className="text-2xl text-purple-600" />
+                            </div>
+                            <Tag color="purple" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Khách hàng</Tag>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Câu chuyện thành công</Title>
                         <Paragraph className="text-gray-500 text-lg">Hàng trăm doanh nghiệp và HTX đã tin tưởng sử dụng EBookFarm</Paragraph>
                     </div>
 
@@ -491,17 +563,27 @@ const LandingPage = () => {
                             }
                         ].map((story, idx) => (
                             <Col xs={24} md={8} key={idx}>
-                                <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100">
+                                <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100 scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.15}s` }}>
                                     <div className="space-y-6">
-                                        <div className="flex items-start justify-between">
-                                            <div className="space-y-1">
-                                                <Title level={4} className="!mb-0 !text-gray-900">{story.name}</Title>
-                                                <Text className="text-gray-400 text-xs flex items-center gap-1">
+                                        {/* Image placeholder with gradient */}
+                                        <div className="relative h-48 -mx-6 -mt-6 mb-6 rounded-t-3xl overflow-hidden bg-gradient-to-br from-green-400 to-blue-500">
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <ShopOutlined className="text-white text-6xl opacity-30" />
+                                            </div>
+                                            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                            <div className="absolute bottom-4 left-4 right-4">
+                                                <Text className="text-white font-bold text-lg block">{story.name}</Text>
+                                                <Text className="text-white/80 text-sm flex items-center gap-1">
                                                     <GlobalOutlined /> {story.location}
                                                 </Text>
                                             </div>
-                                            <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
-                                                <ShopOutlined className="text-xl" />
+                                        </div>
+
+                                        <div className="flex items-start justify-between">
+                                            <div className="space-y-1">
+                                                <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center pulse-glow">
+                                                    <CheckOutlined className="text-xl" />
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -534,12 +616,23 @@ const LandingPage = () => {
             </section>
 
             {/* Consultation Form Section */}
-            <section className="bg-white py-24 md:py-32 px-6">
-                <div className="max-w-4xl mx-auto">
+            <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Background decorative image */}
+                <div className="absolute top-0 right-0 w-1/2 h-full opacity-5">
+                    <img src="/images/hero.png" alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-green-200/20 blur-[100px] rounded-full blob-animate"></div>
+
+                <div className="max-w-4xl mx-auto relative z-10">
                     <Row gutter={[48, 48]} align="middle">
                         <Col xs={24} md={12}>
-                            <div className="space-y-6">
-                                <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Liên hệ</Tag>
+                            <div className="space-y-6 scroll-reveal">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                                        <PhoneOutlined className="text-2xl text-green-600" />
+                                    </div>
+                                    <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Liên hệ</Tag>
+                                </div>
                                 <Title level={2} className="!text-gray-900 !mb-0 md:!text-4xl font-black">
                                     Nhận tư vấn & trải nghiệm ngay
                                 </Title>
@@ -547,8 +640,8 @@ const LandingPage = () => {
                                     Để lại thông tin và chuyên viên sẽ liên hệ tư vấn chi tiết cho bạn trong 24h.
                                 </Paragraph>
                                 <div className="space-y-4 pt-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                                    <div className="flex items-center gap-3 hover-lift">
+                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center pulse-glow">
                                             <PhoneOutlined />
                                         </div>
                                         <div>
@@ -556,8 +649,8 @@ const LandingPage = () => {
                                             <Text strong className="text-gray-900">1900 xxxx</Text>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+                                    <div className="flex items-center gap-3 hover-lift">
+                                        <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center pulse-glow">
                                             <MailOutlined />
                                         </div>
                                         <div>
@@ -569,7 +662,7 @@ const LandingPage = () => {
                             </div>
                         </Col>
                         <Col xs={24} md={12}>
-                            <Card className="rounded-3xl shadow-xl border-0">
+                            <Card className="rounded-3xl shadow-xl border-0 scroll-reveal hover-lift">
                                 <Form
                                     form={form}
                                     layout="vertical"
@@ -640,7 +733,7 @@ const LandingPage = () => {
                                             size="large"
                                             block
                                             loading={loading}
-                                            className="h-12 rounded-xl bg-green-600 hover:bg-green-700 border-0 font-bold text-base"
+                                            className="h-12 rounded-xl bg-green-600 hover:bg-green-700 border-0 font-bold text-base shine-effect"
                                         >
                                             Đăng ký tư vấn miễn phí
                                         </Button>
@@ -657,10 +750,10 @@ const LandingPage = () => {
 
             {/* Bottom CTA Section */}
             <section className="py-24 px-6">
-                <div className="max-w-7xl mx-auto relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-blue-600 rounded-[40px] blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative bg-gray-900 rounded-[40px] p-12 md:p-24 overflow-hidden flex flex-col items-center text-center space-y-12">
-                        <div className="absolute top-0 right-0 w-full h-full opacity-30 z-0">
+                <div className="max-w-7xl mx-auto relative group scroll-reveal">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-blue-600 rounded-[40px] blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 morph-shape"></div>
+                    <div className="relative bg-gray-900 rounded-[40px] p-12 md:p-24 overflow-hidden flex flex-col items-center text-center space-y-12 hover-lift">
+                        <div className="absolute top-0 right-0 w-full h-full opacity-30 z-0 floating-element">
                             <img src="/images/supply.png" alt="Supply Chain" className="w-full h-full object-cover" />
                         </div>
                         <div className="relative z-10 max-w-4xl space-y-6">
@@ -673,14 +766,14 @@ const LandingPage = () => {
                             <Button
                                 type="primary"
                                 size="large"
-                                className="bg-green-600 hover:bg-green-700 h-16 px-12 rounded-2xl font-black text-xl border-0 shadow-2xl shadow-green-200/50"
+                                className="bg-green-600 hover:bg-green-700 h-16 px-12 rounded-2xl font-black text-xl border-0 shadow-2xl shadow-green-200/50 shine-effect hover-lift"
                                 onClick={handleGetStarted}
                             >
                                 Bắt đầu miễn phí <ArrowRightOutlined />
                             </Button>
                             <Button
                                 size="large"
-                                className="h-16 px-12 rounded-2xl font-bold text-xl border-2 border-white/20 text-white hover:border-white hover:text-white bg-white/5 backdrop-blur-md transition-all"
+                                className="h-16 px-12 rounded-2xl font-bold text-xl border-2 border-white/20 text-white hover:border-white hover:text-white bg-white/5 backdrop-blur-md transition-all hover-lift"
                             >
                                 Liên hệ tư vấn
                             </Button>
