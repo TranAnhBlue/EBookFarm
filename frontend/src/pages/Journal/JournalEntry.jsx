@@ -152,9 +152,51 @@ const JournalEntry = () => {
           // 1. Kiểm tra thông tin chung
           const thongTinChung = values['Thông tin chung'];
           if (thongTinChung) {
-              // Kiểm tra mật độ nuôi hợp lý (chăn nuôi)
-              if (thongTinChung.matDoNuoi && thongTinChung.matDoNuoi > 20) {
-                  errors.push('Mật độ nuôi quá cao (>20 con/m²), có thể gây stress cho vật nuôi!');
+              // === VALIDATION ĐẶC BIỆT CHO GIA CẦM ===
+              
+              // Kiểm tra mật độ nuôi gà hợp lý
+              if (thongTinChung.matDoNuoi) {
+                  if (thongTinChung.matDoNuoi > 15) {
+                      errors.push('Mật độ nuôi gà quá cao (>15 con/m²), có thể gây stress và bệnh tật!');
+                  }
+                  if (thongTinChung.matDoNuoi < 5) {
+                      errors.push('Mật độ nuôi gà quá thấp (<5 con/m²), không hiệu quả kinh tế!');
+                  }
+              }
+              
+              // Kiểm tra trọng lượng gà theo tuổi (gà thịt)
+              if (thongTinChung.trongLuongTrungBinh && thongTinChung.ngayTuoi) {
+                  const tuoi = thongTinChung.ngayTuoi;
+                  const trongLuong = thongTinChung.trongLuongTrungBinh;
+                  
+                  // Chuẩn tăng trưởng gà thịt (kg)
+                  let expectedMinWeight = 0;
+                  let expectedMaxWeight = 0;
+                  
+                  if (tuoi <= 7) {
+                      expectedMinWeight = 0.05; expectedMaxWeight = 0.15;
+                  } else if (tuoi <= 14) {
+                      expectedMinWeight = 0.15; expectedMaxWeight = 0.35;
+                  } else if (tuoi <= 21) {
+                      expectedMinWeight = 0.35; expectedMaxWeight = 0.65;
+                  } else if (tuoi <= 28) {
+                      expectedMinWeight = 0.65; expectedMaxWeight = 1.0;
+                  } else if (tuoi <= 35) {
+                      expectedMinWeight = 1.0; expectedMaxWeight = 1.5;
+                  } else if (tuoi <= 42) {
+                      expectedMinWeight = 1.5; expectedMaxWeight = 2.2;
+                  } else if (tuoi <= 49) {
+                      expectedMinWeight = 2.0; expectedMaxWeight = 2.8;
+                  } else {
+                      expectedMinWeight = 2.5; expectedMaxWeight = 3.5;
+                  }
+                  
+                  if (trongLuong < expectedMinWeight) {
+                      errors.push(`Trọng lượng gà ${trongLuong}kg thấp so với tuổi ${tuoi} ngày (nên ≥${expectedMinWeight}kg)!`);
+                  }
+                  if (trongLuong > expectedMaxWeight) {
+                      errors.push(`Trọng lượng gà ${trongLuong}kg cao bất thường so với tuổi ${tuoi} ngày (nên ≤${expectedMaxWeight}kg)!`);
+                  }
               }
               
               // Kiểm tra tỷ lệ diện tích chuồng/tổng diện tích (chăn nuôi)
@@ -162,13 +204,14 @@ const JournalEntry = () => {
                   if (thongTinChung.dienTichChuongNuoi > thongTinChung.dienTichToanBo) {
                       errors.push('Diện tích chuồng nuôi không được lớn hơn tổng diện tích!');
                   }
-              }
-              
-              // Kiểm tra trọng lượng trung bình hợp lý theo tuổi (chăn nuôi)
-              if (thongTinChung.trongLuongTrungBinh && thongTinChung.ngayTuoi) {
-                  const expectedWeight = thongTinChung.ngayTuoi * 0.5; // Ước tính 0.5kg/ngày
-                  if (thongTinChung.trongLuongTrungBinh > expectedWeight * 2) {
-                      errors.push(`Trọng lượng ${thongTinChung.trongLuongTrungBinh}kg quá cao so với tuổi ${thongTinChung.ngayTuoi} ngày!`);
+                  
+                  // Kiểm tra tỷ lệ hợp lý (chuồng nên chiếm 60-80% tổng diện tích)
+                  const tyLe = (thongTinChung.dienTichChuongNuoi / thongTinChung.dienTichToanBo) * 100;
+                  if (tyLe < 40) {
+                      errors.push(`Diện tích chuồng chỉ chiếm ${tyLe.toFixed(1)}% tổng diện tích, có thể chưa tối ưu!`);
+                  }
+                  if (tyLe > 90) {
+                      errors.push(`Diện tích chuồng chiếm ${tyLe.toFixed(1)}% tổng diện tích, cần để lại không gian cho các khu vực khác!`);
                   }
               }
 
@@ -177,6 +220,191 @@ const JournalEntry = () => {
                   const currentYear = new Date().getFullYear();
                   if (thongTinChung.namSanXuat < currentYear - 2 || thongTinChung.namSanXuat > currentYear + 1) {
                       errors.push(`Năm sản xuất phải từ ${currentYear - 2} đến ${currentYear + 1}!`);
+                  }
+              }
+          }
+
+          // === VALIDATION ĐẶC BIỆT CHO GIA CẦM - LOGIC NGHIỆP VỤ ===
+
+          // 2. Kiểm tra mua/chuyển giống (gia cầm)
+          const muaChuyenGiongGiaCam = values['Biểu 1: Theo dõi mua/chuyển giống vào nuôi thương phẩm'];
+          if (muaChuyenGiongGiaCam && thongTinChung) {
+              // Kiểm tra ngày mua giống phải trước hoặc bằng ngày bắt đầu ghi chép
+              if (muaChuyenGiongGiaCam.ngayThangMuaChuyenGiong && thongTinChung.thoiGianBatDauGhiChep) {
+                  const ngayMua = new Date(muaChuyenGiongGiaCam.ngayThangMuaChuyenGiong);
+                  const ngayBatDau = new Date(thongTinChung.thoiGianBatDauGhiChep);
+                  if (ngayMua > ngayBatDau) {
+                      errors.push('Ngày mua giống phải trước hoặc bằng ngày bắt đầu ghi chép!');
+                  }
+              }
+              
+              // Kiểm tra số lượng mua phải phù hợp với thông tin chung
+              if (muaChuyenGiongGiaCam.soLuongConMua && thongTinChung.soLuongCon) {
+                  if (muaChuyenGiongGiaCam.soLuongConMua !== thongTinChung.soLuongCon) {
+                      errors.push('Số lượng con mua phải khớp với số lượng trong thông tin chung!');
+                  }
+              }
+
+              // Kiểm tra lịch tiêm phòng cho gà con
+              if (muaChuyenGiongGiaCam.ngayTiem && thongTinChung.ngayTuoi) {
+                  if (thongTinChung.ngayTuoi <= 7 && !muaChuyenGiongGiaCam.loaiVaccin) {
+                      errors.push('Gà con dưới 7 ngày tuổi cần có thông tin tiêm phòng!');
+                  }
+              }
+          }
+
+          // 3. Kiểm tra logic thức ăn (gia cầm)
+          const nhapThucAnGiaCam = values['Biểu 2: Theo dõi nhập thức ăn/nguyên liệu thô'];
+          const suDungThucAnGiaCam = values['Biểu 5: Theo dõi sử dụng thức ăn'];
+          
+          if (suDungThucAnGiaCam && !nhapThucAnGiaCam) {
+              errors.push('Phải có thông tin nhập thức ăn trước khi ghi sử dụng thức ăn!');
+          }
+          
+          if (suDungThucAnGiaCam && thongTinChung) {
+              // Kiểm tra lượng thức ăn/con/ngày hợp lý cho gà
+              if (suDungThucAnGiaCam.khoiLuongThucAnCungCap && suDungThucAnGiaCam.soLuongConSuDung) {
+                  const luongThucAnTrenCon = suDungThucAnGiaCam.khoiLuongThucAnCungCap / suDungThucAnGiaCam.soLuongConSuDung;
+                  const tuoi = thongTinChung.ngayTuoi || suDungThucAnGiaCam.ngayTuoiThuSuDung || 30;
+                  
+                  // Lượng thức ăn theo tuổi gà (kg/con/ngày)
+                  let expectedMin = 0, expectedMax = 0;
+                  if (tuoi <= 7) {
+                      expectedMin = 0.01; expectedMax = 0.03;
+                  } else if (tuoi <= 14) {
+                      expectedMin = 0.03; expectedMax = 0.06;
+                  } else if (tuoi <= 21) {
+                      expectedMin = 0.06; expectedMax = 0.10;
+                  } else if (tuoi <= 28) {
+                      expectedMin = 0.10; expectedMax = 0.14;
+                  } else if (tuoi <= 35) {
+                      expectedMin = 0.14; expectedMax = 0.18;
+                  } else {
+                      expectedMin = 0.16; expectedMax = 0.22;
+                  }
+                  
+                  if (luongThucAnTrenCon < expectedMin) {
+                      errors.push(`Lượng thức ăn ${luongThucAnTrenCon.toFixed(3)}kg/con/ngày thấp cho gà ${tuoi} ngày tuổi (nên ${expectedMin}-${expectedMax}kg)!`);
+                  }
+                  if (luongThucAnTrenCon > expectedMax) {
+                      errors.push(`Lượng thức ăn ${luongThucAnTrenCon.toFixed(3)}kg/con/ngày cao cho gà ${tuoi} ngày tuổi (nên ${expectedMin}-${expectedMax}kg)!`);
+                  }
+              }
+          }
+
+          // 4. Kiểm tra phối trộn thức ăn (gia cầm)
+          const phoiTronThucAnGiaCam = values['Biểu 3: Theo dõi thông tin phối trộn thức ăn'];
+          if (phoiTronThucAnGiaCam) {
+              // Tỷ lệ phối trộn phải <= 100%
+              if (phoiTronThucAnGiaCam.tyLePhoiTron > 100) {
+                  errors.push('Tỷ lệ phối trộn không được vượt quá 100%!');
+              }
+              
+              // Tuần tuổi phải phù hợp với ngày tuổi
+              if (phoiTronThucAnGiaCam.tuanTuoiThu && thongTinChung?.ngayTuoi) {
+                  const tuanTuoiTinhToan = Math.ceil(thongTinChung.ngayTuoi / 7);
+                  if (Math.abs(phoiTronThucAnGiaCam.tuanTuoiThu - tuanTuoiTinhToan) > 1) {
+                      errors.push(`Tuần tuổi ${phoiTronThucAnGiaCam.tuanTuoiThu} không khớp với ngày tuổi ${thongTinChung.ngayTuoi} (≈${tuanTuoiTinhToan} tuần)!`);
+                  }
+              }
+
+              // Kiểm tra lượng sử dụng hợp lý
+              if (phoiTronThucAnGiaCam.luongSuDungKgCon) {
+                  const tuoi = phoiTronThucAnGiaCam.tuanTuoiThu * 7 || 30;
+                  if (tuoi <= 21 && phoiTronThucAnGiaCam.luongSuDungKgCon > 0.1) {
+                      errors.push('Gà con dưới 3 tuần tuổi không nên ăn quá 0.1kg/con/ngày!');
+                  }
+                  if (tuoi > 35 && phoiTronThucAnGiaCam.luongSuDungKgCon < 0.15) {
+                      errors.push('Gà lớn trên 5 tuần tuổi cần ít nhất 0.15kg/con/ngày!');
+                  }
+              }
+          }
+
+          // 5. Kiểm tra thuốc thú y và vaccin (gia cầm)
+          const nhapThuocGiaCam = values['Biểu 4: Theo dõi nhập thuốc thú y, vaccin, thuốc sát trùng, hóa chất'];
+          const suDungThuocGiaCam = values['Biểu 6: Theo dõi sử dụng vaccin/thuốc điều trị bệnh'];
+          
+          if (suDungThuocGiaCam && !nhapThuocGiaCam) {
+              errors.push('Phải có thông tin nhập thuốc trước khi ghi sử dụng thuốc!');
+          }
+          
+          if (suDungThuocGiaCam) {
+              // Kiểm tra số lượng điều trị không vượt quá tổng đàn
+              if (suDungThuocGiaCam.soLuongConDieuTri && thongTinChung?.soLuongCon) {
+                  if (suDungThuocGiaCam.soLuongConDieuTri > thongTinChung.soLuongCon) {
+                      errors.push('Số lượng con điều trị không được vượt quá tổng số con trong đàn!');
+                  }
+              }
+              
+              // Kiểm tra số lượng chết/loại thải hợp lý
+              if (suDungThuocGiaCam.soLuongLoaiThaiChet && suDungThuocGiaCam.soLuongConDieuTri) {
+                  if (suDungThuocGiaCam.soLuongLoaiThaiChet > suDungThuocGiaCam.soLuongConDieuTri) {
+                      errors.push('Số lượng chết/loại thải không được lớn hơn số lượng điều trị!');
+                  }
+              }
+
+              // Kiểm tra lịch tiêm phòng theo tuổi
+              if (suDungThuocGiaCam.noiDungThucHien === 'Tiêm phòng' && suDungThuocGiaCam.ngayTuoiThuDieuTri) {
+                  const tuoi = suDungThuocGiaCam.ngayTuoiThuDieuTri;
+                  if (tuoi < 1) {
+                      errors.push('Gà dưới 1 ngày tuổi không nên tiêm phòng!');
+                  }
+                  if (tuoi > 1 && tuoi < 7 && !suDungThuocGiaCam.tenVaccinThuocSuDung.toLowerCase().includes('marek')) {
+                      errors.push('Gà 1-7 ngày tuổi thường tiêm Marek đầu tiên!');
+                  }
+              }
+          }
+
+          // 6. Kiểm tra xử lý vật nuôi chết (gia cầm)
+          const xuLyVatNuoiChetGiaCam = values['Biểu 8: Theo dõi thu gom xử lý vật nuôi chết'];
+          if (xuLyVatNuoiChetGiaCam) {
+              // Tổng số con xử lý phải bằng số con chết
+              const tongXuLy = (xuLyVatNuoiChetGiaCam.chonCon || 0) + (xuLyVatNuoiChetGiaCam.dotCon || 0);
+              if (xuLyVatNuoiChetGiaCam.soLuongChet && tongXuLy > 0 && tongXuLy !== xuLyVatNuoiChetGiaCam.soLuongChet) {
+                  errors.push(`Tổng số con xử lý (${tongXuLy}) phải bằng số con chết (${xuLyVatNuoiChetGiaCam.soLuongChet})!`);
+              }
+
+              // Kiểm tra tỷ lệ chết hợp lý
+              if (xuLyVatNuoiChetGiaCam.soLuongChet && thongTinChung?.soLuongCon) {
+                  const tyLeChet = (xuLyVatNuoiChetGiaCam.soLuongChet / thongTinChung.soLuongCon) * 100;
+                  if (tyLeChet > 10) {
+                      errors.push(`Tỷ lệ chết ${tyLeChet.toFixed(1)}% quá cao (>10%), cần kiểm tra nguyên nhân!`);
+                  }
+              }
+          }
+
+          // 7. Kiểm tra xuất bán (gia cầm)
+          const xuatBanGiaCam = values['Biểu 12: Theo dõi tiêu thụ, xuất bán'];
+          if (xuatBanGiaCam && thongTinChung) {
+              // Ngày thu hoạch phải sau ngày nhập giống ít nhất 35 ngày (chu kỳ nuôi tối thiểu)
+              if (xuatBanGiaCam.ngayThuHoach && thongTinChung.ngayNhapGiong) {
+                  const ngayThu = new Date(xuatBanGiaCam.ngayThuHoach);
+                  const ngayNhap = new Date(thongTinChung.ngayNhapGiong);
+                  const soNgayNuoi = (ngayThu - ngayNhap) / (1000 * 60 * 60 * 24);
+                  
+                  if (soNgayNuoi < 35) {
+                      errors.push(`Chu kỳ nuôi gà ${Math.round(soNgayNuoi)} ngày quá ngắn (tối thiểu 35 ngày)!`);
+                  }
+                  
+                  if (soNgayNuoi > 70) {
+                      errors.push(`Chu kỳ nuôi gà ${Math.round(soNgayNuoi)} ngày quá dài (tối đa 70 ngày cho gà thịt)!`);
+                  }
+              }
+              
+              // Khối lượng xuất bán không được lớn hơn khối lượng thu
+              if (xuatBanGiaCam.tongKhoiLuongXuatBan && xuatBanGiaCam.tongKhoiLuongThu) {
+                  if (xuatBanGiaCam.tongKhoiLuongXuatBan > xuatBanGiaCam.tongKhoiLuongThu) {
+                      errors.push('Khối lượng xuất bán không được lớn hơn khối lượng thu hoạch!');
+                  }
+              }
+              
+              // Ước tính khối lượng hợp lý dựa trên số con và trọng lượng
+              if (xuatBanGiaCam.tongKhoiLuongThu && thongTinChung.soLuongCon && thongTinChung.trongLuongTrungBinh) {
+                  const khoiLuongUocTinh = thongTinChung.soLuongCon * thongTinChung.trongLuongTrungBinh;
+                  const chenhLech = Math.abs(xuatBanGiaCam.tongKhoiLuongThu - khoiLuongUocTinh) / khoiLuongUocTinh;
+                  
+                  if (chenhLech > 0.3) { // Chênh lệch > 30%
+                      errors.push(`Khối lượng thu ${xuatBanGiaCam.tongKhoiLuongThu}kg chênh lệch lớn so với ước tính ${khoiLuongUocTinh.toFixed(1)}kg!`);
                   }
               }
           }
@@ -639,6 +867,88 @@ const JournalEntry = () => {
             min: 1,
             max: 50000,
             message: 'Số lượng con phải từ 1 đến 50,000 con!'
+          });
+        }
+
+        // === VALIDATION ĐẶC BIỆT CHO GIA CẦM ===
+
+        // Mật độ nuôi gà (con/m²)
+        if (field.name.includes('matDoNuoi')) {
+          rules.push({
+            type: 'number',
+            min: 5,
+            max: 15,
+            message: 'Mật độ nuôi gà phải từ 5-15 con/m² để đảm bảo sức khỏe!'
+          });
+        }
+
+        // Trọng lượng gà theo tuổi
+        if (field.name.includes('trongLuongTrungBinh')) {
+          rules.push({
+            type: 'number',
+            min: 0.01,
+            max: 4.0,
+            message: 'Trọng lượng gà phải từ 0.01 đến 4.0 kg!'
+          });
+        }
+
+        // Ngày tuổi gà
+        if (field.name.includes('ngayTuoi') || field.name.includes('ngayTuoiThu')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 70,
+            message: 'Ngày tuổi gà phải từ 1 đến 70 ngày!'
+          });
+        }
+
+        // Tuần tuổi gà
+        if (field.name.includes('tuanTuoi')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 10,
+            message: 'Tuần tuổi gà phải từ 1 đến 10 tuần!'
+          });
+        }
+
+        // Lượng thức ăn gà (kg/con/ngày)
+        if (field.name.includes('luongSuDung') || field.name.includes('khoiLuongThucAn')) {
+          rules.push({
+            type: 'number',
+            min: 0.01,
+            max: 0.25,
+            message: 'Lượng thức ăn gà phải từ 0.01 đến 0.25 kg/con/ngày!'
+          });
+        }
+
+        // Tỷ lệ phối trộn thức ăn (%)
+        if (field.name.includes('tyLePhoiTron')) {
+          rules.push({
+            type: 'number',
+            min: 0.1,
+            max: 100,
+            message: 'Tỷ lệ phối trộn phải từ 0.1% đến 100%!'
+          });
+        }
+
+        // Diện tích chuồng gà
+        if (field.name.includes('dienTichChuong') || field.name.includes('dienTichToanBo')) {
+          rules.push({
+            type: 'number',
+            min: 1,
+            max: 50000,
+            message: 'Diện tích phải từ 1 đến 50,000 m²!'
+          });
+        }
+
+        // Số lượng chết/loại thải
+        if (field.name.includes('soLuongChet') || field.name.includes('soLuongLoaiThai')) {
+          rules.push({
+            type: 'number',
+            min: 0,
+            max: 10000,
+            message: 'Số lượng chết/loại thải phải từ 0 đến 10,000 con!'
           });
         }
 
