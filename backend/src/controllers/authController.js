@@ -211,6 +211,7 @@ const googleLogin = async (req, res) => {
       // Create new user if not exists
       user = await User.create({
         username: name.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000),
+        fullname: name, // Set fullname from Google
         email,
         googleId: sub,
         role: 'User',
@@ -227,6 +228,7 @@ const googleLogin = async (req, res) => {
       data: {
         _id: user.id,
         username: user.username,
+        fullname: user.fullname, // Add fullname to response
         email: user.email,
         role: user.role,
         token: generateToken(user.id, user.role),
