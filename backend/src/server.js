@@ -42,6 +42,8 @@ app.use('/api/schemas', formSchemaRoutes);
 app.use('/api/journals', journalRoutes);
 const journalImportExportRoutes = require('./routes/journalImportExportRoutes');
 app.use('/api/journals', journalImportExportRoutes);
+const journalHistoryRoutes = require('./routes/journalHistoryRoutes');
+app.use('/api/journals', journalHistoryRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/agri-models', agriModelRoutes);

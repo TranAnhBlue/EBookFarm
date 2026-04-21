@@ -134,6 +134,8 @@ const JournalEntry = () => {
 
   const saveMutation = useMutation({
       mutationFn: async (values) => {
+          console.log('🔍 Form values received:', values);
+          
           // Validation bổ sung trước khi gửi - Tăng cường cho chăn nuôi VietGAHP
           const errors = [];
           
@@ -1217,13 +1219,22 @@ const JournalEntry = () => {
           }
           
           if (errors.length > 0) {
+              console.log('❌ Validation errors:', errors);
               throw new Error(errors.join('\n'));
           }
           
+          console.log('✅ Validation passed, preparing payload...');
+          
+          // Separate status from entries
+          const { status, ...entries } = values;
+          
+          console.log('📦 Payload entries:', entries);
+          console.log('📦 Payload status:', status);
+          
           const payload = {
               schemaId: activeSchemaId,
-              status: values.status || 'Draft',
-              entries: values
+              status: status || 'Draft',
+              entries: entries
           };
           
           if(isEditing) {
@@ -2150,7 +2161,19 @@ const JournalEntry = () => {
            </div>
         </div>
 
-        <Form form={form} layout="vertical" onFinish={(values) => saveMutation.mutate(values)}>
+        <Form 
+            form={form} 
+            layout="vertical" 
+            onFinish={(values) => {
+                console.log('📝 Form onFinish triggered with values:', values);
+                saveMutation.mutate(values);
+            }}
+            preserve={true}
+            onValuesChange={(changedValues, allValues) => {
+                console.log('🔄 Form values changed:', changedValues);
+                console.log('📊 All form values:', allValues);
+            }}
+        >
             {/* ===== TÀI LIỆU ĐÍNH KÈM ===== */}
             <Card className="rounded-[28px] border border-blue-200 bg-blue-50/30 shadow-sm">
                 <Title level={5} className="text-blue-700 !mb-6 border-b border-blue-200 pb-3 flex items-center gap-2">
