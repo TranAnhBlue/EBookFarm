@@ -11,6 +11,25 @@ const farmJournalSchema = new mongoose.Schema({
     enum: ['Draft', 'Submitted', 'Verified', 'Locked', 'Archived'], 
     default: 'Draft' 
   },
+  // Images
+  images: [{ 
+    url: String, 
+    caption: String,
+    uploadedAt: { type: Date, default: Date.now }
+  }],
+  // Certifications
+  certifications: [{
+    name: String, // VietGAP, Organic, GlobalGAP, etc.
+    issuer: String, // Tổ chức cấp
+    number: String, // Số chứng nhận
+    issueDate: Date,
+    expiryDate: Date,
+    fileUrl: String
+  }],
+  // View tracking
+  viewCount: { type: Number, default: 0 },
+  lastViewedAt: { type: Date },
+  // History tracking
   submittedAt: { type: Date },
   verifiedAt: { type: Date },
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

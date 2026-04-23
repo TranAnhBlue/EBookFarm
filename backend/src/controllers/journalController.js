@@ -44,8 +44,13 @@ const getJournals = async (req, res) => {
 
 const getJournalByQr = async (req, res) => {
   try {
-    const journal = await FarmJournal.findOne({ qrCode: req.params.qrCode }).populate('schemaId').populate('userId', 'username');
+    const journal = await FarmJournal.findOne({ qrCode: req.params.qrCode }).populate('schemaId').populate('userId', 'username fullname');
     if (journal) {
+      // Increment view count
+      journal.viewCount = (journal.viewCount || 0) + 1;
+      journal.lastViewedAt = new Date();
+      await journal.save();
+      
       res.json({ success: true, data: journal });
     } else {
       res.status(404).json({ success: false, message: 'Journal not found' });
