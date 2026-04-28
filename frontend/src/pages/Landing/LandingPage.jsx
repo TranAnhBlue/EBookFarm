@@ -21,7 +21,8 @@ import {
     MailOutlined,
     UserOutlined,
     ShopOutlined,
-    CheckOutlined
+    CheckOutlined,
+    CameraOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -37,7 +38,9 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const [form] = Form.useForm();
+    const [qrForm] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [qrSearching, setQrSearching] = useState(false);
 
     const handleGetStarted = () => {
         if (user) {
@@ -71,6 +74,33 @@ const LandingPage = () => {
             message.error('Không thể kết nối đến server. Vui lòng thử lại sau!');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleQrSearch = async (values) => {
+        const qrCode = values.qrCode.trim();
+        if (!qrCode) {
+            message.warning('Vui lòng nhập mã truy xuất!');
+            return;
+        }
+
+        setQrSearching(true);
+        try {
+            // Check if QR code exists
+            const response = await fetch(`http://localhost:5000/api/journals/qr/${qrCode}`);
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Navigate to trace page
+                navigate(`/trace/${qrCode}`);
+            } else {
+                message.error('Không tìm thấy sản phẩm với mã này. Vui lòng kiểm tra lại!');
+            }
+        } catch (error) {
+            console.error('QR search error:', error);
+            message.error('Không thể kết nối đến server. Vui lòng thử lại sau!');
+        } finally {
+            setQrSearching(false);
         }
     };
 
@@ -154,6 +184,129 @@ const LandingPage = () => {
                             </div>
                         </Col>
                     </Row>
+                </div>
+            </section>
+
+            {/* QR Lookup Section for Consumers */}
+            <section className="bg-white py-16 md:py-20 px-6 relative overflow-hidden border-t border-b border-gray-100">
+                <div className="absolute top-0 left-0 w-full h-full opacity-5 z-0">
+                    <div className="absolute top-10 right-10 w-32 h-32">
+                        <QrcodeOutlined className="text-9xl text-green-600" />
+                    </div>
+                    <div className="absolute bottom-10 left-10 w-32 h-32">
+                        <SearchOutlined className="text-9xl text-blue-600" />
+                    </div>
+                </div>
+
+                <div className="max-w-5xl mx-auto relative z-10">
+                    <div className="text-center mb-10 scroll-reveal">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center shadow-lg pulse-glow">
+                                <QrcodeOutlined className="text-3xl text-white" />
+                            </div>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-3 md:!text-4xl font-black">
+                            Tra cứu nguồn gốc sản phẩm
+                        </Title>
+                        <Paragraph className="text-gray-500 text-lg max-w-2xl mx-auto">
+                            Quét mã QR trên bao bì sản phẩm hoặc nhập mã để xem đầy đủ thông tin truy xuất nguồn gốc
+                        </Paragraph>
+                    </div>
+
+                    <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden scroll-reveal hover-lift">
+                        <div className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-8 md:p-12">
+                            <Form
+                                form={qrForm}
+                                onFinish={handleQrSearch}
+                                className="max-w-2xl mx-auto"
+                            >
+                                <Row gutter={[16, 16]} align="middle">
+                                    <Col xs={24} md={16}>
+                                        <Form.Item name="qrCode" className="!mb-0">
+                                            <Input
+                                                size="large"
+                                                placeholder="Nhập mã truy xuất (ví dụ: 1a83ca5c-fa92-4fd2-9ca5-9ece4d5cf7d7)"
+                                                prefix={<QrcodeOutlined className="text-gray-400 text-lg" />}
+                                                className="h-14 rounded-2xl text-base shadow-sm"
+                                                disabled={qrSearching}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col xs={24} md={8}>
+                                        <Button
+                                            type="primary"
+                                            htmlType="submit"
+                                            size="large"
+                                            block
+                                            loading={qrSearching}
+                                            className="h-14 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 border-0 font-bold text-base shadow-lg shine-effect"
+                                            icon={<SearchOutlined />}
+                                        >
+                                            Tra cứu ngay
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Form>
+
+                            <Divider className="my-8">
+                                <Text className="text-gray-400 text-sm font-medium">HOẶC</Text>
+                            </Divider>
+
+                            <div className="text-center space-y-4">
+                                <div className="inline-flex items-center gap-3 bg-white px-6 py-4 rounded-2xl shadow-md hover:shadow-lg transition-all hover-lift">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <CameraOutlined className="text-2xl" />
+                                    </div>
+                                    <div className="text-left">
+                                        <Text strong className="block text-gray-900">Quét mã QR bằng camera</Text>
+                                        <Text className="text-gray-500 text-sm">Sử dụng ứng dụng camera trên điện thoại</Text>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <Text className="text-gray-400 text-xs block mb-3">Hướng dẫn quét QR:</Text>
+                                    <div className="flex flex-wrap justify-center gap-3">
+                                        <Tag color="blue" className="rounded-full px-4 py-1">
+                                            📱 Mở Camera trên iPhone
+                                        </Tag>
+                                        <Tag color="green" className="rounded-full px-4 py-1">
+                                            📷 Mở Camera trên Android
+                                        </Tag>
+                                        <Tag color="purple" className="rounded-full px-4 py-1">
+                                            💬 Quét bằng Zalo/Messenger
+                                        </Tag>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Example QR Codes */}
+                        <div className="bg-white p-8 border-t border-gray-100">
+                            <Text className="block text-center text-gray-500 text-sm mb-6">
+                                💡 <strong>Mẹo:</strong> Mã truy xuất thường có dạng chuỗi ký tự dài, bạn có thể tìm thấy trên nhãn sản phẩm hoặc bao bì
+                            </Text>
+                            <Row gutter={[16, 16]} className="text-center">
+                                <Col xs={8}>
+                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                        <CheckCircleFilled className="text-green-500 text-2xl mb-2" />
+                                        <Text className="block text-xs text-gray-600 font-medium">Minh bạch</Text>
+                                    </div>
+                                </Col>
+                                <Col xs={8}>
+                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                        <SafetyCertificateFilled className="text-blue-500 text-2xl mb-2" />
+                                        <Text className="block text-xs text-gray-600 font-medium">Uy tín</Text>
+                                    </div>
+                                </Col>
+                                <Col xs={8}>
+                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                        <SafetyOutlined className="text-orange-500 text-2xl mb-2" />
+                                        <Text className="block text-xs text-gray-600 font-medium">An toàn</Text>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+                    </Card>
                 </div>
             </section>
 

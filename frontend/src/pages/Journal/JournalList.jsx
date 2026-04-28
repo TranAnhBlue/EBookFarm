@@ -320,7 +320,9 @@ const JournalList = () => {
             className="flex items-center justify-center hover:bg-green-50 text-green-600 rounded-lg"
             icon={<QrcodeOutlined />}
             onClick={() => {
-              setCurrentQr(`${window.location.origin}/trace/${record.qrCode}`);
+              // Dùng biến môi trường VITE_APP_URL nếu có, không thì dùng window.location.origin
+              const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+              setCurrentQr(`${baseUrl}/trace/${record.qrCode}`);
               setQrModalVisible(true);
             }}
           />
@@ -602,26 +604,116 @@ const JournalList = () => {
       </Drawer>
 
       <Modal
-        title={<span className="text-lg font-bold">Mã QR Truy xuất nguồn gốc</span>}
+        title={
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+              <QrcodeOutlined className="text-green-600 text-xl" />
+            </div>
+            <div>
+              <div className="text-lg font-bold">Mã QR Truy xuất nguồn gốc</div>
+              <Text className="text-xs text-gray-500 font-normal">Dành cho người tiêu dùng quét và tra cứu</Text>
+            </div>
+          </div>
+        }
         open={qrModalVisible}
         footer={null}
         onCancel={() => setQrModalVisible(false)}
         centered
+        width={600}
         className="rounded-2xl overflow-hidden"
       >
-        <div className="flex flex-col justify-center items-center p-8 bg-gray-50/50">
-          <div className="bg-white p-6 rounded-3xl shadow-lg mb-6 border border-gray-100">
-            <QRCode
-              value={currentQr}
-              size={220}
-              bordered={false}
-              color="#15803d"
-            />
+        <div className="p-6">
+          {/* QR Code Display */}
+          <div className="flex flex-col justify-center items-center mb-6">
+            <div id="qr-code-container" className="bg-white p-8 rounded-3xl shadow-xl mb-4 border-4 border-green-100">
+              <QRCode
+                value={currentQr}
+                size={280}
+                bordered={false}
+                color="#15803d"
+                bgColor="#ffffff"
+                errorLevel="H"
+              />
+            </div>
+            <Text className="text-gray-400 text-xs mb-2 uppercase font-bold tracking-widest">📱 Quét mã để xem hồ sơ công khai</Text>
+            <Text className="text-gray-600 text-sm text-center max-w-md">
+              Người tiêu dùng có thể quét mã QR này bằng camera điện thoại để xem đầy đủ thông tin truy xuất nguồn gốc sản phẩm
+            </Text>
           </div>
-          <Text className="text-gray-400 text-xs mb-1 uppercase font-bold tracking-widest">Quét mã để xem hồ sơ công khai</Text>
-          <Text strong className="text-gray-800 break-all text-center">
-            <a href={currentQr} target="_blank" rel="noreferrer" className="text-green-600 hover:underline">{currentQr}</a>
-          </Text>
+
+          {/* Download Buttons */}
+          <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-2xl mb-6">
+            <Text strong className="block mb-4 text-gray-800">📥 Tải QR Code để in tem nhãn:</Text>
+            <Row gutter={[12, 12]}>
+              <Col span={12}>
+                <Button
+                  block
+                  size="large"
+                  icon={<DownloadOutlined />}
+                  className="h-12 rounded-xl border-2 border-green-500 text-green-600 hover:bg-green-50 font-semibold"
+                  onClick={() => {
+                    const canvas = document.querySelector('#qr-code-container canvas');
+                    if (canvas) {
+                      const url = canvas.toDataURL('image/png');
+                      const link = document.createElement('a');
+                      link.download = `QR-${currentQr.split('/').pop()}.png`;
+                      link.href = url;
+                      link.click();
+                      message.success('Đã tải QR Code (PNG)!');
+                    }
+                  }}
+                >
+                  Tải PNG (In tem)
+                </Button>
+              </Col>
+              <Col span={12}>
+                <Button
+                  block
+                  size="large"
+                  icon={<EyeOutlined />}
+                  className="h-12 rounded-xl border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
+                  onClick={() => {
+                    window.open(currentQr, '_blank');
+                  }}
+                >
+                  Xem trang truy xuất
+                </Button>
+              </Col>
+            </Row>
+          </div>
+
+          {/* Instructions */}
+          <div className="bg-gray-50 p-5 rounded-2xl">
+            <Text strong className="block mb-3 text-gray-800">💡 Hướng dẫn sử dụng:</Text>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">1.</span>
+                <span>Click "Tải PNG" để tải QR code về máy tính</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">2.</span>
+                <span>In QR code ra giấy decal/tem nhãn (kích thước khuyến nghị: 3x3cm đến 5x5cm)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">3.</span>
+                <span>Dán tem QR lên bao bì sản phẩm hoặc thùng carton</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">4.</span>
+                <span>Người tiêu dùng quét QR bằng camera điện thoại để xem nguồn gốc</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Link Display */}
+          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-xl">
+            <Text className="text-xs text-gray-400 block mb-1">Link truy xuất:</Text>
+            <Text className="text-xs text-gray-600 break-all font-mono">
+              <a href={currentQr} target="_blank" rel="noreferrer" className="text-green-600 hover:underline">
+                {currentQr}
+              </a>
+            </Text>
+          </div>
         </div>
       </Modal>
 

@@ -82,8 +82,9 @@ const AdminJournalMgmt = () => {
   const handleDownloadQR = () => {
     if (!selectedJournal) return;
     
-    // Create QR code URL
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${window.location.origin}/trace/${selectedJournal.qrCode}`;
+    // Create QR code URL - Dùng biến môi trường
+    const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${baseUrl}/trace/${selectedJournal.qrCode}`;
     
     // Download
     const link = document.createElement('a');
@@ -430,7 +431,7 @@ const AdminJournalMgmt = () => {
           <div className="space-y-6 text-center">
             <div className="p-6 bg-gray-50 rounded-2xl">
               <Image
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${window.location.origin}/trace/${selectedJournal.qrCode}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${import.meta.env.VITE_APP_URL || window.location.origin}/trace/${selectedJournal.qrCode}`}
                 alt="QR Code"
                 preview={false}
                 className="rounded-xl"
@@ -441,7 +442,7 @@ const AdminJournalMgmt = () => {
               <Text strong className="block text-base">{selectedJournal.schemaId?.name}</Text>
               <Text className="block text-sm text-gray-500">Mã: {selectedJournal.qrCode}</Text>
               <Text className="block text-xs text-gray-400">
-                URL: {window.location.origin}/trace/{selectedJournal.qrCode}
+                URL: {import.meta.env.VITE_APP_URL || window.location.origin}/trace/{selectedJournal.qrCode}
               </Text>
             </div>
 
