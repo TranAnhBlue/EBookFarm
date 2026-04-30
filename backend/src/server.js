@@ -21,13 +21,27 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
 const geminiRoutes = require('./routes/geminiRoutes');
 
-dotenv.config();
+// Load environment variables (optional in production/Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Middleware to ensure DB connection for each request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('DB connection error:', error);
+    next(); // Continue even if DB fails
+  }
+});
 
 // Serve static files (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -137,7 +151,8 @@ app.post('/api/journal-ai-test-groq', async (req, res) => {
     }
 });
 
-connectDB();
+// Connect to MongoDB (lazy connection for serverless)
+// DB connection is handled by middleware above
 
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
