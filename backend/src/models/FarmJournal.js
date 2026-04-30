@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 const farmJournalSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -40,4 +40,4 @@ const farmJournalSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const FarmJournal = mongoose.model('FarmJournal', farmJournalSchema);
-module.exports = FarmJournal;
+export default FarmJournal;

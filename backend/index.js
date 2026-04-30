@@ -1,4 +1,4 @@
-// Vercel serverless entry point
-const app = require('./src/server');
+// Vercel serverless entry point - ESM
+import app from './src/server.js';
 
-module.exports = app;
+export default app;

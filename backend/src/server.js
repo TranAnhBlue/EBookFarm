@@ -1,25 +1,14 @@
-// EBookFarm Backend API - Fixed uuid compatibility issue
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const connectDB = require('./config/db');
+// EBookFarm Backend API - ESM Version
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import connectDB from './config/db.js';
 
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const formSchemaRoutes = require('./routes/formSchemaRoutes');
-const journalRoutes = require('./routes/journalRoutes');
-const inventoryRoutes = require('./routes/inventoryRoutes');
-const logRoutes = require('./routes/logRoutes');
-const agriModelRoutes = require('./routes/agriModelRoutes');
-const groupRoutes = require('./routes/groupRoutes');
-const reportRoutes = require('./routes/reportRoutes');
-const systemRoutes = require('./routes/systemRoutes');
-const newsRoutes = require('./routes/newsRoutes');
-const tcvnRoutes = require('./routes/tcvnRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-const consultationRoutes = require('./routes/consultationRoutes');
-const geminiRoutes = require('./routes/geminiRoutes');
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables (optional in production/Vercel)
 if (process.env.NODE_ENV !== 'production') {
@@ -51,108 +40,77 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/schemas', formSchemaRoutes);
-app.use('/api/journals', journalRoutes);
-const journalImportExportRoutes = require('./routes/journalImportExportRoutes');
-app.use('/api/journals', journalImportExportRoutes);
-const journalHistoryRoutes = require('./routes/journalHistoryRoutes');
-app.use('/api/journals', journalHistoryRoutes);
-app.use('/api/inventory', inventoryRoutes);
-app.use('/api/logs', logRoutes);
-app.use('/api/agri-models', agriModelRoutes);
-app.use('/api/groups', groupRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/system', systemRoutes);
-app.use('/api/news', newsRoutes);
-app.use('/api/tcvn', tcvnRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/consultations', consultationRoutes);
-app.use('/api/gemini', geminiRoutes);
-app.use('/api/openai', require('./routes/openaiRoutes'));
-app.use('/api/groq', require('./routes/groqRoutes'));
-app.use('/api/xai', require('./routes/xaiRoutes'));
-app.use('/api/chat', require('./routes/chatStatsRoutes'));
-app.use('/api/rag', require('./routes/ragRoutes'));
+// Import routes dynamically
+const loadRoutes = async () => {
+  try {
+    const authRoutes = (await import('./routes/authRoutes.js')).default;
+    const userRoutes = (await import('./routes/userRoutes.js')).default;
+    const formSchemaRoutes = (await import('./routes/formSchemaRoutes.js')).default;
+    const journalRoutes = (await import('./routes/journalRoutes.js')).default;
+    const inventoryRoutes = (await import('./routes/inventoryRoutes.js')).default;
+    const logRoutes = (await import('./routes/logRoutes.js')).default;
+    const agriModelRoutes = (await import('./routes/agriModelRoutes.js')).default;
+    const groupRoutes = (await import('./routes/groupRoutes.js')).default;
+    const reportRoutes = (await import('./routes/reportRoutes.js')).default;
+    const systemRoutes = (await import('./routes/systemRoutes.js')).default;
+    const newsRoutes = (await import('./routes/newsRoutes.js')).default;
+    const tcvnRoutes = (await import('./routes/tcvnRoutes.js')).default;
+    const uploadRoutes = (await import('./routes/uploadRoutes.js')).default;
+    const consultationRoutes = (await import('./routes/consultationRoutes.js')).default;
+    const geminiRoutes = (await import('./routes/geminiRoutes.js')).default;
 
-try {
-    const journalAIRoutes = require('./routes/journalAIRoutes');
-    app.use('/api/journal-ai', journalAIRoutes);
-    console.log('✅ Journal AI routes loaded successfully');
-} catch (error) {
-    console.error('❌ Failed to load Journal AI routes:', error);
-}
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/schemas', formSchemaRoutes);
+    app.use('/api/journals', journalRoutes);
+    app.use('/api/inventory', inventoryRoutes);
+    app.use('/api/logs', logRoutes);
+    app.use('/api/agri-models', agriModelRoutes);
+    app.use('/api/groups', groupRoutes);
+    app.use('/api/reports', reportRoutes);
+    app.use('/api/system', systemRoutes);
+    app.use('/api/news', newsRoutes);
+    app.use('/api/tcvn', tcvnRoutes);
+    app.use('/api/upload', uploadRoutes);
+    app.use('/api/consultations', consultationRoutes);
+    app.use('/api/gemini', geminiRoutes);
 
-// Test route để kiểm tra
-app.get('/api/journal-ai-test', (req, res) => {
-    res.json({ success: true, message: 'Journal AI test route working!' });
-});
+    // Additional routes
+    const journalImportExportRoutes = (await import('./routes/journalImportExportRoutes.js')).default;
+    app.use('/api/journals', journalImportExportRoutes);
+    
+    const journalHistoryRoutes = (await import('./routes/journalHistoryRoutes.js')).default;
+    app.use('/api/journals', journalHistoryRoutes);
 
-// Test route cho Journal AI không cần auth
-app.post('/api/journal-ai-test-suggestions', async (req, res) => {
+    const openaiRoutes = (await import('./routes/openaiRoutes.js')).default;
+    app.use('/api/openai', openaiRoutes);
+
+    const groqRoutes = (await import('./routes/groqRoutes.js')).default;
+    app.use('/api/groq', groqRoutes);
+
+    const xaiRoutes = (await import('./routes/xaiRoutes.js')).default;
+    app.use('/api/xai', xaiRoutes);
+
+    const chatStatsRoutes = (await import('./routes/chatStatsRoutes.js')).default;
+    app.use('/api/chat', chatStatsRoutes);
+
+    const ragRoutes = (await import('./routes/ragRoutes.js')).default;
+    app.use('/api/rag', ragRoutes);
+
     try {
-        const { getQuickSuggestions } = require('./controllers/journalAIController');
-        
-        // Lấy tham số từ request body
-        const { fieldName = 'thức ăn', schemaCategory = 'thuysan', fieldType = 'general', fieldValue = '' } = req.body;
-        
-        // Mock request object
-        const mockReq = {
-            body: {
-                fieldType: fieldType,
-                fieldName: fieldName,
-                schemaCategory: schemaCategory,
-                fieldValue: fieldValue
-            }
-        };
-        
-        // Mock response object
-        const mockRes = {
-            json: (data) => res.json(data),
-            status: (code) => ({ json: (data) => res.status(code).json(data) })
-        };
-        
-        await getQuickSuggestions(mockReq, mockRes);
+      const journalAIRoutes = (await import('./routes/journalAIRoutes.js')).default;
+      app.use('/api/journal-ai', journalAIRoutes);
+      console.log('✅ Journal AI routes loaded successfully');
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+      console.error('❌ Failed to load Journal AI routes:', error);
     }
-});
+  } catch (error) {
+    console.error('Error loading routes:', error);
+  }
+};
 
-// Test route cho AI suggestions với Groq
-app.post('/api/journal-ai-test-groq', async (req, res) => {
-    try {
-        const Groq = require('groq-sdk');
-        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-        
-        const completion = await groq.chat.completions.create({
-            model: 'llama-3.1-8b-instant',
-            messages: [
-                {
-                    role: 'system',
-                    content: 'Bạn là AI Assistant chuyên gia nông nghiệp của EBookFarm. Trả lời ngắn gọn bằng tiếng Việt.'
-                },
-                {
-                    role: 'user',
-                    content: 'Cho tôi 3 gợi ý về việc cho cá tra ăn.'
-                }
-            ],
-            max_tokens: 500,
-            temperature: 0.7
-        });
-
-        res.json({
-            success: true,
-            message: 'Groq AI test successful',
-            response: completion.choices[0].message.content
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Connect to MongoDB (lazy connection for serverless)
-// DB connection is handled by middleware above
+// Load routes
+await loadRoutes();
 
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
@@ -164,7 +122,7 @@ app.use((err, req, res, next) => {
 });
 
 // Export app for Vercel serverless
-module.exports = app;
+export default app;
 
 // Only listen when running locally (not on Vercel)
 if (process.env.NODE_ENV !== 'production') {
