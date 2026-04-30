@@ -88,7 +88,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId="147676468818-86oa6l06us45c8as6272v1mbc6egenf5.apps.googleusercontent.com">
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "147676468818-86oa6l06us45c8as6272v1mbc6egenf5.apps.googleusercontent.com"}>
         <ConfigProvider
           theme={{
             token: {
