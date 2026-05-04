@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
 // Only load .env file in development
 if (process.env.NODE_ENV !== 'production') {
@@ -30,4 +30,4 @@ const connectDB = async () => {
     }
 };
 
-export default connectDB;
+module.exports = connectDB;

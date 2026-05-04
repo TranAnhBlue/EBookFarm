@@ -1,14 +1,9 @@
-// EBookFarm Backend API - ESM Version
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import connectDB from './config/db.js';
-
-// ESM equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// EBookFarm Backend API - CommonJS Version
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const path = require('path');
+const connectDB = require('./config/db.js');
 
 // Load environment variables (optional in production/Vercel)
 if (process.env.NODE_ENV !== 'production') {
@@ -40,77 +35,68 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import routes dynamically
-const loadRoutes = async () => {
-  try {
-    const authRoutes = (await import('./routes/authRoutes.js')).default;
-    const userRoutes = (await import('./routes/userRoutes.js')).default;
-    const formSchemaRoutes = (await import('./routes/formSchemaRoutes.js')).default;
-    const journalRoutes = (await import('./routes/journalRoutes.js')).default;
-    const inventoryRoutes = (await import('./routes/inventoryRoutes.js')).default;
-    const logRoutes = (await import('./routes/logRoutes.js')).default;
-    const agriModelRoutes = (await import('./routes/agriModelRoutes.js')).default;
-    const groupRoutes = (await import('./routes/groupRoutes.js')).default;
-    const reportRoutes = (await import('./routes/reportRoutes.js')).default;
-    const systemRoutes = (await import('./routes/systemRoutes.js')).default;
-    const newsRoutes = (await import('./routes/newsRoutes.js')).default;
-    const tcvnRoutes = (await import('./routes/tcvnRoutes.js')).default;
-    const uploadRoutes = (await import('./routes/uploadRoutes.js')).default;
-    const consultationRoutes = (await import('./routes/consultationRoutes.js')).default;
-    const geminiRoutes = (await import('./routes/geminiRoutes.js')).default;
+// Import routes
+const authRoutes = require('./routes/authRoutes.js');
+const userRoutes = require('./routes/userRoutes.js');
+const formSchemaRoutes = require('./routes/formSchemaRoutes.js');
+const journalRoutes = require('./routes/journalRoutes.js');
+const inventoryRoutes = require('./routes/inventoryRoutes.js');
+const logRoutes = require('./routes/logRoutes.js');
+const agriModelRoutes = require('./routes/agriModelRoutes.js');
+const groupRoutes = require('./routes/groupRoutes.js');
+const reportRoutes = require('./routes/reportRoutes.js');
+const systemRoutes = require('./routes/systemRoutes.js');
+const newsRoutes = require('./routes/newsRoutes.js');
+const tcvnRoutes = require('./routes/tcvnRoutes.js');
+const uploadRoutes = require('./routes/uploadRoutes.js');
+const consultationRoutes = require('./routes/consultationRoutes.js');
+const geminiRoutes = require('./routes/geminiRoutes.js');
 
-    app.use('/api/auth', authRoutes);
-    app.use('/api/users', userRoutes);
-    app.use('/api/schemas', formSchemaRoutes);
-    app.use('/api/journals', journalRoutes);
-    app.use('/api/inventory', inventoryRoutes);
-    app.use('/api/logs', logRoutes);
-    app.use('/api/agri-models', agriModelRoutes);
-    app.use('/api/groups', groupRoutes);
-    app.use('/api/reports', reportRoutes);
-    app.use('/api/system', systemRoutes);
-    app.use('/api/news', newsRoutes);
-    app.use('/api/tcvn', tcvnRoutes);
-    app.use('/api/upload', uploadRoutes);
-    app.use('/api/consultations', consultationRoutes);
-    app.use('/api/gemini', geminiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/schemas', formSchemaRoutes);
+app.use('/api/journals', journalRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/logs', logRoutes);
+app.use('/api/agri-models', agriModelRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/tcvn', tcvnRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/consultations', consultationRoutes);
+app.use('/api/gemini', geminiRoutes);
 
-    // Additional routes
-    const journalImportExportRoutes = (await import('./routes/journalImportExportRoutes.js')).default;
-    app.use('/api/journals', journalImportExportRoutes);
-    
-    const journalHistoryRoutes = (await import('./routes/journalHistoryRoutes.js')).default;
-    app.use('/api/journals', journalHistoryRoutes);
+// Additional routes
+const journalImportExportRoutes = require('./routes/journalImportExportRoutes.js');
+app.use('/api/journals', journalImportExportRoutes);
 
-    const openaiRoutes = (await import('./routes/openaiRoutes.js')).default;
-    app.use('/api/openai', openaiRoutes);
+const journalHistoryRoutes = require('./routes/journalHistoryRoutes.js');
+app.use('/api/journals', journalHistoryRoutes);
 
-    const groqRoutes = (await import('./routes/groqRoutes.js')).default;
-    app.use('/api/groq', groqRoutes);
+const openaiRoutes = require('./routes/openaiRoutes.js');
+app.use('/api/openai', openaiRoutes);
 
-    const xaiRoutes = (await import('./routes/xaiRoutes.js')).default;
-    app.use('/api/xai', xaiRoutes);
+const groqRoutes = require('./routes/groqRoutes.js');
+app.use('/api/groq', groqRoutes);
 
-    const chatStatsRoutes = (await import('./routes/chatStatsRoutes.js')).default;
-    app.use('/api/chat', chatStatsRoutes);
+const xaiRoutes = require('./routes/xaiRoutes.js');
+app.use('/api/xai', xaiRoutes);
 
-    const ragRoutes = (await import('./routes/ragRoutes.js')).default;
-    app.use('/api/rag', ragRoutes);
+const chatStatsRoutes = require('./routes/chatStatsRoutes.js');
+app.use('/api/chat', chatStatsRoutes);
 
-    try {
-      const journalAIRoutes = (await import('./routes/journalAIRoutes.js')).default;
-      app.use('/api/journal-ai', journalAIRoutes);
-      console.log('✅ Journal AI routes loaded successfully');
-    } catch (error) {
-      console.error('❌ Failed to load Journal AI routes:', error);
-    }
-  } catch (error) {
-    console.error('Error loading routes:', error);
-  }
-};
+const ragRoutes = require('./routes/ragRoutes.js');
+app.use('/api/rag', ragRoutes);
 
-// Load routes
-await loadRoutes();
+try {
+  const journalAIRoutes = require('./routes/journalAIRoutes.js');
+  app.use('/api/journal-ai', journalAIRoutes);
+  console.log('✅ Journal AI routes loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load Journal AI routes:', error);
+}
 
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
@@ -122,7 +108,7 @@ app.use((err, req, res, next) => {
 });
 
 // Export app for Vercel serverless
-export default app;
+module.exports = app;
 
 // Only listen when running locally (not on Vercel)
 if (process.env.NODE_ENV !== 'production') {
