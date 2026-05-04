@@ -1,7 +1,8 @@
 const User = require('../models/User');
 const Group = require('../models/Group');
 const FarmJournal = require('../models/FarmJournal');
-const Inventory = require('../models/Inventory'); // Corrected import
+const { InventoryItem } = require('../models/Inventory'); // Corrected to destructure
+
 
 
 // Tổng hợp thống kê nhanh cho Dashboard
@@ -18,7 +19,7 @@ const getDashboardStats = async (req, res) => {
       isAdmin ? Group.countDocuments() : 0,
       FarmJournal.countDocuments(filter),
       FarmJournal.countDocuments({ ...filter, status: 'Completed' }),
-      (isAdmin && Inventory) ? Inventory.countDocuments() : 0
+      (isAdmin && InventoryItem) ? InventoryItem.countDocuments() : 0
     ]);
 
     res.json({
