@@ -1,11 +1,4 @@
-const { openai } = require('@ai-sdk/openai');
-const { generateText } = require('ai');
-
-// Initialize xAI with custom base URL
-const xai = openai({
-    baseURL: 'https://api.x.ai/v1',
-    apiKey: process.env.XAI_API_KEY
-});
+// xAI Controller using fetch
 
 // System prompt for EBookFarm chatbot - Sử dụng kiến thức tổng hợp
 const SYSTEM_PROMPT = `Bạn là trợ lý AI thông minh của EBookFarm - Hệ thống quản lý nông trại và truy xuất nguồn gốc nông sản.

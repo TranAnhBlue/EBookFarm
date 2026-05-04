@@ -110,8 +110,8 @@ app.use((err, req, res, next) => {
 // Export app for Vercel serverless
 module.exports = app;
 
-// Only listen when running locally (not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
+// Listen when running locally or on Render (Render sets process.env.RENDER)
+if (process.env.NODE_ENV !== 'production' || process.env.RENDER === 'true' || process.env.RENDER) {
   app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
   });
