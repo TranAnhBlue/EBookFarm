@@ -8,6 +8,7 @@ dotenv.config();
 
 const schemas = [
     {
+      _id: '69e3b9ff138f5b1b6afe60a5', // Gán ID này để trang web của bạn hết lỗi
       name: 'Quy trình sản xuất Cà Chua Sinh Học',
       description: 'Nhật ký sản xuất cà chua đạt chuẩn VietGAP',
       tables: [
@@ -55,7 +56,7 @@ const importData = async () => {
         const normalUser = new User({
             username: 'farmer1',
             password: 'password123',
-            role: 'User'
+            role: 'Farmer'
         });
         await normalUser.save();
 

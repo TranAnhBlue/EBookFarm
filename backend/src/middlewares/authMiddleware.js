@@ -9,10 +9,15 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
       req.user = await User.findById(decoded.id).select('-password');
       
+      if (!req.user) {
+        console.error('❌ User not found in database');
+        return res.status(401).json({ success: false, message: 'Tài khoản không tồn tại hoặc đã bị xóa. Vui lòng đăng nhập lại.' });
+      }
+
       console.log('🔐 Protect middleware - User loaded:', {
-        id: req.user?._id,
-        username: req.user?.username,
-        role: req.user?.role
+        id: req.user._id,
+        username: req.user.username,
+        role: req.user.role
       });
       
       return next();
