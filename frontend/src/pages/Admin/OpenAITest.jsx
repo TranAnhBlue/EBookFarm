@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, Alert, Spin, Typography, Space, Divider } from 'antd';
 import { SendOutlined, RobotOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { API_URL } from '../../utils/helpers';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -17,7 +18,7 @@ const OpenAITest = () => {
         setConnectionStatus(null);
 
         try {
-            const res = await fetch('http://localhost:5000/api/openai/test');
+            const res = await fetch(`${API_URL}/openai/test`);
             const data = await res.json();
 
             if (data.success) {
@@ -51,7 +52,7 @@ const OpenAITest = () => {
         setResponse('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/openai/chat', {
+            const res = await fetch(`${API_URL}/openai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -29,6 +29,7 @@ import { useAuthStore } from '../../store/authStore';
 import PublicNavbar from '../../components/PublicNavbar';
 import PublicFooter from '../../components/PublicFooter';
 import AIChatWidget from '../../components/AIChatWidget';
+import { API_URL } from '../../utils/helpers';
 import './LandingStyles.css';
 import './LandingAnimations.css';
 
@@ -53,7 +54,7 @@ const LandingPage = () => {
     const handleConsultationSubmit = async (values) => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/consultations', {
+            const response = await fetch(`${API_URL}/consultations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -87,7 +88,7 @@ const LandingPage = () => {
         setQrSearching(true);
         try {
             // Check if QR code exists
-            const response = await fetch(`http://localhost:5000/api/journals/qr/${qrCode}`);
+            const response = await fetch(`${API_URL}/journals/qr/${qrCode}`);
             const data = await response.json();
 
             if (response.ok && data.success) {

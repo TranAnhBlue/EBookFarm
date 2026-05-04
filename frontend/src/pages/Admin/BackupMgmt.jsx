@@ -28,7 +28,7 @@ const BackupMgmt = () => {
       
       // Sử dụng window.open hoặc tạo một link ẩn để tải file trực tiếp từ API export
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/system/backup', {
+      const response = await fetch('' + (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/system/backup', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

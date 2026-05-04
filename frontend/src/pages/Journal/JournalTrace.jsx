@@ -5,6 +5,7 @@ import { CheckCircleOutlined, EnvironmentOutlined, CalendarOutlined, UserOutline
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { API_URL } from '../../utils/helpers';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -16,7 +17,7 @@ const JournalTrace = () => {
 
   const { data: journal, isLoading, isError } = useQuery({
       queryKey: ['trace', qrCode],
-      queryFn: () => axios.get(`http://localhost:5000/api/journals/qr/${qrCode}`).then(res => res.data.data),
+      queryFn: () => axios.get(`${API_URL}/journals/qr/${qrCode}`).then(res => res.data.data),
   });
 
   // Share functions

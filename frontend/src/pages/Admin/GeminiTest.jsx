@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, message, Space, Tag, Divider, Alert } from 'antd';
 import { RobotOutlined, SendOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { API_URL } from '../../utils/helpers';
 
 const { TextArea } = Input;
 
@@ -14,7 +15,7 @@ const GeminiTest = () => {
     const testConnection = async () => {
         setTestingConnection(true);
         try {
-            const res = await fetch('http://localhost:5000/api/gemini/test');
+            const res = await fetch(`${API_URL}/gemini/test`);
             const data = await res.json();
 
             if (data.success) {
@@ -42,7 +43,7 @@ const GeminiTest = () => {
         setResponse('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/gemini/chat', {
+            const res = await fetch(`${API_URL}/gemini/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

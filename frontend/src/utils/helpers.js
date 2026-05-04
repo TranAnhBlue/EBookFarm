@@ -1,5 +1,10 @@
 // Helper functions
 
+// Base URL of the backend server (no trailing slash, no /api)
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '');
+// Full API URL with /api suffix
+export const API_URL = `${API_BASE_URL}/api`;
+
 /**
  * Lấy URL đầy đủ của avatar
  * @param {string} avatarPath - Đường dẫn avatar từ database
@@ -7,8 +12,7 @@
  */
 export const getAvatarUrl = (avatarPath) => {
   if (!avatarPath) return null;
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  return `${baseUrl}${avatarPath}`;
+  return `${API_BASE_URL}${avatarPath}`;
 };
 
 /**

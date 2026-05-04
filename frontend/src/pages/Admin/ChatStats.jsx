@@ -8,6 +8,7 @@ import {
     CrownOutlined,
     TeamOutlined
 } from '@ant-design/icons';
+import { API_URL } from '../../utils/helpers';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -25,7 +26,7 @@ const ChatStats = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/chat/stats?days=${days}`, {
+            const response = await fetch(`${API_URL}/chat/stats?days=${days}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

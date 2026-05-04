@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import dayjs from 'dayjs';
 import { getProvinces, getDistrictsByProvince, getWardsByDistrict, checkMergeWarning } from '../../services/locationService';
+import { API_BASE_URL, API_URL } from '../../utils/helpers';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -186,14 +187,14 @@ const AccountInfo = () => {
             <div className="relative inline-block mb-4">
                 <Avatar 
                     size={100} 
-                    src={avatarUrl ? `http://localhost:5000${avatarUrl}` : null}
+                    src={avatarUrl ? `${API_BASE_URL}${avatarUrl}` : null}
                     icon={!avatarUrl && <UserOutlined />} 
                     className="bg-green-50 text-green-600 border-4 border-white shadow-lg"
                 />
                 <Upload
                     name="avatar"
                     showUploadList={false}
-                    action="http://localhost:5000/api/upload/avatar"
+                    action={`${API_URL}/upload/avatar`}
                     headers={{
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }}

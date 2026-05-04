@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, Alert, Spin, Typography, Space, Divider, Tag } from 'antd';
 import { SendOutlined, RobotOutlined, CheckCircleOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { API_URL } from '../../utils/helpers';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -17,7 +18,7 @@ const GroqTest = () => {
         setConnectionStatus(null);
 
         try {
-            const res = await fetch('http://localhost:5000/api/groq/test');
+            const res = await fetch(`${API_URL}/groq/test`);
             const data = await res.json();
 
             if (data.success) {
@@ -51,7 +52,7 @@ const GroqTest = () => {
         setResponse('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/groq/chat', {
+            const res = await fetch(`${API_URL}/groq/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

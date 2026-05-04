@@ -24,6 +24,7 @@ import {
     CheckCircleOutlined,
     ExclamationCircleOutlined
 } from '@ant-design/icons';
+import { API_URL } from '../../utils/helpers';
 
 const { TextArea } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -44,7 +45,7 @@ const RAGTest = () => {
     const testRAGSystem = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/rag/test');
+            const response = await fetch(`${API_URL}/rag/test`);
             const data = await response.json();
             setTestResult(data);
             if (data.success && data.data) {
@@ -65,7 +66,7 @@ const RAGTest = () => {
     const updateRAGData = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/rag/update', {
+            const response = await fetch(`${API_URL}/rag/update`, {
                 method: 'POST'
             });
             const data = await response.json();
@@ -92,7 +93,7 @@ const RAGTest = () => {
         setChatLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/rag/chat', {
+            const response = await fetch(`${API_URL}/rag/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

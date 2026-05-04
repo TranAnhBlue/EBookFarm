@@ -10,6 +10,7 @@ import {
     LoginOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../utils/helpers';
 import './AIChatWidget.css';
 
 const { TextArea } = Input;
@@ -55,7 +56,7 @@ const AIChatWidget = () => {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch('http://localhost:5000/api/chat/my-info', {
+            const response = await fetch(`${API_URL}/chat/my-info`, {
                 headers
             });
             
@@ -161,7 +162,7 @@ const AIChatWidget = () => {
             }
 
             // Call RAG API (Real Data + AI!)
-            const response = await fetch('http://localhost:5000/api/rag/chat', {
+            const response = await fetch(`${API_URL}/rag/chat`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({

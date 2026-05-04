@@ -19,6 +19,7 @@ import api from '../../services/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import { API_BASE_URL } from '../../utils/helpers';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -132,7 +133,7 @@ const AdminJournalMgmt = () => {
             size={40} 
             icon={<UserOutlined />} 
             className="bg-green-50 text-green-600"
-            src={record.userId?.avatar ? `http://localhost:5000${record.userId.avatar}` : null}
+            src={record.userId?.avatar ? `${API_BASE_URL}${record.userId.avatar}` : null}
           />
           <Space direction="vertical" size={0}>
             <Text className="text-sm font-medium text-gray-900">{record.userId?.fullname || record.userId?.username || 'N/A'}</Text>
