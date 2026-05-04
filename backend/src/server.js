@@ -22,7 +22,12 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (Postman, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.includes(origin) || 
+                     origin.endsWith('.vercel.app') || 
+                     origin.includes('localhost');
+                     
+    if (isAllowed) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -37,8 +42,13 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
-    console.error('DB connection error:', error);
-    next(); // Continue even if DB fails
+    console.error('CRITICAL: DB connection failed:', error.message);
+    // On Render, we want to know if DB is failing
+    res.status(500).json({ 
+      success: false, 
+      message: 'Database connection failed', 
+      error: error.message 
+    });
   }
 });
 
