@@ -30,13 +30,16 @@ const getSchemas = async (req, res) => {
 const getSchemaById = async (req, res) => {
   try {
     const schema = await FormSchema.findById(req.params.id);
-    if (schema) {
-      res.json({ success: true, data: schema });
-    } else {
-      res.status(404).json({ success: false, message: 'Schema not found' });
+    if (!schema) {
+      return res.status(200).json({ 
+        success: false, 
+        message: 'Không tìm thấy mẫu nhật ký này trong hệ thống. Có thể dữ liệu chưa được đồng bộ từ Local lên Server.',
+        data: null 
+      });
     }
+    res.json({ success: true, data: schema });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi truy vấn mẫu nhật ký.' });
   }
 };
 
