@@ -56,6 +56,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { identifier, password } = req.body;
+    
     // Check by email or username
     const user = await User.findOne({ 
       $or: [
@@ -80,7 +81,8 @@ const loginUser = async (req, res) => {
       });
     }
 
-    if (await user.matchPassword(password)) {
+    const isMatch = await user.matchPassword(password);
+    if (isMatch) {
       // Log successful login
       const { createLog } = require('./logController');
       await createLog(user._id, 'Đăng nhập hệ thống', user._id, 'User', { 
@@ -97,14 +99,15 @@ const loginUser = async (req, res) => {
           fullname: user.fullname,
           email: user.email,
           role: user.role,
-          mustChangePassword: user.mustChangePassword || false, // Thêm flag này
+          mustChangePassword: user.mustChangePassword || false,
           token: generateToken(user.id, user.role),
         }
       });
     } else {
-      res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác, hoặc tài khoản đã bị khóa' });
+      res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác' });
     }
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
