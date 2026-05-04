@@ -5,15 +5,30 @@ const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/db.js');
 
-// Load environment variables (optional in production/Vercel)
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
+// Load environment variables - always load for local dev, Vercel injects env vars automatically
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+  'https://e-book-farm.vercel.app',
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
 // Middleware to ensure DB connection for each request
