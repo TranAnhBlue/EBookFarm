@@ -64,7 +64,23 @@ const loginUser = async (req, res) => {
       ]
     });
 
-    if (user && user.status === 'Active' && (await user.matchPassword(password))) {
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Email hoặc tên đăng nhập không tồn tại' });
+    }
+
+    if (user.status !== 'Active') {
+      return res.status(401).json({ success: false, message: 'Tài khoản đã bị khóa' });
+    }
+
+    // Check if user has a password (might be a Google-only account)
+    if (!user.password) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Tài khoản này được đăng ký qua Google. Vui lòng sử dụng tính năng Đăng nhập Google hoặc Quên mật khẩu để thiết lập mật khẩu mới.' 
+      });
+    }
+
+    if (await user.matchPassword(password)) {
       // Log successful login
       const { createLog } = require('./logController');
       await createLog(user._id, 'Đăng nhập hệ thống', user._id, 'User', { 
