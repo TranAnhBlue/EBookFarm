@@ -227,12 +227,12 @@ const Reports = () => {
                       dataKey="name" 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 500}}
+                      tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 500, fontFamily: 'Outfit'}}
                     />
                     <YAxis 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{fill: '#9ca3af', fontSize: 12}}
+                      tick={{fill: '#9ca3af', fontSize: 12, fontFamily: 'Outfit'}}
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
