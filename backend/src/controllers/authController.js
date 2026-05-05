@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
       email,
       password,
       fullname,
-      role: role || 'User'
+      role: role || 'Farmer'
     });
 
     if (user) {
@@ -233,7 +233,7 @@ const googleLogin = async (req, res) => {
         fullname: name, // Set fullname from Google
         email,
         googleId: sub,
-        role: 'User',
+        role: 'Farmer',
         status: 'Active'
       });
     } else if (!user.googleId) {
