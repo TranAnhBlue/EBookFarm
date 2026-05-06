@@ -4,6 +4,7 @@ import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer,
 import { PlusOutlined, EyeOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import JournalEntry from '../Journal/JournalEntry';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -24,6 +25,10 @@ const HtxJournalMgmt = () => {
 
   // Detail Drawer state
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+
+  // Preview Modal state
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [previewJournalId, setPreviewJournalId] = useState(null);
 
   useEffect(() => {
     fetchJournals();
@@ -311,15 +316,17 @@ const HtxJournalMgmt = () => {
                   render: (_, record) => (
                     <Space>
                       {record.farmJournalId ? (
-                        <Link to={`/journals/view/${record.farmJournalId?._id || record.farmJournalId}`} target="_blank">
-                          <Button 
-                            size="small" 
-                            icon={<EyeOutlined />}
-                            className="flex items-center"
-                          >
-                            Xem Sổ
-                          </Button>
-                        </Link>
+                        <Button 
+                          size="small" 
+                          icon={<EyeOutlined />}
+                          className="flex items-center"
+                          onClick={() => {
+                            setPreviewJournalId(record.farmJournalId?._id || record.farmJournalId);
+                            setIsPreviewVisible(true);
+                          }}
+                        >
+                          Xem Sổ
+                        </Button>
                       ) : (
                         <Button 
                           size="small" 
@@ -359,6 +366,30 @@ const HtxJournalMgmt = () => {
           </div>
         )}
       </Drawer>
+
+      {/* Modal Xem Nhan Ky (Popup) */}
+      <Modal
+        title={null}
+        open={isPreviewVisible}
+        onCancel={() => {
+          setIsPreviewVisible(false);
+          setPreviewJournalId(null);
+        }}
+        footer={null}
+        width={1100}
+        style={{ top: 20 }}
+        bodyStyle={{ padding: 0, height: '85vh', overflowY: 'auto', backgroundColor: '#f8fafc' }}
+        className="premium-modal"
+        destroyOnClose
+      >
+        <div className="sticky top-0 z-50 bg-white p-4 border-b flex justify-between items-center">
+            <h2 className="text-xl font-bold m-0 text-green-700">Chi Tiết Nhật Ký Nông Dân</h2>
+            <Button onClick={() => setIsPreviewVisible(false)}>Đóng</Button>
+        </div>
+        <div className="p-6">
+            {previewJournalId && <JournalEntry id={previewJournalId} />}
+        </div>
+      </Modal>
     </div>
   );
 };

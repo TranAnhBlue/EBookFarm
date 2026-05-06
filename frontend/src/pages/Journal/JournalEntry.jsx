@@ -12,14 +12,17 @@ import { useAuthStore } from '../../store/authStore';
 const { Title } = Typography;
 const { Option } = Select;
 
-const JournalEntry = () => {
+const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   const { user } = useAuthStore();
-  const { schemaId, id } = useParams();
+  const { schemaId: paramSchemaId, id: paramId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
+
+  const id = propsId || paramId;
+  const schemaId = propsSchemaId || paramSchemaId;
   
   // Decide if we are creating or editing based on route params
   const isEditing = !!id;
