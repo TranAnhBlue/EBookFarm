@@ -212,9 +212,9 @@ const HtxJournalMgmt = () => {
   }) || [];
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Quản Lý Sổ Nhật Ký HTX</h1>
+    <div className="p-4 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800">Quản Lý Sổ Nhật Ký HTX</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -226,8 +226,8 @@ const HtxJournalMgmt = () => {
       </div>
 
       {/* Bộ lọc */}
-      <Card className="mb-6 rounded-2xl shadow-sm border-gray-100">
-        <div className="flex flex-wrap gap-4 items-center">
+      <Card className="mb-6 rounded-2xl shadow-sm border-gray-100" bodyStyle={{ padding: '16px' }}>
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
           <div className="flex-1 min-w-[200px]">
             <Input
               placeholder="Tìm kiếm tên sổ..."
@@ -238,7 +238,7 @@ const HtxJournalMgmt = () => {
               prefix={<EyeOutlined className="text-gray-400" />}
             />
           </div>
-          <div className="w-[250px]">
+          <div className="w-full lg:w-[250px]">
             <Select
               placeholder="Lọc theo bộ biểu mẫu"
               allowClear
@@ -252,7 +252,7 @@ const HtxJournalMgmt = () => {
               ))}
             </Select>
           </div>
-          <div className="w-[200px]">
+          <div className="w-full lg:w-[200px]">
             <Select
               placeholder="Trạng thái sổ"
               allowClear
@@ -278,6 +278,8 @@ const HtxJournalMgmt = () => {
         rowKey="_id"
         loading={loading}
         className="premium-table"
+        scroll={{ x: 800 }}
+        pagination={{ pageSize: 10, size: 'small' }}
       />
 
       {/* Modal Tạo Sổ */}
@@ -348,9 +350,9 @@ const HtxJournalMgmt = () => {
 
       {/* Drawer Chi Tiết Sổ */}
       <Drawer
-        title="Chi Tiết Sổ Nhật Ký HTX"
+        title={<span className="text-lg font-bold">Chi Tiết Sổ Nhật Ký HTX</span>}
         placement="right"
-        width={700}
+        width={window.innerWidth > 992 ? 1000 : '100%'}
         onClose={() => setIsDrawerVisible(false)}
         open={isDrawerVisible}
       >
@@ -363,18 +365,18 @@ const HtxJournalMgmt = () => {
               <Descriptions.Item label="Mô Tả">{selectedJournal.description}</Descriptions.Item>
             </Descriptions>
 
-            <div className="flex justify-between items-center mb-4 mt-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 mt-6">
               <h3 className="text-lg font-semibold m-0">Danh Sách Nông Dân Tham Gia</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <Input
                   placeholder="Tìm tên nông dân..."
-                  style={{ width: 200 }}
+                  className="w-full sm:w-[200px]"
                   onChange={(e) => setFarmerSearch(e.target.value)}
                   allowClear
                 />
                 <Select
                   placeholder="Lọc trạng thái"
-                  style={{ width: 150 }}
+                  className="w-full sm:w-[150px]"
                   onChange={setFarmerStatusFilter}
                   allowClear
                 >
@@ -390,6 +392,8 @@ const HtxJournalMgmt = () => {
               dataSource={filteredFarmersInDrawer}
               rowKey={(record) => record.farmerId?._id}
               pagination={false}
+              size="small"
+              scroll={{ x: 600 }}
               columns={[
                 {
                   title: 'Nông Dân',

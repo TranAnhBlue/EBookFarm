@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer, Grid } from 'antd';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getAvatarUrl, getInitialAvatar } from '../utils/helpers';
@@ -30,12 +30,17 @@ import logoImg from '../assets/logo-ebookfarm.jpg';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const screens = useBreakpoint();
+  
+  const isMobile = !screens.md;
 
   const handleLogout = async () => {
     try {
@@ -283,80 +288,108 @@ const MainLayout = () => {
     }
   };
 
-  return (
-    <Layout className="min-h-screen bg-[#f8fafc]">
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        theme="light"
-        width={280}
-        className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
+  const handleNavItemClick = ({ key }) => {
+    navigate(key);
+    if (isMobile) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const sidebarContent = (
+    <div className="flex flex-col h-full bg-white">
+      {/* Logo/Branding Section - Fixed at top */}
+      <div
+        className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300 cursor-pointer hover:bg-gray-50/50"
+        onClick={() => navigate('/')}
       >
-        {/* Logo/Branding Section - Fixed at top */}
-        <div
-          className="h-24 flex flex-col items-center justify-center border-b border-gray-50 px-4 shrink-0 transition-all duration-300 cursor-pointer hover:bg-gray-50/50"
-          onClick={() => navigate('/')}
-        >
-          {collapsed ? (
-            <div className="w-10 h-10 flex items-center justify-center">
-              <img src={logoImg} alt="Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
-            </div>
-          ) : (
-            <div className="flex items-center gap-4 w-full justify-center">
-              <img src={logoImg} alt="EBook Farm Logo" className="w-[65px] h-[65px] object-contain mix-blend-multiply" />
-              <div className="flex flex-col text-center">
-                <span className="text-green-600 font-bold text-[15px] leading-[1.2]">NHẬT KÝ SẢN XUẤT</span>
-                <span className="text-green-600 font-bold text-[15px] leading-[1.2]">ĐIỆN TỬ</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Scrollable Menu Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-sidebar-scroll transition-all duration-300">
-          <Menu
-            mode="inline"
-            selectedKeys={[
-              items.flatMap(item => item.children ? [item, ...item.children] : [item])
-                .find(item => item.key && location.pathname.startsWith(item.key))?.key || location.pathname
-            ]}
-            defaultOpenKeys={[]}
-            items={items}
-            onClick={({ key }) => navigate(key)}
-            className="border-r-0 px-3 py-4"
-            expandIcon={({ isOpen }) => <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
-          />
-        </div>
-
-        {/* Support Card - Pushed to bottom */}
-        {!collapsed && (
-          <div className="p-6 mt-auto border-t border-gray-50 shrink-0 bg-white">
-            <div className="bg-green-50 rounded-2xl p-4 border border-green-100 shadow-sm shadow-green-50/50">
-              <Text strong className="text-green-800 text-xs block mb-1">Hỗ trợ kỹ thuật?</Text>
-              <Text className="text-green-600 text-[10px] block mb-3">Liên hệ hotline: 1900 8888</Text>
-              <Button type="primary" size="small" block className="rounded-lg text-[10px] h-8 font-bold">Gửi yêu cầu</Button>
+        {collapsed && !isMobile ? (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img src={logoImg} alt="Logo" className="max-w-full max-h-full object-contain mix-blend-multiply" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 w-full justify-center">
+            <img src={logoImg} alt="EBook Farm Logo" className="w-[65px] h-[65px] object-contain mix-blend-multiply" />
+            <div className="flex flex-col text-center">
+              <span className="text-green-600 font-bold text-[15px] leading-[1.2]">NHẬT KÝ SẢN XUẤT</span>
+              <span className="text-green-600 font-bold text-[15px] leading-[1.2]">ĐIỆN TỬ</span>
             </div>
           </div>
         )}
-      </Sider>
+      </div>
+
+      {/* Scrollable Menu Area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden custom-sidebar-scroll transition-all duration-300">
+        <Menu
+          mode="inline"
+          selectedKeys={[
+            items.flatMap(item => item.children ? [item, ...item.children] : [item])
+              .find(item => item.key && location.pathname.startsWith(item.key))?.key || location.pathname
+          ]}
+          defaultOpenKeys={[]}
+          items={items}
+          onClick={handleNavItemClick}
+          className="border-r-0 px-3 py-4"
+          expandIcon={({ isOpen }) => <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
+        />
+      </div>
+
+      {/* Support Card - Pushed to bottom */}
+      {(!collapsed || isMobile) && (
+        <div className="p-6 mt-auto border-t border-gray-50 shrink-0 bg-white">
+          <div className="bg-green-50 rounded-2xl p-4 border border-green-100 shadow-sm shadow-green-50/50">
+            <Text strong className="text-green-800 text-xs block mb-1">Hỗ trợ kỹ thuật?</Text>
+            <Text className="text-green-600 text-[10px] block mb-3">Liên hệ hotline: 1900 8888</Text>
+            <Button type="primary" size="small" block className="rounded-lg text-[10px] h-8 font-bold">Gửi yêu cầu</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <Layout className="min-h-screen bg-[#f8fafc]">
+      {/* Sider for Desktop */}
+      {!isMobile && (
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          theme="light"
+          width={280}
+          className="shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-50 flex flex-col h-screen sticky top-0"
+        >
+          {sidebarContent}
+        </Sider>
+      )}
+
+      {/* Drawer for Mobile */}
+      <Drawer
+        placement="left"
+        onClose={() => setMobileMenuOpen(false)}
+        open={mobileMenuOpen}
+        styles={{ body: { padding: 0 } }}
+        width={280}
+        closable={false}
+      >
+        {sidebarContent}
+      </Drawer>
 
       <Layout>
-        <Header className="bg-white/80 backdrop-blur-md p-0 flex justify-between items-center z-10 px-8 h-20 sticky top-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-b border-gray-50">
+        <Header className={`bg-white/80 backdrop-blur-md p-0 flex justify-between items-center z-10 sticky top-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-b border-gray-50 ${isMobile ? 'px-4 h-16' : 'px-8 h-20'}`}>
           <Button
             type="text"
             icon={<MenuOutlined className="text-green-600 text-xl" />}
-            onClick={() => setCollapsed(!collapsed)}
-            className="w-12 h-12 flex items-center justify-center hover:bg-green-50 rounded-xl transition-all"
+            onClick={() => isMobile ? setMobileMenuOpen(true) : setCollapsed(!collapsed)}
+            className="w-10 h-10 flex items-center justify-center hover:bg-green-50 rounded-xl transition-all"
           />
 
-          <div className="flex items-center gap-6">
-            <Space size={16} className="mr-4">
+          <div className="flex items-center gap-2 md:gap-6">
+            <Space size={isMobile ? 8 : 16} className="mr-0 md:mr-4">
               <NotificationBell />
-              <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+              {!isMobile && <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />}
             </Space>
 
-            <div className="h-10 w-[1px] bg-gray-100"></div>
+            {!isMobile && <div className="h-10 w-[1px] bg-gray-100"></div>}
 
             <Dropdown
               menu={{ items: dropdownItems, onClick: handleMenuClick }}
@@ -365,25 +398,27 @@ const MainLayout = () => {
               arrow={{ pointAtCenter: true }}
               classNames={{ root: 'premium-auth-dropdown' }}
             >
-              <div className="flex items-center gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
+              <div className="flex items-center gap-2 md:gap-3 cursor-pointer group hover:bg-green-50/50 p-1.5 md:pr-3 rounded-2xl transition-all border border-transparent hover:border-green-100">
                 <Avatar
-                  size={44}
+                  size={isMobile ? 32 : 44}
                   src={getAvatarUrl(user?.avatar)}
                   className="bg-green-50 text-green-600 border-2 border-green-200 group-hover:border-green-400 transition-all font-bold shadow-sm"
                 >
                   {!user?.avatar && getInitialAvatar(user?.fullname || user?.username || 'U')}
                 </Avatar>
-                <div className="text-left flex flex-col justify-center">
-                  <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
-                  <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+                {!isMobile && (
+                  <div className="text-left flex flex-col justify-center">
+                    <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
+                    <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{user?.role || 'Admin Account'}</Text>
+                  </div>
+                )}
+                <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-gray-400 group-hover:text-green-600 transition-colors" />
               </div>
             </Dropdown>
           </div>
         </Header>
 
-        <Content className="p-8 bg-[#f8fafc] min-h-[calc(100vh-80px)]">
+        <Content className={`${isMobile ? 'p-4' : 'p-8'} bg-[#f8fafc] min-h-[calc(100vh-80px)]`}>
           <Outlet />
         </Content>
       </Layout>

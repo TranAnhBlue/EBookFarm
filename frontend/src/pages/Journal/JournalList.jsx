@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip } from 'antd';
+import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid } from 'antd';
 import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -9,11 +9,14 @@ import JournalHistoryModal from '../../components/JournalHistoryModal';
 import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const JournalList = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
   // Xác định category dựa theo URL hiện tại
   const getCategoryFromPath = (path) => {
@@ -585,7 +588,8 @@ const JournalList = () => {
               loading={isLoading}
               pagination={{ pageSize: 8, className: "px-6 py-4" }}
               className="border-0"
-              size="middle"
+              size={isMobile ? 'small' : 'middle'}
+              scroll={{ x: 800 }}
               rowSelection={{
                 selectedRowKeys: selectedJournals,
                 onChange: (selectedRowKeys) => setSelectedJournals(selectedRowKeys),
