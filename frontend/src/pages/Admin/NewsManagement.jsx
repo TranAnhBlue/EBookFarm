@@ -221,7 +221,12 @@ const NewsManagement = () => {
                     dataSource={filteredAndSortedNews} 
                     loading={isLoading} 
                     rowKey="_id"
-                    pagination={{ pageSize: 8 }}
+                    pagination={{ 
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> bài viết</span>,
+                    }}
                 />
             </Card>
 

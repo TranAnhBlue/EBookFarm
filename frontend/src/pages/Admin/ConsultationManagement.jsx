@@ -320,8 +320,9 @@ const ConsultationManagement = () => {
                     loading={isLoading}
                     pagination={{
                         pageSize: 10,
-                        showSizeChanger: false,
-                        showTotal: (total) => `Tổng ${total} yêu cầu`,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> yêu cầu</span>,
                     }}
                     className="consultation-table"
                 />

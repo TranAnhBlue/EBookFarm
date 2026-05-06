@@ -340,8 +340,9 @@ const AdminJournalMgmt = () => {
           pagination={{ 
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} nhật ký`,
-            pageSizeOptions: ['10', '20', '50', '100']
+            showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> nhật ký</span>,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            className: "pb-4 px-4"
           }}
           rowKey="_id"
         />

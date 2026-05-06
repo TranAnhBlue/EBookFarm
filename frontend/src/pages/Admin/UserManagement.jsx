@@ -220,7 +220,13 @@ const UserManagement = () => {
           dataSource={filteredData}
           rowKey="_id"
           loading={isLoading}
-          pagination={{ pageSize: 8, className: "px-2" }}
+          pagination={{ 
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> Nông dân</span>,
+            className: "px-4 pb-4"
+          }}
           className="premium-table-refined"
         />
       </Card>
