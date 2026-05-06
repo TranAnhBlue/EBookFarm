@@ -12,6 +12,7 @@ const FormBuilder = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingSchema, setEditingSchema] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const [form] = Form.useForm();
 
   const { data: schemas, isLoading } = useQuery({
@@ -89,7 +90,7 @@ const FormBuilder = () => {
       title: 'STT', 
       key: 'stt', 
       width: 60,
-      render: (_, __, index) => index + 1 
+      render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1 
     },
     { 
       title: 'Tên biểu mẫu', 
@@ -167,7 +168,13 @@ const FormBuilder = () => {
         rowKey="_id" 
         loading={isLoading} 
         className="premium-table"
-        pagination={{ pageSize: 10 }}
+        pagination={{ 
+          ...pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          onChange: (page, pageSize) => setPagination({ current: page, pageSize })
+        }}
+        onChange={(p) => setPagination({ current: p.current, pageSize: p.pageSize })}
       />
 
       <Drawer
