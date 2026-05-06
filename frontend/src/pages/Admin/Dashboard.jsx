@@ -109,7 +109,16 @@ const Dashboard = () => {
     { title: 'Quy trình kỹ thuật', icon: <Settings className="w-8 h-8" />, path: '/docs', color: '#6366f1' },
   ];
 
-  const quickAccessItems = user?.role === 'Admin' ? adminQuickAccess : farmerQuickAccess;
+  const htxQuickAccess = [
+    { title: 'Quản lý sổ HTX', icon: <LinkIcon className="w-8 h-8" />, path: '/htx/journals', color: '#f59e0b' },
+    { title: 'Báo cáo & Thống kê', icon: <Package className="w-8 h-8" />, path: '/reports', color: '#ec4899' },
+  ];
+
+  const quickAccessItems = user?.role === 'Admin' 
+    ? adminQuickAccess 
+    : user?.role === 'HTX' 
+      ? htxQuickAccess 
+      : farmerQuickAccess;
 
   // Fetch News
   const { data: newsItems = [], isLoading: newsLoading } = useQuery({
@@ -135,7 +144,11 @@ const Dashboard = () => {
       <div className="flex justify-between items-end mb-2">
         <div className="space-y-1">
           <Title level={4} className="!mb-0 !text-gray-400 font-medium uppercase tracking-widest text-xs">
-            {user?.role === 'Admin' ? 'Tổng quan hệ thống' : 'Tổng quan nông trại'}
+            {user?.role === 'Admin' 
+              ? 'Tổng quan hệ thống' 
+              : user?.role === 'HTX'
+                ? 'Tổng quan Hợp Tác Xã'
+                : 'Tổng quan nông trại'}
           </Title>
           <Title level={2} className="!mb-0">Chào bạn, <span className="text-green-600">{user?.fullname || user?.username || 'Thành viên'}</span>! 👋</Title>
           <Text className="text-gray-500 font-medium whitespace-nowrap">Hôm nay là {new Date().toLocaleDateString('vi-VN', { weekday: 'long' })}, ngày {moment().format('D [tháng] M [năm] YYYY')}</Text>
