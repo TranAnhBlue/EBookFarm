@@ -8,6 +8,7 @@ import JournalEntry from '../Journal/JournalEntry';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Title, Text, Paragraph } = Typography;
 
 const HtxJournalMgmt = () => {
   const [journals, setJournals] = useState([]);
