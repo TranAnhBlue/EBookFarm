@@ -221,7 +221,7 @@ const UserManagement = () => {
           dataSource={filteredData}
           rowKey="_id"
           loading={isLoading}
-          pagination={{ 
+          pagination={{
             pageSize: pageSize,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
@@ -282,7 +282,7 @@ const UserManagement = () => {
           {!editingUser && (
             <Form.Item
               name="password"
-              label="Mật khẩu initial"
+              label="Mật khẩu khởi tạo"
               rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
             >
               <Input.Password className="h-11 rounded-lg" />
@@ -293,11 +293,12 @@ const UserManagement = () => {
             <Form.Item
               name="role"
               label="Quyền hạn"
-              initialValue="User"
+              initialValue="Farmer"
             >
               <Select className="h-11 w-full" dropdownClassName="rounded-xl">
                 <Select.Option value="Admin">Admin</Select.Option>
-                <Select.Option value="User">Farmer (User)</Select.Option>
+                <Select.Option value="Htx">Hợp tác xã</Select.Option>
+                <Select.Option value="Farmer">Nông dân</Select.Option>
               </Select>
             </Form.Item>
 

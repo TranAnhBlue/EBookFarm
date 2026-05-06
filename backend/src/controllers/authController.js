@@ -37,8 +37,10 @@ const registerUser = async (req, res) => {
         data: {
           _id: user.id,
           username: user.username,
+          fullname: user.fullname,
           email: user.email,
           role: user.role,
+          mustChangePassword: user.mustChangePassword,
           token: generateToken(user.id, user.role),
         }
       });
@@ -108,6 +110,39 @@ const loginUser = async (req, res) => {
     }
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Force change password on first login
+// @route   PUT /api/auth/force-change-password
+// @access  Private
+const forceChangePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
+    }
+
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    user.lastPasswordChange = new Date();
+    const updatedUser = await user.save();
+
+    res.json({
+      success: true,
+      message: 'Mật khẩu đã được cập nhật thành công. Chào mừng bạn đến với EBookFarm!',
+      data: updatedUser
+    });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -262,45 +297,6 @@ const googleLogin = async (req, res) => {
   }
 };
 
-// Đổi mật khẩu bắt buộc lần đầu
-const forceChangePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
-    }
-
-    // Verify current password
-    const isMatch = await user.matchPassword(currentPassword);
-    if (!isMatch) {
-      return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không đúng' });
-    }
-
-    // Update password and clear flag
-    user.password = newPassword;
-    user.mustChangePassword = false;
-    user.lastPasswordChange = new Date();
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Đổi mật khẩu thành công',
-      data: {
-        _id: user.id,
-        username: user.username,
-        fullname: user.fullname,
-        email: user.email,
-        role: user.role,
-        mustChangePassword: false,
-        token: generateToken(user.id, user.role),
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 // Logout - Log activity
 const logoutUser = async (req, res) => {

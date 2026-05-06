@@ -171,7 +171,8 @@ const bulkCreateUsers = async (req, res) => {
         await User.create({
           ...userData,
           password: userData.password || '123456', // Mật khẩu mặc định
-          status: 'Active'
+          status: 'Active',
+          mustChangePassword: true
         });
         results.count++;
       } catch (err) {

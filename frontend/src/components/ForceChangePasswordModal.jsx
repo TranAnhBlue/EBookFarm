@@ -36,27 +36,35 @@ const ForceChangePasswordModal = ({ visible, onSuccess }) => {
   return (
     <Modal
       open={visible}
-      title={
-        <div className="flex items-center gap-3">
-          <SafetyOutlined className="text-2xl text-orange-500" />
-          <div>
-            <div className="text-lg font-bold">Bắt buộc đổi mật khẩu</div>
-            <div className="text-xs text-gray-500 font-normal">Vì lý do bảo mật, bạn cần đổi mật khẩu ngay</div>
-          </div>
-        </div>
-      }
       footer={null}
       closable={false}
       maskClosable={false}
-      width={500}
+      width={480}
       centered
+      className="force-password-modal"
+      modalRender={(modal) => (
+        <div className="relative">
+          {/* Decorative Background Elements */}
+          <div className="absolute -top-10 -left-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-green-500/20 rounded-full blur-3xl"></div>
+          {modal}
+        </div>
+      )}
     >
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-50 rounded-2xl mb-4 shadow-inner">
+          <SafetyOutlined className="text-3xl text-emerald-600 animate-bounce" />
+        </div>
+        <Title level={3} className="!mb-1 !font-black !text-gray-800 uppercase tracking-tighter">Bảo mật tài khoản</Title>
+        <Text className="text-gray-400 font-medium italic">Chào mừng bạn gia nhập cộng đồng EBookFarm</Text>
+      </div>
+
       <Alert
-        message="Yêu cầu bảo mật"
-        description="Tài khoản của bạn được tạo bởi quản trị viên. Để đảm bảo an toàn, vui lòng đổi sang mật khẩu mới mà chỉ bạn biết."
+        message={<span className="font-bold text-orange-800">Yêu cầu thay đổi mật khẩu</span>}
+        description={<span className="text-xs text-orange-700/80">Tài khoản này vừa được khởi tạo. Để bảo vệ dữ liệu nông nghiệp của bạn, vui lòng thiết lập mật khẩu cá nhân mới.</span>}
         type="warning"
         showIcon
-        className="mb-6 rounded-xl"
+        className="mb-8 rounded-2xl border-orange-100 bg-orange-50/50"
       />
 
       <Form
@@ -64,90 +72,78 @@ const ForceChangePasswordModal = ({ visible, onSuccess }) => {
         layout="vertical"
         onFinish={handleSubmit}
         autoComplete="off"
+        className="premium-form"
       >
         <Form.Item
           name="currentPassword"
-          label={<span className="font-semibold">Mật khẩu hiện tại</span>}
-          rules={[
-            { required: true, message: 'Vui lòng nhập mật khẩu hiện tại' }
-          ]}
+          label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Mật khẩu khởi tạo</span>}
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu hiện tại' }]}
         >
           <Input.Password
-            prefix={<LockOutlined className="text-gray-400" />}
-            placeholder="Nhập mật khẩu được cấp"
+            prefix={<LockOutlined className="text-emerald-500" />}
+            placeholder="Nhập mật khẩu Admin đã cấp"
             size="large"
-            className="rounded-xl"
+            className="rounded-2xl h-12 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all shadow-sm"
           />
         </Form.Item>
 
+        <Divider className="my-6"><span className="text-[10px] text-gray-300 uppercase font-bold tracking-[4px]">Thiết lập mới</span></Divider>
+
         <Form.Item
           name="newPassword"
-          label={<span className="font-semibold">Mật khẩu mới</span>}
+          label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Mật khẩu mới</span>}
           rules={[
             { required: true, message: 'Vui lòng nhập mật khẩu mới' },
-            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
-            {
-              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-              message: 'Mật khẩu phải có chữ hoa, chữ thường và số'
-            }
+            { min: 6, message: 'Mật khẩu tối thiểu 6 ký tự' }
           ]}
           hasFeedback
         >
           <Input.Password
-            prefix={<KeyOutlined className="text-gray-400" />}
-            placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+            prefix={<KeyOutlined className="text-emerald-500" />}
+            placeholder="Mật khẩu riêng tư của bạn"
             size="large"
-            className="rounded-xl"
+            className="rounded-2xl h-12 border-gray-100"
           />
         </Form.Item>
 
         <Form.Item
           name="confirmPassword"
-          label={<span className="font-semibold">Xác nhận mật khẩu mới</span>}
+          label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Xác nhận lại</span>}
           dependencies={['newPassword']}
           hasFeedback
           rules={[
-            { required: true, message: 'Vui lòng xác nhận mật khẩu mới' },
+            { required: true, message: 'Vui lòng xác nhận lại mật khẩu' },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue('newPassword') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
+                return Promise.reject(new Error('Mật khẩu không khớp!'));
               },
             }),
           ]}
         >
           <Input.Password
-            prefix={<KeyOutlined className="text-gray-400" />}
+            prefix={<KeyOutlined className="text-emerald-500" />}
             placeholder="Nhập lại mật khẩu mới"
             size="large"
-            className="rounded-xl"
+            className="rounded-2xl h-12 border-gray-100"
           />
         </Form.Item>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <div className="text-xs text-blue-800 font-semibold mb-2">💡 Gợi ý mật khẩu mạnh:</div>
-          <ul className="text-xs text-blue-700 space-y-1 ml-4">
-            <li>• Ít nhất 6 ký tự (khuyến nghị 8-12 ký tự)</li>
-            <li>• Có chữ hoa, chữ thường và số</li>
-            <li>• Không dùng thông tin cá nhân dễ đoán</li>
-            <li>• Không chia sẻ mật khẩu với người khác</li>
-          </ul>
-        </div>
-
-        <Form.Item className="mb-0">
+        <div className="mt-8">
           <Button
             type="primary"
             htmlType="submit"
             loading={loading}
             size="large"
             block
-            className="rounded-xl h-12 font-bold bg-green-600 hover:bg-green-700 border-0 shadow-lg"
+            className="rounded-2xl h-14 font-black text-lg bg-emerald-600 hover:bg-emerald-700 border-0 shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 group"
           >
-            {loading ? 'Đang xử lý...' : 'Xác nhận đổi mật khẩu'}
+            <span>Bắt đầu sử dụng</span>
+            <LockOutlined className="group-hover:rotate-12 transition-transform" />
           </Button>
-        </Form.Item>
+        </div>
       </Form>
     </Modal>
   );
