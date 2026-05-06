@@ -21,6 +21,7 @@ import CustomerManagement from './pages/Admin/CustomerManagement';
 import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
+import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
 import Reports from './pages/Admin/Reports';
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
@@ -164,6 +165,9 @@ const App = () => {
                   <Route path="admin/chat-stats" element={<ProtectedRoute requireAdmin><ChatStats /></ProtectedRoute>} />
                   <Route path="admin/logs" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
                   <Route path="admin/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
+
+                  {/* HTX-only routes */}
+                  <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
 
                   {/* Agriculture Models & Inventory */}
                   <Route path="agriculture-models" element={<ProtectedRoute><AgricultureModels /></ProtectedRoute>} />

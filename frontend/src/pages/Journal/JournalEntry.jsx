@@ -2212,7 +2212,7 @@ const JournalEntry = () => {
                     <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
                         <Select size="large" className="rounded-xl">
                             <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
-                            <Option value="Completed">Hoàn tất (Kết thúc vụ mùa)</Option>
+                            <Option value="Submitted">Hoàn tất (Gửi duyệt HTX)</Option>
                         </Select>
                     </Form.Item>
                 </div>

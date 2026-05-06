@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const farmJournalSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   schemaId: { type: mongoose.Schema.Types.ObjectId, ref: 'FormSchema', required: true },
+  htxJournalId: { type: mongoose.Schema.Types.ObjectId, ref: 'HtxJournal' },
   qrCode: { type: String, default: () => uuidv4(), unique: true },
   entries: { type: mongoose.Schema.Types.Mixed, default: {} },
   status: { 

@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String },
   googleId: { type: String, unique: true, sparse: true },
-  role: { type: String, enum: ['Admin','User', 'Farmer'], default: 'Farmer' },
+  role: { type: String, enum: ['Admin', 'Farmer', 'HTX'], default: 'Farmer' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   

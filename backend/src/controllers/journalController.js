@@ -64,13 +64,37 @@ const updateJournal = async (req, res) => {
     try {
       const journal = await FarmJournal.findById(req.params.id);
       if(journal) {
-          if (journal.userId.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+          let hasAccess = false;
+          if (journal.userId.toString() === req.user._id.toString() || req.user.role === 'Admin') {
+             hasAccess = true;
+          } else if (req.user.role === 'HTX' && journal.htxJournalId) {
+             const HtxJournal = require('../models/HtxJournal');
+             const htxJournal = await HtxJournal.findById(journal.htxJournalId);
+             if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {
+                hasAccess = true;
+             }
+          }
+          if (!hasAccess) {
               return res.status(403).json({ success: false, message: 'Not authorized' });
           }
           journal.entries = req.body.entries || journal.entries;
           journal.status = req.body.status || journal.status;
           const updated = await journal.save();
           
+          // Đồng bộ trạng thái lên HtxJournal nếu có
+          if (updated.htxJournalId && req.body.status) {
+             const HtxJournal = require('../models/HtxJournal');
+             const htxJournal = await HtxJournal.findById(updated.htxJournalId);
+             if (htxJournal) {
+                 const farmerEntry = htxJournal.farmers.find(f => f.farmJournalId && f.farmJournalId.toString() === updated._id.toString());
+                 if (farmerEntry) {
+                     if (updated.status === 'Submitted') farmerEntry.status = 'Chờ duyệt';
+                     if (updated.status === 'Draft') farmerEntry.status = 'Đang nhập';
+                     await htxJournal.save();
+                 }
+             }
+          }
+
           // Log action
           await createLog(req.user._id, 'Cập nhật nhật ký sản xuất', updated._id, 'FarmJournal', {
             qrCode: updated.qrCode,
@@ -94,8 +118,19 @@ const getJournalById = async (req, res) => {
     if (!journal) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
     }
-    // Only owner or admin can view
-    if (journal.userId._id.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+    // Only owner, admin, or HTX can view
+    let hasAccess = false;
+    if (journal.userId._id.toString() === req.user._id.toString() || req.user.role === 'Admin') {
+       hasAccess = true;
+    } else if (req.user.role === 'HTX' && journal.htxJournalId) {
+       const HtxJournal = require('../models/HtxJournal');
+       const htxJournal = await HtxJournal.findById(journal.htxJournalId);
+       if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {
+          hasAccess = true;
+       }
+    }
+
+    if (!hasAccess) {
       return res.status(403).json({ success: false, message: 'Không có quyền xem nhật ký này' });
     }
     res.json({ success: true, data: journal });

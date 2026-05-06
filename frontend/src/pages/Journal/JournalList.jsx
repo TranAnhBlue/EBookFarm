@@ -6,12 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import JournalHistoryModal from '../../components/JournalHistoryModal';
+import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text } = Typography;
 
 const JournalList = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuthStore();
 
   // Xác định category dựa theo URL hiện tại
   const getCategoryFromPath = (path) => {
@@ -397,21 +399,25 @@ const JournalList = () => {
             )}
           </Space>
           <Space>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={() => setImportModalVisible(true)}
-              className="text-green-600 border-green-300 hover:bg-green-50"
-            >
-              Import
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setSchemaModalVisible(true)}
-              className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
-            >
-              Tạo sổ nhật ký
-            </Button>
+            {user?.role !== 'Farmer' && (
+              <>
+                <Button
+                  icon={<UploadOutlined />}
+                  onClick={() => setImportModalVisible(true)}
+                  className="text-green-600 border-green-300 hover:bg-green-50"
+                >
+                  Import
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setSchemaModalVisible(true)}
+                  className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
+                >
+                  Tạo sổ nhật ký
+                </Button>
+              </>
+            )}
           </Space>
         </div>
 
@@ -501,16 +507,22 @@ const JournalList = () => {
                    <FileTextOutlined className="text-4xl text-gray-200" />
                 </div>
                 <Title level={4} className="!mb-1 text-gray-400">Chưa có sổ nhật ký nào</Title>
-                <Text className="text-gray-400 mb-8">Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.</Text>
-                <Button 
-                  type="primary" 
-                  size="large" 
-                  icon={<PlusOutlined />} 
-                  onClick={() => setSchemaModalVisible(true)}
-                  className="bg-green-600 hover:bg-green-700 rounded-xl px-8 h-12 shadow-lg shadow-green-200"
-                >
-                  Tạo sổ ngay
-                </Button>
+                <Text className="text-gray-400 mb-8">
+                  {user?.role === 'Farmer' 
+                    ? 'Bạn chưa được HTX phân công vào sổ nhật ký nào trong danh mục này.' 
+                    : 'Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.'}
+                </Text>
+                {user?.role !== 'Farmer' && (
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    icon={<PlusOutlined />} 
+                    onClick={() => setSchemaModalVisible(true)}
+                    className="bg-green-600 hover:bg-green-700 rounded-xl px-8 h-12 shadow-lg shadow-green-200"
+                  >
+                    Tạo sổ ngay
+                  </Button>
+                )}
               </div>
             )}
           </div>

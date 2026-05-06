@@ -214,7 +214,29 @@ const MainLayout = () => {
     },
   ];
 
-  const items = user?.role === 'Admin' ? getAdminItems() : getFarmerItems();
+  const getHtxItems = () => [
+    {
+      key: '/dashboard',
+      icon: <AppstoreOutlined className="text-lg" />,
+      label: <span className="font-medium">Tổng quan HTX</span>,
+    },
+    {
+      key: '/htx/journals',
+      icon: <SettingOutlined className="text-lg" />,
+      label: <span className="font-medium">Quản lý sổ HTX</span>,
+    },
+    {
+      key: '/reports',
+      icon: <BarChartOutlined className="text-lg" />,
+      label: <span className="font-medium">Báo cáo & Thống kê</span>,
+    },
+  ];
+
+  const items = user?.role === 'Admin' 
+    ? getAdminItems() 
+    : user?.role === 'HTX' 
+      ? getHtxItems() 
+      : getFarmerItems();
 
   const dropdownItems = [
     {

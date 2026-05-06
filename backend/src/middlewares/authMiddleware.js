@@ -49,4 +49,20 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+const htx = (req, res, next) => {
+  console.log('🔍 HTX middleware - User:', {
+    exists: !!req.user,
+    role: req.user?.role,
+    id: req.user?._id
+  });
+  
+  if (req.user && req.user.role === 'HTX') {
+    console.log('✅ HTX access granted');
+    next();
+  } else {
+    console.log('❌ HTX access denied - Role:', req.user?.role);
+    res.status(403).json({ success: false, message: 'Not authorized as an HTX' });
+  }
+};
+
+module.exports = { protect, admin, htx };
