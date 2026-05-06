@@ -53,6 +53,14 @@ const Reports = () => {
     queryFn: () => api.get('/reports/activity-timeline').then(res => res.data.data)
   });
 
+  // Hàm chuyển đổi tiếng Việt có dấu sang không dấu để tránh lỗi font PDF
+  const removeAccents = (str) => {
+    if (!str) return '';
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+  };
+
   const exportPDF = () => {
     try {
       const doc = new jsPDF();
@@ -68,33 +76,34 @@ const Reports = () => {
         // Tiêu đề báo cáo (đẩy sang phải để tránh logo)
         doc.setFontSize(18);
         doc.setTextColor(34, 197, 94);
-        doc.text("BÁO CÁO HỆ THỐNG EBOOKFARM", 45, 22);
+        // Chuyển tiêu đề sang không dấu
+        doc.text(removeAccents("BAO CAO HE THONG EBOOKFARM"), 45, 22);
         
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Người xuất: ${user.fullname || user.username}`, 45, 30);
-        doc.text(`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, 45, 35);
+        doc.text(removeAccents(`Nguoi xuat: ${user.fullname || user.username}`), 45, 30);
+        doc.text(removeAccents(`Ngay xuat: ${new Date().toLocaleString('vi-VN')}`), 45, 35);
         
         // Đường kẻ ngang phân cách
         doc.setDrawColor(230, 230, 230);
         doc.line(14, 42, 196, 42);
 
         const tableData = [
-          ['Tổng số nhật ký', stats?.totalJournals || 0],
-          ['Đã hoàn thành', stats?.completedJournals || 0],
-          ['Người dùng hệ thống', stats?.totalUsers || 0],
-          ['Nhóm/HTX', stats?.totalGroups || 0],
-          ['Vật tư tồn kho', stats?.inventoryCount || 0],
+          [removeAccents('Tong so nhat ky'), stats?.totalJournals || 0],
+          [removeAccents('Da hoan thanh'), stats?.completedJournals || 0],
+          [removeAccents('Nguoi dung he thong'), stats?.totalUsers || 0],
+          [removeAccents('Nhom/HTX'), stats?.totalGroups || 0],
+          [removeAccents('Vat tu ton kho'), stats?.inventoryCount || 0],
         ];
 
         if (pieData && pieData.length > 0) {
           pieData.forEach(item => {
-            tableData.push([`Trạng thái: ${item.name}`, item.value]);
+            tableData.push([removeAccents(`Trang thai: ${item.name}`), item.value]);
           });
         }
         
         autoTable(doc, {
-          head: [['Hạng mục thống kê', 'Số lượng / Giá trị']],
+          head: [[removeAccents('Hang muc thong ke'), removeAccents('So luong / Gia tri')]],
           body: tableData,
           startY: 50,
           styles: { font: 'Helvetica', fontStyle: 'normal' },
@@ -104,7 +113,7 @@ const Reports = () => {
         });
 
         doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
-        message.success('Xuất file PDF thành công!');
+        message.success('Xuất file PDF thành công (Đã tối ưu font)!');
       };
 
       img.onerror = () => {
@@ -112,7 +121,7 @@ const Reports = () => {
         // Vẫn cho phép xuất PDF dù lỗi logo
         doc.setFontSize(18);
         doc.setTextColor(34, 197, 94);
-        doc.text("BÁO CÁO HỆ THỐNG EBOOKFARM", 14, 20);
+        doc.text(removeAccents("BAO CAO HE THONG EBOOKFARM"), 14, 20);
         // ... (phần còn lại của PDF không logo)
         doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
         message.warning('Xuất PDF thành công nhưng không có logo.');
