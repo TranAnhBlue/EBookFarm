@@ -168,7 +168,7 @@ const AdminJournalMgmt = () => {
       render: (record) => (
         <div className="flex flex-col items-center gap-1">
           {getStatusDisplay(record)}
-          {record.htxStatus && (
+          {record.htxStatus && record.status !== 'Verified' && (
             <Text className="text-[10px] text-gray-400 font-medium">HTX: {record.htxStatus}</Text>
           )}
         </div>
@@ -367,7 +367,12 @@ const AdminJournalMgmt = () => {
                 <Text copyable className="text-blue-600 font-mono">{selectedJournal.qrCode}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
-                {getStatusDisplay(selectedJournal)}
+                <Space direction="vertical" size={0}>
+                  {getStatusDisplay(selectedJournal)}
+                  {selectedJournal.htxStatus && selectedJournal.status !== 'Verified' && (
+                    <Text className="text-[10px] text-gray-400 font-medium">HTX: {selectedJournal.htxStatus}</Text>
+                  )}
+                </Space>
               </Descriptions.Item>
               <Descriptions.Item label="Nông dân (Farmer)">
                 <Space>
