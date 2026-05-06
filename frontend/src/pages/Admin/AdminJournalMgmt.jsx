@@ -118,105 +118,82 @@ const AdminJournalMgmt = () => {
     thisMonth: journals?.filter(j => dayjs(j.createdAt).isAfter(dayjs().startOf('month'))).length || 0
   };
 
+  const getStatusDisplay = (record) => {
+    const { status, htxStatus } = record;
+    if (status === 'Verified') return <Tag color="green" icon={<CheckCircleOutlined />} className="rounded-full px-3">HTX Đã duyệt</Tag>;
+    if (status === 'Submitted') return <Tag color="blue" icon={<ClockCircleOutlined />} className="rounded-full px-3">Chờ duyệt</Tag>;
+    if (status === 'Draft') return <Tag color="orange" icon={<ClockCircleOutlined />} className="rounded-full px-3">Đang thực hiện</Tag>;
+    return <Tag color="default" className="rounded-full px-3">{status}</Tag>;
+  };
+
   const columns = [
     {
       title: 'Thông tin nhật ký',
-      key: 'journal',
-      width: 250,
+      key: 'journal_info',
+      width: '35%',
       render: (record) => (
-        <Space direction="vertical" size={2}>
-          <Text strong className="text-base text-gray-900">{record.schemaId?.name || 'Chưa đặt tên'}</Text>
-          <Text className="text-xs text-gray-500">
-            <FileTextOutlined className="mr-1" />
-            Mã: {record.qrCode?.substring(0, 12)}...
-          </Text>
-          <Text className="text-xs text-gray-400">
-            Tạo: {dayjs(record.createdAt).format('DD/MM/YYYY HH:mm')}
-          </Text>
-        </Space>
+        <div className="flex flex-col gap-1">
+          <Text strong className="text-base text-green-700">{record.schemaId?.name || 'Chưa đặt tên'}</Text>
+          <div className="flex items-center gap-2 text-[10px] text-gray-400">
+             <span className="bg-gray-100 px-1.5 py-0.5 rounded">Mã: {record.qrCode?.substring(0, 8)}...</span>
+             <span>Tạo: {dayjs(record.createdAt).format('DD/MM/YYYY')}</span>
+          </div>
+        </div>
       )
     },
     {
-      title: 'Chủ sở hữu',
-      key: 'user',
-      width: 200,
+      title: 'Nông dân',
+      key: 'farmer_info',
+      width: '25%',
       render: (record) => (
-        <Space>
+        <div className="flex items-center gap-2">
           <Avatar 
-            size={40} 
+            size={32} 
             icon={<UserOutlined />} 
-            className="bg-green-50 text-green-600"
+            className="bg-green-50 text-green-600 border border-green-100"
             src={record.userId?.avatar ? `${API_BASE_URL}${record.userId.avatar}` : null}
           />
-          <Space direction="vertical" size={0}>
-            <Text className="text-sm font-medium text-gray-900">{record.userId?.fullname || record.userId?.username || 'N/A'}</Text>
-            <Text className="text-xs text-gray-500">@{record.userId?.username}</Text>
-          </Space>
-        </Space>
+          <div className="flex flex-col">
+            <Text className="text-sm font-semibold text-gray-800">{record.userId?.fullname || record.userId?.username || 'N/A'}</Text>
+            <Text className="text-[10px] text-gray-400 italic">@{record.userId?.username}</Text>
+          </div>
+        </div>
       )
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      width: 140,
+      key: 'status_info',
+      width: '20%',
       align: 'center',
-      render: (status) => (
-        <Tag 
-          color={status === 'Completed' ? 'green' : 'orange'} 
-          className="rounded-full px-4 py-1 font-medium"
-          icon={status === 'Completed' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
-        >
-          {status === 'Completed' ? 'Hoàn thành' : 'Đang thực hiện'}
-        </Tag>
-      ),
-      filters: [
-        { text: 'Đang thực hiện', value: 'In Progress' },
-        { text: 'Hoàn thành', value: 'Completed' }
-      ],
-      onFilter: (value, record) => record.status === value
-    },
-    {
-      title: 'Cập nhật',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 150,
-      render: (date) => (
-        <Space direction="vertical" size={0}>
-          <Text className="text-sm text-gray-700">{dayjs(date).format('DD/MM/YYYY')}</Text>
-          <Text className="text-xs text-gray-500">{dayjs(date).format('HH:mm')}</Text>
-          <Text className="text-xs text-blue-600">{dayjs(date).fromNow()}</Text>
-        </Space>
-      ),
-      sorter: (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      render: (record) => (
+        <div className="flex flex-col items-center gap-1">
+          {getStatusDisplay(record)}
+          {record.htxStatus && (
+            <Text className="text-[10px] text-gray-400 font-medium">HTX: {record.htxStatus}</Text>
+          )}
+        </div>
+      )
     },
     {
       title: 'Thao tác',
       key: 'action',
-      width: 120,
-      fixed: 'right',
-      align: 'center',
+      width: '20%',
+      align: 'right',
       render: (record) => (
-        <Space direction="vertical" size="small" className="w-full">
+        <Space size="middle">
           <Button 
             icon={<EyeOutlined />} 
-            size="small" 
+            size="middle" 
             onClick={() => handleViewDetail(record)}
-            block
-            className="rounded-lg"
-          >
-            Chi tiết
-          </Button>
+            className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm border-gray-100 hover:text-green-600"
+          />
           <Button 
             icon={<QrcodeOutlined />} 
-            size="small" 
+            size="middle" 
             type="primary" 
             onClick={() => handleViewQR(record)}
-            block
-            className="rounded-lg bg-green-600 border-0"
-          >
-            QR Code
-          </Button>
+            className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm bg-green-600 border-0"
+          />
         </Space>
       )
     }
@@ -367,11 +344,6 @@ const AdminJournalMgmt = () => {
             pageSizeOptions: ['10', '20', '50', '100']
           }}
           rowKey="_id"
-          scroll={{ x: 1200 }}
-          rowClassName={(record) => {
-            if (record.status === 'Completed') return 'bg-green-50';
-            return '';
-          }}
         />
       </Card>
 
