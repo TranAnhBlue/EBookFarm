@@ -61,4 +61,22 @@ const deleteSchema = async (req, res) => {
   }
 };
 
-module.exports = { createSchema, getSchemas, getSchemaById, deleteSchema };
+const updateSchema = async (req, res) => {
+  try {
+    const schema = await FormSchema.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (schema) {
+      // Log action
+      await createLog(req.user._id, 'Cập nhật biểu mẫu nhật ký', schema._id, 'FormSchema', {
+        name: schema.name
+      });
+      
+      res.json({ success: true, data: schema });
+    } else {
+      res.status(404).json({ success: false, message: 'Schema not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { createSchema, getSchemas, getSchemaById, deleteSchema, updateSchema };

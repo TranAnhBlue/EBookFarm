@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Card, Button, Form, Input, Select, Space, Typography, Table, Drawer, message, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Button, Form, Input, Select, Space, Typography, Table, Drawer, message, Popconfirm, Tag, Tooltip } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const FormBuilder = () => {
   const queryClient = useQueryClient();
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [editingSchema, setEditingSchema] = useState(null);
+  const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm();
 
   const { data: schemas, isLoading } = useQuery({
@@ -18,20 +20,26 @@ const FormBuilder = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (newSchema) => api.post('/schemas', newSchema),
+    mutationFn: (newSchema) => {
+      if (editingSchema) {
+        return api.put(`/schemas/${editingSchema._id}`, newSchema);
+      }
+      return api.post('/schemas', newSchema);
+    },
     onSuccess: () => {
-      message.success('Schema created successfully');
+      message.success(editingSchema ? 'Cập nhật biểu mẫu thành công' : 'Tạo biểu mẫu thành công');
       queryClient.invalidateQueries({ queryKey: ['schemas'] });
       setDrawerVisible(false);
+      setEditingSchema(null);
       form.resetFields();
     },
-    onError: () => message.error('Failed to create schema'),
+    onError: () => message.error('Có lỗi xảy ra khi lưu biểu mẫu'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/schemas/${id}`),
     onSuccess: () => {
-      message.success('Schema deleted');
+      message.success('Đã xóa biểu mẫu');
       queryClient.invalidateQueries({ queryKey: ['schemas'] });
     }
   });
@@ -52,97 +60,210 @@ const FormBuilder = () => {
     createMutation.mutate(values);
   };
 
+  const handleEdit = (record) => {
+    setEditingSchema(record);
+    // Format options back to string for the form
+    const initialValues = { ...record };
+    if (initialValues.tables) {
+      initialValues.tables.forEach((table) => {
+        if (table.fields) {
+          table.fields.forEach((field) => {
+            if (Array.isArray(field.options)) {
+              field.options = field.options.join(', ');
+            }
+          })
+        }
+      });
+    }
+    form.setFieldsValue(initialValues);
+    setDrawerVisible(true);
+  };
+
+  const filteredSchemas = schemas?.filter(s => 
+    s.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    s.description?.toLowerCase().includes(searchText.toLowerCase())
+  ) || [];
+
   const columns = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { title: 'Created At', dataIndex: 'createdAt', key: 'createdAt', render: (date) => new Date(date).toLocaleDateString() },
+    { 
+      title: 'STT', 
+      key: 'stt', 
+      width: 60,
+      render: (_, __, index) => index + 1 
+    },
+    { 
+      title: 'Tên biểu mẫu', 
+      dataIndex: 'name', 
+      key: 'name',
+      render: (text) => <Text strong className="text-green-700">{text}</Text>
+    },
+    { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+    { 
+      title: 'Ngày tạo', 
+      dataIndex: 'createdAt', 
+      key: 'createdAt', 
+      render: (date) => new Date(date).toLocaleDateString('vi-VN') 
+    },
     {
-      title: 'Action',
+      title: 'Thao tác',
       key: 'action',
+      width: 120,
       render: (_, record) => (
-        <Popconfirm title="Delete this schema?" onConfirm={() => deleteMutation.mutate(record._id)}>
-          <Button danger type="text" icon={<DeleteOutlined />} />
-        </Popconfirm>
+        <Space size="middle">
+          <Tooltip title="Chỉnh sửa">
+            <Button 
+              type="text" 
+              icon={<EditOutlined className="text-blue-500" />} 
+              onClick={() => handleEdit(record)} 
+            />
+          </Tooltip>
+          <Popconfirm 
+            title="Bạn có chắc chắn muốn xóa biểu mẫu này?" 
+            onConfirm={() => deleteMutation.mutate(record._id)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Tooltip title="Xóa">
+              <Button danger type="text" icon={<DeleteOutlined />} />
+            </Tooltip>
+          </Popconfirm>
+        </Space>
       )
     }
   ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <Title level={2}>Trình tạo biểu mẫu (Sơ đồ động)</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setDrawerVisible(true)}>
-          Create Schema
+    <div className="p-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <Title level={2} className="!mb-0">Trình tạo biểu mẫu (Sơ đồ động)</Title>
+        <Button 
+          type="primary" 
+          icon={<PlusOutlined />} 
+          onClick={() => {
+            setEditingSchema(null);
+            form.resetFields();
+            setDrawerVisible(true);
+          }}
+          className="bg-green-600 hover:bg-green-700 rounded-xl px-6"
+        >
+          Tạo biểu mẫu mới
         </Button>
       </div>
 
-      <Table dataSource={schemas} columns={columns} rowKey="_id" loading={isLoading} />
+      <Card className="mb-6 rounded-2xl shadow-sm border-gray-100">
+        <Input
+          placeholder="Tìm kiếm tên hoặc mô tả biểu mẫu..."
+          prefix={<SearchOutlined className="text-gray-400" />}
+          onChange={(e) => setSearchText(e.target.value)}
+          size="large"
+          className="rounded-xl"
+          allowClear
+        />
+      </Card>
+
+      <Table 
+        dataSource={filteredSchemas} 
+        columns={columns} 
+        rowKey="_id" 
+        loading={isLoading} 
+        className="premium-table"
+        pagination={{ pageSize: 10 }}
+      />
 
       <Drawer
-        title="Create New Dynamic Schema"
+        title={editingSchema ? "Chỉnh sửa biểu mẫu" : "Tạo biểu mẫu mới"}
         width={720}
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
         extra={
-          <Button type="primary" onClick={() => form.submit()} loading={createMutation.isPending}>
-            Save Schema
-          </Button>
+          <Space>
+            <Button onClick={() => setDrawerVisible(false)}>Hủy</Button>
+            <Button type="primary" onClick={() => form.submit()} loading={createMutation.isPending}>
+              {editingSchema ? "Cập nhật" : "Lưu biểu mẫu"}
+            </Button>
+          </Space>
         }
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="name" label="Schema Name" rules={[{ required: true }]}>
-            <Input placeholder="e.g. Tomato Farm Workflow" />
+          <Form.Item name="name" label="Tên biểu mẫu" rules={[{ required: true, message: 'Vui lòng nhập tên biểu mẫu' }]}>
+            <Input placeholder="Vd: Quy trình VietGAP Rau Củ Quả" />
           </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={2} />
+          <Form.Item name="description" label="Mô tả">
+            <Input.TextArea rows={2} placeholder="Nhập mô tả ngắn gọn về biểu mẫu" />
           </Form.Item>
 
-          <Card title="Tables" size="small">
+          <Card title={<span className="text-green-700">Cấu trúc các bảng</span>} size="small" className="mb-4">
             <Form.List name="tables">
               {(fields, { add, remove }) => (
                 <>
                   {fields.map(({ key, name, ...restField }) => (
-                    <Card key={key} size="small" className="mb-4 bg-gray-50" extra={<Button danger onClick={() => remove(name)}>Remove Table</Button>}>
-                      <Form.Item {...restField} name={[name, 'tableName']} label="Table Name" rules={[{ required: true }]}>
-                        <Input placeholder="e.g. Seed Registration, Harvesting" />
+                    <Card 
+                      key={key} 
+                      size="small" 
+                      className="mb-4 bg-gray-50 rounded-xl border-gray-200" 
+                      extra={<Button danger type="link" size="small" onClick={() => remove(name)}>Xóa bảng</Button>}
+                    >
+                      <Form.Item {...restField} name={[name, 'tableName']} label="Tên bảng" rules={[{ required: true, message: 'Nhập tên bảng' }]}>
+                        <Input placeholder="Vd: Đăng ký giống, Thu hoạch" />
                       </Form.Item>
 
                       <Form.List name={[name, 'fields']}>
                         {(subFields, { add: addSubField, remove: removeSubField }) => (
                           <>
                             {subFields.map((subField) => (
-                              <Space key={subField.key} className="flex mb-2" align="baseline">
-                                <Form.Item {...subField} name={[subField.name, 'name']} rules={[{ required: true }]} className="m-0">
-                                  <Input placeholder="Field ID (e.g. seed_name)" />
-                                </Form.Item>
-                                <Form.Item {...subField} name={[subField.name, 'label']} rules={[{ required: true }]} className="m-0">
-                                  <Input placeholder="Grid Label (e.g. Seed Name)" />
-                                </Form.Item>
-                                <Form.Item {...subField} name={[subField.name, 'type']} rules={[{ required: true }]} className="m-0 min-w-[120px]">
-                                  <Select placeholder="Type">
-                                    <Option value="text">Text</Option>
-                                    <Option value="number">Number</Option>
-                                    <Option value="date">Date</Option>
-                                    <Option value="select">Select</Option>
-                                  </Select>
-                                </Form.Item>
-                                {/* For select type options */}
-                                <Form.Item {...subField} name={[subField.name, 'options']} className="m-0">
-                                  <Input placeholder="Comma separated options" />
-                                </Form.Item>
-                                <DeleteOutlined onClick={() => removeSubField(subField.name)} className="text-red-500 cursor-pointer" />
-                              </Space>
+                              <div key={subField.key} className="bg-white p-3 rounded-lg mb-3 border border-gray-100">
+                                <Row gutter={8} align="middle">
+                                  <Col span={7}>
+                                    <Form.Item {...subField} name={[subField.name, 'name']} rules={[{ required: true, message: 'ID trường' }]} className="m-0">
+                                      <Input placeholder="ID (vd: ten_giong)" />
+                                    </Form.Item>
+                                  </Col>
+                                  <Col span={7}>
+                                    <Form.Item {...subField} name={[subField.name, 'label']} rules={[{ required: true, message: 'Nhãn' }]} className="m-0">
+                                      <Input placeholder="Nhãn (vd: Tên giống)" />
+                                    </Form.Item>
+                                  </Col>
+                                  <Col span={6}>
+                                    <Form.Item {...subField} name={[subField.name, 'type']} rules={[{ required: true }]} className="m-0">
+                                      <Select placeholder="Kiểu">
+                                        <Option value="text">Chữ</Option>
+                                        <Option value="number">Số</Option>
+                                        <Option value="date">Ngày</Option>
+                                        <Option value="select">Lựa chọn</Option>
+                                      </Select>
+                                    </Form.Item>
+                                  </Col>
+                                  <Col span={3}>
+                                    <Button danger type="text" icon={<DeleteOutlined />} onClick={() => removeSubField(subField.name)} />
+                                  </Col>
+                                  <Col span={24} className="mt-2">
+                                    <Form.Item 
+                                      {...subField} 
+                                      name={[subField.name, 'options']} 
+                                      className="m-0"
+                                      noStyle
+                                      shouldUpdate={(prev, curr) => prev.type !== curr.type}
+                                    >
+                                      {({ getFieldValue }) => 
+                                        getFieldValue(['tables', name, 'fields', subField.name, 'type']) === 'select' ? (
+                                          <Input placeholder="Các lựa chọn (cách nhau bởi dấu phẩy)" className="mt-2" />
+                                        ) : null
+                                      }
+                                    </Form.Item>
+                                  </Col>
+                                </Row>
+                              </div>
                             ))}
-                            <Button type="dashed" onClick={() => addSubField()} block icon={<PlusOutlined />}>
-                              Add Field
+                            <Button type="dashed" onClick={() => addSubField()} block icon={<PlusOutlined />} className="rounded-lg">
+                              Thêm trường thông tin
                             </Button>
                           </>
                         )}
                       </Form.List>
                     </Card>
                   ))}
-                  <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                    Add Table
+                  <Button type="primary" ghost onClick={() => add()} block icon={<PlusOutlined />} className="rounded-lg">
+                    Thêm bảng dữ liệu
                   </Button>
                 </>
               )}
@@ -155,3 +276,4 @@ const FormBuilder = () => {
 };
 
 export default FormBuilder;
+
