@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions } from 'antd';
 import { PlusOutlined, EyeOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import api from '../../services/api';
@@ -309,20 +310,26 @@ const HtxJournalMgmt = () => {
                   key: 'action',
                   render: (_, record) => (
                     <Space>
-                      <Button 
-                        size="small" 
-                        icon={<EyeOutlined />}
-                        onClick={() => {
-                          const journalId = record.farmJournalId?._id || record.farmJournalId;
-                          if (journalId) {
-                            window.open(`/journals/view/${journalId}`, '_blank');
-                          } else {
-                            message.error('Không tìm thấy ID nhật ký của nông dân này');
-                          }
-                        }}
-                      >
-                        Xem Sổ
-                      </Button>
+                      {record.farmJournalId ? (
+                        <Link to={`/journals/view/${record.farmJournalId?._id || record.farmJournalId}`} target="_blank">
+                          <Button 
+                            size="small" 
+                            icon={<EyeOutlined />}
+                            className="flex items-center"
+                          >
+                            Xem Sổ
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button 
+                          size="small" 
+                          icon={<EyeOutlined />} 
+                          disabled 
+                          title="Chưa có dữ liệu nhật ký"
+                        >
+                          Xem Sổ
+                        </Button>
+                      )}
                       <Button 
                         size="small" 
                         type="primary" 
