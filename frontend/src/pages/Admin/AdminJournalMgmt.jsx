@@ -35,6 +35,7 @@ const AdminJournalMgmt = () => {
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isQRModalVisible, setIsQRModalVisible] = useState(false);
+  const [sortOrder, setSortOrder] = useState('newest');
 
   // Fetch All Journals
   const { data: journals, isLoading } = useQuery({
@@ -42,33 +43,45 @@ const AdminJournalMgmt = () => {
     queryFn: () => api.get('/journals').then(res => res.data.data)
   });
 
-  // Filter journals
-  const filteredJournals = journals?.filter(journal => {
-    // Search filter
-    const searchLower = searchText.toLowerCase();
-    const matchSearch = !searchText || 
-      journal.userId?.username?.toLowerCase().includes(searchLower) ||
-      journal.userId?.fullname?.toLowerCase().includes(searchLower) ||
-      journal.qrCode?.toLowerCase().includes(searchLower) ||
-      journal.schemaId?.name?.toLowerCase().includes(searchLower);
+  // Filter and Sort journals
+  const filteredJournals = React.useMemo(() => {
+    if (!journals) return [];
+    
+    let result = journals.filter(journal => {
+      // Search filter
+      const searchLower = searchText.toLowerCase();
+      const matchSearch = !searchText || 
+        journal.userId?.username?.toLowerCase().includes(searchLower) ||
+        journal.userId?.fullname?.toLowerCase().includes(searchLower) ||
+        journal.qrCode?.toLowerCase().includes(searchLower) ||
+        journal.schemaId?.name?.toLowerCase().includes(searchLower);
 
-    // Status filter
-    let matchStatus = true;
-    if (statusFilter === 'completed') {
-      matchStatus = journal.status === 'Completed';
-    } else if (statusFilter === 'inprogress') {
-      matchStatus = journal.status !== 'Completed';
-    }
-    // 'all' matches everything
+      // Status filter
+      let matchStatus = true;
+      if (statusFilter === 'completed') {
+        matchStatus = journal.status === 'Completed';
+      } else if (statusFilter === 'inprogress') {
+        matchStatus = journal.status !== 'Completed';
+      }
 
-    // Date range filter
-    const matchDate = !dateRange || (
-      dayjs(journal.createdAt).isAfter(dateRange[0]) &&
-      dayjs(journal.createdAt).isBefore(dateRange[1])
-    );
+      // Date range filter
+      const matchDate = !dateRange || (
+        dayjs(journal.createdAt).isAfter(dateRange[0]) &&
+        dayjs(journal.createdAt).isBefore(dateRange[1])
+      );
 
-    return matchSearch && matchStatus && matchDate;
-  });
+      return matchSearch && matchStatus && matchDate;
+    });
+
+    // Apply Sorting
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
+    return result;
+  }, [journals, searchText, statusFilter, dateRange, sortOrder]);
 
   const handleViewDetail = (record) => {
     setSelectedJournal(record);
@@ -303,6 +316,15 @@ const AdminJournalMgmt = () => {
                 <span>Hoàn thành</span>
               </Space>
             </Option>
+          </Select>
+
+          <Select
+            value={sortOrder}
+            onChange={setSortOrder}
+            className="w-40 h-10 ml-2"
+          >
+            <Option value="newest">Mới nhất</Option>
+            <Option value="oldest">Cũ nhất</Option>
           </Select>
 
           <RangePicker

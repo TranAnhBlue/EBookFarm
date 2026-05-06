@@ -31,6 +31,7 @@ const ConsultationManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedConsultation, setSelectedConsultation] = useState(null);
     const [form] = Form.useForm();
+    const [sortOrder, setSortOrder] = useState('newest');
 
     // Fetch consultations
     const { data: consultationsData, isLoading } = useQuery({
@@ -41,6 +42,18 @@ const ConsultationManagement = () => {
             return response.data;
         }
     });
+
+    // Logic sắp xếp dữ liệu
+    const sortedConsultations = React.useMemo(() => {
+        if (!consultationsData?.data) return [];
+        const result = [...consultationsData.data];
+        result.sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        return result;
+    }, [consultationsData, sortOrder]);
 
     // Update consultation mutation
     const updateMutation = useMutation({
@@ -316,46 +329,38 @@ const ConsultationManagement = () => {
                         <Select
                             value={selectedStatus}
                             onChange={setSelectedStatus}
-                            style={{ width: 200 }}
+                            style={{ width: 180 }}
                             size="large"
                             className="rounded-lg"
                         >
-                            <Option value="all">
-                                <Space>
-                                    <span>Tất cả</span>
-                                </Space>
-                            </Option>
-                            <Option value="pending">
-                                <Space>
-                                    <span>Chờ xử lý</span>
-                                </Space>
-                            </Option>
-                            <Option value="contacted">
-                                <Space>
-                                    <span>Đã liên hệ</span>
-                                </Space>
-                            </Option>
-                            <Option value="completed">
-                                <Space>
-                                    <span>Hoàn thành</span>
-                                </Space>
-                            </Option>
-                            <Option value="cancelled">
-                                <Space>
-                                    <span>Đã hủy</span>
-                                </Space>
-                            </Option>
+                            <Option value="all">Tất cả</Option>
+                            <Option value="pending">Chờ xử lý</Option>
+                            <Option value="contacted">Đã liên hệ</Option>
+                            <Option value="completed">Hoàn thành</Option>
+                            <Option value="cancelled">Đã hủy</Option>
+                        </Select>
+
+                        <Text strong className="text-base ml-4">Sắp xếp:</Text>
+                        <Select
+                            value={sortOrder}
+                            onChange={setSortOrder}
+                            style={{ width: 150 }}
+                            size="large"
+                            className="rounded-lg"
+                        >
+                            <Option value="newest">Mới nhất</Option>
+                            <Option value="oldest">Cũ nhất</Option>
                         </Select>
                     </Space>
                     
                     <Text className="text-sm text-gray-500">
-                        Hiển thị <Text strong className="text-green-600">{consultationsData?.data?.length || 0}</Text> / {consultationsData?.total || 0} yêu cầu
+                        Hiển thị <Text strong className="text-green-600">{sortedConsultations.length}</Text> / {consultationsData?.total || 0} yêu cầu
                     </Text>
                 </div>
 
                 <Table
                     columns={columns}
-                    dataSource={consultationsData?.data || []}
+                    dataSource={sortedConsultations}
                     rowKey="_id"
                     loading={isLoading}
                     scroll={{ x: 1200 }}

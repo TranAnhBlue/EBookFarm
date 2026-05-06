@@ -14,10 +14,43 @@ const NewsManagement = () => {
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
 
+    const [searchText, setSearchText] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
+
     const { data: newsList, isLoading } = useQuery({
         queryKey: ['news'],
         queryFn: () => api.get('/news').then(res => res.data.data)
     });
+
+    // Logic lọc và sắp xếp dữ liệu
+    const filteredAndSortedNews = React.useMemo(() => {
+        if (!newsList) return [];
+        
+        let result = [...newsList];
+
+        // 1. Lọc theo từ khóa
+        if (searchText) {
+            result = result.filter(item => 
+                item.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+                item.summary?.toLowerCase().includes(searchText.toLowerCase())
+            );
+        }
+
+        // 2. Lọc theo chuyên mục
+        if (categoryFilter !== 'all') {
+            result = result.filter(item => item.category === categoryFilter);
+        }
+
+        // 3. Sắp xếp theo ngày
+        result.sort((a, b) => {
+            const dateA = new Date(a.publishedAt || a.createdAt);
+            const dateB = new Date(b.publishedAt || b.createdAt);
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        return result;
+    }, [newsList, searchText, categoryFilter, sortOrder]);
 
     const createMutation = useMutation({
         mutationFn: (values) => api.post('/news', values),
@@ -154,10 +187,38 @@ const NewsManagement = () => {
                 </Button>
             </div>
 
+            {/* Toolbar Bộ lọc */}
+            <div className="flex flex-wrap gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                <Input.Search 
+                    placeholder="Tìm kiếm tiêu đề, nội dung..." 
+                    className="max-w-md h-10 rounded-lg overflow-hidden"
+                    onChange={e => setSearchText(e.target.value)}
+                />
+                <Select 
+                    defaultValue="all" 
+                    className="w-48 h-10 rounded-lg"
+                    onChange={value => setCategoryFilter(value)}
+                >
+                    <Option value="all">Tất cả chuyên mục</Option>
+                    <Option value="Sản xuất">Sản xuất</Option>
+                    <Option value="Công nghệ">Công nghệ</Option>
+                    <Option value="Thị trường">Thị trường</Option>
+                    <Option value="Thông báo">Thông báo</Option>
+                </Select>
+                <Select 
+                    defaultValue="newest" 
+                    className="w-40 h-10 rounded-lg ml-auto"
+                    onChange={value => setSortOrder(value)}
+                >
+                    <Option value="newest">Mới nhất</Option>
+                    <Option value="oldest">Cũ nhất</Option>
+                </Select>
+            </div>
+
             <Card className="rounded-2xl shadow-sm border-gray-100">
                 <Table 
                     columns={columns} 
-                    dataSource={newsList} 
+                    dataSource={filteredAndSortedNews} 
                     loading={isLoading} 
                     rowKey="_id"
                     pagination={{ pageSize: 8 }}
