@@ -81,10 +81,10 @@ const Register = () => {
         <div className="w-full md:w-7/12 p-10 md:p-16 flex flex-col justify-center bg-white/40">
             <div className="mb-8">
                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-600 shadow-xl flex items-center justify-center">
-                        <img src={logo} alt="Logo" className="w-8 h-8 object-contain" />
+                    <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
+                        <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
-                    <Text className="font-black text-xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
+                    <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
                 </div>
                 <Title level={2} className="!font-black !text-gray-800 !mb-2">Tạo tài khoản</Title>
                 <Text className="text-gray-400 font-medium">Bắt đầu miễn phí ngay hôm nay</Text>

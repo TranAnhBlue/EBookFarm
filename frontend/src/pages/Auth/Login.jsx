@@ -13,14 +13,34 @@ const Login = () => {
   const navigate = useNavigate();
   const setCredentials = useAuthStore((state) => state.setCredentials);
   const [loading, setLoading] = React.useState(false);
+  const [form] = Form.useForm();
+
+  // Load remembered account
+  React.useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+      form.setFieldsValue({ 
+        email: rememberedEmail,
+        remember: true 
+      });
+    }
+  }, [form]);
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
       const { data } = await api.post('/auth/login', {
-          identifier: values.email, // Backend expects identifier (email/username)
+          identifier: values.email, 
           password: values.password
       });
+
+      // Handle Remember Me
+      if (values.remember) {
+        localStorage.setItem('rememberedEmail', values.email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
+
       setCredentials(data.data, data.data.token);
       message.success('Đăng nhập thành công! Chào mừng trở lại EBookFarm.');
       navigate('/dashboard');
@@ -62,12 +82,12 @@ const Login = () => {
             
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-12">
-                    <div className="w-12 h-12 rounded-2xl bg-white shadow-xl flex items-center justify-center">
-                        <img src={logo} alt="Logo" className="w-10 h-10 object-contain p-1 mix-blend-multiply" />
+                    <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-white/20 p-2">
+                        <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col text-white">
-                        <span className="font-black text-lg leading-none uppercase tracking-tighter">EBookFarm</span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Agri-tech Solution</span>
+                        <span className="font-black text-2xl leading-none uppercase tracking-tighter">EBookFarm</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 text-emerald-100">Agri-tech Solution</span>
                     </div>
                 </div>
 
@@ -80,11 +100,11 @@ const Login = () => {
             </div>
 
             <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10">
-                <div className="flex items-center gap-4 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-300">
-                        <ArrowRightOutlined className="text-xl" />
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
+                        <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
-                    <Text className="text-white font-bold">500+ Nông trại đã tin dùng</Text>
+                    <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
                 </div>
             </div>
         </div>
@@ -101,6 +121,7 @@ const Login = () => {
             </div>
 
             <Form
+                form={form}
                 name="login"
                 layout="vertical"
                 size="large"
