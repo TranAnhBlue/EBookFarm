@@ -37,7 +37,9 @@ const farmJournalSchema = new mongoose.Schema({
   lockedAt: { type: Date },
   editCount: { type: Number, default: 0 },
   lastEditedAt: { type: Date },
-  lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  feedback: { type: String }, // Nhận xét từ HTX
+  htxStatus: { type: String } // Trạng thái đồng bộ từ HTX (Đã duyệt, Cần chỉnh sửa...)
 }, { timestamps: true });
 
 const FarmJournal = mongoose.model('FarmJournal', farmJournalSchema);

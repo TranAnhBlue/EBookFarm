@@ -97,6 +97,15 @@ const updateFarmerStatus = async (req, res) => {
     const farmerEntry = htxJournal.farmers.find(f => f.farmerId.toString() === farmerId.toString());
     if (!farmerEntry) return res.status(404).json({ success: false, message: 'Nông dân không thuộc sổ này.' });
 
+    if (feedback !== undefined) {
+      farmerEntry.feedback = feedback;
+      if (farmerEntry.farmJournalId) {
+        await FarmJournal.findByIdAndUpdate(farmerEntry.farmJournalId, { 
+          feedback: feedback 
+        });
+      }
+    }
+
     if (status) {
       farmerEntry.status = status;
       
@@ -108,12 +117,11 @@ const updateFarmerStatus = async (req, res) => {
         if (status === 'Cần chỉnh sửa' || status === 'Không đạt') farmJournalStatus = 'Draft';
         
         await FarmJournal.findByIdAndUpdate(farmerEntry.farmJournalId, { 
-          status: farmJournalStatus 
+          status: farmJournalStatus,
+          htxStatus: status // Lưu cả trạng thái tiếng Việt của HTX
         });
       }
     }
-    
-    if (feedback !== undefined) farmerEntry.feedback = feedback;
 
     await htxJournal.save();
     res.json({ success: true, data: htxJournal });

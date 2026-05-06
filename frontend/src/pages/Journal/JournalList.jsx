@@ -97,7 +97,10 @@ const JournalList = () => {
   });
 
   // Helper functions for status
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (record) => {
+    const status = record.status;
+    const htxStatus = record.htxStatus;
+
     const badges = {
       'Draft': { icon: '📝', text: 'Nháp', color: 'default' },
       'Submitted': { icon: '📤', text: 'Đã gửi', color: 'processing' },
@@ -105,6 +108,24 @@ const JournalList = () => {
       'Locked': { icon: '🔒', text: 'Đã khóa', color: 'error' },
       'Archived': { icon: '📦', text: 'Lưu trữ', color: 'default' }
     };
+    
+    // Nếu có trạng thái từ HTX thì ưu tiên hiển thị
+    if (htxStatus) {
+      let color = 'default';
+      if (htxStatus === 'Đã duyệt') color = 'success';
+      if (htxStatus === 'Chờ duyệt') color = 'processing';
+      if (htxStatus === 'Cần chỉnh sửa') color = 'warning';
+      if (htxStatus === 'Không đạt') color = 'error';
+      
+      return (
+        <Tooltip title={`Trạng thái từ HTX: ${htxStatus}`}>
+          <Tag color={color} className="rounded-md font-bold px-3">
+            {htxStatus}
+          </Tag>
+        </Tooltip>
+      );
+    }
+
     const badge = badges[status] || badges['Draft'];
     return (
       <Tag color={badge.color} className="rounded-md font-medium">
@@ -271,9 +292,14 @@ const JournalList = () => {
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
       key: 'status',
-      render: (status) => getStatusBadge(status)
+      render: (_, record) => getStatusBadge(record)
+    },
+    {
+      title: 'Nhận xét HTX',
+      dataIndex: 'feedback',
+      key: 'feedback',
+      render: (text) => text ? <Text type="danger" className="italic text-xs">{text}</Text> : <Text className="text-gray-300 italic text-xs">Không có</Text>
     },
     {
       title: 'Lịch sử',
@@ -488,6 +514,14 @@ const JournalList = () => {
                             <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày tạo:</div>
                             <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
                           </div>
+                          
+                          {/* Feedback from HTX */}
+                          {journal.feedback && (
+                            <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                              <Text className="text-red-500 text-[11px] font-bold uppercase block mb-1">💬 Phản hồi từ HTX:</Text>
+                              <Text className="text-red-600 text-xs italic leading-tight">{journal.feedback}</Text>
+                            </div>
+                          )}
                         </div>
                       </div>
 
