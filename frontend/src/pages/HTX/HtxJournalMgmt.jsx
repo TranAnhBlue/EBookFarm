@@ -57,7 +57,7 @@ const HtxJournalMgmt = () => {
 
   const fetchFarmers = async () => {
     try {
-      const res = await api.get('/users?role=Farmer');
+      const res = await api.get('/htx-journals/farmers');
       if (res.data.success) {
         setFarmersList(res.data.data);
       }

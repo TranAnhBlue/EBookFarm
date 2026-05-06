@@ -154,10 +154,20 @@ const getMyHtxJournals = async (req, res) => {
   }
 };
 
+const getFarmersForHtx = async (req, res) => {
+  try {
+    const farmers = await User.find({ role: { $regex: /^farmer$/i } }).select('fullname username email');
+    res.json({ success: true, data: farmers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createHtxJournal,
   getHtxJournals,
   addFarmersToJournal,
   updateFarmerStatus,
-  getMyHtxJournals
+  getMyHtxJournals,
+  getFarmersForHtx
 };

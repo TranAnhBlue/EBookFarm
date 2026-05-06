@@ -5,7 +5,8 @@ const {
   getHtxJournals, 
   addFarmersToJournal, 
   updateFarmerStatus, 
-  getMyHtxJournals 
+  getMyHtxJournals,
+  getFarmersForHtx
 } = require('../controllers/htxJournalController');
 const { protect, admin, htx } = require('../middlewares/authMiddleware');
 
@@ -21,6 +22,9 @@ const htxOrAdmin = (req, res, next) => {
 router.route('/')
   .post(protect, htxOrAdmin, createHtxJournal)
   .get(protect, htxOrAdmin, getHtxJournals);
+
+router.route('/farmers')
+  .get(protect, htxOrAdmin, getFarmersForHtx);
 
 router.route('/my-journals')
   .get(protect, getMyHtxJournals); // Any authenticated user (Farmers) can call this
