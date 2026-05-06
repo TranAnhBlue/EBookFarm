@@ -133,9 +133,14 @@ const NotificationBell = () => {
             overlayClassName="notification-popover"
             contentStyle={{ padding: 0 }}
         >
-            <div className="relative cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors">
-                <Badge count={data?.unreadCount || 0} size="small" offset={[2, 2]}>
-                    <BellOutlined className="text-xl text-gray-600" />
+            <div className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-gray-50 rounded-xl transition-all relative">
+                <Badge 
+                    count={data?.unreadCount || 0} 
+                    size="small" 
+                    offset={[-2, 2]}
+                    styles={{ badge: { fontSize: '10px', height: '16px', minWidth: '16px', lineHeight: '16px' } }}
+                >
+                    <BellOutlined className="text-gray-400 text-lg" />
                 </Badge>
             </div>
         </Popover>
