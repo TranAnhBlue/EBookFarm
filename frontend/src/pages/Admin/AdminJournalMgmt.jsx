@@ -37,6 +37,7 @@ const AdminJournalMgmt = () => {
   const [isQRModalVisible, setIsQRModalVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState('newest');
   const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch All Journals
   const { data: journals, isLoading } = useQuery({
@@ -129,9 +130,18 @@ const AdminJournalMgmt = () => {
 
   const columns = [
     {
+      title: 'STT',
+      key: 'stt',
+      width: '5%',
+      align: 'center',
+      render: (text, record, index) => (
+        <span className="text-gray-400 font-mono">{(currentPage - 1) * pageSize + index + 1}</span>
+      )
+    },
+    {
       title: 'Thông tin nhật ký',
       key: 'journal_info',
-      width: '35%',
+      width: '30%',
       render: (record) => (
         <div className="flex flex-col gap-1">
           <Text strong className="text-base text-green-700">{record.schemaId?.name || 'Chưa đặt tên'}</Text>
@@ -339,12 +349,15 @@ const AdminJournalMgmt = () => {
           dataSource={filteredJournals} 
           loading={isLoading}
           pagination={{ 
-            current: undefined, // Để Antd tự quản lý trang hiện tại
+            current: currentPage,
             pageSize: pageSize,
             showSizeChanger: true,
             showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> nhật ký</span>,
             pageSizeOptions: ['10', '20', '50', '100'],
-            onShowSizeChange: (current, size) => setPageSize(size),
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            },
             className: "pb-4 px-4"
           }}
           rowKey="_id"
