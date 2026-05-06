@@ -173,8 +173,8 @@ const HtxJournalMgmt = () => {
       key: 'action',
       render: (_, record) => (
         <Space>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<UserAddOutlined />}
             onClick={() => {
               setSelectedJournal(record);
@@ -183,7 +183,7 @@ const HtxJournalMgmt = () => {
           >
             Thêm Nông Dân
           </Button>
-          <Button 
+          <Button
             icon={<EyeOutlined />}
             onClick={() => {
               setSelectedJournal(record);
@@ -215,9 +215,9 @@ const HtxJournalMgmt = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Quản Lý Sổ Nhật Ký HTX</h1>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
           onClick={() => setIsModalVisible(true)}
           className="bg-green-600 hover:bg-green-700 rounded-xl"
         >
@@ -228,54 +228,54 @@ const HtxJournalMgmt = () => {
       {/* Bộ lọc */}
       <Card className="mb-6 rounded-2xl shadow-sm border-gray-100">
         <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-[200px]">
-                <Input 
-                    placeholder="Tìm kiếm tên sổ..." 
-                    allowClear 
-                    onChange={(e) => setSearchText(e.target.value)}
-                    size="large"
-                    className="rounded-xl"
-                    prefix={<EyeOutlined className="text-gray-400" />}
-                />
-            </div>
-            <div className="w-[250px]">
-                <Select 
-                    placeholder="Lọc theo bộ biểu mẫu" 
-                    allowClear 
-                    style={{ width: '100%' }}
-                    onChange={setFilterSchema}
-                    size="large"
-                    className="rounded-xl"
-                >
-                    {schemas.map(s => (
-                        <Option key={s._id} value={s._id}>{s.name}</Option>
-                    ))}
-                </Select>
-            </div>
-            <div className="w-[200px]">
-                <Select 
-                    placeholder="Trạng thái sổ" 
-                    allowClear 
-                    style={{ width: '100%' }}
-                    onChange={setFilterStatus}
-                    size="large"
-                    className="rounded-xl"
-                >
-                    <Option value="Active">Đang hoạt động (Active)</Option>
-                    <Option value="Completed">Đã kết thúc (Completed)</Option>
-                    <Option value="Archived">Đã lưu trữ (Archived)</Option>
-                </Select>
-            </div>
-            <div className="text-gray-400 text-sm italic">
-                Tìm thấy {filteredJournals.length} kết quả
-            </div>
+          <div className="flex-1 min-w-[200px]">
+            <Input
+              placeholder="Tìm kiếm tên sổ..."
+              allowClear
+              onChange={(e) => setSearchText(e.target.value)}
+              size="large"
+              className="rounded-xl"
+              prefix={<EyeOutlined className="text-gray-400" />}
+            />
+          </div>
+          <div className="w-[250px]">
+            <Select
+              placeholder="Lọc theo bộ biểu mẫu"
+              allowClear
+              style={{ width: '100%' }}
+              onChange={setFilterSchema}
+              size="large"
+              className="rounded-xl"
+            >
+              {schemas.map(s => (
+                <Option key={s._id} value={s._id}>{s.name}</Option>
+              ))}
+            </Select>
+          </div>
+          <div className="w-[200px]">
+            <Select
+              placeholder="Trạng thái sổ"
+              allowClear
+              style={{ width: '100%' }}
+              onChange={setFilterStatus}
+              size="large"
+              className="rounded-xl"
+            >
+              <Option value="Active">Đang hoạt động (Active)</Option>
+              <Option value="Completed">Đã kết thúc (Completed)</Option>
+              <Option value="Archived">Đã lưu trữ (Archived)</Option>
+            </Select>
+          </div>
+          <div className="text-gray-400 text-sm italic">
+            Tìm thấy {filteredJournals.length} kết quả
+          </div>
         </div>
       </Card>
 
-      <Table 
-        columns={columns} 
-        dataSource={filteredJournals} 
-        rowKey="_id" 
+      <Table
+        columns={columns}
+        dataSource={filteredJournals}
+        rowKey="_id"
         loading={loading}
         className="premium-table"
       />
@@ -364,27 +364,27 @@ const HtxJournalMgmt = () => {
             </Descriptions>
 
             <div className="flex justify-between items-center mb-4 mt-6">
-                <h3 className="text-lg font-semibold m-0">Danh Sách Nông Dân Tham Gia</h3>
-                <div className="flex gap-2">
-                    <Input 
-                        placeholder="Tìm tên nông dân..." 
-                        style={{ width: 200 }} 
-                        onChange={(e) => setFarmerSearch(e.target.value)}
-                        allowClear
-                    />
-                    <Select 
-                        placeholder="Lọc trạng thái" 
-                        style={{ width: 150 }}
-                        onChange={setFarmerStatusFilter}
-                        allowClear
-                    >
-                        <Option value="Chưa nhập">Chưa nhập</Option>
-                        <Option value="Đang nhập">Đang nhập</Option>
-                        <Option value="Chờ duyệt">Chờ duyệt</Option>
-                        <Option value="Đã duyệt">Đã duyệt</Option>
-                        <Option value="Cần chỉnh sửa">Cần chỉnh sửa</Option>
-                    </Select>
-                </div>
+              <h3 className="text-lg font-semibold m-0">Danh Sách Nông Dân Tham Gia</h3>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Tìm tên nông dân..."
+                  style={{ width: 200 }}
+                  onChange={(e) => setFarmerSearch(e.target.value)}
+                  allowClear
+                />
+                <Select
+                  placeholder="Lọc trạng thái"
+                  style={{ width: 150 }}
+                  onChange={setFarmerStatusFilter}
+                  allowClear
+                >
+                  <Option value="Chưa nhập">Chưa nhập</Option>
+                  <Option value="Đang nhập">Đang nhập</Option>
+                  <Option value="Chờ duyệt">Chờ duyệt</Option>
+                  <Option value="Đã duyệt">Đã duyệt</Option>
+                  <Option value="Cần chỉnh sửa">Cần chỉnh sửa</Option>
+                </Select>
+              </div>
             </div>
             <Table
               dataSource={filteredFarmersInDrawer}
@@ -415,8 +415,8 @@ const HtxJournalMgmt = () => {
                   render: (_, record) => (
                     <Space>
                       {record.farmJournalId ? (
-                        <Button 
-                          size="small" 
+                        <Button
+                          size="small"
                           icon={<EyeOutlined />}
                           className="flex items-center"
                           onClick={() => {
@@ -427,26 +427,26 @@ const HtxJournalMgmt = () => {
                           Xem Sổ
                         </Button>
                       ) : (
-                        <Button 
-                          size="small" 
-                          icon={<EyeOutlined />} 
-                          disabled 
+                        <Button
+                          size="small"
+                          icon={<EyeOutlined />}
+                          disabled
                           title="Chưa có dữ liệu nhật ký"
                         >
                           Xem Sổ
                         </Button>
                       )}
-                      <Button 
-                        size="small" 
-                        type="primary" 
+                      <Button
+                        size="small"
+                        type="primary"
                         icon={<CheckCircleOutlined />}
                         onClick={() => handleUpdateStatus(selectedJournal._id, record.farmerId._id, 'Đã duyệt', '')}
                       >
                         Duyệt
                       </Button>
-                      <Button 
-                        size="small" 
-                        danger 
+                      <Button
+                        size="small"
+                        danger
                         icon={<CloseCircleOutlined />}
                         onClick={() => {
                           const feedback = window.prompt("Nhập lý do cần chỉnh sửa:");
@@ -457,10 +457,10 @@ const HtxJournalMgmt = () => {
                       >
                         Y/C Sửa
                       </Button>
-                      
+
                       {record.farmJournalId && (
-                        <Button 
-                          size="small" 
+                        <Button
+                          size="small"
                           icon={<QrcodeOutlined />}
                           onClick={() => {
                             setQrCodeData({
@@ -501,11 +501,10 @@ const HtxJournalMgmt = () => {
         destroyOnClose
       >
         <div className="sticky top-0 z-50 bg-white p-4 border-b flex justify-between items-center">
-            <h2 className="text-xl font-bold m-0 text-green-700">Chi Tiết Nhật Ký Nông Dân</h2>
-            <Button onClick={() => setIsPreviewVisible(false)}>Đóng</Button>
+          <h2 className="text-xl font-bold m-0 text-green-700">Chi Tiết Nhật Ký Nông Dân</h2>
         </div>
         <div className="p-6">
-            {previewJournalId && <JournalEntry id={previewJournalId} />}
+          {previewJournalId && <JournalEntry id={previewJournalId} />}
         </div>
       </Modal>
 
@@ -516,9 +515,9 @@ const HtxJournalMgmt = () => {
         onCancel={() => setIsQrModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setIsQrModalVisible(false)}>Đóng</Button>,
-          <Button 
-            key="print" 
-            type="primary" 
+          <Button
+            key="print"
+            type="primary"
             icon={<PlusOutlined />}
             onClick={() => window.print()}
           >
@@ -534,39 +533,39 @@ const HtxJournalMgmt = () => {
               <Text strong className="text-lg block">{qrCodeData.journalName}</Text>
               <Text className="text-gray-500">Nông dân: {qrCodeData.farmerName}</Text>
             </div>
-            
+
             <div className="bg-white p-4 inline-block rounded-2xl shadow-md border-2 border-green-100 mb-6">
-                {/* Su dung API QR Code mien phi */}
-                <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/trace/${qrCodeData.qrCode}`)}`} 
-                    alt="QR Code"
-                    className="w-48 h-48"
-                />
+              {/* Su dung API QR Code mien phi */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/trace/${qrCodeData.qrCode}`)}`}
+                alt="QR Code"
+                className="w-48 h-48"
+              />
             </div>
-            
+
             <div className="bg-gray-50 p-4 rounded-xl text-left">
-                <Text strong className="block mb-1 text-xs uppercase text-gray-400">Link truy xuất công khai:</Text>
-                <div className="flex items-center gap-2">
-                    <Input 
-                        value={`${window.location.origin}/trace/${qrCodeData.qrCode}`} 
-                        readOnly 
-                        className="font-mono text-[10px]"
-                    />
-                    <Button 
-                        size="small" 
-                        onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin}/trace/${qrCodeData.qrCode}`);
-                            message.success('Đã copy link!');
-                        }}
-                    >
-                        Copy
-                    </Button>
-                </div>
+              <Text strong className="block mb-1 text-xs uppercase text-gray-400">Link truy xuất công khai:</Text>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={`${window.location.origin}/trace/${qrCodeData.qrCode}`}
+                  readOnly
+                  className="font-mono text-[10px]"
+                />
+                <Button
+                  size="small"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/trace/${qrCodeData.qrCode}`);
+                    message.success('Đã copy link!');
+                  }}
+                >
+                  Copy
+                </Button>
+              </div>
             </div>
-            
+
             <div className="mt-6 flex items-center justify-center gap-2 text-green-600 bg-green-50 py-2 rounded-lg">
-                <SafetyCertificateOutlined />
-                <Text className="text-green-700 font-bold">Chứng nhận bởi EBookFarm</Text>
+              <SafetyCertificateOutlined />
+              <Text className="text-green-700 font-bold">Chứng nhận bởi EBookFarm</Text>
             </div>
           </div>
         )}
