@@ -31,7 +31,11 @@ const JournalEntry = () => {
       enabled: isEditing
   });
 
-  const isReadOnly = isEditing && journalData && (journalData.status === 'Verified' || (journalData.status === 'Submitted' && user?.role?.toUpperCase() === 'FARMER'));
+  const isReadOnly = isEditing && journalData && (
+      journalData.status === 'Verified' || 
+      user?.role?.toUpperCase() !== 'FARMER' ||
+      (journalData.status === 'Submitted' && user?.role?.toUpperCase() === 'FARMER')
+  );
 
   const activeSchemaId = isEditing && journalData ? journalData.schemaId._id : schemaId;
 
@@ -2174,7 +2178,10 @@ const JournalEntry = () => {
                 <div>
                     <h4 className="text-yellow-800 font-bold m-0">Nhật ký chỉ xem</h4>
                     <p className="text-yellow-700 m-0 text-sm">
-                        Nhật ký này đang ở trạng thái <b>{journalData.status === 'Verified' ? 'Đã duyệt' : 'Chờ duyệt'}</b> và không thể chỉnh sửa.
+                        {user?.role?.toUpperCase() !== 'FARMER' 
+                            ? 'Bạn đang xem nhật ký với quyền quản lý. Không thể chỉnh sửa dữ liệu của nông dân.' 
+                            : `Nhật ký này đang ở trạng thái ${journalData.status === 'Verified' ? 'Đã duyệt' : 'Chờ duyệt'} và không thể chỉnh sửa.`
+                        }
                     </p>
                 </div>
             </div>

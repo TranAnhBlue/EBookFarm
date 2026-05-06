@@ -311,6 +311,13 @@ const HtxJournalMgmt = () => {
                     <Space>
                       <Button 
                         size="small" 
+                        icon={<EyeOutlined />}
+                        onClick={() => window.open(`/journals/view/${record.farmJournalId}`, '_blank')}
+                      >
+                        Xem Sổ
+                      </Button>
+                      <Button 
+                        size="small" 
                         type="primary" 
                         icon={<CheckCircleOutlined />}
                         onClick={() => handleUpdateStatus(selectedJournal._id, record.farmerId._id, 'Đã duyệt', '')}

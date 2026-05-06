@@ -168,6 +168,7 @@ const App = () => {
 
                   {/* HTX-only routes */}
                   <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
+                  <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
 
                   {/* Agriculture Models & Inventory */}
                   <Route path="agriculture-models" element={<ProtectedRoute><AgricultureModels /></ProtectedRoute>} />
