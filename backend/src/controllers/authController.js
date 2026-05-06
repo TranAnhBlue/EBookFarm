@@ -165,22 +165,26 @@ const forgotPassword = async (req, res) => {
 
     try {
       console.log(`Attempting to send reset email to: ${user.email}`);
-      await sendEmail({
+      // Send email in background to avoid blocking the response
+      sendEmail({
         email: user.email,
         subject: '[EBookFarm] Yêu cầu khôi phục mật khẩu tài khoản',
         html: html
+      }).catch(err => {
+        console.error('Background Email send error:', err);
       });
 
+      // Return success immediately
       res.status(200).json({ 
         success: true, 
-        message: 'Hệ thống đã gửi link khôi phục mật khẩu vào Email của bạn.'
+        message: 'Yêu cầu đã được ghi nhận. Hệ thống đang gửi link khôi phục vào Email của bạn (vui lòng kiểm tra cả hòm thư rác).'
       });
     } catch (err) {
-      console.error('Email send error:', err);
+      console.error('Initial Email send logic error:', err);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save({ validateBeforeSave: false });
-      return res.status(500).json({ success: false, message: 'Không thể gửi email lúc này. Vui lòng thử lại sau.' });
+      return res.status(500).json({ success: false, message: 'Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau.' });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
