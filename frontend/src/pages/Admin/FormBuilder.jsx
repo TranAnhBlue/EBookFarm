@@ -12,6 +12,7 @@ const FormBuilder = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingSchema, setEditingSchema] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const [form] = Form.useForm();
 
@@ -33,6 +34,12 @@ const FormBuilder = () => {
       setDrawerVisible(false);
       setEditingSchema(null);
       form.resetFields();
+      
+      // Nếu là tạo mới, nhảy về trang 1 (vì mặc định sắp xếp mới nhất lên đầu)
+      if (!editingSchema) {
+        setPagination(prev => ({ ...prev, current: 1 }));
+        setSortOrder('newest'); // Đảm bảo đang ở chế độ mới nhất
+      }
     },
     onError: () => message.error('Có lỗi xảy ra khi lưu biểu mẫu'),
   });
@@ -80,10 +87,13 @@ const FormBuilder = () => {
     setDrawerVisible(true);
   };
 
-  const filteredSchemas = schemas?.filter(s => 
-    s.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    s.description?.toLowerCase().includes(searchText.toLowerCase())
-  ) || [];
+  const filteredSchemas = schemas
+    ?.filter(s => s.name.toLowerCase().includes(searchText.toLowerCase()))
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    }) || [];
 
   const columns = [
     { 
@@ -152,14 +162,31 @@ const FormBuilder = () => {
       </div>
 
       <Card className="mb-6 rounded-2xl shadow-sm border-gray-100">
-        <Input
-          placeholder="Tìm kiếm tên hoặc mô tả biểu mẫu..."
-          prefix={<SearchOutlined className="text-gray-400" />}
-          onChange={(e) => setSearchText(e.target.value)}
-          size="large"
-          className="rounded-xl"
-          allowClear
-        />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Input
+            placeholder="Tìm kiếm theo tên biểu mẫu..."
+            prefix={<SearchOutlined className="text-gray-400" />}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setPagination(prev => ({ ...prev, current: 1 }));
+            }}
+            size="large"
+            className="rounded-xl flex-1"
+            allowClear
+          />
+          <Select
+            defaultValue="newest"
+            size="large"
+            className="w-full sm:w-[200px]"
+            onChange={(val) => {
+              setSortOrder(val);
+              setPagination(prev => ({ ...prev, current: 1 }));
+            }}
+          >
+            <Option value="newest">Mới nhất</Option>
+            <Option value="oldest">Cũ nhất</Option>
+          </Select>
+        </div>
       </Card>
 
       <Table 
