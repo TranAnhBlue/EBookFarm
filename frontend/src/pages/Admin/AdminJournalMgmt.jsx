@@ -349,30 +349,33 @@ const AdminJournalMgmt = () => {
 
       {/* Detail Modal */}
       <Modal
-        title={<Text strong className="text-lg">Chi tiết nhật ký sản xuất</Text>}
+        title={<div className="flex items-center gap-2"><FileTextOutlined className="text-green-600" /><Text strong className="text-lg">Chi tiết Nhật ký sản xuất</Text></div>}
         open={isDetailModalVisible}
         onCancel={() => setIsDetailModalVisible(false)}
         footer={null}
-        width={800}
+        width={900}
+        centered
+        className="rounded-3xl overflow-hidden"
       >
         {selectedJournal && (
-          <div className="space-y-6">
-            <Descriptions bordered column={2} size="small">
+          <div className="space-y-6 pt-4">
+            <Descriptions bordered column={2} size="middle" labelStyle={{ fontWeight: 'bold', backgroundColor: '#f9fafb', width: '150px' }}>
               <Descriptions.Item label="Tên nhật ký" span={2}>
-                <Text strong>{selectedJournal.schemaId?.name || 'N/A'}</Text>
+                <Text strong className="text-green-700 text-lg">{selectedJournal.schemaId?.name || 'N/A'}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Mã QR">
-                <Text copyable className="text-blue-600">{selectedJournal.qrCode}</Text>
+                <Text copyable className="text-blue-600 font-mono">{selectedJournal.qrCode}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái">
-                <Tag color={selectedJournal.status === 'Completed' ? 'green' : 'orange'}>
-                  {selectedJournal.status === 'Completed' ? 'Hoàn thành' : 'Đang thực hiện'}
-                </Tag>
+                {getStatusDisplay(selectedJournal)}
               </Descriptions.Item>
-              <Descriptions.Item label="Chủ sở hữu">
-                {selectedJournal.userId?.fullname || selectedJournal.userId?.username}
+              <Descriptions.Item label="Nông dân (Farmer)">
+                <Space>
+                   <Avatar size="small" icon={<UserOutlined />} src={selectedJournal.userId?.avatar ? `${API_BASE_URL}${selectedJournal.userId.avatar}` : null} />
+                   <Text strong>{selectedJournal.userId?.fullname || selectedJournal.userId?.username}</Text>
+                </Space>
               </Descriptions.Item>
-              <Descriptions.Item label="Email">
+              <Descriptions.Item label="Email liên hệ">
                 {selectedJournal.userId?.email}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày tạo">
@@ -381,13 +384,43 @@ const AdminJournalMgmt = () => {
               <Descriptions.Item label="Cập nhật cuối">
                 {dayjs(selectedJournal.updatedAt).format('DD/MM/YYYY HH:mm')}
               </Descriptions.Item>
+              
+              {/* Các trường bổ sung từ hồ sơ Nông dân */}
+              <Descriptions.Item label="Diện tích farm">
+                <Text>{selectedJournal.userId?.farmArea ? `${selectedJournal.userId.farmArea} m²` : 'Chưa cập nhật'}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Loại hình">
+                <Tag color="cyan">{selectedJournal.userId?.farmType || 'N/A'}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Hợp tác xã / Tổ chức" span={2}>
+                <Text strong className="text-blue-700">{selectedJournal.userId?.organization || 'Cá nhân / Tự do'}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Chứng nhận" span={2}>
+                <Space wrap>
+                  {selectedJournal.userId?.certifications?.map((cert, idx) => (
+                    <Tag key={idx} color="gold" className="rounded-md border-0 font-bold">{cert}</Tag>
+                  )) || 'Chưa có chứng nhận'}
+                </Space>
+              </Descriptions.Item>
+
+              {/* Nhận xét từ HTX */}
+              {selectedJournal.feedback && (
+                <Descriptions.Item label="Nhận xét từ HTX" span={2} labelStyle={{ color: '#d97706' }}>
+                  <div className="bg-orange-50 p-3 rounded-xl border border-orange-100 text-orange-800 italic">
+                     "{selectedJournal.feedback}"
+                  </div>
+                </Descriptions.Item>
+              )}
             </Descriptions>
 
             {selectedJournal.data && Object.keys(selectedJournal.data).length > 0 && (
               <div>
-                <Text strong className="block mb-3">Dữ liệu nhật ký:</Text>
-                <Card className="bg-gray-50">
-                  <pre className="text-xs overflow-auto max-h-96">
+                <div className="flex items-center gap-2 mb-3">
+                   <div className="h-6 w-1 bg-green-500 rounded-full"></div>
+                   <Text strong className="text-base text-gray-800">Dữ liệu nhật ký chi tiết</Text>
+                </div>
+                <Card className="bg-gray-50 border-gray-100 rounded-2xl overflow-hidden shadow-inner">
+                  <pre className="text-xs text-gray-600 overflow-auto max-h-96 leading-relaxed">
                     {JSON.stringify(selectedJournal.data, null, 2)}
                   </pre>
                 </Card>

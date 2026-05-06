@@ -29,7 +29,7 @@ const getJournals = async (req, res) => {
     // Lấy tất cả journals với category của schema
     const journals = await FarmJournal.find(filter)
       .populate('schemaId')
-      .populate('userId', 'username');
+      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization');
 
     // Nếu có query ?category= thì lọc theo category của schema
     const { category } = req.query;
@@ -127,7 +127,7 @@ const getJournalById = async (req, res) => {
   try {
     const journal = await FarmJournal.findById(req.params.id)
       .populate('schemaId')
-      .populate('userId', 'username fullname');
+      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization');
     if (!journal) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
     }
