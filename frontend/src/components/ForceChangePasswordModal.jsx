@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, message, Alert } from 'antd';
+import { Modal, Form, Input, Button, message, Alert, Typography, Divider } from 'antd';
 import { LockOutlined, KeyOutlined, SafetyOutlined } from '@ant-design/icons';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+
+const { Title, Text } = Typography;
 
 const ForceChangePasswordModal = ({ visible, onSuccess }) => {
   const [form] = Form.useForm();
