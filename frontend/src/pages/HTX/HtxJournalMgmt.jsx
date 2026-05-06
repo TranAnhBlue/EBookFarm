@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions, Card } from 'antd';
-import { PlusOutlined, EyeOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions, Card, Typography } from 'antd';
+import { PlusOutlined, EyeOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined, QrcodeOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import JournalEntry from '../Journal/JournalEntry';
@@ -29,6 +29,10 @@ const HtxJournalMgmt = () => {
   // Preview Modal state
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [previewJournalId, setPreviewJournalId] = useState(null);
+
+  // QR Modal state
+  const [isQrModalVisible, setIsQrModalVisible] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(null);
 
   // Filter state
   const [searchText, setSearchText] = useState('');
@@ -452,6 +456,25 @@ const HtxJournalMgmt = () => {
                       >
                         Y/C Sửa
                       </Button>
+                      
+                      {record.farmJournalId && (
+                        <Button 
+                          size="small" 
+                          icon={<QrcodeOutlined />}
+                          onClick={() => {
+                            setQrCodeData({
+                              id: record.farmJournalId?._id || record.farmJournalId,
+                              qrCode: record.farmJournalId?.qrCode,
+                              farmerName: record.farmerId?.fullname || record.farmerId?.username,
+                              journalName: selectedJournal.name
+                            });
+                            setIsQrModalVisible(true);
+                          }}
+                          className="border-green-500 text-green-600"
+                        >
+                          QR
+                        </Button>
+                      )}
                     </Space>
                   )
                 }
@@ -483,6 +506,69 @@ const HtxJournalMgmt = () => {
         <div className="p-6">
             {previewJournalId && <JournalEntry id={previewJournalId} />}
         </div>
+      </Modal>
+
+      {/* Modal QR Code / Truy xuat */}
+      <Modal
+        title="Mã Truy Xuất Nguồn Gốc"
+        open={isQrModalVisible}
+        onCancel={() => setIsQrModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsQrModalVisible(false)}>Đóng</Button>,
+          <Button 
+            key="print" 
+            type="primary" 
+            icon={<PlusOutlined />}
+            onClick={() => window.print()}
+          >
+            In Tem
+          </Button>
+        ]}
+        width={400}
+        centered
+      >
+        {qrCodeData && (
+          <div className="text-center py-6">
+            <div className="mb-4">
+              <Text strong className="text-lg block">{qrCodeData.journalName}</Text>
+              <Text className="text-gray-500">Nông dân: {qrCodeData.farmerName}</Text>
+            </div>
+            
+            <div className="bg-white p-4 inline-block rounded-2xl shadow-md border-2 border-green-100 mb-6">
+                {/* Su dung API QR Code mien phi */}
+                <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/trace/${qrCodeData.qrCode}`)}`} 
+                    alt="QR Code"
+                    className="w-48 h-48"
+                />
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-xl text-left">
+                <Text strong className="block mb-1 text-xs uppercase text-gray-400">Link truy xuất công khai:</Text>
+                <div className="flex items-center gap-2">
+                    <Input 
+                        value={`${window.location.origin}/trace/${qrCodeData.qrCode}`} 
+                        readOnly 
+                        className="font-mono text-[10px]"
+                    />
+                    <Button 
+                        size="small" 
+                        onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/trace/${qrCodeData.qrCode}`);
+                            message.success('Đã copy link!');
+                        }}
+                    >
+                        Copy
+                    </Button>
+                </div>
+            </div>
+            
+            <div className="mt-6 flex items-center justify-center gap-2 text-green-600 bg-green-50 py-2 rounded-lg">
+                <SafetyCertificateOutlined />
+                <Text className="text-green-700 font-bold">Chứng nhận bởi EBookFarm</Text>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

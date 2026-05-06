@@ -491,11 +491,24 @@ const JournalList = () => {
                         </div>
                       </div>
 
-                      <div
-                        className="p-3 text-center border-t border-gray-100 hover:bg-green-50 transition-colors cursor-pointer mt-auto bg-white"
-                        onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
-                      >
-                        <Text className="text-green-600 font-medium">Vào sổ nhật ký <RightOutlined className="text-[10px] ml-1" /></Text>
+                      <div className="flex border-t border-gray-100 mt-auto bg-white">
+                        <div
+                          className="flex-1 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer border-r border-gray-100"
+                          onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
+                        >
+                          <Text className="text-green-600 font-medium">Vào sổ <RightOutlined className="text-[10px] ml-1" /></Text>
+                        </div>
+                        <div
+                          className="w-12 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer flex items-center justify-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+                            setCurrentQr(`${baseUrl}/trace/${journal.qrCode}`);
+                            setQrModalVisible(true);
+                          }}
+                        >
+                          <QrcodeOutlined className="text-green-600 text-lg" />
+                        </div>
                       </div>
                     </Card>
                   </Col>
