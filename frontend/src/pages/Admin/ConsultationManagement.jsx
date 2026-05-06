@@ -131,44 +131,22 @@ const ConsultationManagement = () => {
 
     const columns = [
         {
-            title: 'Thời gian',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            width: 120,
-            render: (date) => (
-                <div className="space-y-1">
-                    <Text className="block text-sm font-medium text-gray-900">{dayjs(date).format('DD/MM/YYYY')}</Text>
-                    <Text className="block text-xs text-gray-500">{dayjs(date).format('HH:mm')}</Text>
-                    <Text className="block text-xs text-blue-600 font-medium">{dayjs(date).fromNow()}</Text>
-                </div>
-            ),
-            sorter: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-            defaultSortOrder: 'descend'
-        },
-        {
-            title: 'Thông tin khách hàng',
-            key: 'customer',
-            width: 280,
+            title: 'Khách hàng & Thời gian',
+            key: 'customer_info',
+            width: '35%',
             render: (_, record) => (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center">
-                            <UserOutlined className="text-green-600" />
-                        </div>
-                        <Text strong className="text-base">{record.fullname}</Text>
+                        <Text strong className="text-base text-green-700">{record.fullname}</Text>
+                        <Tag color="default" className="text-[10px] m-0">{dayjs(record.createdAt).fromNow()}</Tag>
                     </div>
-                    <div className="flex items-center gap-2 pl-10">
-                        <PhoneOutlined className="text-gray-400 text-xs" />
-                        <Text className="text-sm text-gray-700">{record.phone}</Text>
-                    </div>
-                    <div className="flex items-center gap-2 pl-10">
-                        <MailOutlined className="text-gray-400 text-xs" />
-                        <Text className="text-sm text-blue-600">{record.email}</Text>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1"><PhoneOutlined className="text-[10px]"/>{record.phone}</span>
+                        <span className="flex items-center gap-1"><MailOutlined className="text-[10px]"/>{record.email}</span>
                     </div>
                     {record.organization && (
-                        <div className="flex items-center gap-2 pl-10">
-                            <ShopOutlined className="text-gray-400 text-xs" />
-                            <Text className="text-sm text-gray-600">{record.organization}</Text>
+                        <div className="text-xs text-gray-400 italic flex items-center gap-1">
+                            <ShopOutlined className="text-[10px]"/> {record.organization}
                         </div>
                     )}
                 </div>
@@ -178,74 +156,53 @@ const ConsultationManagement = () => {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
-            width: 140,
+            width: '15%',
             align: 'center',
             render: (status) => (
                 <Tag 
                     color={getStatusColor(status)} 
-                    className="rounded-full px-4 py-1 font-medium text-sm"
+                    className="rounded-full px-3 py-0.5 font-medium text-[12px] min-w-[90px] text-center"
                 >
                     {getStatusText(status)}
                 </Tag>
-            ),
-            filters: [
-                { text: 'Chờ xử lý', value: 'pending' },
-                { text: 'Đã liên hệ', value: 'contacted' },
-                { text: 'Hoàn thành', value: 'completed' },
-                { text: 'Đã hủy', value: 'cancelled' }
-            ],
-            onFilter: (value, record) => record.status === value
-        },
-        {
-            title: 'Ghi chú',
-            dataIndex: 'notes',
-            key: 'notes',
-            ellipsis: true,
-            render: (notes) => notes ? (
-                <Text className="text-sm text-gray-700">{notes}</Text>
-            ) : (
-                <Text className="text-sm text-gray-400 italic">Chưa có ghi chú</Text>
             )
         },
         {
-            title: 'Người xử lý',
-            dataIndex: 'contactedBy',
-            key: 'contactedBy',
-            width: 160,
-            render: (contactedBy, record) => contactedBy ? (
-                <div className="space-y-1">
-                    <Text className="block text-sm font-medium text-gray-900">{contactedBy.fullname}</Text>
-                    {record.contactedAt && (
-                        <Text className="block text-xs text-gray-500">
-                            {dayjs(record.contactedAt).format('DD/MM HH:mm')}
-                        </Text>
+            title: 'Ghi chú & Người xử lý',
+            key: 'notes_handler',
+            width: '35%',
+            render: (_, record) => (
+                <div className="space-y-2">
+                    <div className="bg-gray-50 p-2 rounded border border-gray-100 text-xs text-gray-600">
+                        {record.notes || <span className="italic text-gray-300">Không có ghi chú</span>}
+                    </div>
+                    {record.contactedBy ? (
+                        <div className="flex items-center gap-1 text-[11px] text-blue-500 font-medium">
+                            <CheckCircleOutlined className="text-[10px]"/>
+                            <span>Xử lý bởi: {record.contactedBy.fullname}</span>
+                        </div>
+                    ) : (
+                        <div className="text-[11px] text-gray-400 italic">Chưa có người xử lý</div>
                     )}
                 </div>
-            ) : (
-                <Text className="text-sm text-gray-400 italic">Chưa xử lý</Text>
             )
         },
         {
             title: 'Thao tác',
             key: 'actions',
-            width: 100,
-            fixed: 'right',
-            align: 'center',
+            width: '15%',
+            align: 'right',
             render: (_, record) => (
-                <Space direction="vertical" size="small" className="w-full">
+                <Space size="small">
                     <Button
                         type="primary"
                         icon={<EditOutlined />}
-                        size="small"
+                        size="middle"
                         onClick={() => handleEdit(record)}
-                        className="bg-blue-500 w-full"
-                        block
-                    >
-                        Sửa
-                    </Button>
+                        className="bg-green-600 hover:bg-green-700 flex items-center justify-center w-10 h-10 rounded-xl shadow-sm border-0"
+                    />
                     <Popconfirm
-                        title="Xóa yêu cầu tư vấn"
-                        description="Bạn có chắc chắn muốn xóa yêu cầu này?"
+                        title="Xóa yêu cầu"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Xóa"
                         cancelText="Hủy"
@@ -254,11 +211,9 @@ const ConsultationManagement = () => {
                         <Button
                             danger
                             icon={<DeleteOutlined />}
-                            size="small"
-                            block
-                        >
-                            Xóa
-                        </Button>
+                            size="middle"
+                            className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm"
+                        />
                     </Popconfirm>
                 </Space>
             )
@@ -363,19 +318,12 @@ const ConsultationManagement = () => {
                     dataSource={sortedConsultations}
                     rowKey="_id"
                     loading={isLoading}
-                    scroll={{ x: 1200 }}
                     pagination={{
                         pageSize: 10,
-                        showSizeChanger: true,
+                        showSizeChanger: false,
                         showTotal: (total) => `Tổng ${total} yêu cầu`,
-                        pageSizeOptions: ['10', '20', '50', '100']
                     }}
                     className="consultation-table"
-                    rowClassName={(record) => {
-                        if (record.status === 'pending') return 'bg-orange-50';
-                        if (record.status === 'completed') return 'bg-green-50';
-                        return '';
-                    }}
                 />
             </Card>
 

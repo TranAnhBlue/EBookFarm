@@ -94,8 +94,8 @@ exports.updateConsultation = async (req, res) => {
         if (status) consultation.status = status;
         if (notes) consultation.notes = notes;
         
-        // Ghi nhận người xử lý nếu trạng thái thay đổi từ pending sang trạng thái khác
-        if (status && status !== 'pending' && !consultation.contactedBy) {
+        // Luôn ghi nhận/cập nhật người xử lý nếu trạng thái không phải pending
+        if (status && status !== 'pending') {
             consultation.contactedAt = new Date();
             consultation.contactedBy = req.user._id;
         }
