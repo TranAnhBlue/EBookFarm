@@ -312,7 +312,14 @@ const HtxJournalMgmt = () => {
                       <Button 
                         size="small" 
                         icon={<EyeOutlined />}
-                        onClick={() => window.open(`/journals/view/${record.farmJournalId}`, '_blank')}
+                        onClick={() => {
+                          const journalId = record.farmJournalId?._id || record.farmJournalId;
+                          if (journalId) {
+                            window.open(`/journals/view/${journalId}`, '_blank');
+                          } else {
+                            message.error('Không tìm thấy ID nhật ký của nông dân này');
+                          }
+                        }}
                       >
                         Xem Sổ
                       </Button>
