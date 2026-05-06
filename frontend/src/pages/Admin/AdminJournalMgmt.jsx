@@ -36,6 +36,7 @@ const AdminJournalMgmt = () => {
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isQRModalVisible, setIsQRModalVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState('newest');
+  const [pageSize, setPageSize] = useState(10);
 
   // Fetch All Journals
   const { data: journals, isLoading } = useQuery({
@@ -338,10 +339,12 @@ const AdminJournalMgmt = () => {
           dataSource={filteredJournals} 
           loading={isLoading}
           pagination={{ 
-            pageSize: 10,
+            current: undefined, // Để Antd tự quản lý trang hiện tại
+            pageSize: pageSize,
             showSizeChanger: true,
             showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> nhật ký</span>,
             pageSizeOptions: ['10', '20', '50', '100'],
+            onShowSizeChange: (current, size) => setPageSize(size),
             className: "pb-4 px-4"
           }}
           rowKey="_id"

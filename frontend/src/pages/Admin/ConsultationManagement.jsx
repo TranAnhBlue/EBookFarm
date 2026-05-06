@@ -31,6 +31,7 @@ const ConsultationManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedConsultation, setSelectedConsultation] = useState(null);
     const [form] = Form.useForm();
+    const [pageSize, setPageSize] = useState(10);
     const [sortOrder, setSortOrder] = useState('newest');
 
     // Fetch consultations
@@ -319,9 +320,10 @@ const ConsultationManagement = () => {
                     rowKey="_id"
                     loading={isLoading}
                     pagination={{
-                        pageSize: 10,
+                        pageSize: pageSize,
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50', '100'],
+                        onShowSizeChange: (current, size) => setPageSize(size),
                         showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> yêu cầu</span>,
                     }}
                     className="consultation-table"

@@ -12,6 +12,7 @@ const NewsManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingNews, setEditingNews] = useState(null);
     const [form] = Form.useForm();
+    const [pageSize, setPageSize] = useState(10);
     const queryClient = useQueryClient();
 
     const [searchText, setSearchText] = useState('');
@@ -222,9 +223,10 @@ const NewsManagement = () => {
                     loading={isLoading} 
                     rowKey="_id"
                     pagination={{ 
-                        pageSize: 10,
+                        pageSize: pageSize,
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50', '100'],
+                        onShowSizeChange: (current, size) => setPageSize(size),
                         showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> bài viết</span>,
                     }}
                 />

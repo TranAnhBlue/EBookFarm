@@ -22,6 +22,7 @@ const UserManagement = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
+  const [pageSize, setPageSize] = useState(10);
 
   // Fetch users
   const { data: users, isLoading } = useQuery({
@@ -221,9 +222,10 @@ const UserManagement = () => {
           rowKey="_id"
           loading={isLoading}
           pagination={{ 
-            pageSize: 10,
+            pageSize: pageSize,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
+            onShowSizeChange: (current, size) => setPageSize(size),
             showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> Nông dân</span>,
             className: "px-4 pb-4"
           }}
