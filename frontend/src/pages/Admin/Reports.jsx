@@ -20,10 +20,11 @@ import {
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import logoEBookFarm from '../../assets/logo-ebookfarm.jpg';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -53,26 +54,73 @@ const Reports = () => {
   });
 
   const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.text(`BAO CAO CHUOI CUNG UNG EBOOKFARM`, 14, 15);
-    doc.setFontSize(10);
-    doc.text(`Nguoi xuat: ${user.fullname || user.username}`, 14, 22);
-    doc.text(`Ngay xuat: ${new Date().toLocaleDateString('vi-VN')}`, 14, 27);
+    try {
+      const doc = new jsPDF();
+      
+      // Load logo image
+      const img = new Image();
+      img.src = logoEBookFarm;
+      
+      img.onload = () => {
+        // Thêm Logo (x, y, width, height)
+        doc.addImage(img, 'JPEG', 14, 10, 25, 25);
+        
+        // Tiêu đề báo cáo (đẩy sang phải để tránh logo)
+        doc.setFontSize(18);
+        doc.setTextColor(34, 197, 94);
+        doc.text("BÁO CÁO HỆ THỐNG EBOOKFARM", 45, 22);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Người xuất: ${user.fullname || user.username}`, 45, 30);
+        doc.text(`Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, 45, 35);
+        
+        // Đường kẻ ngang phân cách
+        doc.setDrawColor(230, 230, 230);
+        doc.line(14, 42, 196, 42);
 
-    const tableData = pieData?.map(item => [item.name, item.value]) || [];
-    
-    doc.autoTable({
-      head: [['Hang muc', 'So luong']],
-      body: [
-        ['Tong nhat ky', stats?.totalJournals || 0],
-        ['Hoan thanh', stats?.completedJournals || 0],
-        ...tableData
-      ],
-      startY: 35
-    });
+        const tableData = [
+          ['Tổng số nhật ký', stats?.totalJournals || 0],
+          ['Đã hoàn thành', stats?.completedJournals || 0],
+          ['Người dùng hệ thống', stats?.totalUsers || 0],
+          ['Nhóm/HTX', stats?.totalGroups || 0],
+          ['Vật tư tồn kho', stats?.inventoryCount || 0],
+        ];
 
-    doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
+        if (pieData && pieData.length > 0) {
+          pieData.forEach(item => {
+            tableData.push([`Trạng thái: ${item.name}`, item.value]);
+          });
+        }
+        
+        autoTable(doc, {
+          head: [['Hạng mục thống kê', 'Số lượng / Giá trị']],
+          body: tableData,
+          startY: 50,
+          styles: { font: 'Helvetica', fontStyle: 'normal' },
+          headStyles: { fillColor: [34, 197, 94], fontSize: 11 },
+          alternateRowStyles: { fillColor: [240, 253, 244] },
+          margin: { top: 50 }
+        });
+
+        doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
+        message.success('Xuất file PDF thành công!');
+      };
+
+      img.onerror = () => {
+        console.error('Không thể tải logo');
+        // Vẫn cho phép xuất PDF dù lỗi logo
+        doc.setFontSize(18);
+        doc.setTextColor(34, 197, 94);
+        doc.text("BÁO CÁO HỆ THỐNG EBOOKFARM", 14, 20);
+        // ... (phần còn lại của PDF không logo)
+        doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
+        message.warning('Xuất PDF thành công nhưng không có logo.');
+      };
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      message.error('Lỗi khi xuất PDF. Vui lòng thử lại.');
+    }
   };
 
   const exportExcel = () => {
