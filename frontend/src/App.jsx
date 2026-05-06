@@ -52,7 +52,7 @@ const queryClient = new QueryClient();
 // Redirect về đúng trang của mỗi role sau khi đăng nhập
 const RoleBasedRedirect = () => {
   const { user } = useAuthStore();
-  if (user?.role === 'Admin') return <Navigate to="/dashboard" replace />;
+  if (user?.role?.toUpperCase() === 'ADMIN') return <Navigate to="/dashboard" replace />;
   return <Navigate to="/dashboard" replace />;
 };
 

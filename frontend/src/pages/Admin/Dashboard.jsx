@@ -114,9 +114,9 @@ const Dashboard = () => {
     { title: 'Báo cáo & Thống kê', icon: <Package className="w-8 h-8" />, path: '/reports', color: '#ec4899' },
   ];
 
-  const quickAccessItems = user?.role === 'Admin' 
+  const quickAccessItems = user?.role?.toUpperCase() === 'ADMIN' 
     ? adminQuickAccess 
-    : user?.role === 'HTX' 
+    : user?.role?.toUpperCase() === 'HTX' 
       ? htxQuickAccess 
       : farmerQuickAccess;
 
@@ -144,9 +144,9 @@ const Dashboard = () => {
       <div className="flex justify-between items-end mb-2">
         <div className="space-y-1">
           <Title level={4} className="!mb-0 !text-gray-400 font-medium uppercase tracking-widest text-xs">
-            {user?.role === 'Admin' 
+            {user?.role?.toUpperCase() === 'ADMIN' 
               ? 'Tổng quan hệ thống' 
-              : user?.role === 'HTX'
+              : user?.role?.toUpperCase() === 'HTX'
                 ? 'Tổng quan Hợp Tác Xã'
                 : 'Tổng quan nông trại'}
           </Title>
@@ -227,7 +227,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-center mb-10">
               <Title level={5} className="!mb-0 !text-gray-800">Truy cập nhanh</Title>
               <Text className="text-xs text-gray-400 font-medium">
-                {user?.role === 'Admin' ? 'Quản trị hệ thống' : 'Các mô-đun sản xuất'}
+                {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị hệ thống' : 'Các mô-đun sản xuất'}
               </Text>
             </div>
             <div className="grid grid-cols-3 gap-y-12 gap-x-6">

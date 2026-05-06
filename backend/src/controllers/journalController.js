@@ -23,7 +23,7 @@ const createJournal = async (req, res) => {
 
 const getJournals = async (req, res) => {
   try {
-    const filter = req.user.role === 'Admin' ? {} : { userId: req.user._id };
+    const filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { userId: req.user._id };
 
     // Lấy tất cả journals với category của schema
     const journals = await FarmJournal.find(filter)
@@ -65,9 +65,9 @@ const updateJournal = async (req, res) => {
       const journal = await FarmJournal.findById(req.params.id);
       if(journal) {
           let hasAccess = false;
-          if (journal.userId.toString() === req.user._id.toString() || req.user.role === 'Admin') {
+          if (journal.userId.toString() === req.user._id.toString() || req.user.role?.toUpperCase() === 'ADMIN') {
              hasAccess = true;
-          } else if (req.user.role === 'HTX' && journal.htxJournalId) {
+          } else if (req.user.role?.toUpperCase() === 'HTX' && journal.htxJournalId) {
              const HtxJournal = require('../models/HtxJournal');
              const htxJournal = await HtxJournal.findById(journal.htxJournalId);
              if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {
@@ -120,9 +120,9 @@ const getJournalById = async (req, res) => {
     }
     // Only owner, admin, or HTX can view
     let hasAccess = false;
-    if (journal.userId._id.toString() === req.user._id.toString() || req.user.role === 'Admin') {
+    if (journal.userId._id.toString() === req.user._id.toString() || req.user.role?.toUpperCase() === 'ADMIN') {
        hasAccess = true;
-    } else if (req.user.role === 'HTX' && journal.htxJournalId) {
+    } else if (req.user.role?.toUpperCase() === 'HTX' && journal.htxJournalId) {
        const HtxJournal = require('../models/HtxJournal');
        const htxJournal = await HtxJournal.findById(journal.htxJournalId);
        if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {

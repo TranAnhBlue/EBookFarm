@@ -232,9 +232,9 @@ const MainLayout = () => {
     },
   ];
 
-  const items = user?.role === 'Admin' 
+  const items = user?.role?.toUpperCase() === 'ADMIN' 
     ? getAdminItems() 
-    : user?.role === 'HTX' 
+    : user?.role?.toUpperCase() === 'HTX' 
       ? getHtxItems() 
       : getFarmerItems();
 

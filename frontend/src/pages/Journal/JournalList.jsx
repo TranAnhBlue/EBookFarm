@@ -399,7 +399,7 @@ const JournalList = () => {
             )}
           </Space>
           <Space>
-            {user?.role !== 'Farmer' && (
+            {user?.role?.toUpperCase() !== 'FARMER' && (
               <>
                 <Button
                   icon={<UploadOutlined />}
@@ -508,11 +508,11 @@ const JournalList = () => {
                 </div>
                 <Title level={4} className="!mb-1 text-gray-400">Chưa có sổ nhật ký nào</Title>
                 <Text className="text-gray-400 mb-8">
-                  {user?.role === 'Farmer' 
+                  {user?.role?.toUpperCase() === 'FARMER' 
                     ? 'Bạn chưa được HTX phân công vào sổ nhật ký nào trong danh mục này.' 
                     : 'Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.'}
                 </Text>
-                {user?.role !== 'Farmer' && (
+                {user?.role?.toUpperCase() !== 'FARMER' && (
                   <Button 
                     type="primary" 
                     size="large" 

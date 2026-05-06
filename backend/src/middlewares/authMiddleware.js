@@ -40,7 +40,7 @@ const admin = (req, res, next) => {
     id: req.user?._id
   });
   
-  if (req.user && req.user.role === 'Admin') {
+  if (req.user && req.user.role?.toUpperCase() === 'ADMIN') {
     console.log('✅ Admin access granted');
     next();
   } else {
@@ -56,7 +56,7 @@ const htx = (req, res, next) => {
     id: req.user?._id
   });
   
-  if (req.user && req.user.role === 'HTX') {
+  if (req.user && req.user.role?.toUpperCase() === 'HTX') {
     console.log('✅ HTX access granted');
     next();
   } else {

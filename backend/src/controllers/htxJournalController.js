@@ -5,8 +5,8 @@ const User = require('../models/User');
 const createHtxJournal = async (req, res) => {
   try {
     const { name, description, schemaId } = req.body;
-    if (req.user.role !== 'HTX' && req.user.role !== 'Admin') {
-      return res.status(403).json({ success: false, message: 'Chỉ HTX mới được tạo sổ.' });
+    if (req.user.role?.toUpperCase() !== 'HTX' && req.user.role?.toUpperCase() !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền tạo sổ.' });
     }
 
     const htxJournal = new HtxJournal({
@@ -26,7 +26,7 @@ const createHtxJournal = async (req, res) => {
 
 const getHtxJournals = async (req, res) => {
   try {
-    const filter = req.user.role === 'Admin' ? {} : { htxId: req.user._id };
+    const filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { htxId: req.user._id };
     const journals = await HtxJournal.find(filter)
       .populate('schemaId')
       .populate('htxId', 'fullname username')
@@ -90,7 +90,7 @@ const updateFarmerStatus = async (req, res) => {
     const htxJournal = await HtxJournal.findById(id);
     if (!htxJournal) return res.status(404).json({ success: false, message: 'Không tìm thấy sổ.' });
 
-    if (htxJournal.htxId.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+    if (htxJournal.htxId.toString() !== req.user._id.toString() && req.user.role?.toUpperCase() !== 'ADMIN') {
       return res.status(403).json({ success: false, message: 'Không có quyền.' });
     }
 
