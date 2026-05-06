@@ -1,5 +1,6 @@
 const FarmJournal = require('../models/FarmJournal');
 const { createLog } = require('./logController');
+const { createNotification } = require('./notificationController');
 
 const createJournal = async (req, res) => {
   try {
@@ -88,7 +89,19 @@ const updateJournal = async (req, res) => {
              if (htxJournal) {
                  const farmerEntry = htxJournal.farmers.find(f => f.farmJournalId && f.farmJournalId.toString() === updated._id.toString());
                  if (farmerEntry) {
-                     if (updated.status === 'Submitted') farmerEntry.status = 'Chờ duyệt';
+                     if (updated.status === 'Submitted') {
+                         farmerEntry.status = 'Chờ duyệt';
+                         // Create notification for HTX
+                         await createNotification({
+                             recipient: htxJournal.htxId,
+                             sender: req.user._id,
+                             title: 'Sổ mới được gửi duyệt',
+                             message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ: ${htxJournal.name}`,
+                             type: 'Journal_Submitted',
+                             relatedId: htxJournal._id,
+                             relatedModel: 'HtxJournal'
+                         });
+                     }
                      if (updated.status === 'Draft') farmerEntry.status = 'Đang nhập';
                      await htxJournal.save();
                  }

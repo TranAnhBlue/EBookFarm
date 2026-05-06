@@ -1,6 +1,7 @@
 const HtxJournal = require('../models/HtxJournal');
 const FarmJournal = require('../models/FarmJournal');
 const User = require('../models/User');
+const { createNotification } = require('./notificationController');
 
 const createHtxJournal = async (req, res) => {
   try {
@@ -73,6 +74,17 @@ const addFarmersToJournal = async (req, res) => {
         status: 'Chưa nhập'
       });
       addedFarmers.push(farmerId);
+
+      // Create notification for farmer
+      await createNotification({
+        recipient: farmerId,
+        sender: req.user._id,
+        title: 'Sổ nhật ký mới',
+        message: `Bạn đã được phân công tham gia sổ nhật ký: ${htxJournal.name}`,
+        type: 'Journal_Assigned',
+        relatedId: farmJournal._id,
+        relatedModel: 'FarmJournal'
+      });
     }
 
     await htxJournal.save();
@@ -119,6 +131,27 @@ const updateFarmerStatus = async (req, res) => {
         await FarmJournal.findByIdAndUpdate(farmerEntry.farmJournalId, { 
           status: farmJournalStatus,
           htxStatus: status // Lưu cả trạng thái tiếng Việt của HTX
+        });
+
+        // Create notification for farmer
+        let title = 'Cập nhật trạng thái sổ';
+        let message = `Sổ "${htxJournal.name}" của bạn đã được cập nhật trạng thái: ${status}`;
+        let type = 'Journal_Verified';
+
+        if (status === 'Cần chỉnh sửa') {
+          title = 'Yêu cầu chỉnh sửa sổ';
+          message = `HTX yêu cầu bạn chỉnh sửa sổ "${htxJournal.name}". Phản hồi: ${feedback || 'Không có'}`;
+          type = 'Journal_Revision_Requested';
+        }
+
+        await createNotification({
+          recipient: farmerId,
+          sender: req.user._id,
+          title,
+          message,
+          type,
+          relatedId: farmerEntry.farmJournalId,
+          relatedModel: 'FarmJournal'
         });
       }
     }

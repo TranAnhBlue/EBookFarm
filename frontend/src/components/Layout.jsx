@@ -4,6 +4,7 @@ import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getAvatarUrl, getInitialAvatar } from '../utils/helpers';
 import api from '../services/api';
+import NotificationBell from './NotificationBell';
 import {
   MenuOutlined,
   LogoutOutlined,
@@ -351,7 +352,7 @@ const MainLayout = () => {
 
           <div className="flex items-center gap-6">
             <Space size={16} className="mr-4">
-              <Button type="text" icon={<BellOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
+              <NotificationBell />
               <Button type="text" icon={<SettingOutlined className="text-gray-400 text-lg" />} className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-50" />
             </Space>
 
