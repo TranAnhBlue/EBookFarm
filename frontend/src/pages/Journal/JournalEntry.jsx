@@ -7,10 +7,13 @@ import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
 import dayjs from 'dayjs';
 
+import { useAuthStore } from '../../store/authStore';
+
 const { Title } = Typography;
 const { Option } = Select;
 
 const JournalEntry = () => {
+  const { user } = useAuthStore();
   const { schemaId, id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,6 +30,8 @@ const JournalEntry = () => {
       queryFn: () => api.get(`/journals/${id}`).then(res => res.data.data),
       enabled: isEditing
   });
+
+  const isReadOnly = isEditing && journalData && (journalData.status === 'Verified' || (journalData.status === 'Submitted' && user?.role?.toUpperCase() === 'FARMER'));
 
   const activeSchemaId = isEditing && journalData ? journalData.schemaId._id : schemaId;
 
@@ -2155,15 +2160,30 @@ const JournalEntry = () => {
                    const listPath = `/${pathParts[1]}/${pathParts[2]}`;
                    navigate(listPath);
                }} className="rounded-xl">← Quay lại</Button>
-               <Button type="primary" size="large" onClick={() => form.submit()} loading={saveMutation.isPending} className="rounded-xl bg-green-600 font-bold px-8">
-                   Lưu nhật ký
-               </Button>
+               {!isReadOnly && (
+                   <Button type="primary" size="large" onClick={() => form.submit()} loading={saveMutation.isPending} className="rounded-xl bg-green-600 font-bold px-8">
+                       Lưu nhật ký
+                   </Button>
+               )}
            </div>
         </div>
+
+        {isReadOnly && (
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-2xl flex items-center gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                    <h4 className="text-yellow-800 font-bold m-0">Nhật ký chỉ xem</h4>
+                    <p className="text-yellow-700 m-0 text-sm">
+                        Nhật ký này đang ở trạng thái <b>{journalData.status === 'Verified' ? 'Đã duyệt' : 'Chờ duyệt'}</b> và không thể chỉnh sửa.
+                    </p>
+                </div>
+            </div>
+        )}
 
         <Form 
             form={form} 
             layout="vertical" 
+            disabled={isReadOnly}
             onFinish={(values) => {
                 console.log('📝 Form onFinish triggered with values:', values);
                 saveMutation.mutate(values);
