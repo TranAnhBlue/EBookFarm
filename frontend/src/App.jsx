@@ -145,6 +145,7 @@ const App = () => {
                   <Route path="app" element={<RoleBasedRedirect />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="tcvn" element={<TCVNReference />} />
                   <Route path="account-info" element={<AccountInfo />} />
                   <Route path="change-password" element={<ChangePassword />} />
 

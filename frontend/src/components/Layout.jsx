@@ -77,7 +77,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Biểu mẫu nhật ký</span>,
     },
     {
-      key: '/reference/tcvn',
+      key: '/tcvn',
       icon: <ReadOutlined className="text-lg" />,
       label: <span className="font-medium">Tra cứu TCVN</span>,
     },
@@ -215,7 +215,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Tiêu chuẩn & Quy trình</span>,
       children: [
         { key: '/docs', label: 'Quy trình kỹ thuật' },
-        { key: '/reference/tcvn', label: 'Tra cứu TCVN' },
+        { key: '/tcvn', label: 'Tra cứu TCVN' },
       ],
     },
   ];
