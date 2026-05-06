@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions, Card } from 'antd';
 import { PlusOutlined, EyeOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -29,6 +29,15 @@ const HtxJournalMgmt = () => {
   // Preview Modal state
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [previewJournalId, setPreviewJournalId] = useState(null);
+
+  // Filter state
+  const [searchText, setSearchText] = useState('');
+  const [filterSchema, setFilterSchema] = useState(null);
+  const [filterStatus, setFilterStatus] = useState(null);
+
+  // Farmer filter in drawer
+  const [farmerSearch, setFarmerSearch] = useState('');
+  const [farmerStatusFilter, setFarmerStatusFilter] = useState(null);
 
   useEffect(() => {
     fetchJournals();
@@ -183,6 +192,20 @@ const HtxJournalMgmt = () => {
     },
   ];
 
+  const filteredJournals = journals.filter(j => {
+    const matchesSearch = j.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesSchema = filterSchema ? j.schemaId?._id === filterSchema : true;
+    const matchesStatus = filterStatus ? j.status === filterStatus : true;
+    return matchesSearch && matchesSchema && matchesStatus;
+  });
+
+  const filteredFarmersInDrawer = selectedJournal?.farmers?.filter(f => {
+    const name = f.farmerId?.fullname || f.farmerId?.username || '';
+    const matchesName = name.toLowerCase().includes(farmerSearch.toLowerCase());
+    const matchesStatus = farmerStatusFilter ? f.status === farmerStatusFilter : true;
+    return matchesName && matchesStatus;
+  }) || [];
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -191,16 +214,65 @@ const HtxJournalMgmt = () => {
           type="primary" 
           icon={<PlusOutlined />} 
           onClick={() => setIsModalVisible(true)}
+          className="bg-green-600 hover:bg-green-700 rounded-xl"
         >
           Tạo Sổ Mới
         </Button>
       </div>
 
+      {/* Bộ lọc */}
+      <Card className="mb-6 rounded-2xl shadow-sm border-gray-100">
+        <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex-1 min-w-[200px]">
+                <Input 
+                    placeholder="Tìm kiếm tên sổ..." 
+                    allowClear 
+                    onChange={(e) => setSearchText(e.target.value)}
+                    size="large"
+                    className="rounded-xl"
+                    prefix={<EyeOutlined className="text-gray-400" />}
+                />
+            </div>
+            <div className="w-[250px]">
+                <Select 
+                    placeholder="Lọc theo bộ biểu mẫu" 
+                    allowClear 
+                    style={{ width: '100%' }}
+                    onChange={setFilterSchema}
+                    size="large"
+                    className="rounded-xl"
+                >
+                    {schemas.map(s => (
+                        <Option key={s._id} value={s._id}>{s.name}</Option>
+                    ))}
+                </Select>
+            </div>
+            <div className="w-[200px]">
+                <Select 
+                    placeholder="Trạng thái sổ" 
+                    allowClear 
+                    style={{ width: '100%' }}
+                    onChange={setFilterStatus}
+                    size="large"
+                    className="rounded-xl"
+                >
+                    <Option value="Active">Đang hoạt động (Active)</Option>
+                    <Option value="Completed">Đã kết thúc (Completed)</Option>
+                    <Option value="Archived">Đã lưu trữ (Archived)</Option>
+                </Select>
+            </div>
+            <div className="text-gray-400 text-sm italic">
+                Tìm thấy {filteredJournals.length} kết quả
+            </div>
+        </div>
+      </Card>
+
       <Table 
         columns={columns} 
-        dataSource={journals} 
+        dataSource={filteredJournals} 
         rowKey="_id" 
         loading={loading}
+        className="premium-table"
       />
 
       {/* Modal Tạo Sổ */}
@@ -286,9 +358,31 @@ const HtxJournalMgmt = () => {
               <Descriptions.Item label="Mô Tả">{selectedJournal.description}</Descriptions.Item>
             </Descriptions>
 
-            <h3 className="text-lg font-semibold mb-4">Danh Sách Nông Dân Tham Gia</h3>
+            <div className="flex justify-between items-center mb-4 mt-6">
+                <h3 className="text-lg font-semibold m-0">Danh Sách Nông Dân Tham Gia</h3>
+                <div className="flex gap-2">
+                    <Input 
+                        placeholder="Tìm tên nông dân..." 
+                        style={{ width: 200 }} 
+                        onChange={(e) => setFarmerSearch(e.target.value)}
+                        allowClear
+                    />
+                    <Select 
+                        placeholder="Lọc trạng thái" 
+                        style={{ width: 150 }}
+                        onChange={setFarmerStatusFilter}
+                        allowClear
+                    >
+                        <Option value="Chưa nhập">Chưa nhập</Option>
+                        <Option value="Đang nhập">Đang nhập</Option>
+                        <Option value="Chờ duyệt">Chờ duyệt</Option>
+                        <Option value="Đã duyệt">Đã duyệt</Option>
+                        <Option value="Cần chỉnh sửa">Cần chỉnh sửa</Option>
+                    </Select>
+                </div>
+            </div>
             <Table
-              dataSource={selectedJournal.farmers}
+              dataSource={filteredFarmersInDrawer}
               rowKey={(record) => record.farmerId?._id}
               pagination={false}
               columns={[
