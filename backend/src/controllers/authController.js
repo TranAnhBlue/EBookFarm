@@ -136,7 +136,7 @@ const forgotPassword = async (req, res) => {
         
         <div style="background-color: #f0fdf4; border-radius: 16px; padding: 30px; border: 1px solid #dcfce7;">
           <h2 style="margin-top: 0; color: #16a34a;">Yêu cầu đặt lại mật khẩu</h2>
-          <p>Chào bạn,</p>
+          <p>Chào ${user.fullname}</p>
           <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>${user.email}</strong> trên hệ thống EBookFarm.</p>
           <p>Để tiếp tục, vui lòng nhấn vào nút bên dưới:</p>
           
