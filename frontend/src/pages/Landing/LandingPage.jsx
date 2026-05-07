@@ -22,7 +22,8 @@ import {
     UserOutlined,
     ShopOutlined,
     CheckOutlined,
-    CameraOutlined
+    CameraOutlined,
+    EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -773,7 +774,147 @@ const LandingPage = () => {
                 </div>
             </section>
 
+            {/* About Us Section */}
+            <section id="about-us" className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Decorative blobs */}
+                <div className="absolute -top-20 -left-20 w-96 h-96 bg-green-500/10 blur-[120px] rounded-full blob-animate"></div>
+                <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-blue-500/10 blur-[120px] rounded-full blob-animate" style={{ animationDelay: '3s' }}></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    {/* Header */}
+                    <div className="text-center mb-16 scroll-reveal">
+                        <div className="inline-flex items-center gap-3 mb-6">
+                            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                <TeamOutlined className="text-2xl text-green-400" />
+                            </div>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Về chúng tôi</Tag>
+                        </div>
+                        <Title level={2} className="!text-white !mb-4 md:!text-5xl font-black">
+                            Công ty TNHH Dịch vụ Tư vấn<br />
+                            <span className="gradient-text">Khoa học và Công nghệ Việt</span>
+                        </Title>
+                        <Paragraph className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
+                            Chính thức hoạt động từ tháng 7 năm 2013, được sáng lập bởi các chuyên gia giàu kinh nghiệm hoạt động ở nhiều lĩnh vực Kinh tế - Xã hội khác nhau.
+                        </Paragraph>
+                    </div>
+
+                    <Row gutter={[32, 32]} className="mb-16">
+                        {/* Mission */}
+                        <Col xs={24} md={12}>
+                            <div className="h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all hover-lift scroll-reveal">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center shrink-0">
+                                        <RocketOutlined className="text-3xl text-green-400" />
+                                    </div>
+                                    <div>
+                                        <Text className="text-green-400 text-xs font-black uppercase tracking-widest block">Mission</Text>
+                                        <Title level={3} className="!text-white !mb-0">Sứ mệnh</Title>
+                                    </div>
+                                </div>
+                                <Paragraph className="text-gray-300 text-base leading-relaxed !mb-0">
+                                    Cung cấp các dịch vụ tư vấn quản lý và đào tạo chuyên nghiệp, đơn giản và hiệu quả. Mang lại những sản phẩm và dịch vụ có giá trị thực tế, giúp gia tăng hiệu quả hoạt động, phát triển bền vững và thịnh vượng cho các tổ chức và doanh nghiệp.
+                                </Paragraph>
+                            </div>
+                        </Col>
+
+                        {/* Vision */}
+                        <Col xs={24} md={12}>
+                            <div className="h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all hover-lift scroll-reveal">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                                        <GlobalOutlined className="text-3xl text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <Text className="text-blue-400 text-xs font-black uppercase tracking-widest block">Vision</Text>
+                                        <Title level={3} className="!text-white !mb-0">Tầm nhìn</Title>
+                                    </div>
+                                </div>
+                                <Paragraph className="text-gray-300 text-base leading-relaxed !mb-0">
+                                    Trở thành đối tác tin cậy và ưu tiên hàng đầu trong lĩnh vực cung cấp dịch vụ tư vấn quản lý và đào tạo chuyên nghiệp tại Việt Nam. Tập trung vào chất lượng, sáng tạo và sự cam kết, đóng góp tích cực vào sự phát triển toàn diện của cộng đồng và xã hội.
+                                </Paragraph>
+                            </div>
+                        </Col>
+                    </Row>
+
+                    {/* Strategic Objectives */}
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12 mb-12 scroll-reveal">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
+                                <TrophyOutlined className="text-2xl text-orange-400" />
+                            </div>
+                            <Title level={3} className="!text-white !mb-0">Mục tiêu chiến lược</Title>
+                        </div>
+                        <Row gutter={[24, 24]}>
+                            {[
+                                {
+                                    icon: <LineChartOutlined />,
+                                    color: '#10b981',
+                                    text: 'Tập trung vào việc phát triển và mở rộng danh mục dịch vụ, bao gồm cả tư vấn quản lý và đào tạo chuyên nghiệp trong các lĩnh vực mới.'
+                                },
+                                {
+                                    icon: <SafetyCertificateFilled />,
+                                    color: '#3b82f6',
+                                    text: 'Nâng cao chất lượng dịch vụ thông qua việc đào tạo nhân viên, áp dụng công nghệ mới và liên tục thu thập phản hồi từ khách hàng để cải thiện quy trình.'
+                                },
+                                {
+                                    icon: <GlobalOutlined />,
+                                    color: '#8b5cf6',
+                                    text: 'Tăng cường hiện diện trực tuyến thông qua quảng bá, tiếp cận khách hàng tiềm năng qua các kênh truyền thông và marketing kỹ thuật số.'
+                                }
+                            ].map((obj, idx) => (
+                                <Col xs={24} md={8} key={idx}>
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-1"
+                                            style={{ background: `${obj.color}20`, color: obj.color }}>
+                                            <span className="text-xl">{obj.icon}</span>
+                                        </div>
+                                        <Text className="text-gray-300 text-sm leading-relaxed">{obj.text}</Text>
+                                    </div>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+
+                    {/* Contact Info Strip */}
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 scroll-reveal">
+                        <Row gutter={[24, 16]} align="middle">
+                            <Col xs={24} md={8}>
+                                <div className="flex items-start gap-3">
+                                    <EnvironmentOutlined className="text-green-400 text-lg mt-1 shrink-0" />
+                                    <div>
+                                        <Text className="text-green-400 text-xs font-black uppercase tracking-widest block mb-1">Địa chỉ đăng ký</Text>
+                                        <Text className="text-gray-300 text-sm">Căn số 13 tổ 49 trường NT Nguyễn Viết Xuân, phường Yên Hòa, quận Cầu Giấy, TP Hà Nội</Text>
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col xs={24} md={8}>
+                                <div className="flex items-start gap-3">
+                                    <EnvironmentOutlined className="text-blue-400 text-lg mt-1 shrink-0" />
+                                    <div>
+                                        <Text className="text-blue-400 text-xs font-black uppercase tracking-widest block mb-1">Văn phòng giao dịch</Text>
+                                        <Text className="text-gray-300 text-sm">Số 19 phố Liễu Giai, phường Liễu Giai, quận Ba Đình, TP Hà Nội</Text>
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col xs={24} md={8}>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-3">
+                                        <PhoneOutlined className="text-green-400" />
+                                        <Text className="text-gray-200 font-bold">02462730.818</Text>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <MailOutlined className="text-green-400" />
+                                        <Text className="text-gray-200">tuvansct@gmail.com</Text>
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+                    </div>
+                </div>
+            </section>
+
             {/* Consultation Form Section */}
+
             <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
                 {/* Background decorative image */}
                 <div className="absolute top-0 right-0 w-1/2 h-full opacity-5">
@@ -804,7 +945,7 @@ const LandingPage = () => {
                                         </div>
                                         <div>
                                             <Text className="block text-xs text-gray-400 uppercase font-bold">Hotline</Text>
-                                            <Text strong className="text-gray-900">1900 xxxx</Text>
+                                            <Text strong className="text-gray-900">02462730.818</Text>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 hover-lift">
@@ -813,7 +954,7 @@ const LandingPage = () => {
                                         </div>
                                         <div>
                                             <Text className="block text-xs text-gray-400 uppercase font-bold">Email</Text>
-                                            <Text strong className="text-gray-900">contact@ebookfarm.vn</Text>
+                                            <Text strong className="text-gray-900">tuvansct@gmail.com</Text>
                                         </div>
                                     </div>
                                 </div>

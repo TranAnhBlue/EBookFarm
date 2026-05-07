@@ -57,7 +57,14 @@ const PublicNavbar = () => {
                 <Space size="large" className="hidden md:flex">
                     <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/')}>Trang chủ</Button>
                     <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
-                    <Button type="text" className="font-bold text-gray-600 hover:text-green-600">Về chúng tôi</Button>
+                    <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => {
+                        if (window.location.pathname === '/') {
+                            document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            navigate('/');
+                            setTimeout(() => document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' }), 300);
+                        }
+                    }}>Về chúng tôi</Button>
                 </Space>
 
                 <Space size={0} className="flex items-center">
