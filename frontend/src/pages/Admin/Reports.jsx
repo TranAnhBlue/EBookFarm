@@ -251,7 +251,7 @@ const Reports = () => {
       {/* Stats Cards Row */}
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
+          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
              <div className="absolute top-0 right-0 p-8 opacity-10">
                 <FileTextOutlined className="text-6xl text-green-500" />
              </div>
@@ -270,7 +270,7 @@ const Reports = () => {
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
+          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
              <div className="absolute top-0 right-0 p-8 opacity-10">
                 <DashboardOutlined className="text-6xl text-blue-500" />
              </div>
@@ -292,7 +292,7 @@ const Reports = () => {
         {isAdmin && (
           <>
             <Col xs={24} sm={12} lg={6}>
-              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
+              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
                  <div className="absolute top-0 right-0 p-8 opacity-10">
                     <UserOutlined className="text-6xl text-orange-500" />
                  </div>
@@ -302,11 +302,15 @@ const Reports = () => {
                     loading={statsLoading}
                     prefix={<UserOutlined className="text-orange-500" />}
                  />
+                 <div className="mt-4 flex items-center gap-2">
+                    <Tag color="orange" className="rounded-full border-0 text-[10px] font-bold">Thành viên</Tag>
+                    <Text className="text-[10px] text-gray-400">trên hệ thống</Text>
+                 </div>
               </Card>
             </Col>
 
             <Col xs={24} sm={12} lg={6}>
-              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
+              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
                  <div className="absolute top-0 right-0 p-8 opacity-10">
                     <BoxPlotOutlined className="text-6xl text-purple-500" />
                  </div>
@@ -316,6 +320,10 @@ const Reports = () => {
                     loading={statsLoading}
                     prefix={<BoxPlotOutlined className="text-purple-500" />}
                  />
+                 <div className="mt-4 flex items-center gap-2">
+                    <Tag color="purple" className="rounded-full border-0 text-[10px] font-bold">Vật tư</Tag>
+                    <Text className="text-[10px] text-gray-400">trong kho</Text>
+                 </div>
               </Card>
             </Col>
           </>

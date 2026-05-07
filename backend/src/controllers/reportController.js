@@ -18,7 +18,7 @@ const getDashboardStats = async (req, res) => {
       isAdmin ? User.countDocuments() : 0,
       isAdmin ? Group.countDocuments() : 0,
       FarmJournal.countDocuments(filter),
-      FarmJournal.countDocuments({ ...filter, status: 'Completed' }),
+      FarmJournal.countDocuments({ ...filter, status: { $in: ['Verified', 'Completed'] } }),
       (isAdmin && InventoryItem) ? InventoryItem.countDocuments() : 0
     ]);
 
