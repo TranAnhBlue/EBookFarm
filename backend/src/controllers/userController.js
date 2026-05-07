@@ -43,6 +43,9 @@ const updateUserRoleStatus = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
+    console.log('📝 Updating profile for user:', req.user._id);
+    console.log('📦 Request body:', req.body);
+
     const { 
       fullname, 
       phone, 
@@ -75,7 +78,12 @@ const updateProfile = async (req, res) => {
       user.ward = ward !== undefined ? ward : user.ward;
       user.farmName = farmName !== undefined ? farmName : user.farmName;
       user.farmCode = farmCode !== undefined ? farmCode : user.farmCode;
-      user.farmArea = farmArea !== undefined ? farmArea : user.farmArea;
+      
+      // Handle farmArea conversion
+      if (farmArea !== undefined) {
+        user.farmArea = farmArea === '' ? null : Number(farmArea);
+      }
+      
       user.farmType = farmType !== undefined ? farmType : user.farmType;
       user.certifications = certifications !== undefined ? certifications : user.certifications;
       user.organization = organization !== undefined ? organization : user.organization;
@@ -83,6 +91,7 @@ const updateProfile = async (req, res) => {
       user.avatar = avatar !== undefined ? avatar : user.avatar;
 
       const updatedUser = await user.save();
+      console.log('✅ Profile updated successfully:', updatedUser._id);
       
       // Log action
       await createLog(req.user._id, 'Cập nhật hồ sơ cá nhân', user._id, 'User', { 
@@ -94,6 +103,7 @@ const updateProfile = async (req, res) => {
       res.status(404).json({ success: false, message: 'User not found' });
     }
   } catch (error) {
+    console.error('❌ Error updating profile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

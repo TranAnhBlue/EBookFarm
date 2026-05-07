@@ -798,7 +798,7 @@ const LandingPage = () => {
                         </Paragraph>
                     </div>
 
-                    <Row gutter={[32, 32]} className="mb-16">
+                    <Row gutter={[32, 32]} className="mb-24">
                         {/* Mission */}
                         <Col xs={24} md={12}>
                             <div className="h-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all hover-lift scroll-reveal">
@@ -872,42 +872,6 @@ const LandingPage = () => {
                                     </div>
                                 </Col>
                             ))}
-                        </Row>
-                    </div>
-
-                    {/* Contact Info Strip */}
-                    <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 scroll-reveal">
-                        <Row gutter={[24, 16]} align="middle">
-                            <Col xs={24} md={8}>
-                                <div className="flex items-start gap-3">
-                                    <EnvironmentOutlined className="text-green-400 text-lg mt-1 shrink-0" />
-                                    <div>
-                                        <Text className="text-green-400 text-xs font-black uppercase tracking-widest block mb-1">Địa chỉ đăng ký</Text>
-                                        <Text className="text-gray-300 text-sm">Căn số 13 tổ 49 trường NT Nguyễn Viết Xuân, phường Yên Hòa, quận Cầu Giấy, TP Hà Nội</Text>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <div className="flex items-start gap-3">
-                                    <EnvironmentOutlined className="text-blue-400 text-lg mt-1 shrink-0" />
-                                    <div>
-                                        <Text className="text-blue-400 text-xs font-black uppercase tracking-widest block mb-1">Văn phòng giao dịch</Text>
-                                        <Text className="text-gray-300 text-sm">Số 19 phố Liễu Giai, phường Liễu Giai, quận Ba Đình, TP Hà Nội</Text>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-3">
-                                        <PhoneOutlined className="text-green-400" />
-                                        <Text className="text-gray-200 font-bold">02462730.818</Text>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <MailOutlined className="text-green-400" />
-                                        <Text className="text-gray-200">tuvansct@gmail.com</Text>
-                                    </div>
-                                </div>
-                            </Col>
                         </Row>
                     </div>
                 </div>

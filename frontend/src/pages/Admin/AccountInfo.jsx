@@ -43,6 +43,17 @@ const AccountInfo = () => {
     fetchProvinces();
   }, []);
 
+  // Sync form values when user changes
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        ...user,
+        dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null
+      });
+      setAvatarUrl(user.avatar || '');
+    }
+  }, [user, form]);
+
   // Load districts khi chọn province
   useEffect(() => {
     const fetchDistricts = async () => {
@@ -122,6 +133,12 @@ const AccountInfo = () => {
         bio: values.bio,
         avatar: avatarUrl
       };
+      
+      // Chuyển dateOfBirth sang ISO string
+      if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
+        updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
+      }
+      
       return api.put('/users/profile', updateData);
     },
     onSuccess: (res) => {
