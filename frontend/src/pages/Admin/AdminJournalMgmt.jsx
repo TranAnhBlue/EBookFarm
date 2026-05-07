@@ -380,7 +380,7 @@ const AdminJournalMgmt = () => {
           <div className="space-y-6 pt-4">
             <Descriptions bordered column={2} size="middle" labelStyle={{ fontWeight: 'bold', backgroundColor: '#f9fafb', width: '150px' }}>
               <Descriptions.Item label="Tên nhật ký" span={2}>
-                <Text strong className="text-green-700 text-lg">{selectedJournal.schemaId?.name || 'N/A'}</Text>
+                <Text strong className="text-green-700 text-lg">{selectedJournal.schemaId?.name || 'Không có'}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Mã QR">
                 <Text copyable className="text-blue-600 font-mono">{selectedJournal.qrCode}</Text>
@@ -393,7 +393,7 @@ const AdminJournalMgmt = () => {
                   )}
                 </Space>
               </Descriptions.Item>
-              <Descriptions.Item label="Nông dân (Farmer)">
+              <Descriptions.Item label="Hộ nông dân">
                 <Space>
                    <Avatar size="small" icon={<UserOutlined />} src={getAvatarUrl(selectedJournal.userId?.avatar)}>
                       {!selectedJournal.userId?.avatar && getInitialAvatar(selectedJournal.userId?.fullname || selectedJournal.userId?.username)}
@@ -402,7 +402,7 @@ const AdminJournalMgmt = () => {
                 </Space>
               </Descriptions.Item>
               <Descriptions.Item label="Email liên hệ">
-                {selectedJournal.userId?.email}
+                {selectedJournal.userId?.email || 'Không có'}
               </Descriptions.Item>
               <Descriptions.Item label="Ngày tạo">
                 {dayjs(selectedJournal.createdAt).format('DD/MM/YYYY HH:mm')}
@@ -416,7 +416,7 @@ const AdminJournalMgmt = () => {
                 <Text>{selectedJournal.userId?.farmArea ? `${selectedJournal.userId.farmArea} m²` : 'Chưa cập nhật'}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Loại hình">
-                <Tag color="cyan">{selectedJournal.userId?.farmType || 'N/A'}</Tag>
+                <Tag color="cyan">{selectedJournal.userId?.farmType || 'Không có'}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Hợp tác xã / Tổ chức" span={2}>
                 <Text strong className="text-blue-700">{selectedJournal.userId?.organization || 'Cá nhân / Tự do'}</Text>

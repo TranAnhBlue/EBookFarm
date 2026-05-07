@@ -81,7 +81,7 @@ const PublicFooter = () => {
                                     </Text>
                                     {isLoggedIn ? (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/dashboard')}>
-                                            Vào Dashboard
+                                            Vào bảng điều khiển
                                         </Text>
                                     ) : (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/login')}>

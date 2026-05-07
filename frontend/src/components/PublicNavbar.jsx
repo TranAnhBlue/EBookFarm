@@ -76,7 +76,7 @@ const PublicNavbar = () => {
                                 className="font-bold text-green-600 hover:bg-green-50 rounded-lg px-3 hidden sm:flex items-center transition-all"
                                 onClick={() => navigate('/dashboard')}
                             >
-                                Dashboard
+                                Bảng điều khiển
                             </Button>
 
                             <AntdDivider type="vertical" className="h-8 border-gray-100 mx-4 hidden sm:block" />

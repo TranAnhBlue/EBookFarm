@@ -383,7 +383,7 @@ const ConsultationManagement = () => {
                                     <div className="mt-3 p-3 bg-purple-50 rounded border border-purple-100">
                                         <div className="flex items-center gap-1 mb-1">
                                             <RobotOutlined className="text-purple-500 text-xs" />
-                                            <Text strong className="text-[10px] text-purple-600 uppercase">AI Suggestion:</Text>
+                                            <Text strong className="text-[10px] text-purple-600 uppercase">Gợi ý từ AI:</Text>
                                         </div>
                                         <Text className="text-xs italic text-gray-600">{selectedConsultation.aiResponse}</Text>
                                     </div>

@@ -67,11 +67,17 @@ const Dashboard = () => {
       'Mist': 'Có Sương Mù Nhẹ',
       'Fog': 'Sương Mù',
       'Patchy rain possible': 'Có Thể Có Mưa',
+      'Patchy rain nearby': 'Mưa Rải Rác',
+      'Patchy light rain with thunder': 'Mưa Nhẹ Và Có Dong',
       'Thundery outbreaks possible': 'Có Thể Có Dong',
       'Light rain': 'Mưa Nhẹ',
+      'Light drizzle': 'Mưa Phùn Nhẹ',
       'Moderate rain': 'Mưa Vừa',
       'Heavy rain': 'Mưa Lớn',
       'Thunderstorm': 'Giông Bão',
+      'Light snow': 'Tuyết Nhẹ',
+      'Moderate snow': 'Tuyết Vừa',
+      'Heavy snow': 'Tuyết Lớn',
       'with': 'Kèm',
       'and': 'Và'
     };
@@ -157,67 +163,79 @@ const Dashboard = () => {
       </div>
 
       <Row gutter={[24, 24]}>
-        {/* Weather Card */}
-        <Col xs={24} lg={11}>
-          <Card variant="borderless" className="weather-gradient h-full !p-2">
-            {weatherLoading ? (
-              <Skeleton active paragraph={{ rows: 4 }} />
-            ) : (
-              <>
-                <div className="flex justify-between items-start mb-10">
-                  <Badge
-                    status="processing"
-                    color="#22c55e"
-                    text={<span className="font-bold text-gray-800 uppercase tracking-tight text-xs">Thời tiết {area?.areaName?.[0]?.value || 'Hà Nội'}</span>}
-                  />
-                  <Text className="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full uppercase tracking-tighter">Thời gian thực</Text>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-6">
-                    <div className="relative">
-                      <div className="absolute -inset-4 bg-yellow-200/40 blur-2xl rounded-full animate-pulse"></div>
-                      {getWeatherIcon(current?.weatherCode)}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-7xl font-bold tracking-tighter text-gray-900 leading-none">{current?.temp_C || '--'}°</span>
-                      <span className="text-lg text-gray-800 font-bold ml-1">{translateCondition(weatherText)}</span>
-                    </div>
+        {/* Weather & IoT Card */}
+        <Col xs={24} lg={14}>
+          <Card variant="borderless" className="weather-gradient h-full !p-0 overflow-hidden">
+            <div className="p-6">
+              {weatherLoading ? (
+                <Skeleton active paragraph={{ rows: 4 }} />
+              ) : (
+                <>
+                  <div className="flex justify-between items-start mb-8">
+                    <Badge
+                      status="processing"
+                      color="#22c55e"
+                      text={<span className="font-bold text-gray-800 uppercase tracking-tight text-xs">Thời tiết {area?.areaName?.[0]?.value || 'Hà Nội'}</span>}
+                    />
+                    <Space>
+                      <Tag color="green" className="text-[10px] font-bold m-0 rounded-full uppercase">Trực tiếp</Tag>
+                      <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Cập nhật 1 phút trước</Text>
+                    </Space>
                   </div>
 
-                  <div className="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-white space-y-3 min-w-[140px]">
-                    <div className="flex justify-between items-center gap-4">
-                      <Text className="text-gray-400 text-[10px] font-bold uppercase flex items-center gap-1"><Droplets className="w-3 h-3" /> Độ ẩm</Text>
-                      <Text className="text-gray-800 font-bold">{current?.humidity}%</Text>
-                    </div>
-                    <div className="flex justify-between items-center gap-4">
-                      <Text className="text-gray-400 text-[10px] font-bold uppercase flex items-center gap-1"><CloudRain className="w-3 h-3" /> Mưa</Text>
-                      <Text className="text-gray-800 font-bold">{current?.precipMM}mm</Text>
-                    </div>
-                    <div className="flex justify-between items-center gap-4">
-                      <Text className="text-gray-400 text-[10px] font-bold uppercase flex items-center gap-1"><Wind className="w-3 h-3" /> Gió</Text>
-                      <Text className="text-gray-800 font-bold text-xs uppercase">{current?.windspeedKmph}km/h</Text>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-12 flex items-center justify-between pt-4 border-t border-gray-100">
-                  <Space size={20}>
-                    {forecast.slice(1, 3).map((day, idx) => (
-                      <React.Fragment key={idx}>
-                        <div className="flex flex-col items-center">
-                          <Text className="text-[10px] text-gray-400 font-bold uppercase">{idx === 0 ? 'Ngày mai' : new Date(day.date).toLocaleDateString('vi-VN', { weekday: 'long' })}</Text>
-                          {getWeatherIcon(day.hourly?.[4]?.weatherCode)}
-                          <Text className="text-xs font-bold">{day.maxtempC}°</Text>
+                  <Row gutter={[24, 24]} align="middle">
+                    <Col xs={24} md={12}>
+                      <div className="flex items-center gap-6">
+                        <div className="relative">
+                          <div className="absolute -inset-4 bg-yellow-200/40 blur-2xl rounded-full animate-pulse"></div>
+                          {getWeatherIcon(current?.weatherCode)}
                         </div>
-                        {idx === 0 && <div className="w-[1px] h-8 bg-gray-100 mx-2"></div>}
-                      </React.Fragment>
-                    ))}
-                  </Space>
-                  <Button type="text" className="text-green-600 font-bold text-xs p-0 flex items-center gap-1">Chi tiết địa phương <GlobalOutlined className="text-[10px]" /></Button>
-                </div>
-              </>
-            )}
+                        <div className="flex flex-col">
+                          <span className="text-7xl font-bold tracking-tighter text-gray-900 leading-none">{current?.temp_C || '--'}°</span>
+                          <span className="text-lg text-gray-800 font-bold ml-1">{translateCondition(weatherText)}</span>
+                        </div>
+                      </div>
+                    </Col>
+                    
+                    <Col xs={24} md={12}>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white flex flex-col justify-center">
+                          <Text className="text-gray-400 text-[10px] font-bold uppercase flex items-center gap-1"><Droplets className="w-3 h-3 text-blue-500" /> Độ ẩm</Text>
+                          <Text className="text-lg text-gray-800 font-black">{current?.humidity}%</Text>
+                        </div>
+                        <div className="bg-white/60 backdrop-blur-sm p-3 rounded-2xl border border-white flex flex-col justify-center">
+                          <Text className="text-gray-400 text-[10px] font-bold uppercase flex items-center gap-1"><Wind className="w-3 h-3 text-green-500" /> Gió</Text>
+                          <Text className="text-lg text-gray-800 font-black">{current?.windspeedKmph}<small className="text-[10px] ml-1">km/h</small></Text>
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+
+                  {/* IoT Sensors Section */}
+                  <div className="mt-8 pt-6 border-t border-gray-100/50">
+                    <Text className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Trạm cảm biến IoT (Kết nối API)</Text>
+                    <Row gutter={[12, 12]}>
+                      {[
+                        { label: 'Độ ẩm đất', value: '42%', icon: <Droplets className="w-4 h-4" />, color: 'blue', status: 'Tốt' },
+                        { label: 'Nhiệt độ đất', value: '24°C', icon: <Sun className="w-4 h-4" />, color: 'orange', status: 'Ổn định' },
+                        { label: ' Drone phun thuốc', value: 'Sẵn sàng', icon: <Wind className="w-4 h-4" />, color: 'green', status: 'Trực tuyến' },
+                      ].map((sensor, idx) => (
+                        <Col xs={8} key={idx}>
+                          <div className="bg-white/40 p-3 rounded-xl border border-white/60 hover:bg-white/80 transition-all cursor-pointer group">
+                            <div className={`w-8 h-8 rounded-lg bg-${sensor.color}-100 text-${sensor.color}-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
+                              {sensor.icon}
+                            </div>
+                            <Text className="text-[10px] text-gray-500 block leading-tight mb-1">{sensor.label}</Text>
+                            <Text strong className="text-sm block">{sensor.value}</Text>
+                            <Badge status={sensor.color === 'green' ? 'success' : 'processing'} text={<span className="text-[9px] font-bold uppercase text-gray-400">{sensor.status}</span>} />
+                          </div>
+                        </Col>
+                      ))}
+                    </Row>
+                  </div>
+                </>
+              )}
+            </div>
           </Card>
         </Col>
 

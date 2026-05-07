@@ -150,7 +150,7 @@ const LandingPage = () => {
                     <Row gutter={[48, 48]} align="middle">
                         <Col xs={24} lg={14} className="space-y-8">
                             <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-4 py-1.5 rounded-full mb-4 scroll-reveal pulse-badge">
-                                <Tag color="green" className="m-0 rounded-full font-bold">New</Tag>
+                                <Tag color="green" className="m-0 rounded-full font-bold">Mới</Tag>
                                 <Text className="text-green-700 font-bold text-xs uppercase tracking-wider">Hệ thống truy xuất chuẩn quốc gia TCVN</Text>
                             </div>
                             <Title className="!text-gray-900 !mb-6 leading-[1.1] md:!text-7xl font-black scroll-reveal">
@@ -352,7 +352,7 @@ const LandingPage = () => {
                                                     <SafetyCertificateFilled className="text-white text-xl" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <Text className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Standard {i}</Text>
+                                                    <Text className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Tiêu chuẩn {i}</Text>
                                                     <Text strong className="text-gray-800 text-base line-clamp-1">
                                                         {i === 1 ? 'TCVN 12827:2023 - Rau quả tươi' : i === 2 ? 'TCVN 13166-4:2020 - Thịt lợn' : 'TCVN 13840:2023 - Cà phê'}
                                                     </Text>
@@ -377,7 +377,7 @@ const LandingPage = () => {
                                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
                                     <SafetyCertificateFilled className="text-2xl text-blue-600" />
                                 </div>
-                                <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Compliance</Tag>
+                                <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Tuân thủ</Tag>
                             </div>
                             <Title className="!text-gray-900 !mb-6 leading-tight md:!text-5xl gradient-text">Gốc gác rõ ràng,<br />Niềm tin vững chắc.</Title>
                             <Paragraph className="text-gray-500 text-lg leading-relaxed">
@@ -408,39 +408,61 @@ const LandingPage = () => {
                             <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
                                 <RocketOutlined className="text-2xl text-green-600" />
                             </div>
-                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Giải pháp</Tag>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Đặc điểm nổi bật</Tag>
                         </div>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Giải pháp số hóa toàn diện</Title>
-                        <Paragraph className="text-gray-500 text-lg">Hành trình nông sản từ nông trại tới bàn ăn chưa bao giờ dễ dàng và minh bạch đến thế.</Paragraph>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Nhật ký sản xuất điện tử EBookFarm</Title>
+                        <Paragraph className="text-gray-500 text-lg">Giải pháp chuyển đổi số toàn diện cho nông nghiệp hiện đại, minh bạch và hiệu quả.</Paragraph>
                     </div>
 
                     <Row gutter={[32, 32]}>
                         {[
                             {
-                                title: 'Nhật ký sản xuất điện tử',
-                                desc: 'Thay thế ghi chép tay bằng ứng dụng di động thông minh. Lưu trữ lịch sử chăm sóc, bón phân, tưới tiêu theo thời gian thực.',
+                                title: 'Quản lý quy trình sản xuất chi tiết',
+                                desc: 'Ghi chép đầy đủ các hoạt động: gieo trồng, bón phân, tưới tiêu, thu hoạch. Tích hợp sổ tay điện tử thông minh cho từng loại cây trồng, vật nuôi.',
                                 icon: <EditOutlined />,
                                 color: '#10b981',
                                 bgImage: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
                             },
                             {
-                                title: 'Hệ thống Truy xuất QR',
-                                desc: 'Tạo mã QR định danh cho từng lô sản phẩm. Người dùng chỉ cần quét để thấy toàn bộ hành trình nông sản.',
+                                title: 'Tự động hóa & Đồng bộ dữ liệu',
+                                desc: (
+                                    <div className="space-y-2">
+                                        <Text className="text-gray-500 text-sm block">Đồng bộ dữ liệu thời gian thực từ mọi thiết bị:</Text>
+                                        <div className="flex flex-col gap-1">
+                                            <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Kết nối cảm biến IoT (Đất, Nước, Nhiệt độ)</Text>
+                                            <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đồng bộ điều khiển Drone & Máy móc</Text>
+                                            <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đa nền tảng: Mobile, Tablet và Máy tính</Text>
+                                        </div>
+                                    </div>
+                                ),
+                                icon: <ThunderboltFilled />,
+                                color: '#3b82f6',
+                                bgImage: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                            },
+                            {
+                                title: 'Hỗ trợ truy xuất nguồn gốc',
+                                desc: 'Cung cấp mã QR/mã vạch giúp khách hàng kiểm tra toàn bộ thông tin sản xuất. Đáp ứng VietGAP, GlobalGAP, Nông nghiệp hữu cơ...',
                                 icon: <QrcodeOutlined />,
                                 color: '#059669',
                                 bgImage: 'linear-gradient(135deg, #059669 0%, #047857 100%)'
                             },
                             {
-                                title: 'Quản trị Chuỗi giá trị',
-                                desc: 'Kết nối Nhà cung cấp - Nông trại - HTX - Nhà bán lẻ. Kiểm soát chất lượng đồng bộ trên toàn chuỗi.',
-                                icon: <ThunderboltFilled />,
-                                color: '#3b82f6',
-                                bgImage: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                                title: 'Phân tích và dự báo AI',
+                                desc: 'Sử dụng AI phân tích dữ liệu để dự báo năng suất, chi phí và rủi ro. Hỗ trợ đưa ra quyết định tối ưu hóa sản xuất dựa trên dữ liệu thực tế.',
+                                icon: <LineChartOutlined />,
+                                color: '#8b5cf6',
+                                bgImage: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'
+                            },
+                            {
+                                title: 'Bảo mật và lưu trữ đám mây',
+                                desc: 'Lưu trữ dữ liệu trên nền tảng Cloud bảo mật tuyệt đối. Dễ dàng truy cập, tìm kiếm và quản lý thông tin lịch sử từ bất cứ đâu.',
+                                icon: <CloudServerOutlined />,
+                                color: '#06b6d4',
+                                bgImage: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'
                             }
                         ].map((item, idx) => (
-                            <Col xs={24} md={8} key={idx}>
+                            <Col xs={24} md={idx < 3 ? 8 : 12} key={idx}>
                                 <Card variant="borderless" className="h-full rounded-[32px] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border-gray-100 group hover-lift scroll-reveal">
-                                    {/* Decorative background gradient */}
                                     <div 
                                         className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full blur-2xl"
                                         style={{ background: item.bgImage }}
@@ -452,8 +474,8 @@ const LandingPage = () => {
                                     >
                                         <span className="text-3xl">{item.icon}</span>
                                     </div>
-                                    <Title level={3} className="!mb-4 !text-gray-900">{item.title}</Title>
-                                    <Paragraph className="text-gray-500 leading-relaxed text-base">{item.desc}</Paragraph>
+                                    <Title level={4} className="!mb-4 !text-gray-900 leading-tight">{item.title}</Title>
+                                    <Paragraph className="text-gray-500 leading-relaxed text-sm">{item.desc}</Paragraph>
                                 </Card>
                             </Col>
                         ))}
