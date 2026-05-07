@@ -72,6 +72,12 @@ const AdminInventory = () => {
     onError: (err) => message.error(err.response?.data?.message || 'Có lỗi xảy ra!')
   });
 
+  // Fetch Dynamic Categories
+  const { data: catList } = useQuery({
+    queryKey: ['inventory-categories'],
+    queryFn: () => api.get('/inventory-categories').then(res => res.data.data)
+  });
+
   const columns = [
     {
       title: 'Tên vật tư',
@@ -233,12 +239,10 @@ const AdminInventory = () => {
               label="Danh mục"
               rules={[{ required: true, message: 'Chọn danh mục!' }]}
             >
-              <Select className="h-11 rounded-lg">
-                <Select.Option value="Phân bón">Phân bón</Select.Option>
-                <Select.Option value="Thuốc BVTV">Thuốc BVTV</Select.Option>
-                <Select.Option value="Hạt giống">Hạt giống</Select.Option>
-                <Select.Option value="Công cụ">Công cụ</Select.Option>
-                <Select.Option value="Khác">Khác</Select.Option>
+              <Select className="h-11 rounded-lg" placeholder="Chọn danh mục">
+                {catList?.map(cat => (
+                  <Select.Option key={cat._id} value={cat.name}>{cat.name}</Select.Option>
+                ))}
               </Select>
             </Form.Item>
 
