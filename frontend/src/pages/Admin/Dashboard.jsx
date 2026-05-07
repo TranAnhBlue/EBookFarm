@@ -33,7 +33,7 @@ const Dashboard = () => {
   }, []);
 
   // Fetch Weather with coordinates
-  const { data: weather, isLoading: weatherLoading } = useQuery({
+  const { data: weather, isLoading: weatherLoading, dataUpdatedAt: weatherUpdatedAt } = useQuery({
     queryKey: ['weather', coords],
     queryFn: async () => {
       if (!coords) return null;
@@ -201,7 +201,9 @@ const Dashboard = () => {
                     />
                     <Space>
                       <Tag color="green" className="text-[10px] font-bold m-0 rounded-full uppercase">Trực tiếp</Tag>
-                      <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Cập nhật 1 phút trước</Text>
+                      <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                        Cập nhật lúc: {weatherUpdatedAt ? moment(weatherUpdatedAt).format('HH:mm') : '--:--'}
+                      </Text>
                     </Space>
                   </div>
 
