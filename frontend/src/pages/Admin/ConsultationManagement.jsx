@@ -132,6 +132,13 @@ const ConsultationManagement = () => {
 
     const columns = [
         {
+            title: 'STT',
+            key: 'stt',
+            width: 60,
+            align: 'center',
+            render: (_, __, index) => <Text type="secondary">{index + 1}</Text>
+        },
+        {
             title: 'Khách hàng & Thời gian',
             key: 'customer_info',
             width: '35%',

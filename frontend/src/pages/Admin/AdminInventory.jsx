@@ -229,7 +229,7 @@ const AdminInventory = () => {
           loading={isLoading}
           pagination={{ 
             pageSize: 8,
-            showSizeChanger: true,
+            showSizeChanger: false,
             showTotal: (total) => `Tổng cộng ${total} vật tư`,
             className: "premium-pagination"
           }}
