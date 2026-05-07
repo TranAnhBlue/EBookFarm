@@ -14,6 +14,8 @@ const FormBuilder = () => {
   const [searchText, setSearchText] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
   const [form] = Form.useForm();
 
   const { data: schemas, isLoading } = useQuery({
@@ -28,17 +30,20 @@ const FormBuilder = () => {
       }
       return api.post('/schemas', newSchema);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const savedData = response.data.data;
       message.success(editingSchema ? 'Cập nhật biểu mẫu thành công' : 'Tạo biểu mẫu thành công');
       queryClient.invalidateQueries({ queryKey: ['schemas'] });
       setDrawerVisible(false);
       setEditingSchema(null);
       form.resetFields();
 
-      // Nếu là tạo mới, nhảy về trang 1 (vì mặc định sắp xếp mới nhất lên đầu)
+      // Nếu là tạo mới, nhảy về trang 1 và hiển thị xem trước
       if (!editingSchema) {
         setPagination(prev => ({ ...prev, current: 1 }));
-        setSortOrder('newest'); // Đảm bảo đang ở chế độ mới nhất
+        setSortOrder('newest');
+        setPreviewData(savedData);
+        setPreviewVisible(true);
       }
     },
     onError: () => message.error('Có lỗi xảy ra khi lưu biểu mẫu'),
@@ -114,6 +119,11 @@ const FormBuilder = () => {
     }
     form.setFieldsValue(initialValues);
     setDrawerVisible(true);
+  };
+
+  const handleView = (record) => {
+    setPreviewData(record);
+    setPreviewVisible(true);
   };
 
   const loadTemplate = (type) => {
@@ -369,6 +379,13 @@ const FormBuilder = () => {
       width: 120,
       render: (_, record) => (
         <Space size="small">
+          <Tooltip title="Xem chi tiết">
+            <Button
+              type="text"
+              icon={<SearchOutlined className="text-orange-500" />}
+              onClick={() => handleView(record)}
+            />
+          </Tooltip>
           <Tooltip title="Chỉnh sửa">
             <Button
               type="text"
@@ -605,6 +622,77 @@ const FormBuilder = () => {
             </Form.List>
           </Card>
         </Form>
+      </Drawer>
+
+      {/* Preview Modal */}
+      <Drawer
+        title={<Title level={4} className="!m-0 text-green-700">Chi tiết biểu mẫu: {previewData?.name}</Title>}
+        placement="right"
+        width={600}
+        onClose={() => setPreviewVisible(false)}
+        visible={previewVisible}
+        className="preview-drawer"
+      >
+        {previewData && (
+          <div className="space-y-6">
+            <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+              <Text strong className="block text-green-800 mb-1">Loại hình:</Text>
+              <Tag color="green" className="rounded-full px-3 py-1">
+                {previewData.category === 'trongtrot' ? 'Trồng trọt' : 
+                 previewData.category === 'channuoi' ? 'Chăn nuôi' : 
+                 previewData.category === 'thuyssan' ? 'Thủy sản' : 'Khác'}
+              </Tag>
+              {previewData.description && (
+                <div className="mt-3">
+                  <Text strong className="block text-green-800 mb-1">Mô tả:</Text>
+                  <Text className="text-gray-600 italic">{previewData.description}</Text>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <Title level={5} className="flex items-center gap-2">
+                <LayoutOutlined className="text-green-600" />
+                Cấu trúc bảng dữ liệu ({previewData.tables?.length || 0} bảng)
+              </Title>
+              
+              {previewData.tables?.map((table, idx) => (
+                <Card 
+                  key={idx} 
+                  title={<Text strong className="text-blue-700">{idx + 1}. {table.tableName}</Text>}
+                  size="small"
+                  className="rounded-xl border-gray-200 shadow-sm"
+                >
+                  <Table 
+                    dataSource={table.fields}
+                    pagination={false}
+                    size="small"
+                    rowKey="name"
+                    columns={[
+                      { title: 'Tên trường', dataIndex: 'label', key: 'label', width: '40%', render: (t, r) => <Text>{t} {r.required && <Text danger>*</Text>}</Text> },
+                      { title: 'Kiểu dữ liệu', dataIndex: 'type', key: 'type', width: '30%', render: (t) => <Tag color="blue" className="capitalize">{t}</Tag> },
+                      { title: 'Bắt buộc', dataIndex: 'required', key: 'required', render: (val) => val ? 'Có' : 'Không' }
+                    ]}
+                  />
+                  {table.fields?.some(f => f.type === 'select') && (
+                    <div className="mt-3 p-2 bg-gray-50 rounded border border-gray-100 text-xs">
+                      <Text strong className="block mb-1">Lựa chọn trong danh sách:</Text>
+                      {table.fields.filter(f => f.type === 'select').map(f => (
+                        <div key={f.name}>• <Text strong>{f.label}:</Text> {Array.isArray(f.options) ? f.options.join(', ') : f.options}</div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+            
+            <div className="pt-6">
+              <Button block type="primary" className="bg-green-600 h-11 rounded-xl" onClick={() => setPreviewVisible(false)}>
+                Đóng
+              </Button>
+            </div>
+          </div>
+        )}
       </Drawer>
     </div>
   );
