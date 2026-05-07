@@ -26,11 +26,11 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-6 bg-slate-50">
       {/* Background Decor */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px]"></div>
       
-      <div className="w-full max-w-[540px] bg-white/70 backdrop-blur-2xl rounded-[40px] shadow-2xl p-10 md:p-16 border border-white relative z-10 animate-in fade-in slide-in-from-bottom duration-700">
+      <div className="w-full max-w-[540px] bg-white/70 backdrop-blur-2xl rounded-[32px] md:rounded-[40px] shadow-2xl p-6 sm:p-10 md:p-16 border border-white relative z-10 animate-in fade-in slide-in-from-bottom duration-700">
         
         <div className="flex flex-col items-center mb-10">
           <div className="w-16 h-16 bg-emerald-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-emerald-200 mb-8">

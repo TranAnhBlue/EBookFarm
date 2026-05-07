@@ -31,12 +31,12 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-6 bg-slate-50">
       {/* Dynamic Background */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-green-100/40 rounded-full blur-[100px]"></div>
       
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row-reverse bg-white/70 backdrop-blur-2xl rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
+      <div className="w-full max-w-[1000px] flex flex-col md:flex-row-reverse bg-white/70 backdrop-blur-2xl rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
         
         {/* Side Banner: Benefits */}
         <div className="hidden md:flex md:w-5/12 bg-emerald-600 p-12 flex-col justify-between relative overflow-hidden">
@@ -71,20 +71,24 @@ const Register = () => {
             </div>
 
             <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
-                <Text className="text-white/80 text-xs font-medium italic italic">
+                <Text className="text-white/80 text-xs font-medium italic">
                     "EBookFarm giúp chúng tôi chuyên nghiệp hóa quy trình sản xuất và nâng cao giá trị thương phẩm."
                 </Text>
             </div>
         </div>
 
         {/* Form Content */}
-        <div className="w-full md:w-7/12 p-10 md:p-16 flex flex-col justify-center bg-white/40">
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-8">
+        <div className="w-full md:w-7/12 p-6 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
+            <div className="mb-6 md:mb-8">
+                <div className="hidden md:flex items-center gap-3 mb-8">
                     <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
                         <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
+                </div>
+                {/* Mobile Logo */}
+                <div className="block md:hidden mb-6">
+                    <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
                 </div>
                 <Title level={2} className="!font-black !text-gray-800 !mb-2">Tạo tài khoản</Title>
                 <Text className="text-gray-400 font-medium">Bắt đầu miễn phí ngay hôm nay</Text>

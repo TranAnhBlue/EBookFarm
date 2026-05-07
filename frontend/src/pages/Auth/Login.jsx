@@ -68,12 +68,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-6 bg-slate-50">
       {/* Dynamic Background */}
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-green-100/40 rounded-full blur-[100px]"></div>
       
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row bg-white/70 backdrop-blur-2xl rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
+      <div className="w-full max-w-[1000px] mx-auto flex flex-col md:flex-row bg-white/70 backdrop-blur-2xl rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
         
         {/* Left Side: Branding/Visual */}
         <div className="hidden md:flex md:w-1/2 bg-emerald-600 p-12 flex-col justify-between relative overflow-hidden">
@@ -110,12 +110,12 @@ const Login = () => {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center">
-            <div className="mb-10 block md:hidden">
-                <img src={logo} alt="Logo" className="h-12 w-auto mb-6" />
+        <div className="w-full md:w-1/2 p-6 sm:p-10 md:p-16 flex flex-col justify-center">
+            <div className="mb-6 md:mb-10 block md:hidden">
+                <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
             </div>
 
-            <div className="mb-10">
+            <div className="mb-6 md:mb-10">
                 <Title level={2} className="!font-black !text-gray-800 !mb-2">Đăng nhập</Title>
                 <Text className="text-gray-400 font-medium tracking-tight">Vui lòng nhập thông tin để truy cập hệ thống</Text>
             </div>
