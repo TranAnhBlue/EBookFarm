@@ -1,7 +1,7 @@
 // Helper functions
 
 // Base URL of the backend server (no trailing slash, no /api)
-export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '');
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://ebookfarm.onrender.com/api').replace(/\/api$/, '');
 // Full API URL with /api suffix
 export const API_URL = `${API_BASE_URL}/api`;
 
@@ -12,6 +12,7 @@ export const API_URL = `${API_BASE_URL}/api`;
  */
 export const getAvatarUrl = (avatarPath) => {
   if (!avatarPath) return null;
+  if (avatarPath.startsWith('http')) return avatarPath;
   return `${API_BASE_URL}${avatarPath}`;
 };
 

@@ -13,21 +13,11 @@ const uploadAvatar = async (req, res) => {
     const user = await User.findById(req.user._id);
     
     if (!user) {
-      // Xóa file vừa upload nếu user không tồn tại
-      fs.unlinkSync(req.file.path);
       return res.status(404).json({ success: false, message: 'User không tồn tại!' });
     }
 
-    // Xóa avatar cũ nếu có
-    if (user.avatar) {
-      const oldAvatarPath = path.join(__dirname, '../../uploads/avatars', path.basename(user.avatar));
-      if (fs.existsSync(oldAvatarPath)) {
-        fs.unlinkSync(oldAvatarPath);
-      }
-    }
-
-    // Lưu đường dẫn avatar mới
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    // Lưu đường dẫn avatar mới (Cloudinary URL)
+    const avatarUrl = req.file.path;
     user.avatar = avatarUrl;
     await user.save();
 
@@ -39,10 +29,7 @@ const uploadAvatar = async (req, res) => {
       }
     });
   } catch (error) {
-    // Xóa file nếu có lỗi
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
+    // Với Cloudinary, lỗi upload sẽ được multer xử lý trước khi vào controller
     res.status(500).json({ success: false, message: error.message });
   }
 };

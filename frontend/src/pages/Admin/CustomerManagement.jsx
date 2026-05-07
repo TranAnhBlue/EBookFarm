@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
 const { Title, Text } = Typography;
 
@@ -46,7 +47,10 @@ const CustomerManagement = () => {
             size={40} 
             icon={<UserOutlined />} 
             className="bg-green-50 text-green-600 border border-green-100" 
-          />
+            src={getAvatarUrl(record.avatar)}
+          >
+            {!record.avatar && getInitialAvatar(record.fullname || record.username)}
+          </Avatar>
           <div className="flex flex-col">
             <Text strong className="text-gray-800">{record.fullname || record.username}</Text>
             <Text type="secondary" className="text-xs truncate max-w-[150px]">{record.email || 'N/A'}</Text>

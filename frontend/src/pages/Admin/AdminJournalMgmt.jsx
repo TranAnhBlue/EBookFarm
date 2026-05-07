@@ -19,7 +19,7 @@ import api from '../../services/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
-import { API_BASE_URL } from '../../utils/helpers';
+import { API_BASE_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -162,8 +162,10 @@ const AdminJournalMgmt = () => {
             size={32} 
             icon={<UserOutlined />} 
             className="bg-green-50 text-green-600 border border-green-100"
-            src={record.userId?.avatar ? `${API_BASE_URL}${record.userId.avatar}` : null}
-          />
+            src={getAvatarUrl(record.userId?.avatar)}
+          >
+            {!record.userId?.avatar && getInitialAvatar(record.userId?.fullname || record.userId?.username)}
+          </Avatar>
           <div className="flex flex-col">
             <Text className="text-sm font-semibold text-gray-800">{record.userId?.fullname || record.userId?.username || 'N/A'}</Text>
             <Text className="text-[10px] text-gray-400 italic">@{record.userId?.username}</Text>
@@ -393,7 +395,9 @@ const AdminJournalMgmt = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Nông dân (Farmer)">
                 <Space>
-                   <Avatar size="small" icon={<UserOutlined />} src={selectedJournal.userId?.avatar ? `${API_BASE_URL}${selectedJournal.userId.avatar}` : null} />
+                   <Avatar size="small" icon={<UserOutlined />} src={getAvatarUrl(selectedJournal.userId?.avatar)}>
+                      {!selectedJournal.userId?.avatar && getInitialAvatar(selectedJournal.userId?.fullname || selectedJournal.userId?.username)}
+                   </Avatar>
                    <Text strong>{selectedJournal.userId?.fullname || selectedJournal.userId?.username}</Text>
                 </Space>
               </Descriptions.Item>

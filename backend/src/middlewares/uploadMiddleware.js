@@ -13,18 +13,10 @@ if (!fs.existsSync(documentDir)) {
   fs.mkdirSync(documentDir, { recursive: true });
 }
 
-// Cấu hình storage cho avatar
-const avatarStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, avatarDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    // Không dùng req.user._id ở đây vì có thể chưa có
-    cb(null, `avatar_${uniqueSuffix}${ext}`);
-  }
-});
+const { upload: cloudinaryUpload } = require('../config/cloudinary');
+
+// Cấu hình storage cho avatar - Chuyển sang Cloudinary
+const uploadAvatar = cloudinaryUpload;
 
 // Cấu hình storage cho documents
 const documentStorage = multer.diskStorage({
@@ -64,14 +56,7 @@ const documentFileFilter = (req, file, cb) => {
   }
 };
 
-// Upload avatar
-const uploadAvatar = multer({
-  storage: avatarStorage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
-  },
-  fileFilter: avatarFileFilter
-});
+// uploadAvatar is already defined above from cloudinaryUpload
 
 // Upload document
 const uploadDocument = multer({
