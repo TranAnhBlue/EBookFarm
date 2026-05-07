@@ -134,22 +134,207 @@ const FormBuilder = () => {
       };
     } else if (type === 'channuoi') {
       templateData = {
-        name: 'Mẫu Chăn nuôi (VietGAHP)',
+        name: 'Nhật ký Chăn nuôi (Bò thịt)',
         category: 'channuoi',
+        description: 'Nhật ký chăn nuôi bò thịt an toàn sinh học theo VietGAP',
         tables: [
-          { tableName: 'Thông tin đàn', fields: [{ name: 'batch', label: 'Mã đàn/lô', type: 'text', required: true }] },
-          { tableName: 'Thức ăn & Nước uống', fields: [{ name: 'feed', label: 'Loại thức ăn', type: 'text', required: true }] },
-          { tableName: 'Vệ sinh & Thú y', fields: [{ name: 'vaccine', label: 'Tiêm phòng', type: 'boolean', required: false }] }
+          {
+            tableName: 'Thông tin đàn bò',
+            fields: [
+              { name: 'farm_name', label: 'Tên trại', type: 'text', required: true },
+              { name: 'address', label: 'Địa chỉ', type: 'text', required: true },
+              { name: 'breed', label: 'Giống bò', type: 'select', options: 'Brahman, Angus, Limousin, Bò vàng, Bò lai', required: true },
+              { name: 'total_heads', label: 'Tổng số đầu (con)', type: 'number', required: true },
+              { name: 'import_date', label: 'Ngày nhập đàn', type: 'date', required: true },
+              { name: 'avg_import_weight', label: 'KL nhập TB (kg/con)', type: 'number', required: false }
+            ]
+          },
+          {
+            tableName: 'Thức ăn hàng ngày',
+            fields: [
+              { name: 'log_date', label: 'Ngày ghi', type: 'date', required: true },
+              { name: 'roughage_type', label: 'Loại thức ăn thô', type: 'select', options: 'Cỏ tươi, Cỏ khô, Rơm rạ, Cỏ ủ chua', required: true },
+              { name: 'roughage_amt', label: 'Thức ăn thô (kg/con)', type: 'number', required: true },
+              { name: 'concentrate_amt', label: 'Thức ăn tinh (kg/con)', type: 'number', required: false },
+              { name: 'water_amt', label: 'Nước uống (lít/con)', type: 'number', required: false }
+            ]
+          },
+          {
+            tableName: 'Thú y & Tiêm phòng',
+            fields: [
+              { name: 'action_date', label: 'Ngày thực hiện', type: 'date', required: true },
+              { name: 'intervention_type', label: 'Loại can thiệp', type: 'select', options: 'Tiêm phòng định kỳ, Điều trị bệnh, Tẩy giun sán, Kiểm tra định kỳ', required: true },
+              { name: 'medication', label: 'Vaccine / thuốc', type: 'text', required: true },
+              { name: 'purpose', label: 'Phòng / điều trị', type: 'select', options: 'Phòng bệnh, Điều trị', required: false },
+              { name: 'withdrawal_days', label: 'Ngưng thuốc (ngày)', type: 'number', required: true }
+            ]
+          },
+          {
+            tableName: 'Theo dõi tăng trọng',
+            fields: [
+              { name: 'weigh_date', label: 'Ngày cân', type: 'date', required: true },
+              { name: 'avg_weight', label: 'KL TB đàn (kg/con)', type: 'number', required: true },
+              { name: 'avg_daily_gain', label: 'Tăng trọng bình quân (g/ngày)', type: 'number', required: false },
+              { name: 'fcr_index', label: 'Hệ số FCR', type: 'number', required: false }
+            ]
+          },
+          {
+            tableName: 'Xuất chuồng',
+            fields: [
+              { name: 'export_date', label: 'Ngày xuất', type: 'date', required: true },
+              { name: 'export_count', label: 'Số con xuất', type: 'number', required: true },
+              { name: 'export_weight', label: 'KL xuất (kg/con)', type: 'number', required: true },
+              { name: 'total_weight', label: 'Tổng KL (kg)', type: 'number', required: true },
+              { name: 'buyer', label: 'Đơn vị thu mua', type: 'text', required: false }
+            ]
+          }
+        ]
+      };
+    } else if (type === 'thuyssan') {
+      templateData = {
+        name: 'Nhật ký Thủy sản (Cá tra)',
+        category: 'thuyssan',
+        description: 'Nhật ký nuôi cá tra theo tiêu chuẩn VietGAP',
+        tables: [
+          {
+            tableName: 'Thông tin chung',
+            fields: [
+              { name: 'owner_name', label: 'Họ tên chủ hộ', type: 'text', required: true },
+              { name: 'address', label: 'Địa chỉ', type: 'text', required: true },
+              { name: 'pond_area', label: 'Diện tích ao (m²)', type: 'number', required: true },
+              { name: 'fish_type', label: 'Loại cá nuôi', type: 'select', options: 'Cá tra, Cá rô phi, Cá điêu hồng, Tôm thẻ chân trắng, Tôm sú', required: true }
+            ]
+          },
+          {
+            tableName: 'Thả giống',
+            fields: [
+              { name: 'stock_date', label: 'Ngày thả', type: 'date', required: true },
+              { name: 'density', label: 'Mật độ thả (con/m²)', type: 'number', required: true },
+              { name: 'seed_size', label: 'Kích cỡ giống (cm)', type: 'number', required: false },
+              { name: 'seed_source', label: 'Nguồn gốc giống', type: 'text', required: false }
+            ]
+          },
+          {
+            tableName: 'Quản lý thức ăn',
+            fields: [
+              { name: 'log_date', label: 'Ngày ghi', type: 'date', required: true },
+              { name: 'feed_type', label: 'Loại thức ăn', type: 'select', options: 'Thức ăn công nghiệp, Cám hỗn hợp, Thức ăn tươi', required: true },
+              { name: 'feed_amt', label: 'Lượng cho ăn (kg/ngày)', type: 'number', required: true }
+            ]
+          },
+          {
+            tableName: 'Môi trường ao nuôi',
+            fields: [
+              { name: 'test_date', label: 'Ngày đo', type: 'date', required: true },
+              { name: 'ph_level', label: 'Độ pH', type: 'number', required: false },
+              { name: 'water_temp', label: 'Nhiệt độ nước (°C)', type: 'number', required: false },
+              { name: 'oxygen_level', label: 'Hàm lượng Oxy (mg/l)', type: 'number', required: false },
+              { name: 'transparency', label: 'Độ trong (cm)', type: 'number', required: false }
+            ]
+          },
+          {
+            tableName: 'Thu hoạch',
+            fields: [
+              { name: 'harvest_date', label: 'Ngày thu hoạch', type: 'date', required: true },
+              { name: 'yield_ton', label: 'Sản lượng (tấn)', type: 'number', required: true },
+              { name: 'avg_weight', label: 'Trọng lượng TB (kg/con)', type: 'number', required: false }
+            ]
+          }
+        ]
+      };
+    } else if (type === 'huuco') {
+      templateData = {
+        name: 'Nhật ký Hữu cơ (Cà chua)',
+        category: 'huuco',
+        description: 'Nhật ký sản xuất cây trồng theo phương pháp hữu cơ',
+        tables: [
+          {
+            tableName: 'Thông tin chung',
+            fields: [
+              { name: 'owner_name', label: 'Họ tên chủ hộ', type: 'text', required: true },
+              { name: 'address', label: 'Địa chỉ', type: 'text', required: true },
+              { name: 'area', label: 'Diện tích (m²/ha)', type: 'number', required: true },
+              { name: 'start_date', label: 'Ngày bắt đầu', type: 'date', required: true },
+              { name: 'lot_code', label: 'Lô sản xuất', type: 'text', required: false }
+            ]
+          },
+          {
+            tableName: 'Chăm sóc & Phân bón',
+            fields: [
+              { name: 'care_date', label: 'Ngày chăm sóc', type: 'date', required: true },
+              { name: 'fertilizer_type', label: 'Loại phân bón', type: 'select', options: 'Phân chuồng ủ hoai, Phân hữu cơ vi sinh, Phân xanh, Đạm cá, Dịch chuối', required: false },
+              { name: 'fert_amount', label: 'Lượng bón (kg/ha)', type: 'number', required: false },
+              { name: 'irrigation_method', label: 'Phương pháp tưới', type: 'select', options: 'Tưới nhỏ giọt, Tưới phun sương, Tưới rãnh, Tưới tay', required: false },
+              { name: 'note', label: 'Ghi chú', type: 'text', required: false }
+            ]
+          },
+          {
+            tableName: 'Phun thuốc BVTV',
+            fields: [
+              { name: 'spray_date', label: 'Ngày phun', type: 'date', required: true },
+              { name: 'pesticide_name', label: 'Tên thuốc', type: 'text', required: true },
+              { name: 'pesticide_type', label: 'Loại thuốc', type: 'select', options: 'Chế phẩm thảo mộc, Thuốc sinh học BT, Trichoderma, Nano bạc, Dung dịch tỏi ớt', required: true },
+              { name: 'dose', label: 'Liều lượng (ml/l)', type: 'number', required: true },
+              { name: 'phi_days', label: 'Thời gian cách ly PHI (ngày)', type: 'number', required: true }
+            ]
+          },
+          {
+            tableName: 'Thu hoạch',
+            fields: [
+              { name: 'harvest_date', label: 'Ngày thu hoạch', type: 'date', required: true },
+              { name: 'yield_kg', label: 'Sản lượng (kg)', type: 'number', required: true },
+              { name: 'quality_grade', label: 'Phân loại', type: 'select', options: 'Loại 1, Loại 2, Loại 3', required: false },
+              { name: 'note', label: 'Ghi chú', type: 'text', required: false }
+            ]
+          }
         ]
       };
     } else if (type === 'chebup') {
       templateData = {
-        name: 'Nhật ký Chè búp',
+        name: 'Nhật ký Chè búp (Chuẩn)',
         category: 'trongtrot',
+        description: 'Nhật ký sản xuất chè búp theo tiêu chuẩn VietGAP',
         tables: [
-          { tableName: 'Thông tin chung', fields: [{ name: 'tea_variety', label: 'Giống chè', type: 'select', options: 'Kim Tuyên, Oolong, PH1, LDP1, LDP2, Trung du', required: true }] },
-          { tableName: 'Chăm sóc vườn', fields: [{ name: 'care_date', label: 'Ngày bón phân', type: 'date', required: true }] },
-          { tableName: 'Thu hoạch', fields: [{ name: 'yield', label: 'Sản lượng (kg)', type: 'number', required: true }] }
+          {
+            tableName: 'Thông tin chung',
+            fields: [
+              { name: 'owner_name', label: 'Họ tên chủ hộ', type: 'text', required: true },
+              { name: 'address', label: 'Địa chỉ', type: 'text', required: true },
+              { name: 'area', label: 'Diện tích (m²/ha)', type: 'number', required: true },
+              { name: 'start_date', label: 'Ngày bắt đầu', type: 'date', required: true },
+              { name: 'lot_code', label: 'Lô sản xuất', type: 'text', required: false },
+              { name: 'tea_variety', label: 'Giống chè', type: 'select', options: 'Kim Tuyên, Oolong, PH1, LDP1, LDP2, Trung du', required: true }
+            ]
+          },
+          {
+            tableName: 'Chăm sóc vườn chè',
+            fields: [
+              { name: 'care_date', label: 'Ngày chăm sóc', type: 'date', required: true },
+              { name: 'prune_type', label: 'Loại đốn cành', type: 'select', options: 'Đốn phớt, Đốn lửng, Đốn đau, Đốn trẻ lại', required: false },
+              { name: 'fertilizer', label: 'Loại phân bón', type: 'text', required: false },
+              { name: 'fert_amount', label: 'Lượng bón (kg)', type: 'number', required: false },
+              { name: 'irrigation', label: 'Tưới nước', type: 'select', options: 'Tưới nhỏ giọt, Tưới phun mưa, Tưới rãnh, Tưới tay', required: false }
+            ]
+          },
+          {
+            tableName: 'Phun thuốc BVTV',
+            fields: [
+              { name: 'spray_date', label: 'Ngày phun', type: 'date', required: true },
+              { name: 'pesticide_name', label: 'Tên thuốc', type: 'text', required: true },
+              { name: 'pesticide_type', label: 'Loại thuốc', type: 'select', options: 'Thuốc sâu, Thuốc bệnh, Thuốc cỏ, Thuốc ốc, Thuốc nhện', required: true },
+              { name: 'dose', label: 'Liều lượng (ml/l)', type: 'number', required: true },
+              { name: 'phi_days', label: 'Thời gian cách ly PHI (ngày)', type: 'number', required: true }
+            ]
+          },
+          {
+            tableName: 'Thu hoạch búp chè',
+            fields: [
+              { name: 'harvest_date', label: 'Ngày hái', type: 'date', required: true },
+              { name: 'flush_type', label: 'Tiêu chuẩn hái', type: 'select', options: '1 tôm 2 lá, 1 tôm 3 lá, Búp mù xòe', required: true },
+              { name: 'yield_kg', label: 'Sản lượng (kg búp tươi)', type: 'number', required: true },
+              { name: 'quality', label: 'Chất lượng', type: 'select', options: 'Loại A, Loại B, Loại C', required: false }
+            ]
+          }
         ]
       };
     }
@@ -227,6 +412,8 @@ const FormBuilder = () => {
           >
             <Option value="trongtrot">Mẫu Trồng trọt</Option>
             <Option value="channuoi">Mẫu Chăn nuôi</Option>
+            <Option value="thuyssan">Mẫu Thủy sản</Option>
+            <Option value="huuco">Mẫu Hữu cơ</Option>
             <Option value="chebup">Mẫu Chè búp</Option>
           </Select>
           <Button
