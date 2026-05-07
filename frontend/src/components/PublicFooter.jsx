@@ -2,12 +2,15 @@ import React from 'react';
 import { Row, Col, Typography, Space, Divider } from 'antd';
 import { GlobalOutlined, ThunderboltFilled, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 import logo from '../assets/logo-ebookfarm.jpg';
 
 const { Title, Text, Paragraph } = Typography;
 
 const PublicFooter = () => {
     const navigate = useNavigate();
+    const { user, logout } = useAuthStore();
+    const isLoggedIn = !!user;
 
     return (
         <footer className="bg-gray-900 text-white py-16 px-6">
@@ -49,7 +52,7 @@ const PublicFooter = () => {
                                 <Text strong className="text-green-400 block text-sm">Địa chỉ đăng ký</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
-                                    <Text className="text-gray-400 text-sm leading-relaxed">
+                                    <Text className="text-gray-200 text-sm leading-relaxed">
                                         Căn số 13 tổ 49 trường NT Nguyễn Viết Xuân, phường Yên Hòa, quận Cầu Giấy, TP Hà Nội
                                     </Text>
                                 </div>
@@ -59,7 +62,7 @@ const PublicFooter = () => {
                                 <Text strong className="text-green-400 block text-sm">Văn phòng giao dịch</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
-                                    <Text className="text-gray-400 text-sm leading-relaxed">
+                                    <Text className="text-gray-200 text-sm leading-relaxed">
                                         Số 19 phố Liễu Giai, phường Liễu Giai, quận Ba Đình, thành phố Hà Nội
                                     </Text>
                                 </div>
@@ -72,17 +75,29 @@ const PublicFooter = () => {
                         <div className="grid grid-cols-1 gap-8">
                             <div className="space-y-4">
                                 <Text strong className="text-white block uppercase tracking-widest text-xs">Liên kết nhanh</Text>
-                                <Space direction="vertical" className="text-gray-400">
-                                    <Text className="hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/reference/tcvn')}>
+                                <Space direction="vertical" className="text-gray-200">
+                                    <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/reference/tcvn')}>
                                         Tra cứu TCVN
                                     </Text>
-                                    <Text className="hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/login')}>
-                                        Đăng nhập
-                                    </Text>
-                                    <Text className="hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/register')}>
-                                        Đăng ký
-                                    </Text>
-                                    <Text className="hover:text-green-400 cursor-pointer transition-colors">
+                                    {isLoggedIn ? (
+                                        <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/dashboard')}>
+                                            Vào Dashboard
+                                        </Text>
+                                    ) : (
+                                        <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/login')}>
+                                            Đăng nhập
+                                        </Text>
+                                    )}
+                                    {isLoggedIn ? (
+                                        <Text className="text-red-400 hover:text-red-300 cursor-pointer transition-colors" onClick={() => { logout(); navigate('/'); }}>
+                                            Đăng xuất
+                                        </Text>
+                                    ) : (
+                                        <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/register')}>
+                                            Đăng ký
+                                        </Text>
+                                    )}
+                                    <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors">
                                         Hướng dẫn sử dụng
                                     </Text>
                                 </Space>
@@ -90,14 +105,14 @@ const PublicFooter = () => {
 
                             <div className="space-y-4">
                                 <Text strong className="text-white block uppercase tracking-widest text-xs">Liên hệ</Text>
-                                <Space direction="vertical" className="text-gray-400">
-                                    <div className="flex items-center gap-2 hover:text-green-400 transition-colors">
+                                <Space direction="vertical" className="text-gray-200">
+                                    <div className="flex items-center gap-2 text-gray-200 hover:text-green-400 transition-colors">
                                         <PhoneOutlined />
-                                        <Text className="text-gray-400">Hotline: 02462730.818</Text>
+                                        <Text className="text-gray-200">Hotline: 02462730.818</Text>
                                     </div>
-                                    <div className="flex items-center gap-2 hover:text-green-400 transition-colors">
+                                    <div className="flex items-center gap-2 text-gray-200 hover:text-green-400 transition-colors">
                                         <MailOutlined />
-                                        <Text className="text-gray-400">tuvansct@gmail.com</Text>
+                                        <Text className="text-gray-200">tuvansct@gmail.com</Text>
                                     </div>
                                 </Space>
                             </div>
