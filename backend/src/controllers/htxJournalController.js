@@ -76,11 +76,27 @@ const addFarmersToJournal = async (req, res) => {
       addedFarmers.push(farmerId);
 
       // Create notification for farmer
+      const categoryLabels = {
+        'trongtrot': 'VietGAP Trồng trọt',
+        'channuoi': 'VietGAHP Chăn nuôi',
+        'thuyssan': 'VietGAP Thủy sản',
+        'huuco': 'Hữu cơ',
+        'huuco_caytrong': 'Hữu cơ Cây trồng',
+        'huuco_channuoi': 'Hữu cơ Chăn nuôi',
+        'huuco_thuyssan': 'Hữu cơ Thủy sản',
+        'thongminh': 'Nông nghiệp Thông minh'
+      };
+      
+      // Fetch schema for category info
+      const FormSchema = require('../models/FormSchema');
+      const schema = await FormSchema.findById(htxJournal.schemaId);
+      const catLabel = schema ? categoryLabels[schema.category] || '' : '';
+
       await createNotification({
         recipient: farmerId,
         sender: req.user._id,
         title: 'Sổ nhật ký mới',
-        message: `Bạn đã được phân công tham gia sổ nhật ký: ${htxJournal.name}`,
+        message: `Bạn đã được phân công tham gia sổ [${catLabel}]: ${htxJournal.name}`,
         type: 'Journal_Assigned',
         relatedId: farmJournal._id,
         relatedModel: 'FarmJournal'
@@ -134,22 +150,36 @@ const updateFarmerStatus = async (req, res) => {
         });
 
         // Create notification for farmer
-        let title = 'Cập nhật trạng thái sổ';
-        let message = `Sổ "${htxJournal.name}" của bạn đã được cập nhật trạng thái: ${status}`;
-        let type = 'Journal_Verified';
+        const categoryLabels = {
+          'trongtrot': 'VietGAP Trồng trọt',
+          'channuoi': 'VietGAHP Chăn nuôi',
+          'thuyssan': 'VietGAP Thủy sản',
+          'huuco': 'Hữu cơ',
+          'huuco_caytrong': 'Hữu cơ Cây trồng',
+          'huuco_channuoi': 'Hữu cơ Chăn nuôi',
+          'huuco_thuyssan': 'Hữu cơ Thủy sản',
+          'thongminh': 'Nông nghiệp Thông minh'
+        };
+        const FormSchema = require('../models/FormSchema');
+        const schema = await FormSchema.findById(htxJournal.schemaId);
+        const catLabel = schema ? categoryLabels[schema.category] || '' : '';
+
+        let nTitle = 'Cập nhật trạng thái sổ';
+        let nMessage = `Sổ "${htxJournal.name}" của bạn đã được cập nhật trạng thái: ${status}`;
+        let nType = 'Journal_Verified';
 
         if (status === 'Cần chỉnh sửa') {
-          title = 'Yêu cầu chỉnh sửa sổ';
-          message = `HTX yêu cầu bạn chỉnh sửa sổ "${htxJournal.name}". Phản hồi: ${feedback || 'Không có'}`;
-          type = 'Journal_Revision_Requested';
+          nTitle = 'Yêu cầu chỉnh sửa sổ';
+          nMessage = `HTX yêu cầu bạn chỉnh sửa sổ "${htxJournal.name}". Phản hồi: ${feedback || 'Không có'}`;
+          nType = 'Journal_Revision_Requested';
         }
 
         await createNotification({
           recipient: farmerId,
           sender: req.user._id,
-          title,
-          message,
-          type,
+          title: nTitle,
+          message: `${nMessage} [${catLabel}]`,
+          type: nType,
           relatedId: farmerEntry.farmJournalId,
           relatedModel: 'FarmJournal'
         });

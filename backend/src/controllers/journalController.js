@@ -91,12 +91,27 @@ const updateJournal = async (req, res) => {
                  if (farmerEntry) {
                      if (updated.status === 'Submitted') {
                          farmerEntry.status = 'Chờ duyệt';
+                         
+                         const categoryLabels = {
+                             'trongtrot': 'VietGAP Trồng trọt',
+                             'channuoi': 'VietGAHP Chăn nuôi',
+                             'thuyssan': 'VietGAP Thủy sản',
+                             'huuco': 'Hữu cơ',
+                             'huuco_caytrong': 'Hữu cơ Cây trồng',
+                             'huuco_channuoi': 'Hữu cơ Chăn nuôi',
+                             'huuco_thuyssan': 'Hữu cơ Thủy sản',
+                             'thongminh': 'Nông nghiệp Thông minh'
+                         };
+                         const FormSchema = require('../models/FormSchema');
+                         const schema = await FormSchema.findById(htxJournal.schemaId);
+                         const catLabel = schema ? categoryLabels[schema.category] || '' : '';
+
                          // Create notification for HTX
                          await createNotification({
                              recipient: htxJournal.htxId,
                              sender: req.user._id,
                              title: 'Sổ mới được gửi duyệt',
-                             message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ: ${htxJournal.name}`,
+                             message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ [${catLabel}]: ${htxJournal.name}`,
                              type: 'Journal_Submitted',
                              relatedId: htxJournal._id,
                              relatedModel: 'HtxJournal'
