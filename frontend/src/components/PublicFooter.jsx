@@ -46,21 +46,21 @@ const PublicFooter = () => {
                         
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Text strong className="text-green-400 block text-sm">Trụ sở Hà Nội</Text>
+                                <Text strong className="text-green-400 block text-sm">Địa chỉ đăng ký</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
                                     <Text className="text-gray-400 text-sm leading-relaxed">
-                                        Tầng 12, Tòa nhà Diamond Flower, Số 48 Lê Văn Lương, Phường Yên Hòa, Quận Cầu Giấy, Hà Nội
+                                        Căn số 13 tổ 49 trường NT Nguyễn Viết Xuân, phường Yên Hòa, quận Cầu Giấy, TP Hà Nội
                                     </Text>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Text strong className="text-green-400 block text-sm">Trụ sở TP. Hồ Chí Minh</Text>
+                                <Text strong className="text-green-400 block text-sm">Văn phòng giao dịch</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
                                     <Text className="text-gray-400 text-sm leading-relaxed">
-                                        Số 8 Đường số 20, Khu dân cư Him Lam, Phường Tân Hưng, Quận 7, TP. Hồ Chí Minh
+                                        Số 19 phố Liễu Giai, phường Liễu Giai, quận Ba Đình, thành phố Hà Nội
                                     </Text>
                                 </div>
                             </div>
@@ -93,11 +93,11 @@ const PublicFooter = () => {
                                 <Space direction="vertical" className="text-gray-400">
                                     <div className="flex items-center gap-2 hover:text-green-400 transition-colors">
                                         <PhoneOutlined />
-                                        <Text className="text-gray-400">Hotline: 1900 xxxx</Text>
+                                        <Text className="text-gray-400">Hotline: 02462730.818</Text>
                                     </div>
                                     <div className="flex items-center gap-2 hover:text-green-400 transition-colors">
                                         <MailOutlined />
-                                        <Text className="text-gray-400">contact@ebookfarm.vn</Text>
+                                        <Text className="text-gray-400">tuvansct@gmail.com</Text>
                                     </div>
                                 </Space>
                             </div>
