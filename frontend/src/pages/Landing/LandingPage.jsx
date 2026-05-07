@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Button, Row, Col, Card, Space, Tag, Divider, Form, Input, message, Steps } from 'antd';
+import { Typography, Button, Row, Col, Card, Space, Tag, Divider, Form, Input, message, Steps, Select, Modal } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleFilled,
@@ -35,6 +35,8 @@ import './LandingStyles.css';
 import './LandingAnimations.css';
 
 const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
 
 const LandingPage = () => {
     const navigate = useNavigate();
