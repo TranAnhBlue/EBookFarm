@@ -10,7 +10,7 @@ import {
     LoginOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { API_URL } from '../utils/helpers';
 import './AIChatWidget.css';
 
 const { TextArea } = Input;
@@ -48,9 +48,21 @@ const AIChatWidget = () => {
 
     const fetchChatInfo = async () => {
         try {
-            const response = await api.get('/chat/my-info');
-            if (response.data.success) {
-                setChatInfo(response.data.data);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`${API_URL}/chat/my-info`, {
+                headers
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                setChatInfo(data.data);
             }
         } catch (error) {
             console.error('Failed to fetch chat info:', error);
@@ -141,13 +153,25 @@ const AIChatWidget = () => {
         setShowUpgradeAlert(false);
 
         try {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             // Call RAG API (Real Data + AI!)
-            const response = await api.post('/rag/chat', {
-                message: inputValue,
-                conversationHistory: messages.slice(-10) // Send last 10 messages for context
+            const response = await fetch(`${API_URL}/rag/chat`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    message: inputValue,
+                    conversationHistory: messages.slice(-10) // Send last 10 messages for context
+                })
             });
 
-            const data = response.data;
+            const data = await response.json();
 
             let botResponseText;
             if (data.success && data.data && data.data.response) {
