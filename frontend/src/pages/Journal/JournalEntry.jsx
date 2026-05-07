@@ -5,12 +5,7 @@ import { InboxOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
-import JournalAIAssistant from '../../components/JournalAIAssistant';
-import dayjs from 'dayjs';
-
 import { useAuthStore } from '../../store/authStore';
-
-import { Row, Col } from 'antd';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -23,7 +18,6 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
-  const [activeField, setActiveField] = useState(null);
 
   const id = propsId || paramId;
   const schemaId = propsSchemaId || paramSchemaId;
@@ -2155,9 +2149,9 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   }));
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Sticky top bar */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-green-100 sticky top-0 z-50">
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-green-100 sticky top-0 z-10">
            <div>
              <Title level={3} className="!mb-0 text-gray-800 flex items-center gap-2">
                  {isEditing ? 'Sổ nhật ký:' : 'Tạo sổ nhật ký mới:'} <span className="text-green-600">{schema.name}</span>
@@ -2194,101 +2188,64 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             </div>
         )}
 
-        <Row gutter={24}>
-            <Col xs={24} lg={17}>
-                <Form 
-                    form={form} 
-                    layout="vertical" 
-                    disabled={isReadOnly}
-                    onFinish={(values) => {
-                        console.log('📝 Form onFinish triggered with values:', values);
-                        saveMutation.mutate(values);
-                    }}
-                    preserve={true}
-                    onValuesChange={(changedValues, allValues) => {
-                        // Find the field that changed
-                        const tableNames = Object.keys(changedValues);
-                        if (tableNames.length > 0) {
-                            const tableName = tableNames[0];
-                            const fieldNames = Object.keys(changedValues[tableName]);
-                            if (fieldNames.length > 0) {
-                                const fieldName = fieldNames[0];
-                                setActiveField({
-                                    name: fieldName,
-                                    label: fieldName, // Use field name as label for now
-                                    value: changedValues[tableName][fieldName]
-                                });
-                            }
-                        }
-                    }}
+        <Form 
+            form={form} 
+            layout="vertical" 
+            disabled={isReadOnly}
+            onFinish={(values) => {
+                console.log('📝 Form onFinish triggered with values:', values);
+                saveMutation.mutate(values);
+            }}
+            preserve={true}
+            onValuesChange={(changedValues, allValues) => {
+                console.log('🔄 Form values changed:', changedValues);
+                console.log('📊 All form values:', allValues);
+            }}
+        >
+            {/* ===== TÀI LIỆU ĐÍNH KÈM ===== */}
+            <Card className="rounded-[28px] border border-blue-200 bg-blue-50/30 shadow-sm">
+                <Title level={5} className="text-blue-700 !mb-6 border-b border-blue-200 pb-3 flex items-center gap-2">
+                    📎 Tài liệu đính kèm
+                </Title>
+                <Upload.Dragger 
+                    {...uploadProps}
+                    className="bg-white"
+                    style={{ padding: '20px', border: '2px dashed #93c5fd', borderRadius: '16px' }}
                 >
-                    {/* ===== TÀI LIỆU ĐÍNH KÈM ===== */}
-                    <Card className="rounded-[28px] border border-blue-200 bg-blue-50/30 shadow-sm mb-6">
-                        <Title level={5} className="text-blue-700 !mb-6 border-b border-blue-200 pb-3 flex items-center gap-2">
-                            📎 Tài liệu đính kèm
-                        </Title>
-                        <Upload.Dragger 
-                            {...uploadProps}
-                            className="bg-white"
-                            style={{ padding: '20px', border: '2px dashed #93c5fd', borderRadius: '16px' }}
-                        >
-                            <div className="flex flex-col items-center justify-center py-4">
-                                <InboxOutlined className="text-blue-400 text-5xl mb-3" />
-                                <p className="text-gray-700 font-semibold mb-1">Tải sơ đồ lên tại đây</p>
-                                <p className="text-gray-500 text-sm mb-2">
-                                    Nhấp hoặc kéo tệp vào khu vực này để tải lên
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                    Hỗ trợ: PDF, Word, Excel, Hình ảnh (tối đa 10MB/file)
-                                </p>
-                            </div>
-                        </Upload.Dragger>
-                    </Card>
+                    <div className="flex flex-col items-center justify-center py-4">
+                        <InboxOutlined className="text-blue-400 text-5xl mb-3" />
+                        <p className="text-gray-700 font-semibold mb-1">Tải sơ đồ lên tại đây</p>
+                        <p className="text-gray-500 text-sm mb-2">
+                            Nhấp hoặc kéo tệp vào khu vực này để tải lên
+                        </p>
+                        <p className="text-xs text-gray-400">
+                            Hỗ trợ: PDF, Word, Excel, Hình ảnh (tối đa 10MB/file)
+                        </p>
+                    </div>
+                </Upload.Dragger>
+            </Card>
 
-                    {/* ===== TABS VietGAP ===== */}
-                    <Tabs 
-                        activeKey={activeTab}
-                        onChange={handleTabChange}
-                        type="card"
-                        className="premium-tabs"
-                        items={tabItems}
-                    />
+            {/* ===== TABS VietGAP ===== */}
+            <Tabs 
+                activeKey={activeTab}
+                onChange={handleTabChange}
+                type="card"
+                className="premium-tabs"
+                items={tabItems}
+            />
 
-                    {/* ===== TRẠNG THÁI ===== */}
-                    <Card className="mt-6 rounded-2xl shadow-sm border border-gray-100 bg-white">
-                        <div className="w-full md:w-1/2">
-                            <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
-                                <Select size="large" className="rounded-xl">
-                                    <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
-                                    <Option value="Submitted">Hoàn tất (Gửi duyệt HTX)</Option>
-                                </Select>
-                            </Form.Item>
-                        </div>
-                    </Card>
-                </Form>
-            </Col>
-
-            <Col xs={24} lg={7}>
-                <JournalAIAssistant 
-                    schemaId={activeSchemaId}
-                    currentData={form.getFieldsValue()}
-                    activeField={activeField}
-                    onSuggestionApply={(suggestion) => {
-                        if (activeField) {
-                            // Find which table and field to apply to
-                            const allValues = form.getFieldsValue();
-                            for (const tableName in allValues) {
-                                if (allValues[tableName] && activeField.name in allValues[tableName]) {
-                                    form.setFieldValue([tableName, activeField.name], suggestion);
-                                    message.success('Đã áp dụng gợi ý AI');
-                                    break;
-                                }
-                            }
-                        }
-                    }}
-                />
-            </Col>
-        </Row>
+            {/* ===== TRẠNG THÁI ===== */}
+            <Card className="mt-6 rounded-2xl shadow-sm border border-gray-100 bg-white">
+                <div className="w-1/2">
+                    <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
+                        <Select size="large" className="rounded-xl">
+                            <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
+                            <Option value="Submitted">Hoàn tất (Gửi duyệt HTX)</Option>
+                        </Select>
+                    </Form.Item>
+                </div>
+            </Card>
+        </Form>
     </div>
   );
 };
