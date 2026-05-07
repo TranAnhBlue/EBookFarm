@@ -35,12 +35,7 @@ const registerUser = async (req, res) => {
       res.status(201).json({
         success: true,
         data: {
-          _id: user.id,
-          username: user.username,
-          fullname: user.fullname,
-          email: user.email,
-          role: user.role,
-          mustChangePassword: user.mustChangePassword,
+          ...user.toJSON(),
           token: generateToken(user.id, user.role),
         }
       });
@@ -96,12 +91,7 @@ const loginUser = async (req, res) => {
       res.json({
         success: true,
         data: {
-          _id: user.id,
-          username: user.username,
-          fullname: user.fullname,
-          email: user.email,
-          role: user.role,
-          mustChangePassword: user.mustChangePassword || false,
+          ...user.toJSON(),
           token: generateToken(user.id, user.role),
         }
       });
@@ -284,11 +274,7 @@ const googleLogin = async (req, res) => {
     res.json({
       success: true,
       data: {
-        _id: user.id,
-        username: user.username,
-        fullname: user.fullname, // Add fullname to response
-        email: user.email,
-        role: user.role,
+        ...user.toJSON(),
         token: generateToken(user.id, user.role),
       }
     });
