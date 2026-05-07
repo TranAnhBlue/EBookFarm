@@ -179,15 +179,15 @@ const Login = () => {
                     <span className="text-[10px] text-gray-300 font-bold uppercase tracking-[2px]">Hoặc sử dụng Google</span>
                 </Divider>
 
-                <div className="flex justify-center mt-6 w-full overflow-hidden">
-                    <div className="w-full max-w-[320px]">
+                <div className="flex justify-center mt-4 md:mt-6 w-full">
+                    <div className="max-w-full mx-auto overflow-hidden flex justify-center">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => message.error('Không thể kết nối với máy chủ Google.')}
                             shape="pill"
                             theme="outline"
                             useOneTap
-                            width="100%"
+                            width="280"
                         />
                     </div>
                 </div>
