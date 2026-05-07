@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/inventoryCategoryController');
-const { protect, adminOnly } = require('../middlewares/authMiddleware');
+const { protect, admin } = require('../middlewares/authMiddleware');
 
 router.use(protect);
-router.use(adminOnly);
+router.use(admin);
 
 router.get('/', controller.getCategories);
 router.post('/', controller.createCategory);
