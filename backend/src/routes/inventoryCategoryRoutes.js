@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/inventoryCategoryController');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly } = require('../middlewares/authMiddleware');
 
 router.use(protect);
 router.use(adminOnly);
