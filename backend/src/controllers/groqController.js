@@ -155,6 +155,83 @@ const getFallbackResponse = (message) => {
     }
 };
 
+// Phân tích báo cáo thống kê bằng AI
+const analyzeStats = async (req, res) => {
+    try {
+        const { stats, pieData, timelineData } = req.body;
+
+        if (!stats) {
+            return res.status(400).json({
+                success: false,
+                message: 'Không có dữ liệu để phân tích!'
+            });
+        }
+
+        const analysisPrompt = `Hãy phân tích dữ liệu thống kê sản xuất nông nghiệp sau đây từ hệ thống EBookFarm và đưa ra nhận xét, đánh giá chuyên sâu:
+
+📊 SỐ LIỆU TỔNG QUAN:
+- Tổng số nhật ký: ${stats.totalJournals}
+- Số nhật ký hoàn thành: ${stats.completedJournals}
+- Tỷ lệ hoàn thành: ${Math.round((stats.completedJournals / stats.totalJournals) * 100)}%
+- Tổng số người dùng: ${stats.totalUsers}
+- Tổng số HTX/Nhóm: ${stats.totalGroups || 0}
+- Vật tư tồn kho: ${stats.inventoryCount || 0} mặt hàng
+
+📈 TRẠNG THÁI NHẬT KÝ (Pie Chart):
+${JSON.stringify(pieData, null, 2)}
+
+📉 BIẾN ĐỘNG HOẠT ĐỘNG (6 tháng qua):
+${JSON.stringify(timelineData, null, 2)}
+
+NHIỆM VỤ:
+1. Đánh giá hiệu quả sản xuất và mức độ tuân thủ nhật ký.
+2. Nhận diện các xu hướng bất thường (nếu có) từ biểu đồ biến động.
+3. Đề xuất 3-5 hành động cụ thể cho ban quản lý để tối ưu quy trình.
+4. Dự báo ngắn hạn về tình hình sản xuất.
+
+YÊU CẦU:
+- Trả lời bằng tiếng Việt, giọng điệu chuyên nghiệp, khách quan.
+- Sử dụng emoji để làm nổi bật các điểm quan trọng.
+- Trả về cấu trúc rõ ràng với các tiêu đề.`;
+
+        // Call Groq API
+        const completion = await groq.chat.completions.create({
+            model: 'llama-3.1-8b-instant',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'Bạn là chuyên gia phân tích dữ liệu nông nghiệp cấp cao của EBookFarm.'
+                },
+                {
+                    role: 'user',
+                    content: analysisPrompt
+                }
+            ],
+            max_tokens: 2048,
+            temperature: 0.7
+        });
+
+        const analysis = completion.choices[0].message.content;
+
+        res.json({
+            success: true,
+            data: {
+                analysis,
+                timestamp: new Date(),
+                model: 'llama-3.1-8b-instant'
+            }
+        });
+
+    } catch (error) {
+        console.error('Groq Analysis Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi phân tích dữ liệu bằng AI',
+            error: error.message
+        });
+    }
+};
+
 // Test Groq connection
 const testGroqConnection = async (req, res) => {
     try {
@@ -192,5 +269,6 @@ const testGroqConnection = async (req, res) => {
 
 module.exports = {
     chatWithGroq,
-    testGroqConnection
+    testGroqConnection,
+    analyzeStats
 };

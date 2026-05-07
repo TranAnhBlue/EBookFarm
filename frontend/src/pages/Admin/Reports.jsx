@@ -12,8 +12,13 @@ import {
   UserOutlined,
   TeamOutlined,
   FileTextOutlined,
-  BoxPlotOutlined
+  BoxPlotOutlined,
+  ThunderboltOutlined,
+  RobotOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
+import { Modal } from 'antd';
+import ReactMarkdown from 'react-markdown';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
   AreaChart, Area, XAxis, YAxis, CartesianGrid
@@ -40,6 +45,29 @@ const Reports = () => {
     queryKey: ['dashboard-stats'],
     queryFn: () => api.get('/reports/dashboard-stats').then(res => res.data.data)
   });
+
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [isAiModalVisible, setIsAiModalVisible] = useState(false);
+
+  const handleAiAnalyze = async () => {
+    setAiLoading(true);
+    setIsAiModalVisible(true);
+    try {
+      const response = await api.post('/groq/analyze-stats', {
+        stats,
+        pieData,
+        timelineData
+      });
+      if (response.data.success) {
+        setAiAnalysis(response.data.data.analysis);
+      }
+    } catch (error) {
+      console.error('AI Analysis Error:', error);
+      message.error('Lỗi khi phân tích dữ liệu bằng AI');
+    }
+    setAiLoading(false);
+  };
 
   // Fetch chart data (Pie)
   const { data: pieData, isLoading: pieLoading } = useQuery({
@@ -255,6 +283,14 @@ const Reports = () => {
           </Title>
         </div>
         <Space size={12}>
+          <Button
+            type="primary"
+            icon={<ThunderboltOutlined />}
+            onClick={handleAiAnalyze}
+            className="h-11 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-100 font-bold px-6"
+          >
+            Phân tích bằng AI
+          </Button>
           <Button
             icon={<FilePdfOutlined />}
             onClick={exportPDF}
@@ -474,6 +510,74 @@ const Reports = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* AI Analysis Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <RobotOutlined className="text-purple-600" />
+            <span className="font-bold">AI Insights - Phân tích dữ liệu sản xuất</span>
+          </div>
+        }
+        open={isAiModalVisible}
+        onCancel={() => setIsAiModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsAiModalVisible(false)} className="rounded-lg">
+            Đóng
+          </Button>,
+          <Button 
+            key="retry" 
+            icon={<ReloadOutlined />} 
+            onClick={handleAiAnalyze} 
+            loading={aiLoading}
+            className="rounded-lg"
+          >
+            Phân tích lại
+          </Button>
+        ]}
+        width={800}
+        centered
+        className="premium-modal"
+      >
+        <div className="min-h-[300px]">
+          {aiLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
+                <ThunderboltOutlined className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-purple-600 animate-pulse" />
+              </div>
+              <Text className="mt-4 text-gray-500 font-medium">Groq AI đang phân tích dữ liệu chuyên sâu...</Text>
+            </div>
+          ) : aiAnalysis ? (
+            <div className="prose prose-green max-w-none ai-report-content">
+              <ReactMarkdown>{aiAnalysis}</ReactMarkdown>
+            </div>
+          ) : (
+            <Empty description="Đã có lỗi xảy ra hoặc không có dữ liệu phân tích" />
+          )}
+        </div>
+      </Modal>
+
+      <style jsx>{`
+        .ai-report-content {
+          font-family: 'Roboto', sans-serif;
+          line-height: 1.6;
+          color: #374151;
+        }
+        .ai-report-content h1, .ai-report-content h2, .ai-report-content h3 {
+          color: #1f2937;
+          font-weight: 700;
+          margin-top: 1.5rem;
+          margin-bottom: 0.75rem;
+        }
+        .ai-report-content p {
+          margin-bottom: 1rem;
+        }
+        .ai-report-content ul, .ai-report-content ol {
+          margin-bottom: 1rem;
+          padding-left: 1.5rem;
+        }
+      `}</style>
     </div>
   );
 };
