@@ -32,12 +32,12 @@ const ForgotPassword = () => {
       
       <div className="w-full max-w-[540px] bg-white/70 backdrop-blur-2xl rounded-[32px] md:rounded-[40px] shadow-2xl p-6 sm:p-10 md:p-16 border border-white relative z-10 animate-in fade-in slide-in-from-bottom duration-700">
         
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-emerald-600 rounded-3xl flex items-center justify-center text-white shadow-xl shadow-emerald-200 mb-8">
-            <MailOutlined className="text-3xl" />
+        <div className="flex flex-col items-center mb-6 md:mb-10">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-emerald-600 rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-xl shadow-emerald-200 mb-4 md:mb-8">
+            <MailOutlined className="text-2xl md:text-3xl" />
           </div>
-          <Title level={2} className="!font-black !text-gray-800 !mb-2 text-center">Quên mật khẩu?</Title>
-          <Text className="text-gray-400 font-medium text-center px-4">
+          <Title level={3} className="!font-black !text-gray-800 !mb-1 text-center md:!text-3xl">Quên mật khẩu?</Title>
+          <Text className="text-gray-400 font-medium text-center px-4 text-xs md:text-sm">
               Nhập email liên kết với tài khoản của bạn để nhận liên kết đặt lại mật khẩu.
           </Text>
         </div>
@@ -52,17 +52,17 @@ const ForgotPassword = () => {
           >
             <Form.Item
               name="email"
-              label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email của bạn</span>}
+              label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email của bạn</span>}
               rules={[
                   { required: true, message: 'Vui lòng nhập Email!' },
                   { type: 'email', message: 'Email không hợp lệ!' }
               ]}
-              className="mb-10"
+              className="mb-6 md:mb-10"
             >
               <Input 
                 prefix={<MailOutlined className="text-gray-300" />} 
                 placeholder="example@farm.com" 
-                className="rounded-2xl h-14 border-gray-100 focus:border-emerald-500"
+                className="rounded-xl h-12 md:h-14 border-gray-100 focus:border-emerald-500 text-sm md:text-base"
               />
             </Form.Item>
 
@@ -71,7 +71,7 @@ const ForgotPassword = () => {
                 type="primary" 
                 htmlType="submit" 
                 loading={loading}
-                className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg border-0 shadow-xl shadow-emerald-200"
+                className="w-full h-12 md:h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-base md:text-lg border-0 shadow-xl shadow-emerald-200"
               >
                 Gửi link khôi phục
               </Button>

@@ -79,7 +79,7 @@ const Register = () => {
 
         {/* Form Content */}
         <div className="w-full md:w-7/12 p-5 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
-            <div className="mb-6 md:mb-8">
+            <div className="mb-4 md:mb-8">
                 <div className="hidden md:flex items-center gap-3 mb-8">
                     <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
                         <img src={logo} alt="Logo" className="w-full h-full object-contain" />
@@ -87,11 +87,11 @@ const Register = () => {
                     <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
                 </div>
                 {/* Mobile Logo */}
-                <div className="block md:hidden mb-6">
-                    <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
+                <div className="block md:hidden mb-4">
+                    <img src={logo} alt="Logo" className="h-8 w-auto mb-4" />
                 </div>
-                <Title level={2} className="!font-black !text-gray-800 !mb-2">Tạo tài khoản</Title>
-                <Text className="text-gray-400 font-medium">Bắt đầu miễn phí ngay hôm nay</Text>
+                <Title level={3} className="!font-black !text-gray-800 !mb-1 md:!text-3xl">Tạo tài khoản</Title>
+                <Text className="text-gray-400 font-medium text-xs md:text-sm">Bắt đầu miễn phí ngay hôm nay</Text>
             </div>
 
             <Form
@@ -105,68 +105,72 @@ const Register = () => {
                     <Col span={24}>
                         <Form.Item
                             name="fullname"
-                            label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Họ và tên chủ sở hữu</span>}
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Họ và tên chủ sở hữu</span>}
                             rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+                            className="mb-3 md:mb-6"
                         >
                             <Input 
                                 placeholder="Nguyễn Văn A" 
-                                className="rounded-2xl h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium"
+                                className="rounded-xl h-11 md:h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium text-sm md:text-base"
                             />
                         </Form.Item>
                     </Col>
                     <Col xs={24} sm={12}>
                         <Form.Item
                             name="username"
-                            label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Tên tài khoản</span>}
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Tên tài khoản</span>}
                             rules={[{ required: true, message: 'Vui lòng nhập tên tài khoản!' }]}
+                            className="mb-3 md:mb-6"
                         >
                             <Input 
                                 prefix={<UserOutlined className="text-gray-300" />} 
                                 placeholder="nva_farm" 
-                                className="rounded-2xl h-14 border-gray-100"
+                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
                             />
                         </Form.Item>
                     </Col>
                     <Col xs={24} sm={12}>
                         <Form.Item
                             name="email"
-                            label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email</span>}
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email</span>}
                             rules={[
                                 { required: true, message: 'Email là bắt buộc!' },
                                 { type: 'email', message: 'Email không hợp lệ!' }
                             ]}
+                            className="mb-3 md:mb-6"
                         >
                             <Input 
                                 prefix={<MailOutlined className="text-gray-300" />} 
                                 placeholder="example@gmail.com" 
-                                className="rounded-2xl h-14 border-gray-100"
+                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
                             />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
                         <Form.Item
                             name="password"
-                            label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Thiết lập mật khẩu</span>}
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Thiết lập mật khẩu</span>}
                             rules={[
                                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
                                 { min: 6, message: 'Mật khẩu phải từ 6 ký tự' }
                             ]}
+                            className="mb-4 md:mb-8"
                         >
                             <Input.Password 
                                 prefix={<LockOutlined className="text-gray-300" />} 
                                 placeholder="••••••••" 
-                                className="rounded-2xl h-14 border-gray-100"
+                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
                             />
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <Form.Item className="mt-4 mb-8">
+                <Form.Item className="mt-2 mb-6 md:mb-8">
                     <Button 
                         type="primary" 
                         htmlType="submit" 
                         loading={loading}
-                        className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg border-0 shadow-xl shadow-emerald-200"
+                        className="w-full h-11 md:h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-base md:text-lg border-0 shadow-xl shadow-emerald-200"
                     >
                         Tạo tài khoản ngay
                     </Button>

@@ -111,13 +111,13 @@ const Login = () => {
 
         {/* Right Side: Form */}
         <div className="w-full md:w-1/2 p-5 sm:p-10 md:p-16 flex flex-col justify-center">
-            <div className="mb-6 md:mb-10 block md:hidden">
-                <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
+            <div className="mb-4 md:mb-10 block md:hidden">
+                <img src={logo} alt="Logo" className="h-8 w-auto mb-4" />
             </div>
 
             <div className="mb-6 md:mb-10">
-                <Title level={2} className="!font-black !text-gray-800 !mb-2">Đăng nhập</Title>
-                <Text className="text-gray-400 font-medium tracking-tight">Vui lòng nhập thông tin để truy cập hệ thống</Text>
+                <Title level={3} className="!font-black !text-gray-800 !mb-1 md:!text-3xl">Đăng nhập</Title>
+                <Text className="text-gray-400 font-medium tracking-tight text-xs md:text-sm">Vui lòng nhập thông tin để truy cập hệ thống</Text>
             </div>
 
             <Form
@@ -131,43 +131,45 @@ const Login = () => {
             >
                 <Form.Item
                     name="email"
-                    label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Email hoặc Tên tài khoản</span>}
+                    label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Email hoặc Tên tài khoản</span>}
                     rules={[{ required: true, message: 'Thông tin này là bắt buộc!' }]}
+                    className="mb-3 md:mb-6"
                 >
                     <Input 
                         prefix={<MailOutlined className="text-gray-300" />} 
                         placeholder="example@farm.com" 
-                        className="rounded-2xl h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium"
+                        className="rounded-xl h-12 md:h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium text-sm md:text-base"
                     />
                 </Form.Item>
 
                 <Form.Item
                     name="password"
-                    label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Mật khẩu bảo mật</span>}
+                    label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Mật khẩu bảo mật</span>}
                     rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                    className="mb-4 md:mb-6"
                 >
                     <Input.Password 
                         prefix={<LockOutlined className="text-gray-300" />} 
                         placeholder="••••••••" 
-                        className="rounded-2xl h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium"
+                        className="rounded-xl h-12 md:h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium text-sm md:text-base"
                     />
                 </Form.Item>
 
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6 md:mb-8">
                     <Form.Item name="remember" valuePropName="checked" noStyle>
-                        <Checkbox className="text-gray-500 font-bold text-xs capitalize">Ghi nhớ tôi</Checkbox>
+                        <Checkbox className="text-gray-500 font-bold text-[11px] capitalize">Ghi nhớ tôi</Checkbox>
                     </Form.Item>
-                    <Link to="/forgot-password" alt="Quên mật khẩu" className="text-emerald-600 font-bold text-xs hover:underline">
+                    <Link to="/forgot-password" alt="Quên mật khẩu" className="text-emerald-600 font-bold text-[11px] hover:underline">
                         Quên mật khẩu?
                     </Link>
                 </div>
 
-                <Form.Item className="mb-8">
+                <Form.Item className="mb-6 md:mb-8">
                     <Button 
                         type="primary" 
                         htmlType="submit" 
                         loading={loading}
-                        className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 font-black text-lg border-0 shadow-xl shadow-emerald-200"
+                        className="w-full h-12 md:h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-base md:text-lg border-0 shadow-xl shadow-emerald-200"
                     >
                         Đăng nhập ngay
                     </Button>
