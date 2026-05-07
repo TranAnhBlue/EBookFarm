@@ -30,7 +30,7 @@ import { useAuthStore } from '../../store/authStore';
 import PublicNavbar from '../../components/PublicNavbar';
 import PublicFooter from '../../components/PublicFooter';
 import AIChatWidget from '../../components/AIChatWidget';
-import { API_URL } from '../../utils/helpers';
+import api from '../../services/api';
 import './LandingStyles.css';
 import './LandingAnimations.css';
 
@@ -55,25 +55,48 @@ const LandingPage = () => {
     const handleConsultationSubmit = async (values) => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/consultations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(values)
-            });
+            const response = await api.post('/consultations', values);
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                message.success(data.message || 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong 24h.');
+            if (response.data.success) {
+                // If there's an AI response, show a more informative message
+                if (response.data.data?.aiResponse) {
+                    message.success({
+                        content: 'Gửi yêu cầu thành công! Vui lòng kiểm tra email để xem gợi ý sơ bộ từ AI EBookFarm.',
+                        duration: 5
+                    });
+                    
+                    Modal.success({
+                        title: 'Gợi ý sơ bộ từ AI EBookFarm',
+                        content: (
+                            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                                        <SafetyCertificateFilled className="text-white" />
+                                    </div>
+                                    <Text strong className="text-blue-700">Trợ lý AI</Text>
+                                    <Tag color="blue" className="text-[10px]">Llama 3.1</Tag>
+                                </div>
+                                <Paragraph className="text-gray-700 italic">
+                                    "{response.data.data.aiResponse}"
+                                </Paragraph>
+                                <Divider className="my-2" />
+                                <Text type="secondary" className="text-xs">
+                                    * Đây là phản hồi tự động. Chuyên gia của chúng tôi sẽ liên hệ trực tiếp trong 24h.
+                                </Text>
+                            </div>
+                        ),
+                        width: 600,
+                        okText: 'Tôi đã hiểu',
+                        className: 'premium-modal'
+                    });
+                } else {
+                    message.success(response.data.message || 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong 24h.');
+                }
                 form.resetFields();
-            } else {
-                message.error(data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
             }
         } catch (error) {
             console.error('Consultation submit error:', error);
-            message.error('Không thể kết nối đến server. Vui lòng thử lại sau!');
+            message.error(error.response?.data?.message || 'Không thể kết nối đến server. Vui lòng thử lại sau!');
         } finally {
             setLoading(false);
         }
@@ -985,6 +1008,35 @@ const LandingPage = () => {
                                             size="large" 
                                             placeholder="HTX Nông nghiệp..." 
                                             prefix={<ShopOutlined className="text-gray-300" />}
+                                            className="rounded-xl"
+                                        />
+                                    </Form.Item>
+
+                                    <Row gutter={12}>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name="category"
+                                                label="Lĩnh vực cần tư vấn"
+                                                initialValue="Kỹ thuật"
+                                            >
+                                                <Select size="large" className="rounded-xl">
+                                                    <Option value="Kỹ thuật">Hỗ trợ kỹ thuật / Canh tác</Option>
+                                                    <Option value="Báo giá">Báo giá dịch vụ / Phần mềm</Option>
+                                                    <Option value="Hợp tác">Hợp tác kinh doanh</Option>
+                                                    <Option value="Khác">Khác</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    <Form.Item
+                                        name="message"
+                                        label="Nội dung cần tư vấn"
+                                        rules={[{ required: true, message: 'Vui lòng nhập nội dung!' }]}
+                                    >
+                                        <TextArea 
+                                            rows={3} 
+                                            placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..." 
                                             className="rounded-xl"
                                         />
                                     </Form.Item>

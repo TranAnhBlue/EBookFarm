@@ -1,11 +1,17 @@
 const Consultation = require('../models/Consultation');
+const Groq = require('groq-sdk');
+
+// Initialize Groq
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY || 'gsk_demo_key'
+});
 
 // @desc    Tạo yêu cầu tư vấn mới
 // @route   POST /api/consultations
 // @access  Public
 exports.createConsultation = async (req, res) => {
     try {
-        const { fullname, phone, email, organization } = req.body;
+        const { fullname, phone, email, organization, category, message: userMessage } = req.body;
 
         // Kiểm tra xem email hoặc phone đã tồn tại trong 24h gần nhất chưa
         const existingConsultation = await Consultation.findOne({
@@ -20,16 +26,51 @@ exports.createConsultation = async (req, res) => {
             });
         }
 
-        const consultation = await Consultation.create({
+        // 1. Tạo bản ghi cơ bản trước
+        let consultation = new Consultation({
             fullname,
             phone,
             email,
-            organization
+            organization,
+            category,
+            message: userMessage
         });
+
+        // 2. Nếu là yêu cầu kỹ thuật, gọi AI để lấy câu trả lời sơ bộ
+        if (category === 'Kỹ thuật' || !category) {
+            try {
+                const completion = await groq.chat.completions.create({
+                    model: 'llama-3.1-8b-instant',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Bạn là chuyên gia nông nghiệp của EBookFarm. Hãy đưa ra câu trả lời sơ bộ, chuyên nghiệp và hữu ích cho yêu cầu tư vấn của người dùng. 
+                            Lưu ý: 
+                            1. Đây là câu trả lời TỰ ĐỘNG từ AI để hỗ trợ người dùng ngay lập tức.
+                            2. Luôn nhắc nhở người dùng rằng chuyên gia của EBookFarm sẽ liên hệ trực tiếp để tư vấn chi tiết hơn.
+                            3. Trả lời bằng tiếng Việt, súc tích, đi thẳng vào vấn đề kỹ thuật.`
+                        },
+                        {
+                            role: 'user',
+                            content: `Họ tên: ${fullname}\nVấn đề: ${userMessage}`
+                        }
+                    ],
+                    max_tokens: 1024,
+                    temperature: 0.7
+                });
+
+                consultation.aiResponse = completion.choices[0].message.content;
+            } catch (aiError) {
+                console.error('AI Consultation Error:', aiError);
+                // Không chặn việc tạo consultation nếu AI lỗi
+            }
+        }
+
+        await consultation.save();
 
         res.status(201).json({
             success: true,
-            message: 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong 24h.',
+            message: 'Đăng ký thành công! AI đã đưa ra gợi ý sơ bộ cho bạn.',
             data: consultation
         });
     } catch (error) {

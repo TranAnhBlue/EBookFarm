@@ -22,6 +22,19 @@ const consultationSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    category: {
+        type: String,
+        enum: ['Kỹ thuật', 'Báo giá', 'Hợp tác', 'Khác'],
+        default: 'Kỹ thuật'
+    },
+    message: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    aiResponse: {
+        type: String
+    },
     status: {
         type: String,
         enum: ['pending', 'contacted', 'completed', 'cancelled'],

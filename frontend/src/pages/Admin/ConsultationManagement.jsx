@@ -10,7 +10,8 @@ import {
     ClockCircleOutlined,
     CloseCircleOutlined,
     UserOutlined,
-    HomeOutlined
+    HomeOutlined,
+    RobotOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -139,24 +140,24 @@ const ConsultationManagement = () => {
             render: (_, __, index) => <Text type="secondary">{index + 1}</Text>
         },
         {
-            title: 'Khách hàng & Thời gian',
+            title: 'Khách hàng & Nội dung',
             key: 'customer_info',
-            width: '35%',
+            width: '40%',
             render: (_, record) => (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <Text strong className="text-base text-green-700">{record.fullname}</Text>
+                        <Tag color="green" className="text-[10px] m-0">{record.category}</Tag>
                         <Tag color="default" className="text-[10px] m-0">{dayjs(record.createdAt).fromNow()}</Tag>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                         <span className="flex items-center gap-1"><PhoneOutlined className="text-[10px]"/>{record.phone}</span>
                         <span className="flex items-center gap-1"><MailOutlined className="text-[10px]"/>{record.email}</span>
                     </div>
-                    {record.organization && (
-                        <div className="text-xs text-gray-400 italic flex items-center gap-1">
-                            <ShopOutlined className="text-[10px]"/> {record.organization}
-                        </div>
-                    )}
+                    <div className="bg-blue-50/50 p-2 rounded-lg border border-blue-100 text-xs text-gray-700">
+                        <Text strong className="text-[10px] text-blue-600 uppercase block mb-1">Câu hỏi:</Text>
+                        {record.message}
+                    </div>
                 </div>
             )
         },
@@ -176,21 +177,31 @@ const ConsultationManagement = () => {
             )
         },
         {
-            title: 'Ghi chú & Người xử lý',
+            title: 'AI & Chuyên gia',
             key: 'notes_handler',
-            width: '35%',
+            width: '30%',
             render: (_, record) => (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                    {record.aiResponse && (
+                        <div className="bg-purple-50 p-2 rounded border border-purple-100 text-xs">
+                            <div className="flex items-center gap-1 mb-1">
+                                <RobotOutlined className="text-[10px] text-purple-500"/>
+                                <Text strong className="text-[10px] text-purple-600 uppercase">Gợi ý từ AI:</Text>
+                            </div>
+                            <div className="text-gray-600 italic line-clamp-3">
+                                {record.aiResponse}
+                            </div>
+                        </div>
+                    )}
                     <div className="bg-gray-50 p-2 rounded border border-gray-100 text-xs text-gray-600">
-                        {record.notes || <span className="italic text-gray-300">Không có ghi chú</span>}
+                        <Text strong className="text-[10px] text-gray-400 uppercase block mb-1">Ghi chú chuyên gia:</Text>
+                        {record.notes || <span className="italic text-gray-300">Chưa có ghi chú</span>}
                     </div>
-                    {record.contactedBy ? (
+                    {record.contactedBy && (
                         <div className="flex items-center gap-1 text-[11px] text-blue-500 font-medium">
                             <CheckCircleOutlined className="text-[10px]"/>
                             <span>Xử lý bởi: {record.contactedBy.fullname}</span>
                         </div>
-                    ) : (
-                        <div className="text-[11px] text-gray-400 italic">Chưa có người xử lý</div>
                     )}
                 </div>
             )
@@ -351,24 +362,33 @@ const ConsultationManagement = () => {
                 {selectedConsultation && (
                     <div className="space-y-4">
                         <div className="p-4 bg-gray-50 rounded-lg space-y-2">
-                            <div className="flex items-center gap-2">
-                                <UserOutlined />
-                                <Text strong>{selectedConsultation.fullname}</Text>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <PhoneOutlined />
-                                <Text>{selectedConsultation.phone}</Text>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <MailOutlined />
-                                <Text>{selectedConsultation.email}</Text>
-                            </div>
-                            {selectedConsultation.organization && (
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <ShopOutlined />
-                                    <Text>{selectedConsultation.organization}</Text>
+                                    <UserOutlined />
+                                    <Text strong>{selectedConsultation.fullname}</Text>
                                 </div>
-                            )}
+                                <Tag color="green">{selectedConsultation.category}</Tag>
+                            </div>
+                            <div className="flex flex-wrap gap-4 text-xs">
+                                <span className="flex items-center gap-1"><PhoneOutlined /> {selectedConsultation.phone}</span>
+                                <span className="flex items-center gap-1"><MailOutlined /> {selectedConsultation.email}</span>
+                            </div>
+                            <Divider className="my-2" />
+                            <div className="space-y-2">
+                                <div>
+                                    <Text strong className="text-[10px] text-gray-400 uppercase block">Nội dung yêu cầu:</Text>
+                                    <Text className="text-sm">{selectedConsultation.message}</Text>
+                                </div>
+                                {selectedConsultation.aiResponse && (
+                                    <div className="mt-3 p-3 bg-purple-50 rounded border border-purple-100">
+                                        <div className="flex items-center gap-1 mb-1">
+                                            <RobotOutlined className="text-purple-500 text-xs" />
+                                            <Text strong className="text-[10px] text-purple-600 uppercase">AI Suggestion:</Text>
+                                        </div>
+                                        <Text className="text-xs italic text-gray-600">{selectedConsultation.aiResponse}</Text>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <Form
