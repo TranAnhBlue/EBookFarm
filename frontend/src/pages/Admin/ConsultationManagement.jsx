@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Card, Table, Tag, Button, Space, Modal, Form, Input, Select, message, Popconfirm, Typography, Statistic, Row, Col, Divider } from 'antd';
-import { 
-    PhoneOutlined, 
-    MailOutlined, 
-    ShopOutlined, 
+import {
+    PhoneOutlined,
+    MailOutlined,
+    ShopOutlined,
     EditOutlined, 
     DeleteOutlined, 
     CheckCircleOutlined,
