@@ -209,6 +209,7 @@ const FormBuilder = () => {
         width={720}
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
+        maskClosable={false}
         extra={
           <Space>
             <Button onClick={() => setDrawerVisible(false)}>Hủy</Button>
@@ -296,7 +297,13 @@ const FormBuilder = () => {
                       </Form.List>
                     </Card>
                   ))}
-                  <Button type="primary" ghost onClick={() => add()} block icon={<PlusOutlined />} className="rounded-lg">
+                  <Button 
+                    type="primary" 
+                    onClick={() => add()} 
+                    block 
+                    icon={<PlusOutlined />} 
+                    className="rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold h-11 border-0 shadow-md"
+                  >
                     Thêm bảng dữ liệu
                   </Button>
                 </>
