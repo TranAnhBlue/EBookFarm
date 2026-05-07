@@ -17,6 +17,8 @@ import JournalTrace from './pages/Journal/JournalTrace';
 import UserManagement from './pages/Admin/UserManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
 import AdminInventory from './pages/Admin/AdminInventory';
+import InventoryCategory from './pages/Admin/InventoryCategory';
+
 import CustomerManagement from './pages/Admin/CustomerManagement';
 import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
@@ -174,6 +176,7 @@ const App = () => {
                   {/* Agriculture Models & Inventory */}
                   <Route path="agriculture-models" element={<ProtectedRoute><AgricultureModels /></ProtectedRoute>} />
                   <Route path="inventory/items" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
+                  <Route path="inventory/categories" element={<ProtectedRoute><InventoryCategory /></ProtectedRoute>} />
                   <Route path="inventory/models" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
                   
                   {/* Farmer-only routes (Category-based nesting) */}

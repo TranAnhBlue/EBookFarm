@@ -121,8 +121,8 @@ const MainLayout = () => {
       icon: <Tractor className="w-5 h-5" />,
       label: <span className="font-medium">Quản lý kho vật tư</span>,
       children: [
-        { key: '/inventory/items', label: 'Danh mục kho vật tư' },
-        { key: '/inventory/models', label: 'Vật tư mẫu' },
+        { key: '/inventory/categories', label: 'Danh mục vật tư' },
+        { key: '/inventory/items', label: 'Kho tổng vật tư' },
       ],
     },
     {

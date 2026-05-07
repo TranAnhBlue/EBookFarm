@@ -77,6 +77,8 @@ const uploadRoutes = require('./routes/uploadRoutes.js');
 const consultationRoutes = require('./routes/consultationRoutes.js');
 const geminiRoutes = require('./routes/geminiRoutes.js');
 const notificationRoutes = require('./routes/notificationRoutes.js');
+const inventoryCategoryRoutes = require('./routes/inventoryCategoryRoutes.js');
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -94,6 +96,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/gemini', geminiRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/inventory-categories', inventoryCategoryRoutes);
+
 
 // Additional routes
 const journalImportExportRoutes = require('./routes/journalImportExportRoutes.js');
