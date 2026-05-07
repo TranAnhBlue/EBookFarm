@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Typography, Button, Space, DatePicker, Select, Divider, Statistic, Skeleton, Empty, Tag, message } from 'antd';
-import { 
-  FilePdfOutlined, 
-  FileExcelOutlined, 
-  CalendarOutlined, 
+import {
+  FilePdfOutlined,
+  FileExcelOutlined,
+  CalendarOutlined,
   FilterOutlined,
   DashboardOutlined,
   BarChartOutlined,
@@ -14,8 +14,8 @@ import {
   FileTextOutlined,
   BoxPlotOutlined
 } from '@ant-design/icons';
-import { 
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, 
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
   AreaChart, Area, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
@@ -57,8 +57,8 @@ const Reports = () => {
   const removeAccents = (str) => {
     if (!str) return '';
     return str.normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '')
-              .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D');
   };
 
   const exportPDF = async () => {
@@ -71,45 +71,47 @@ const Reports = () => {
 
     try {
       const doc = new jsPDF();
-      
-      // --- 0. LOAD UNICODE FONT ---
-      // Fetch Roboto font from a public CDN to support Vietnamese Unicode
-      const fontUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf';
-      const response = await fetch(fontUrl);
-      const fontBuffer = await response.arrayBuffer();
-      
-      // Convert ArrayBuffer to Base64
-      const fontBase64 = btoa(
-        new Uint8Array(fontBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      
-      // Add font to jsPDF
-      doc.addFileToVFS('Roboto-Regular.ttf', fontBase64);
-      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
-      doc.setFont('Roboto');
+
+      // --- 0. LOAD UNICODE FONTS ---
+      const fonts = [
+        { name: 'Roboto-Regular.ttf', style: 'normal', url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf' },
+        { name: 'Roboto-Bold.ttf', style: 'bold', url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf' } // Using Medium for better Bold rendering
+      ];
+
+      for (const font of fonts) {
+        const response = await fetch(font.url);
+        const buffer = await response.arrayBuffer();
+        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+        doc.addFileToVFS(font.name, base64);
+        doc.addFont(font.name, 'Roboto', font.style);
+      }
+
+      doc.setFont('Roboto', 'normal');
 
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      
+
       const img = new Image();
       img.src = logoEBookFarm;
-      
+
       img.onload = () => {
         // --- 1. HEADER ---
         doc.addImage(img, 'JPEG', 14, 10, 20, 20);
-        
+
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
+        doc.setFont("Roboto", "normal");
         doc.text("HỆ THỐNG QUẢN LÝ NHẬT KÝ SẢN XUẤT ĐIỆN TỬ", 38, 15);
+
         doc.setFontSize(11);
         doc.setTextColor(34, 197, 94);
         doc.setFont("Roboto", "bold");
         doc.text("EBOOKFARM - NÔNG NGHIỆP SỐ 4.0", 38, 22);
-        
+
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.setFont("Roboto", "normal");
-        doc.text("Website: www.ebookfarm.vn | Email: contact@ebookfarm.vn", 38, 28);
+        doc.text("Website: e-book-farm.vercel.app | Email: contact@ebookfarm.vn", 38, 28);
 
         // --- 2. TITLE & METADATA ---
         doc.setDrawColor(34, 197, 94);
@@ -120,7 +122,7 @@ const Reports = () => {
         doc.setTextColor(40, 40, 40);
         doc.setFont("Roboto", "bold");
         doc.text("BÁO CÁO THỐNG KÊ TỔNG HỢP", pageWidth / 2, 50, { align: 'center' });
-        
+
         doc.setFontSize(10);
         doc.setFont("Roboto", "normal");
         doc.setTextColor(100, 100, 100);
@@ -136,30 +138,30 @@ const Reports = () => {
         doc.roundedRect(14, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text("TỔNG NHẬT KÝ", 14 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("TỔNG NHẬT KÝ", 14 + boxWidth / 2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(34, 197, 94);
-        doc.text(`${stats.totalJournals || 0}`, 14 + boxWidth/2, boxY + 18, { align: 'center' });
+        doc.text(`${stats.totalJournals || 0}`, 14 + boxWidth / 2, boxY + 18, { align: 'center' });
 
         // Box 2: Hoàn thành
         doc.setFillColor(239, 246, 255);
         doc.roundedRect(14 + boxWidth + 6, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text("HOÀN THÀNH", 14 + boxWidth + 6 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("HOÀN THÀNH", 14 + boxWidth + 6 + boxWidth / 2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(37, 99, 235);
-        doc.text(`${stats.completedJournals || 0}`, 14 + boxWidth + 6 + boxWidth/2, boxY + 18, { align: 'center' });
+        doc.text(`${stats.completedJournals || 0}`, 14 + boxWidth + 6 + boxWidth / 2, boxY + 18, { align: 'center' });
 
         // Box 3: Người dùng
         doc.setFillColor(255, 251, 235);
         doc.roundedRect(14 + (boxWidth + 6) * 2, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text("NGƯỜI DÙNG", 14 + (boxWidth + 6) * 2 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("NGƯỜI DÙNG", 14 + (boxWidth + 6) * 2 + boxWidth / 2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(217, 119, 6);
-        doc.text(`${stats.totalUsers || 0}`, 14 + (boxWidth + 6) * 2 + boxWidth/2, boxY + 18, { align: 'center' });
+        doc.text(`${stats.totalUsers || 0}`, 14 + (boxWidth + 6) * 2 + boxWidth / 2, boxY + 18, { align: 'center' });
 
         // --- 4. DETAIL TABLE ---
         const tableData = [];
@@ -167,13 +169,13 @@ const Reports = () => {
           tableData.push(['Nhóm / Hợp tác xã', stats.totalGroups || 0, 'Đơn vị']);
           tableData.push(['Vật tư tồn kho', stats.inventoryCount || 0, 'Mặt hàng']);
         }
-        
+
         if (pieData && pieData.length > 0) {
           pieData.forEach(item => {
             tableData.push([`Trạng thái: ${item.name}`, item.value, 'Nhật ký']);
           });
         }
-        
+
         autoTable(doc, {
           head: [['Chi tiết hạng mục', 'Số lượng', 'Đơn vị tính']],
           body: tableData,
@@ -192,12 +194,12 @@ const Reports = () => {
         const finalY = doc.lastAutoTable.finalY + 30;
         doc.setFontSize(10);
         doc.setTextColor(40, 40, 40);
-        
+
         doc.text("Người lập biểu", 40, finalY, { align: 'center' });
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text("(Ký và ghi rõ họ tên)", 40, finalY + 5, { align: 'center' });
-        
+
         doc.setFontSize(10);
         doc.setTextColor(40, 40, 40);
         doc.text("Xác nhận của Admin", pageWidth - 40, finalY, { align: 'center' });
@@ -235,7 +237,7 @@ const Reports = () => {
       { 'Hạng mục': 'Nhật ký đã hoàn thành', 'Số lượng': stats?.completedJournals || 0 },
       ... (pieData?.map(item => ({ 'Hạng mục': item.name, 'Số lượng': item.value })) || [])
     ];
-    
+
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -249,20 +251,20 @@ const Reports = () => {
         <div className="space-y-1">
           <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">Hệ thống phân tích dữ liệu</Text>
           <Title level={2} className="!mb-0 flex items-center gap-3">
-             <BarChartOutlined className="text-green-500" /> Báo cáo & Thống kê
+            <BarChartOutlined className="text-green-500" /> Báo cáo & Thống kê
           </Title>
         </div>
         <Space size={12}>
-          <Button 
-            icon={<FilePdfOutlined />} 
+          <Button
+            icon={<FilePdfOutlined />}
             onClick={exportPDF}
             className="h-11 rounded-xl border-red-100 text-red-500 hover:bg-red-50 font-bold px-6"
           >
             Xuất PDF
           </Button>
-          <Button 
-            type="primary" 
-            icon={<FileExcelOutlined />} 
+          <Button
+            type="primary"
+            icon={<FileExcelOutlined />}
             onClick={exportExcel}
             className="h-11 rounded-xl bg-green-600 border-0 hover:bg-green-700 shadow-lg shadow-green-100 font-bold px-6"
           >
@@ -275,40 +277,40 @@ const Reports = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
-             <div className="absolute top-0 right-0 p-8 opacity-10">
-                <FileTextOutlined className="text-6xl text-green-500" />
-             </div>
-             <Statistic 
-                title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Tổng Nhật ký</Text>}
-                value={stats?.totalJournals}
-                loading={statsLoading}
-                prefix={<FileTextOutlined className="text-green-500" />}
-                className="stats-value"
-             />
-             <div className="mt-4 flex items-center gap-2">
-                <Tag color="success" className="rounded-full border-0 text-[10px] font-bold">+12%</Tag>
-                <Text className="text-[10px] text-gray-400">so với tháng trước</Text>
-             </div>
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <FileTextOutlined className="text-6xl text-green-500" />
+            </div>
+            <Statistic
+              title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Tổng Nhật ký</Text>}
+              value={stats?.totalJournals}
+              loading={statsLoading}
+              prefix={<FileTextOutlined className="text-green-500" />}
+              className="stats-value"
+            />
+            <div className="mt-4 flex items-center gap-2">
+              <Tag color="success" className="rounded-full border-0 text-[10px] font-bold">+12%</Tag>
+              <Text className="text-[10px] text-gray-400">so với tháng trước</Text>
+            </div>
           </Card>
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
-             <div className="absolute top-0 right-0 p-8 opacity-10">
-                <DashboardOutlined className="text-6xl text-blue-500" />
-             </div>
-             <Statistic 
-                title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Hoàn thành</Text>}
-                value={stats?.completedJournals}
-                loading={statsLoading}
-                prefix={<DashboardOutlined className="text-blue-500" />}
-             />
-             <div className="mt-4 flex items-center gap-2">
-                <Text className="text-[10px] text-gray-400 font-bold uppercase">Tỷ lệ:</Text>
-                <Text className="text-[10px] text-blue-600 font-bold">
-                  {stats?.totalJournals ? Math.round((stats.completedJournals/stats.totalJournals)*100) : 0}%
-                </Text>
-             </div>
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <DashboardOutlined className="text-6xl text-blue-500" />
+            </div>
+            <Statistic
+              title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Hoàn thành</Text>}
+              value={stats?.completedJournals}
+              loading={statsLoading}
+              prefix={<DashboardOutlined className="text-blue-500" />}
+            />
+            <div className="mt-4 flex items-center gap-2">
+              <Text className="text-[10px] text-gray-400 font-bold uppercase">Tỷ lệ:</Text>
+              <Text className="text-[10px] text-blue-600 font-bold">
+                {stats?.totalJournals ? Math.round((stats.completedJournals / stats.totalJournals) * 100) : 0}%
+              </Text>
+            </div>
           </Card>
         </Col>
 
@@ -316,37 +318,37 @@ const Reports = () => {
           <>
             <Col xs={24} sm={12} lg={6}>
               <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
-                 <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <UserOutlined className="text-6xl text-orange-500" />
-                 </div>
-                 <Statistic 
-                    title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Người dùng</Text>}
-                    value={stats?.totalUsers}
-                    loading={statsLoading}
-                    prefix={<UserOutlined className="text-orange-500" />}
-                 />
-                 <div className="mt-4 flex items-center gap-2">
-                    <Tag color="orange" className="rounded-full border-0 text-[10px] font-bold">Thành viên</Tag>
-                    <Text className="text-[10px] text-gray-400">trên hệ thống</Text>
-                 </div>
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <UserOutlined className="text-6xl text-orange-500" />
+                </div>
+                <Statistic
+                  title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Người dùng</Text>}
+                  value={stats?.totalUsers}
+                  loading={statsLoading}
+                  prefix={<UserOutlined className="text-orange-500" />}
+                />
+                <div className="mt-4 flex items-center gap-2">
+                  <Tag color="orange" className="rounded-full border-0 text-[10px] font-bold">Thành viên</Tag>
+                  <Text className="text-[10px] text-gray-400">trên hệ thống</Text>
+                </div>
               </Card>
             </Col>
 
             <Col xs={24} sm={12} lg={6}>
               <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
-                 <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <BoxPlotOutlined className="text-6xl text-purple-500" />
-                 </div>
-                 <Statistic 
-                    title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Tồn kho vật tư</Text>}
-                    value={stats?.inventoryCount}
-                    loading={statsLoading}
-                    prefix={<BoxPlotOutlined className="text-purple-500" />}
-                 />
-                 <div className="mt-4 flex items-center gap-2">
-                    <Tag color="purple" className="rounded-full border-0 text-[10px] font-bold">Vật tư</Tag>
-                    <Text className="text-[10px] text-gray-400">trong kho</Text>
-                 </div>
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <BoxPlotOutlined className="text-6xl text-purple-500" />
+                </div>
+                <Statistic
+                  title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Tồn kho vật tư</Text>}
+                  value={stats?.inventoryCount}
+                  loading={statsLoading}
+                  prefix={<BoxPlotOutlined className="text-purple-500" />}
+                />
+                <div className="mt-4 flex items-center gap-2">
+                  <Tag color="purple" className="rounded-full border-0 text-[10px] font-bold">Vật tư</Tag>
+                  <Text className="text-[10px] text-gray-400">trong kho</Text>
+                </div>
               </Card>
             </Col>
           </>
@@ -357,8 +359,8 @@ const Reports = () => {
       <Row gutter={[24, 24]}>
         {/* Timeline Chart */}
         <Col xs={24} lg={16}>
-          <Card 
-            bordered={false} 
+          <Card
+            bordered={false}
             className="shadow-xl shadow-gray-100/50 rounded-3xl overflow-hidden"
             title={
               <div className="flex justify-between items-center py-2">
@@ -378,33 +380,33 @@ const Reports = () => {
                   <AreaChart data={timelineData}>
                     <defs>
                       <linearGradient id="colorHoatDong" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 500}}
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#9ca3af', fontSize: 12, fontWeight: 500 }}
                     />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: '#9ca3af', fontSize: 12}}
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#9ca3af', fontSize: 12 }}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                       cursor={{ stroke: '#22c55e', strokeWidth: 2 }}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="hoat_dong" 
-                      stroke="#22c55e" 
-                      strokeWidth={4} 
-                      fillOpacity={1} 
-                      fill="url(#colorHoatDong)" 
+                    <Area
+                      type="monotone"
+                      dataKey="hoat_dong"
+                      stroke="#22c55e"
+                      strokeWidth={4}
+                      fillOpacity={1}
+                      fill="url(#colorHoatDong)"
                       animationDuration={2000}
                     />
                   </AreaChart>
@@ -416,8 +418,8 @@ const Reports = () => {
 
         {/* Status Pie Chart */}
         <Col xs={24} lg={8}>
-          <Card 
-            bordered={false} 
+          <Card
+            bordered={false}
             className="shadow-xl shadow-gray-100/50 rounded-3xl overflow-hidden h-full"
             title={
               <Space>
@@ -450,8 +452,8 @@ const Reports = () => {
                         return <Cell key={`cell-${index}`} fill={color} cornerRadius={8} />;
                       })}
                     </Pie>
-                    <Tooltip 
-                       contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    <Tooltip
+                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                     />
                     <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
@@ -461,13 +463,13 @@ const Reports = () => {
               )}
             </div>
             {!pieLoading && pieData?.length > 0 && (
-               <div className="mt-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                  <Text className="text-[10px] text-gray-400 font-bold uppercase block mb-4">Ghi chú phân tích</Text>
-                  <Text className="text-xs text-gray-600 font-medium leading-relaxed">
-                    Hệ thống ghi nhận <Text strong className="text-green-600">{stats?.completedJournals}</Text> nhật ký đã hoàn thành. 
-                    Tỷ lệ hoàn thành đang ở mức ổn định, cần đẩy nhanh các bản nháp còn tồn đọng.
-                  </Text>
-               </div>
+              <div className="mt-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                <Text className="text-[10px] text-gray-400 font-bold uppercase block mb-4">Ghi chú phân tích</Text>
+                <Text className="text-xs text-gray-600 font-medium leading-relaxed">
+                  Hệ thống ghi nhận <Text strong className="text-green-600">{stats?.completedJournals}</Text> nhật ký đã hoàn thành.
+                  Tỷ lệ hoàn thành đang ở mức ổn định, cần đẩy nhanh các bản nháp còn tồn đọng.
+                </Text>
+              </div>
             )}
           </Card>
         </Col>
