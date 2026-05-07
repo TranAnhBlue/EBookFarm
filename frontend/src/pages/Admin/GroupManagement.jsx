@@ -43,7 +43,7 @@ const GroupManagement = () => {
       return api.post('/groups', values);
     },
     onSuccess: () => {
-      message.success(`${editingGroup ? 'Cập nhật' : 'Tạo mới'} nhóm thành công!`);
+      message.success(`${editingGroup ? 'Cập nhật' : 'Tạo mới'} HTX thành công!`);
       setIsModalOpen(false);
       form.resetFields();
       setEditingGroup(null);
@@ -58,14 +58,14 @@ const GroupManagement = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/groups/${id}`),
     onSuccess: () => {
-      message.success('Đã xóa nhóm!');
+      message.success('Đã xóa HTX!');
       queryClient.invalidateQueries(['groups']);
     }
   });
 
   const columns = [
     {
-      title: 'Tên nhóm',
+      title: 'Tên HTX',
       dataIndex: 'name',
       key: 'name',
       render: (text) => <Text strong className="text-gray-800">{text}</Text>
@@ -129,8 +129,8 @@ const GroupManagement = () => {
             }}
           />
           <Popconfirm
-            title="Xóa nhóm"
-            description="Dữ liệu thành viên sẽ không bị xóa, chỉ gỡ bỏ khỏi nhóm này. Bạn có chắc chắn?"
+            title="Xóa HTX"
+            description="Dữ liệu thành viên sẽ không bị xóa, chỉ gỡ bỏ khỏi HTX này. Bạn có chắc chắn?"
             onConfirm={() => deleteMutation.mutate(record._id)}
             okText="Xóa"
             cancelText="Hủy"
@@ -159,7 +159,7 @@ const GroupManagement = () => {
           <HomeOutlined />
           <span>Tổng quan</span>
           <span className="text-gray-200">/</span>
-          <span className="text-green-600 font-bold">Cấu trúc Nhóm</span>
+          <span className="text-green-600 font-bold">Quản lý HTX</span>
         </div>
         <Title level={3} className="!mb-0 flex items-center gap-3">
           <TeamOutlined className="text-green-500" /> Quản lý nhóm người dùng
@@ -170,7 +170,7 @@ const GroupManagement = () => {
         <div className="flex justify-between items-center mb-8 p-1">
           <div className="flex gap-3">
             <Input
-              placeholder="Tìm tên nhóm..."
+              placeholder="Tìm tên HTX..."
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-72 h-12 rounded-2xl border-gray-100 hover:border-green-300 focus:border-green-500 shadow-sm"
               onChange={(e) => setSearchText(e.target.value)}
@@ -186,7 +186,7 @@ const GroupManagement = () => {
             }}
             className="h-12 px-8 rounded-2xl premium-gradient border-0 shadow-xl shadow-green-100 font-bold transform hover:scale-105 transition-all"
           >
-            Tạo nhóm mới
+            Tạo HTX mới
           </Button>
         </div>
 
@@ -207,7 +207,7 @@ const GroupManagement = () => {
               <TeamOutlined />
             </div>
             <span className="text-xl font-bold text-gray-800">
-              {editingGroup ? 'Cập nhật Nhóm' : 'Khởi tạo Nhóm mới'}
+              {editingGroup ? 'Cập nhật HTX' : 'Khởi tạo HTX mới'}
             </span>
           </div>
         }
@@ -218,7 +218,7 @@ const GroupManagement = () => {
           setEditingGroup(null);
           form.resetFields();
         }}
-        okText={editingGroup ? 'Lưu thay đổi' : 'Tạo nhóm doanh nghiệp'}
+        okText={editingGroup ? 'Lưu thay đổi' : 'Tạo HTX doanh nghiệp'}
         cancelText="Để sau"
         centered
         width={650}
@@ -236,14 +236,14 @@ const GroupManagement = () => {
             <Form.Item
               name="name"
               label={<Text strong className="text-gray-600">Tên nhóm / Hợp tác xã</Text>}
-              rules={[{ required: true, message: 'Vui lòng nhập tên nhóm!' }]}
+              rules={[{ required: true, message: 'Vui lòng nhập tên nhóm/HTX!' }]}
             >
               <Input placeholder="Ví dụ: HTX Nông nghiệp Xanh" className="h-12 rounded-xl border-gray-100" />
             </Form.Item>
 
             <Form.Item
               name="permissions"
-              label={<Text strong className="text-gray-600">Quyền truy cập gán cho nhóm</Text>}
+              label={<Text strong className="text-gray-600">Quyền truy cập gán cho HTX</Text>}
             >
               <Select mode="multiple" placeholder="Chọn các mô-đun..." className="w-full" dropdownClassName="rounded-xl">
                 <Select.Option value="Nhật ký">Ghi nhật ký</Select.Option>
@@ -258,12 +258,12 @@ const GroupManagement = () => {
             name="description"
             label={<Text strong className="text-gray-600">Mô tả cụ thể</Text>}
           >
-            <Input.TextArea placeholder="Thông tin chi tiết về nhóm..." className="rounded-xl border-gray-100" rows={3} />
+            <Input.TextArea placeholder="Thông tin chi tiết về HTX..." className="rounded-xl border-gray-100" rows={3} />
           </Form.Item>
 
           <Divider orientation="left" className="!my-8">
             <Text className="text-[10px] text-gray-300 font-bold uppercase tracking-widest flex items-center gap-2">
-              <InfoCircleOutlined /> Thành viên thuộc nhóm
+              <InfoCircleOutlined /> Thành viên thuộc HTX
             </Text>
           </Divider>
 

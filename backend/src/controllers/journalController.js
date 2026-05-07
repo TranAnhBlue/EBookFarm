@@ -114,7 +114,8 @@ const updateJournal = async (req, res) => {
                              message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ [${catLabel}]: ${htxJournal.name}`,
                              type: 'Journal_Submitted',
                              relatedId: htxJournal._id,
-                             relatedModel: 'HtxJournal'
+                             relatedModel: 'HtxJournal',
+                             categoryLabel: catLabel
                          });
                      }
                      if (updated.status === 'Draft') farmerEntry.status = 'Đang nhập';

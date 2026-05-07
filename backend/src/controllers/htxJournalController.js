@@ -99,7 +99,8 @@ const addFarmersToJournal = async (req, res) => {
         message: `Bạn đã được phân công tham gia sổ [${catLabel}]: ${htxJournal.name}`,
         type: 'Journal_Assigned',
         relatedId: farmJournal._id,
-        relatedModel: 'FarmJournal'
+        relatedModel: 'FarmJournal',
+        categoryLabel: catLabel
       });
     }
 
@@ -181,7 +182,8 @@ const updateFarmerStatus = async (req, res) => {
           message: `${nMessage} [${catLabel}]`,
           type: nType,
           relatedId: farmerEntry.farmJournalId,
-          relatedModel: 'FarmJournal'
+          relatedModel: 'FarmJournal',
+          categoryLabel: catLabel
         });
       }
     }

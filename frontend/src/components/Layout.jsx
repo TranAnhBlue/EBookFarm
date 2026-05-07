@@ -39,7 +39,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
-  
+
   const isMobile = !screens.md;
 
   const handleLogout = async () => {
@@ -131,7 +131,7 @@ const MainLayout = () => {
       label: <span className="font-medium">Quản lý tài khoản</span>,
       children: [
         { key: '/admin/users', label: 'Danh sách tài khoản' },
-        { key: '/admin/groups', label: 'Cấu trúc nhóm' },
+        { key: '/admin/groups', label: 'Quản Lý HTX' },
         { key: '/admin/roles', label: 'Phân quyền & Vai trò' },
       ],
     },
@@ -238,10 +238,10 @@ const MainLayout = () => {
     },
   ];
 
-  const items = user?.role?.toUpperCase() === 'ADMIN' 
-    ? getAdminItems() 
-    : user?.role?.toUpperCase() === 'HTX' 
-      ? getHtxItems() 
+  const items = user?.role?.toUpperCase() === 'ADMIN'
+    ? getAdminItems()
+    : user?.role?.toUpperCase() === 'HTX'
+      ? getHtxItems()
       : getFarmerItems();
 
   const dropdownItems = [

@@ -12,6 +12,7 @@ const notificationSchema = new mongoose.Schema({
   },
   relatedId: { type: mongoose.Schema.Types.ObjectId }, // Link to Journal, HtxJournal, etc.
   relatedModel: { type: String }, // 'FarmJournal' or 'HtxJournal'
+  categoryLabel: { type: String }, // 'VietGAP Trồng trọt', etc.
   isRead: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });

@@ -113,6 +113,11 @@ const NotificationBell = () => {
                                     <div className="flex justify-between items-start mb-1">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             {getTypeTag(item.type)}
+                                            {item.categoryLabel && (
+                                                <Tag color="default" className="mr-0 opacity-70 bg-gray-100 border-gray-200 text-gray-600">
+                                                    {item.categoryLabel}
+                                                </Tag>
+                                            )}
                                             <Text strong className={`text-[13px] ${!item.isRead ? 'text-gray-900' : 'text-gray-500'}`}>
                                                 {item.title}
                                             </Text>
