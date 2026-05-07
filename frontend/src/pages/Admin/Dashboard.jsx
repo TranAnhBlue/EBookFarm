@@ -169,9 +169,9 @@ const Dashboard = () => {
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 
       {/* Top Welcome Section */}
-      <div className="flex justify-between items-end mb-2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
         <div className="space-y-1">
-          <Title level={4} className="!mb-0 !text-gray-400 font-medium uppercase tracking-widest text-xs">
+          <Title level={4} className="!mb-0 !text-gray-400 font-medium uppercase tracking-widest text-[10px] md:text-xs">
             {user?.role?.toUpperCase() === 'ADMIN' 
               ? 'Tổng quan hệ thống' 
               : user?.role?.toUpperCase() === 'HTX'
@@ -242,9 +242,9 @@ const Dashboard = () => {
                       {[
                         { label: 'Độ ẩm đất', value: '42%', icon: <Droplets className="w-4 h-4" />, color: 'blue', status: 'Tốt' },
                         { label: 'Nhiệt độ đất', value: '24°C', icon: <Sun className="w-4 h-4" />, color: 'orange', status: 'Ổn định' },
-                        { label: ' Drone phun thuốc', value: 'Sẵn sàng', icon: <Wind className="w-4 h-4" />, color: 'green', status: 'Trực tuyến' },
+                        { label: 'Drone phun thuốc', value: 'Sẵn sàng', icon: <Wind className="w-4 h-4" />, color: 'green', status: 'Trực tuyến' },
                       ].map((sensor, idx) => (
-                        <Col xs={8} key={idx}>
+                        <Col xs={12} sm={8} key={idx}>
                           <div className="bg-white/40 p-3 rounded-xl border border-white/60 hover:bg-white/80 transition-all cursor-pointer group">
                             <div className={`w-8 h-8 rounded-lg bg-${sensor.color}-100 text-${sensor.color}-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
                               {sensor.icon}
@@ -272,7 +272,7 @@ const Dashboard = () => {
                 {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị hệ thống' : 'Các mô-đun sản xuất'}
               </Text>
             </div>
-            <div className="grid grid-cols-3 gap-y-12 gap-x-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-8 md:gap-y-12 gap-x-4 md:gap-x-6">
               {quickAccessItems.map((item, index) => (
                 <div
                   key={index}

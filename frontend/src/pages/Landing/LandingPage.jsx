@@ -153,7 +153,7 @@ const LandingPage = () => {
                                 <Tag color="green" className="m-0 rounded-full font-bold">Mới</Tag>
                                 <Text className="text-green-700 font-bold text-xs uppercase tracking-wider">Hệ thống truy xuất chuẩn quốc gia TCVN</Text>
                             </div>
-                            <Title className="!text-gray-900 !mb-6 leading-[1.1] md:!text-7xl font-black scroll-reveal">
+                            <Title className="!text-gray-900 !mb-6 leading-[1.1] !text-4xl md:!text-7xl font-black scroll-reveal">
                                 Minh bạch <span className="gradient-text">Nguồn gốc</span>,<br />
                                 Nâng tầm <span className="gradient-text">Giá trị</span> Nông sản.
                             </Title>
@@ -414,7 +414,7 @@ const LandingPage = () => {
                         <Paragraph className="text-gray-500 text-lg">Giải pháp chuyển đổi số toàn diện cho nông nghiệp hiện đại, minh bạch và hiệu quả.</Paragraph>
                     </div>
 
-                    <Row gutter={[32, 32]}>
+                    <Row gutter={[20, 20]} className="mt-12">
                         {[
                             {
                                 title: 'Quản lý quy trình sản xuất chi tiết',
@@ -505,7 +505,7 @@ const LandingPage = () => {
                         <Paragraph className="text-gray-500 text-lg">Khi triển khai hệ thống truy xuất nguồn gốc với EBookFarm</Paragraph>
                     </div>
 
-                    <Row gutter={[32, 32]}>
+                    <Row gutter={[20, 20]} className="mt-12">
                         {[
                             {
                                 icon: <TrophyOutlined />,

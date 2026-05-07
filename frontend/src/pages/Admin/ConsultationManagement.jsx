@@ -344,6 +344,7 @@ const ConsultationManagement = () => {
                         onShowSizeChange: (current, size) => setPageSize(size),
                         showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> yêu cầu</span>,
                     }}
+                    scroll={{ x: 1000 }}
                     className="consultation-table"
                 />
             </Card>

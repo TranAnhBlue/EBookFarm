@@ -134,14 +134,14 @@ const CustomerManagement = () => {
       </div>
 
       <Card bordered={false} className="shadow-sm rounded-[24px]">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <Input 
             placeholder="Tìm theo tên hoặc email..." 
             prefix={<SearchOutlined className="text-gray-300" />}
-            className="w-80 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
+            className="w-full md:w-80 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <div className="flex gap-4">
+          <div className="flex gap-6 w-full md:w-auto justify-end">
              <div className="flex flex-col items-end">
                 <Text strong className="text-lg leading-none">{customers.length}</Text>
                 <Text type="secondary" className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Tổng khách hàng</Text>
@@ -160,6 +160,7 @@ const CustomerManagement = () => {
           rowKey="_id" 
           loading={isLoading}
           pagination={{ pageSize: 8 }}
+          scroll={{ x: 900 }}
           className="premium-table-refined"
         />
       </Card>

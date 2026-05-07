@@ -1,7 +1,9 @@
 import { Button, Space, Typography, Avatar, Dropdown, Divider as AntdDivider } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { UserOutlined, LogoutOutlined, DashboardOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, DashboardOutlined, MenuOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Drawer } from 'antd';
 import { getAvatarUrl } from '../utils/helpers';
 import logo from '../assets/logo-ebookfarm.jpg';
 
@@ -10,6 +12,7 @@ const { Title } = Typography;
 const PublicNavbar = () => {
     const navigate = useNavigate();
     const { token, user, logout } = useAuthStore();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -54,20 +57,21 @@ const PublicNavbar = () => {
                     </div>
                 </div>
 
-                <Space size="large" className="hidden md:flex">
-                    <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/')}>Trang chủ</Button>
-                    <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
-                    <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => {
-                        if (window.location.pathname === '/') {
-                            document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
-                        } else {
-                            navigate('/');
-                            setTimeout(() => document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' }), 300);
-                        }
-                    }}>Về chúng tôi</Button>
-                </Space>
-
                 <Space size={0} className="flex items-center">
+                    {/* Desktop Menu */}
+                    <Space size="large" className="hidden md:flex mr-6">
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/')}>Trang chủ</Button>
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => {
+                            if (window.location.pathname === '/') {
+                                document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                                navigate('/');
+                                setTimeout(() => document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' }), 300);
+                            }
+                        }}>Về chúng tôi</Button>
+                    </Space>
+
                     {token ? (
                         <div className="flex items-center">
                             <Button
@@ -100,12 +104,56 @@ const PublicNavbar = () => {
                             </Dropdown>
                         </div>
                     ) : (
-                        <Space size="middle">
-                            <Button type="text" className="font-bold text-green-600" onClick={() => navigate('/login')}>Đăng nhập</Button>
-                            <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-6 border-0 shadow-lg shadow-green-100" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
+                        <Space size="small">
+                            <Button type="text" className="font-bold text-green-600 px-2" onClick={() => navigate('/login')}>Đăng nhập</Button>
+                            <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100 hidden xs:flex" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
                         </Space>
                     )}
+
+                    {/* Mobile Menu Toggle */}
+                    <Button
+                        type="text"
+                        icon={<MenuOutlined />}
+                        className="md:hidden ml-2 text-xl text-gray-600"
+                        onClick={() => setMobileMenuOpen(true)}
+                    />
                 </Space>
+
+                {/* Mobile Drawer */}
+                <Drawer
+                    title={
+                        <div className="flex items-center gap-2">
+                            <img src={logo} alt="Logo" className="w-8 h-8 object-contain" />
+                            <span className="text-green-600 font-black text-sm uppercase">EBookFarm</span>
+                        </div>
+                    }
+                    placement="right"
+                    onClose={() => setMobileMenuOpen(false)}
+                    open={mobileMenuOpen}
+                    width={280}
+                >
+                    <div className="flex flex-col gap-4">
+                        <Button type="text" className="text-left font-bold text-gray-600" onClick={() => { navigate('/'); setMobileMenuOpen(false); }}>Trang chủ</Button>
+                        <Button type="text" className="text-left font-bold text-gray-600" onClick={() => { navigate('/reference/tcvn'); setMobileMenuOpen(false); }}>Tra cứu TCVN</Button>
+                        <Button type="text" className="text-left font-bold text-gray-600" onClick={() => {
+                            setMobileMenuOpen(false);
+                            if (window.location.pathname === '/') {
+                                document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+                            } else {
+                                navigate('/');
+                                setTimeout(() => document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' }), 300);
+                            }
+                        }}>Về chúng tôi</Button>
+                        
+                        <AntdDivider className="my-2" />
+                        
+                        {!token && (
+                            <Button type="primary" className="bg-green-600 border-0 h-12 rounded-xl font-bold" onClick={() => { navigate('/register'); setMobileMenuOpen(false); }}>
+                                Đăng ký ngay
+                            </Button>
+                        )}
+                    </div>
+                </Drawer>
             </div>
         </nav>
     );

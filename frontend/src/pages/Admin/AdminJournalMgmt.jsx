@@ -362,6 +362,7 @@ const AdminJournalMgmt = () => {
             },
             className: "pb-4 px-4"
           }}
+          scroll={{ x: 1000 }}
           rowKey="_id"
         />
       </Card>
