@@ -44,12 +44,24 @@ const getJournalStatusStats = async (req, res) => {
     
     const stats = await FarmJournal.aggregate([
       { $match: filter },
-      { $group: { _id: '$status', count: { $sum: 1 } } }
+      { 
+        $group: { 
+          _id: {
+            $cond: [
+              { $eq: ["$status", "Draft"] }, "Bản nháp",
+              { $cond: [
+                { $eq: ["$status", "Submitted"] }, "Chờ duyệt",
+                "Hoàn thành"
+              ]}
+            ]
+          }, 
+          count: { $sum: 1 } 
+        } 
+      }
     ]);
 
-    // Format lại cho Recharts
     const formattedData = stats.map(s => ({
-      name: s._id === 'Draft' ? 'Bản nháp' : 'Hoàn thành',
+      name: s._id,
       value: s.count
     }));
 

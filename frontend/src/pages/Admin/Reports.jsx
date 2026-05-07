@@ -251,7 +251,7 @@ const Reports = () => {
       {/* Stats Cards Row */}
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-[32px] hover:-translate-y-1 transition-all overflow-hidden relative">
+          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
              <div className="absolute top-0 right-0 p-8 opacity-10">
                 <FileTextOutlined className="text-6xl text-green-500" />
              </div>
@@ -270,7 +270,7 @@ const Reports = () => {
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-[32px] hover:-translate-y-1 transition-all overflow-hidden relative">
+          <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
              <div className="absolute top-0 right-0 p-8 opacity-10">
                 <DashboardOutlined className="text-6xl text-blue-500" />
              </div>
@@ -292,7 +292,7 @@ const Reports = () => {
         {isAdmin && (
           <>
             <Col xs={24} sm={12} lg={6}>
-              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-[32px] hover:-translate-y-1 transition-all overflow-hidden relative">
+              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
                  <div className="absolute top-0 right-0 p-8 opacity-10">
                     <UserOutlined className="text-6xl text-orange-500" />
                  </div>
@@ -306,7 +306,7 @@ const Reports = () => {
             </Col>
 
             <Col xs={24} sm={12} lg={6}>
-              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-[32px] hover:-translate-y-1 transition-all overflow-hidden relative">
+              <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative">
                  <div className="absolute top-0 right-0 p-8 opacity-10">
                     <BoxPlotOutlined className="text-6xl text-purple-500" />
                  </div>
@@ -328,7 +328,7 @@ const Reports = () => {
         <Col xs={24} lg={16}>
           <Card 
             bordered={false} 
-            className="shadow-xl shadow-gray-100/50 rounded-[32px] overflow-hidden"
+            className="shadow-xl shadow-gray-100/50 rounded-3xl overflow-hidden"
             title={
               <div className="flex justify-between items-center py-2">
                 <Space>
@@ -387,7 +387,7 @@ const Reports = () => {
         <Col xs={24} lg={8}>
           <Card 
             bordered={false} 
-            className="shadow-xl shadow-gray-100/50 rounded-[32px] overflow-hidden h-full"
+            className="shadow-xl shadow-gray-100/50 rounded-3xl overflow-hidden h-full"
             title={
               <Space>
                 <PieChartOutlined className="text-orange-500" />
@@ -412,9 +412,12 @@ const Reports = () => {
                       animationBegin={500}
                       animationDuration={1500}
                     >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={8} />
-                      ))}
+                      {pieData.map((entry, index) => {
+                        let color = '#3b82f6'; // Mặc định Blue (Draft)
+                        if (entry.name === 'Hoàn thành') color = '#22c55e'; // Green
+                        if (entry.name === 'Chờ duyệt') color = '#f59e0b'; // Orange
+                        return <Cell key={`cell-${index}`} fill={color} cornerRadius={8} />;
+                      })}
                     </Pie>
                     <Tooltip 
                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
