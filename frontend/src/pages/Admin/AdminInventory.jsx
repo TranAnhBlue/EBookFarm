@@ -78,7 +78,16 @@ const AdminInventory = () => {
     queryFn: () => api.get('/inventory-categories').then(res => res.data.data)
   });
 
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
   const columns = [
+    {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      align: 'center',
+      render: (_, __, index) => <Text type="secondary">{index + 1}</Text>
+    },
     {
       title: 'Tên vật tư',
       dataIndex: 'name',
@@ -163,6 +172,12 @@ const AdminInventory = () => {
     }
   ];
 
+  const filteredData = items?.filter(i => {
+    const matchSearch = i.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchCategory = selectedCategory === 'All' || i.category === selectedCategory;
+    return matchSearch && matchCategory;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col gap-2">
@@ -177,13 +192,24 @@ const AdminInventory = () => {
 
       <Card bordered={false} className="shadow-sm rounded-[24px]">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Input
               placeholder="Tìm kiếm vật tư..."
               prefix={<SearchOutlined className="text-gray-300" />}
               className="w-64 h-10 rounded-xl border-gray-100 hover:border-green-300 focus:border-green-500"
               onChange={e => setSearchText(e.target.value)}
             />
+            <Select
+              defaultValue="All"
+              className="w-48 h-10"
+              onChange={val => setSelectedCategory(val)}
+              suffixIcon={<FilterOutlined className="text-gray-300" />}
+            >
+              <Select.Option value="All">Tất cả danh mục</Select.Option>
+              {catList?.map(cat => (
+                <Select.Option key={cat._id} value={cat.name}>{cat.name}</Select.Option>
+              ))}
+            </Select>
           </div>
           <Button
             type="primary"
@@ -197,10 +223,15 @@ const AdminInventory = () => {
 
         <Table
           columns={columns}
-          dataSource={items?.filter(i => i.name.toLowerCase().includes(searchText.toLowerCase()))}
+          dataSource={filteredData}
           rowKey="_id"
           loading={isLoading}
-          pagination={{ pageSize: 8 }}
+          pagination={{ 
+            pageSize: 8,
+            showSizeChanger: true,
+            showTotal: (total) => `Tổng cộng ${total} vật tư`,
+            className: "premium-pagination"
+          }}
           className="premium-table-refined"
         />
       </Card>
