@@ -549,20 +549,23 @@ const FormBuilder = () => {
                           <>
                             {subFields.map((subField) => (
                               <div key={subField.key} className="bg-white p-3 rounded-lg mb-3 border border-gray-100">
-                                <Row gutter={8} align="middle">
+                                <Row gutter={8}>
                                   <Col span={6}>
-                                    <Form.Item {...subField} name={[subField.name, 'name']} rules={[{ required: true, message: 'ID trường' }]} className="m-0">
-                                      <Input placeholder="ID (vd: ten_giong)" />
+                                    <Text className="text-[10px] text-gray-400 font-bold uppercase ml-1">Mã (ID)</Text>
+                                    <Form.Item {...subField} name={[subField.name, 'name']} rules={[{ required: true, message: 'ID trường' }]} className="mb-2">
+                                      <Input placeholder="vd: ten_giong" className="rounded-md" />
                                     </Form.Item>
                                   </Col>
-                                  <Col span={6}>
-                                    <Form.Item {...subField} name={[subField.name, 'label']} rules={[{ required: true, message: 'Nhãn' }]} className="m-0">
-                                      <Input placeholder="Nhãn (vd: Tên giống)" />
+                                  <Col span={7}>
+                                    <Text className="text-[10px] text-gray-400 font-bold uppercase ml-1">Tên hiển thị (Nhãn)</Text>
+                                    <Form.Item {...subField} name={[subField.name, 'label']} rules={[{ required: true, message: 'Nhãn' }]} className="mb-2">
+                                      <Input placeholder="vd: Tên giống" className="rounded-md" />
                                     </Form.Item>
                                   </Col>
                                   <Col span={5}>
-                                    <Form.Item {...subField} name={[subField.name, 'type']} rules={[{ required: true }]} className="m-0">
-                                      <Select placeholder="Kiểu">
+                                    <Text className="text-[10px] text-gray-400 font-bold uppercase ml-1">Kiểu</Text>
+                                    <Form.Item {...subField} name={[subField.name, 'type']} rules={[{ required: true }]} className="mb-2">
+                                      <Select placeholder="Kiểu" className="rounded-md">
                                         <Option value="text">Chữ</Option>
                                         <Option value="number">Số</Option>
                                         <Option value="date">Ngày</Option>
@@ -572,17 +575,18 @@ const FormBuilder = () => {
                                     </Form.Item>
                                   </Col>
                                   <Col span={4}>
-                                    <Form.Item {...subField} name={[subField.name, 'required']} valuePropName="checked" className="m-0">
-                                      <Select placeholder="Bắt buộc?">
-                                        <Option value={true}>Bắt buộc</Option>
-                                        <Option value={false}>Tùy chọn</Option>
+                                    <Text className="text-[10px] text-gray-400 font-bold uppercase ml-1">Bắt buộc</Text>
+                                    <Form.Item {...subField} name={[subField.name, 'required']} valuePropName="checked" className="mb-2">
+                                      <Select placeholder="Bắt buộc?" className="rounded-md">
+                                        <Option value={true}>Có</Option>
+                                        <Option value={false}>Không</Option>
                                       </Select>
                                     </Form.Item>
                                   </Col>
-                                  <Col span={3} className="text-right">
+                                  <Col span={2} className="text-right pt-6">
                                     <Button danger type="text" icon={<DeleteOutlined />} onClick={() => removeSubField(subField.name)} />
                                   </Col>
-                                  <Col span={24} className="mt-2">
+                                  <Col span={24}>
                                     <Form.Item
                                       {...subField}
                                       name={[subField.name, 'options']}
@@ -592,7 +596,10 @@ const FormBuilder = () => {
                                     >
                                       {({ getFieldValue }) =>
                                         getFieldValue(['tables', name, 'fields', subField.name, 'type']) === 'select' ? (
-                                          <Input placeholder="Các lựa chọn (cách nhau bởi dấu phẩy)" className="mt-2" />
+                                          <div className="mb-2">
+                                            <Text className="text-[10px] text-blue-500 font-bold uppercase ml-1">Các tùy chọn lựa chọn (cách nhau bởi dấu phẩy)</Text>
+                                            <Input placeholder="Vd: Loại 1, Loại 2, Loại 3" className="mt-1 rounded-md border-blue-100" />
+                                          </div>
                                         ) : null
                                       }
                                     </Form.Item>
@@ -669,9 +676,10 @@ const FormBuilder = () => {
                     size="small"
                     rowKey="name"
                     columns={[
-                      { title: 'Tên trường', dataIndex: 'label', key: 'label', width: '40%', render: (t, r) => <Text>{t} {r.required && <Text danger>*</Text>}</Text> },
-                      { title: 'Kiểu dữ liệu', dataIndex: 'type', key: 'type', width: '30%', render: (t) => <Tag color="blue" className="capitalize">{t}</Tag> },
-                      { title: 'Bắt buộc', dataIndex: 'required', key: 'required', render: (val) => val ? 'Có' : 'Không' }
+                      { title: 'Tên hiển thị', dataIndex: 'label', key: 'label', width: '35%', render: (t, r) => <Text strong>{t} {r.required && <Text danger>*</Text>}</Text> },
+                      { title: 'Mã (ID)', dataIndex: 'name', key: 'name', width: '30%', render: (t) => <code className="text-xs text-orange-600 bg-orange-50 px-1 rounded">{t}</code> },
+                      { title: 'Kiểu dữ liệu', dataIndex: 'type', key: 'type', width: '20%', render: (t) => <Tag color="blue" className="capitalize">{t}</Tag> },
+                      { title: 'Bắt buộc', dataIndex: 'required', key: 'required', width: '15%', render: (val) => val ? <Tag color="error">Có</Tag> : <Tag color="default">Không</Tag> }
                     ]}
                   />
                   {table.fields?.some(f => f.type === 'select') && (
