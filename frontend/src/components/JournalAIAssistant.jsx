@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    Button, 
-    Alert, 
-    Spin, 
-    Tag, 
-    Space, 
-    Tooltip, 
+import {
+    Card,
+    Button,
+    Alert,
+    Spin,
+    Tag,
+    Space,
+    Tooltip,
     Collapse,
     Badge,
     message
@@ -24,9 +24,9 @@ import {
 
 const { Panel } = Collapse;
 
-const JournalAIAssistant = ({ 
-    schemaId, 
-    currentData = {}, 
+const JournalAIAssistant = ({
+    schemaId,
+    currentData = {},
     activeField = null,
     onSuggestionApply = null,
     className = ""
@@ -396,7 +396,7 @@ const JournalAIAssistant = ({
                                 • {suggestion}
                             </div>
                         ))}
-                        
+
                         <Button
                             size="small"
                             type="dashed"
