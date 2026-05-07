@@ -61,14 +61,33 @@ const Reports = () => {
               .replace(/đ/g, 'd').replace(/Đ/g, 'D');
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     if (!stats) {
       message.warning('Dữ liệu đang được tải, vui lòng thử lại sau giây lát.');
       return;
     }
 
+    const hide = message.loading('Đang khởi tạo font chữ và tạo báo cáo PDF...', 0);
+
     try {
       const doc = new jsPDF();
+      
+      // --- 0. LOAD UNICODE FONT ---
+      // Fetch Roboto font from a public CDN to support Vietnamese Unicode
+      const fontUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf';
+      const response = await fetch(fontUrl);
+      const fontBuffer = await response.arrayBuffer();
+      
+      // Convert ArrayBuffer to Base64
+      const fontBase64 = btoa(
+        new Uint8Array(fontBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+      
+      // Add font to jsPDF
+      doc.addFileToVFS('Roboto-Regular.ttf', fontBase64);
+      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+      doc.setFont('Roboto');
+
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       
@@ -81,16 +100,16 @@ const Reports = () => {
         
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
-        doc.text(removeAccents("HE THONG QUAN LY NHAT KY SAN XUAT DIEN TU"), 38, 15);
+        doc.text("HỆ THỐNG QUẢN LÝ NHẬT KÝ SẢN XUẤT ĐIỆN TỬ", 38, 15);
         doc.setFontSize(11);
         doc.setTextColor(34, 197, 94);
-        doc.setFont("helvetica", "bold");
-        doc.text("EBOOKFARM - NONG NGHIEP SO 4.0", 38, 22);
+        doc.setFont("Roboto", "bold");
+        doc.text("EBOOKFARM - NÔNG NGHIỆP SỐ 4.0", 38, 22);
         
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.setFont("helvetica", "normal");
-        doc.text(removeAccents("Website: www.ebookfarm.vn | Email: contact@ebookfarm.vn"), 38, 28);
+        doc.setFont("Roboto", "normal");
+        doc.text("Website: www.ebookfarm.vn | Email: contact@ebookfarm.vn", 38, 28);
 
         // --- 2. TITLE & METADATA ---
         doc.setDrawColor(34, 197, 94);
@@ -99,45 +118,45 @@ const Reports = () => {
 
         doc.setFontSize(22);
         doc.setTextColor(40, 40, 40);
-        doc.setFont("helvetica", "bold");
-        doc.text(removeAccents("BAO CAO THONG KE TONG HOP"), pageWidth / 2, 50, { align: 'center' });
+        doc.setFont("Roboto", "bold");
+        doc.text("BÁO CÁO THỐNG KÊ TỔNG HỢP", pageWidth / 2, 50, { align: 'center' });
         
         doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
+        doc.setFont("Roboto", "normal");
         doc.setTextColor(100, 100, 100);
-        doc.text(removeAccents(`Ma bao cao: EB-RP-${new Date().getTime()}`), pageWidth / 2, 58, { align: 'center' });
-        doc.text(removeAccents(`Ngay lap: ${new Date().toLocaleString('vi-VN')}`), pageWidth / 2, 63, { align: 'center' });
+        doc.text(`Mã báo cáo: EB-RP-${new Date().getTime()}`, pageWidth / 2, 58, { align: 'center' });
+        doc.text(`Ngày lập: ${new Date().toLocaleString('vi-VN')}`, pageWidth / 2, 63, { align: 'center' });
 
-        // --- 3. SUMMARY BOXES (Vẽ các khối số liệu nổi bật) ---
+        // --- 3. SUMMARY BOXES ---
         const boxWidth = (pageWidth - 40) / 3;
         const boxY = 75;
 
-        // Box 1: Tong nhat ky
+        // Box 1: Tổng nhật ký
         doc.setFillColor(240, 253, 244);
         doc.roundedRect(14, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text(removeAccents("TONG NHAT KY"), 14 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("TỔNG NHẬT KÝ", 14 + boxWidth/2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(34, 197, 94);
         doc.text(`${stats.totalJournals || 0}`, 14 + boxWidth/2, boxY + 18, { align: 'center' });
 
-        // Box 2: Hoan thanh
+        // Box 2: Hoàn thành
         doc.setFillColor(239, 246, 255);
         doc.roundedRect(14 + boxWidth + 6, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text(removeAccents("HOAN THANH"), 14 + boxWidth + 6 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("HOÀN THÀNH", 14 + boxWidth + 6 + boxWidth/2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(37, 99, 235);
         doc.text(`${stats.completedJournals || 0}`, 14 + boxWidth + 6 + boxWidth/2, boxY + 18, { align: 'center' });
 
-        // Box 3: Nguoi dung
+        // Box 3: Người dùng
         doc.setFillColor(255, 251, 235);
         doc.roundedRect(14 + (boxWidth + 6) * 2, boxY, boxWidth, 25, 3, 3, 'F');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
-        doc.text(removeAccents("NGUOI DUNG"), 14 + (boxWidth + 6) * 2 + boxWidth/2, boxY + 8, { align: 'center' });
+        doc.text("NGƯỜI DÙNG", 14 + (boxWidth + 6) * 2 + boxWidth/2, boxY + 8, { align: 'center' });
         doc.setFontSize(14);
         doc.setTextColor(217, 119, 6);
         doc.text(`${stats.totalUsers || 0}`, 14 + (boxWidth + 6) * 2 + boxWidth/2, boxY + 18, { align: 'center' });
@@ -145,21 +164,21 @@ const Reports = () => {
         // --- 4. DETAIL TABLE ---
         const tableData = [];
         if (isAdmin) {
-          tableData.push([removeAccents('Nhom / Hop tac xa'), stats.totalGroups || 0, removeAccents('Don vi')]);
-          tableData.push([removeAccents('Vat tu ton kho'), stats.inventoryCount || 0, removeAccents('Mat hang')]);
+          tableData.push(['Nhóm / Hợp tác xã', stats.totalGroups || 0, 'Đơn vị']);
+          tableData.push(['Vật tư tồn kho', stats.inventoryCount || 0, 'Mặt hàng']);
         }
         
         if (pieData && pieData.length > 0) {
           pieData.forEach(item => {
-            tableData.push([removeAccents(`Trang thai: ${item.name}`), item.value, removeAccents('Nhat ky')]);
+            tableData.push([`Trạng thái: ${item.name}`, item.value, 'Nhật ký']);
           });
         }
         
         autoTable(doc, {
-          head: [[removeAccents('Chi tiet hang muc'), removeAccents('So luong'), removeAccents('Don vi tinh')]],
+          head: [['Chi tiết hạng mục', 'Số lượng', 'Đơn vị tính']],
           body: tableData,
           startY: 110,
-          styles: { font: 'Helvetica', fontSize: 9 },
+          styles: { font: 'Roboto', fontSize: 9 },
           headStyles: { fillColor: [34, 197, 94], textColor: [255, 255, 255], fontStyle: 'bold' },
           alternateRowStyles: { fillColor: [248, 250, 252] },
           columnStyles: {
@@ -174,35 +193,39 @@ const Reports = () => {
         doc.setFontSize(10);
         doc.setTextColor(40, 40, 40);
         
-        doc.text(removeAccents("Nguoi lap bieu"), 40, finalY, { align: 'center' });
+        doc.text("Người lập biểu", 40, finalY, { align: 'center' });
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text(removeAccents("(Ky va ghi ro ho ten)"), 40, finalY + 5, { align: 'center' });
+        doc.text("(Ký và ghi rõ họ tên)", 40, finalY + 5, { align: 'center' });
         
         doc.setFontSize(10);
         doc.setTextColor(40, 40, 40);
-        doc.text(removeAccents("Xac nhan cua Admin"), pageWidth - 40, finalY, { align: 'center' });
+        doc.text("Xác nhận của Admin", pageWidth - 40, finalY, { align: 'center' });
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text(removeAccents("(Ky ten, dong dau)"), pageWidth - 40, finalY + 5, { align: 'center' });
+        doc.text("(Ký tên, đóng dấu)", pageWidth - 40, finalY + 5, { align: 'center' });
 
         // --- 6. FOOTER ---
         doc.setFontSize(8);
         doc.setTextColor(200, 200, 200);
-        doc.text(removeAccents(`Trang 1 / 1 - Xuat tu he thong EBookFarm luc ${new Date().toLocaleTimeString('vi-VN')}`), pageWidth / 2, pageHeight - 10, { align: 'center' });
+        doc.text(`Trang 1 / 1 - Xuất từ hệ thống EBookFarm lúc ${new Date().toLocaleTimeString('vi-VN')}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
         doc.save(`Bao_cao_EBookFarm_${new Date().getTime()}.pdf`);
-        message.success('Da xuat bao cao PDF chuyen nghiep!');
+        hide();
+        message.success('Đã xuất báo cáo PDF tiếng Việt thành công!');
       };
 
       img.onerror = () => {
-        message.error('Loi khi tai logo. Vui long kiem tra lai tep assets.');
+        hide();
+        message.error('Lỗi khi tải logo. Vui lòng kiểm tra lại tệp assets.');
       };
     } catch (error) {
+      hide();
       console.error('PDF Export Error:', error);
       message.error('Lỗi khi xuất PDF. Vui lòng thử lại.');
     }
   };
+
 
   const exportExcel = () => {
     const data = [
