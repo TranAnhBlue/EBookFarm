@@ -43,6 +43,28 @@ const Dashboard = () => {
     enabled: !!coords
   });
 
+  // Fetch Vietnamese Address from GPS (Reverse Geocoding)
+  const { data: addressData } = useQuery({
+    queryKey: ['address', coords],
+    queryFn: async () => {
+      if (!coords) return null;
+      try {
+        const { data } = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.lat}&lon=${coords.lon}&accept-language=vi`);
+        return data;
+      } catch (err) {
+        return null;
+      }
+    },
+    enabled: !!coords
+  });
+
+  const getVietnameseLocation = () => {
+    if (!addressData?.address) return area?.areaName?.[0]?.value || 'Hà Nội';
+    const addr = addressData.address;
+    // Ưu tiên hiển thị: Xã/Phường -> Quận/Huyện -> Tỉnh/Thành
+    return addr.suburb || addr.village || addr.city_district || addr.county || addr.city || addr.state || 'Việt Nam';
+  };
+
   const getWeatherIcon = (code) => {
     // Basic mapping for wttr.in WWO codes
     const sunCodes = ['113'];
@@ -175,7 +197,7 @@ const Dashboard = () => {
                     <Badge
                       status="processing"
                       color="#22c55e"
-                      text={<span className="font-bold text-gray-800 uppercase tracking-tight text-xs">Thời tiết {area?.areaName?.[0]?.value || 'Hà Nội'}</span>}
+                      text={<span className="font-bold text-gray-800 tracking-tight text-xs">Thời tiết {getVietnameseLocation()}</span>}
                     />
                     <Space>
                       <Tag color="green" className="text-[10px] font-bold m-0 rounded-full uppercase">Trực tiếp</Tag>
