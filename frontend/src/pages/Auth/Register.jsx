@@ -1,6 +1,6 @@
 import React from 'react';
-import { Form, Input, Button, Card, message, Typography, Space, Divider, Steps, Row, Col } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, ArrowRightOutlined, RocketFilled, SafetyCertificateFilled } from '@ant-design/icons';
+import { Form, Input, Button, message, Typography, Row, Col } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, RocketFilled, SafetyCertificateFilled } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -78,7 +78,7 @@ const Register = () => {
         </div>
 
         {/* Form Content */}
-        <div className="w-full md:w-7/12 p-6 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
+        <div className="w-full md:w-7/12 p-5 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
             <div className="mb-6 md:mb-8">
                 <div className="hidden md:flex items-center gap-3 mb-8">
                     <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
@@ -101,7 +101,7 @@ const Register = () => {
                 onFinish={onFinish}
                 className="premium-form"
             >
-                <Row gutter={20}>
+                <Row gutter={[12, 0]}>
                     <Col span={24}>
                         <Form.Item
                             name="fullname"
@@ -114,7 +114,7 @@ const Register = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} md={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item
                             name="username"
                             label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Tên tài khoản</span>}
@@ -127,7 +127,7 @@ const Register = () => {
                             />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} md={12}>
+                    <Col xs={24} sm={12}>
                         <Form.Item
                             name="email"
                             label={<span className="text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email</span>}
@@ -174,8 +174,8 @@ const Register = () => {
             </Form>
 
             <div className="text-center">
-                <Text className="text-gray-400 font-medium">Bạn đã có tài khoản? </Text>
-                <Link to="/login" className="text-emerald-600 font-black hover:underline px-1">
+                <Text className="text-gray-400 font-medium text-xs sm:text-sm">Bạn đã có tài khoản? </Text>
+                <Link to="/login" className="text-emerald-600 font-black hover:underline px-1 text-xs sm:text-sm">
                     Đăng nhập tại đây
                 </Link>
             </div>

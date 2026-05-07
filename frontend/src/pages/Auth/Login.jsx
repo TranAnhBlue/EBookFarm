@@ -110,7 +110,7 @@ const Login = () => {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full md:w-1/2 p-6 sm:p-10 md:p-16 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 p-5 sm:p-10 md:p-16 flex flex-col justify-center">
             <div className="mb-6 md:mb-10 block md:hidden">
                 <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
             </div>
@@ -153,11 +153,11 @@ const Login = () => {
                     />
                 </Form.Item>
 
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-8">
                     <Form.Item name="remember" valuePropName="checked" noStyle>
                         <Checkbox className="text-gray-500 font-bold text-xs capitalize">Ghi nhớ tôi</Checkbox>
                     </Form.Item>
-                    <Link to="/forgot-password" className="text-emerald-600 font-bold text-xs hover:underline">
+                    <Link to="/forgot-password" alt="Quên mật khẩu" className="text-emerald-600 font-bold text-xs hover:underline">
                         Quên mật khẩu?
                     </Link>
                 </div>
@@ -177,14 +177,17 @@ const Login = () => {
                     <span className="text-[10px] text-gray-300 font-bold uppercase tracking-[2px]">Hoặc sử dụng Google</span>
                 </Divider>
 
-                <div className="flex justify-center mt-6 w-full">
-                    <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => message.error('Không thể kết nối với máy chủ Google.')}
-                        shape="pill"
-                        theme="outline"
-                        width="320"
-                    />
+                <div className="flex justify-center mt-6 w-full overflow-hidden">
+                    <div className="w-full max-w-[320px]">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => message.error('Không thể kết nối với máy chủ Google.')}
+                            shape="pill"
+                            theme="outline"
+                            useOneTap
+                            width="100%"
+                        />
+                    </div>
                 </div>
             </Form>
 
