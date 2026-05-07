@@ -630,7 +630,7 @@ const FormBuilder = () => {
         placement="right"
         width={600}
         onClose={() => setPreviewVisible(false)}
-        visible={previewVisible}
+        open={previewVisible}
         className="preview-drawer"
       >
         {previewData && (
