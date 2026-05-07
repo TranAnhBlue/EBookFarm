@@ -210,6 +210,7 @@ const JournalTrace = () => {
                 <Statistic
                   title={<Text strong className="text-green-800">Năm sản xuất</Text>}
                   value={thongTinChung.namSanXuat}
+                  formatter={(value) => value.toString()}
                   valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: 'bold' }}
                 />
               </Card>

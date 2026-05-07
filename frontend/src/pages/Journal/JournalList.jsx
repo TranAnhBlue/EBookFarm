@@ -280,6 +280,31 @@ const JournalList = () => {
     }
   };
 
+  const getEntryValue = (journal, fieldNames, tableNames = ['Thông tin chung', 'Thông tin cơ sở', 'Tổng quan']) => {
+    if (!journal?.entries) return null;
+    
+    // Try each table name
+    for (const table of tableNames) {
+      if (journal.entries[table]) {
+        // Try each field name variation
+        for (const field of fieldNames) {
+          if (journal.entries[table][field] !== undefined && journal.entries[table][field] !== null && journal.entries[table][field] !== '') {
+            return journal.entries[table][field];
+          }
+        }
+      }
+    }
+    
+    // Try top-level keys as fallback
+    for (const field of fieldNames) {
+      if (journal.entries[field] !== undefined && journal.entries[field] !== null && journal.entries[field] !== '') {
+        return journal.entries[field];
+      }
+    }
+    
+    return null;
+  };
+
   const columns = [
     {
       title: 'Tên quy trình',
@@ -472,21 +497,24 @@ const JournalList = () => {
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
                             {/* Tên cơ sở */}
-                            {journal.entries?.['Thông tin chung']?.tenCoSo && (
-                              <>
-                                <div className="flex items-center gap-1.5"><FileOutlined className="text-green-500" /> Tên cơ sở:</div>
-                                <div className="text-right"><Text strong>{journal.entries['Thông tin chung'].tenCoSo}</Text></div>
-                              </>
-                            )}
+                            {(() => {
+                              const value = getEntryValue(journal, ['tenCoSo', 'Tên cơ sở', 'ten_co_so']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><FileOutlined className="text-green-500" /> Tên cơ sở:</div>
+                                  <div className="text-right"><Text strong>{value}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
 
                             {/* Diện tích */}
                             <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
                             <div className="text-right">
                               <Text strong>
-                                {journal.entries?.['Thông tin chung']?.dienTich 
-                                  ? `${journal.entries['Thông tin chung'].dienTich.toLocaleString('vi-VN')} m²`
-                                  : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>
-                                }
+                                {(() => {
+                                  const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'dien_tich', 'area']);
+                                  return value ? `${Number(value).toLocaleString('vi-VN')} m²` : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
+                                })()}
                               </Text>
                             </div>
 
@@ -494,20 +522,21 @@ const JournalList = () => {
                             <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
                             <div className="text-right leading-tight">
                               <Text strong>
-                                {journal.entries?.['Thông tin chung']?.diaChiSanXuat || 
-                                 journal.entries?.['Thông tin chung']?.diaChiCoSo || 
-                                 <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>
-                                }
+                                {getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'Địa chỉ sản xuất', 'dia_chi']) || 
+                                 <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}
                               </Text>
                             </div>
 
                             {/* Tên cây trồng / Đối tượng nuôi */}
-                            {journal.entries?.['Thông tin chung']?.tenCayTrong && (
-                              <>
-                                <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Cây trồng:</div>
-                                <div className="text-right"><Text strong>{journal.entries['Thông tin chung'].tenCayTrong}</Text></div>
-                              </>
-                            )}
+                            {(() => {
+                              const value = getEntryValue(journal, ['tenCayTrong', 'Tên cây trồng', 'cay_trong', 'doi_tuong_nuoi', 'Tên đối tượng nuôi']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Cây trồng:</div>
+                                  <div className="text-right"><Text strong>{value}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
 
                             {/* Loại sổ */}
                             <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
@@ -734,9 +763,14 @@ const JournalList = () => {
                   block
                   size="large"
                   icon={<EyeOutlined />}
-                  className="h-12 rounded-xl border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
+                  className="h-12 rounded-xl border-2 border-green-500 text-green-600 hover:bg-green-50 font-semibold"
+                  style={{ textDecoration: 'none' }}
                   onClick={() => {
-                    window.open(currentQr, '_blank');
+                    if (currentQr) {
+                      window.open(currentQr, '_blank');
+                    } else {
+                      message.warning('Đang chuẩn bị link truy xuất...');
+                    }
                   }}
                 >
                   Xem trang truy xuất
