@@ -11,6 +11,7 @@ import {
     Badge,
     message
 } from 'antd';
+import api from '../services/api';
 import {
     RobotOutlined,
     BulbOutlined,
@@ -64,54 +65,36 @@ const JournalAIAssistant = ({
 
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/journal-ai/suggestions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    schemaId,
-                    currentData,
-                    fieldName: activeField.name,
-                    fieldValue: activeField.value
-                })
+            const response = await api.post('/journal-ai/suggestions', {
+                schemaId,
+                currentData,
+                fieldName: activeField.name,
+                fieldValue: activeField.value
             });
 
-            const data = await response.json();
-            if (data.success) {
-                setSuggestions(data.data);
+            if (response.data.success) {
+                setSuggestions(response.data.data);
                 setActiveTab('suggestions');
             } else {
                 message.error('Không thể lấy gợi ý AI');
             }
         } catch (error) {
             console.error('AI Suggestions error:', error);
-            message.error('Lỗi kết nối AI Assistant');
+            // message.error('Lỗi kết nối AI Assistant'); // api.js already handles error message
         }
         setLoading(false);
     };
 
     const getQuickSuggestions = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/journal-ai/quick-suggestions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    fieldType: 'general',
-                    fieldName: 'general',
-                    schemaCategory: 'general'
-                })
+            const response = await api.post('/journal-ai/quick-suggestions', {
+                fieldType: 'general',
+                fieldName: 'general',
+                schemaCategory: 'general'
             });
 
-            const data = await response.json();
-            if (data.success) {
-                setQuickSuggestions(data.data.suggestions);
+            if (response.data.success) {
+                setQuickSuggestions(response.data.data.suggestions);
             }
         } catch (error) {
             console.error('Quick suggestions error:', error);
@@ -120,22 +103,13 @@ const JournalAIAssistant = ({
 
     const analyzeRisks = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/journal-ai/analyze-risks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    schemaId,
-                    journalData: currentData
-                })
+            const response = await api.post('/journal-ai/analyze-risks', {
+                schemaId,
+                journalData: currentData
             });
 
-            const data = await response.json();
-            if (data.success) {
-                setRiskAnalysis(data.data);
+            if (response.data.success) {
+                setRiskAnalysis(response.data.data);
             }
         } catch (error) {
             console.error('Risk analysis error:', error);
