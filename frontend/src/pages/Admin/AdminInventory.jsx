@@ -227,9 +227,10 @@ const AdminInventory = () => {
           dataSource={filteredData}
           rowKey="_id"
           loading={isLoading}
-          pagination={{ 
-            pageSize: 8,
-            showSizeChanger: false,
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `Tổng cộng ${total} vật tư`,
             className: "premium-pagination"
           }}
