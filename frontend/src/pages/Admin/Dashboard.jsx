@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Col, Row, Typography, Space, Button, Badge, Skeleton } from 'antd';
+import { Card, Col, Row, Typography, Space, Button, Badge, Skeleton, Tag } from 'antd';
 import { CloudOutlined, ArrowRightOutlined, CompassOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, PawPrint, Fish, Settings, Link as LinkIcon, Package, Sun, CloudRain, Wind, Droplets } from 'lucide-react';
