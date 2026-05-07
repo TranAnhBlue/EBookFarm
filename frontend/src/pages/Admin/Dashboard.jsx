@@ -240,7 +240,7 @@ const Dashboard = () => {
         </Col>
 
         {/* Quick Access Card */}
-        <Col xs={24} lg={13}>
+        <Col xs={24} lg={10}>
           <Card variant="borderless" className="h-full !p-2">
             <div className="flex justify-between items-center mb-10">
               <Title level={5} className="!mb-0 !text-gray-800">Truy cập nhanh</Title>
