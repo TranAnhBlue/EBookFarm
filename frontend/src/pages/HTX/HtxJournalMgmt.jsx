@@ -135,7 +135,16 @@ const HtxJournalMgmt = () => {
       });
       if (res.data.success) {
         message.success('Cập nhật trạng thái thành công');
-        fetchJournals();
+        // Fetch updated list
+        const updatedRes = await api.get('/htx-journals');
+        if (updatedRes.data.success) {
+            setJournals(updatedRes.data.data);
+            // Update selectedJournal reference to show new status in drawer
+            const updatedJournal = updatedRes.data.data.find(j => j._id === journalId);
+            if (updatedJournal) {
+                setSelectedJournal(updatedJournal);
+            }
+        }
       }
     } catch (error) {
       message.error('Lỗi khi cập nhật trạng thái');
