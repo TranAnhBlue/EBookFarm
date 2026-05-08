@@ -24,6 +24,7 @@ import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
+import HtxFarmerMgmt from './pages/HTX/HtxFarmerMgmt';
 import Reports from './pages/Admin/Reports';
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
@@ -171,6 +172,7 @@ const App = () => {
 
                   {/* HTX-only routes */}
                   <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
+                  <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
                   <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
 
                   {/* Agriculture Models & Inventory */}

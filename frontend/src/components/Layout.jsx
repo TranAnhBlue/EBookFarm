@@ -227,6 +227,11 @@ const MainLayout = () => {
       label: <span className="font-medium">Tổng quan HTX</span>,
     },
     {
+      key: '/htx/farmers',
+      icon: <TeamOutlined className="text-lg" />,
+      label: <span className="font-medium">Quản lý nông dân</span>,
+    },
+    {
       key: '/htx/journals',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý sổ HTX</span>,

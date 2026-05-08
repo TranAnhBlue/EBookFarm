@@ -229,7 +229,9 @@ const getMyHtxJournals = async (req, res) => {
 
 const getFarmersForHtx = async (req, res) => {
   try {
-    const farmers = await User.find({ role: { $regex: /^farmer$/i } }).select('fullname username email');
+    // Lấy thông tin chi tiết hơn của nông dân để phục vụ trang quản lý nông dân
+    const farmers = await User.find({ role: { $regex: /^farmer$/i } })
+      .select('fullname username email phone address farmName farmArea farmType certifications avatar createdAt');
     res.json({ success: true, data: farmers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
