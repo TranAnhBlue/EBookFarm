@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// API địa phương Việt Nam cập nhật mới nhất
-// Sử dụng API từ danhmuchanhchinh.gso.gov.vn (Tổng cục Thống kê)
-const LOCATION_API_BASE = 'https://provinces.open-api.vn/api/v2';
+// API địa phương Việt Nam cập nhật mới nhất (Bản v1 ổn định đầy đủ 3 cấp)
+const LOCATION_API_BASE = 'https://provinces.open-api.vn/api';
 
 // Backup: Nếu API chính không hoạt động, dùng API dự phòng
 const BACKUP_API = 'https://vapi.vnappmob.com/api/province';
