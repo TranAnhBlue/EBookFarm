@@ -16,17 +16,17 @@ const JournalTrace = () => {
   const [previewImage, setPreviewImage] = useState('');
 
   const { data: journal, isLoading, isError } = useQuery({
-      queryKey: ['trace', qrCode],
-      queryFn: () => axios.get(`${API_URL}/journals/qr/${qrCode}`).then(res => res.data.data),
+    queryKey: ['trace', qrCode],
+    queryFn: () => axios.get(`${API_URL}/journals/qr/${qrCode}`).then(res => res.data.data),
   });
 
   // Share functions
   const handleShare = (platform) => {
     const url = window.location.href;
     const text = `Xem nguồn gốc sản phẩm ${journal?.schemaId?.name} - EBookFarm`;
-    
+
     let shareUrl = '';
-    switch(platform) {
+    switch (platform) {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
         break;
@@ -40,7 +40,7 @@ const JournalTrace = () => {
       default:
         return;
     }
-    
+
     if (shareUrl) {
       window.open(shareUrl, '_blank', 'width=600,height=400');
     }
@@ -117,7 +117,7 @@ const JournalTrace = () => {
               <Text className="text-green-100 text-lg">Sản phẩm nông nghiệp an toàn - Minh bạch - Uy tín</Text>
             </div>
           </div>
-          
+
           <div className="text-center mt-6">
             <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border-2 border-white/30">
               <QrcodeOutlined className="mr-2" />
@@ -227,7 +227,7 @@ const JournalTrace = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card 
+            <Card
               className="shadow-md rounded-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100 cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => setShareModalVisible(true)}
             >
@@ -242,7 +242,7 @@ const JournalTrace = () => {
 
         {/* Certifications */}
         {journal.certifications && journal.certifications.length > 0 && (
-          <Card 
+          <Card
             className="mb-6 shadow-lg rounded-2xl border-0"
             title={
               <div className="flex items-center gap-3">
@@ -305,7 +305,7 @@ const JournalTrace = () => {
 
         {/* Product Images */}
         {journal.images && journal.images.length > 0 && (
-          <Card 
+          <Card
             className="mb-6 shadow-lg rounded-2xl border-0"
             title={
               <div className="flex items-center gap-3">
@@ -322,7 +322,7 @@ const JournalTrace = () => {
             <Row gutter={[16, 16]}>
               {journal.images.map((img, index) => (
                 <Col xs={12} sm={8} md={6} key={index}>
-                  <div 
+                  <div
                     className="relative group cursor-pointer overflow-hidden rounded-xl"
                     onClick={() => {
                       setPreviewImage(img.url);
@@ -351,7 +351,7 @@ const JournalTrace = () => {
         )}
 
         {/* Production Timeline */}
-        <Card 
+        <Card
           className="shadow-lg rounded-2xl border-0"
           title={
             <div className="flex items-center gap-3">
@@ -385,8 +385,8 @@ const JournalTrace = () => {
                     </Title>
                     {hasData ? (
                       <Card className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm">
-                        <Descriptions 
-                          size="small" 
+                        <Descriptions
+                          size="small"
                           column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
                           bordered
                           className="custom-descriptions"
@@ -409,8 +409,8 @@ const JournalTrace = () => {
                             }
 
                             return (
-                              <Descriptions.Item 
-                                label={<Text strong className="text-gray-700">{field.label}</Text>} 
+                              <Descriptions.Item
+                                label={<Text strong className="text-gray-700">{field.label}</Text>}
                                 key={field.name}
                               >
                                 <Text className="text-gray-900">
@@ -443,7 +443,7 @@ const JournalTrace = () => {
             <div className="mt-4">
               <Link to="/">
                 <Button type="primary" size="large" className="bg-green-600 rounded-full px-8">
-                  Tìm hiểu thêm
+                  Về trang chủ
                 </Button>
               </Link>
             </div>

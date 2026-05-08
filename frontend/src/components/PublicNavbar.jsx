@@ -114,7 +114,7 @@ const PublicNavbar = () => {
                         ) : (
                             <Space size="small">
                                 <Button type="text" className="font-bold text-green-600 px-2" onClick={() => navigate('/login')}>Đăng nhập</Button>
-                                <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100 hidden xs:flex" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
+                                <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100" onClick={() => navigate('/register')}>Đăng ký</Button>
                             </Space>
                         )}
 
@@ -158,7 +158,7 @@ const PublicNavbar = () => {
                         
                         {!token && (
                             <Button type="primary" className="bg-green-600 border-0 h-12 rounded-xl font-bold" onClick={() => { navigate('/register'); setMobileMenuOpen(false); }}>
-                                Đăng ký ngay
+                                Đăng ký
                             </Button>
                         )}
                     </div>
