@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Spin } from 'antd';
+import { Select, Spin, Input, Typography } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
 import { getProvinces, getDistrictsByProvince, getWardsByDistrict } from '../services/locationService';
 
 const { Option } = Select;
+const { Text } = Typography;
 
 /**
- * Component chọn địa phương Việt Nam (Tỉnh/Thành - Quận/Huyện - Phường/Xã)
+ * Component chọn địa phương Việt Nam (Tỉnh/Thành - Quận/Huyện - Phường/Xã + Địa chỉ chi tiết)
  * @param {Object} props
- * @param {Object} props.value - Giá trị hiện tại { province, district, ward }
+ * @param {Object} props.value - Giá trị hiện tại { province, district, ward, detailAddress }
  * @param {Function} props.onChange - Callback khi thay đổi
  * @param {boolean} props.disabled - Disable toàn bộ
  */
@@ -67,6 +69,7 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
     setSelectedDistrictCode(null);
     
     onChange?.({
+      ...value,
       province: option.name,
       district: null,
       ward: null
@@ -78,7 +81,7 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
     setWards([]);
     
     onChange?.({
-      province: value.province,
+      ...value,
       district: option.name,
       ward: null
     });
@@ -86,88 +89,117 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
 
   const handleWardChange = (val, option) => {
     onChange?.({
-      province: value.province,
-      district: value.district,
+      ...value,
       ward: option.name
     });
   };
 
+  const handleDetailChange = (e) => {
+    onChange?.({
+      ...value,
+      detailAddress: e.target.value
+    });
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Select
-        placeholder="Chọn tỉnh/thành phố"
-        value={value.province}
-        onChange={handleProvinceChange}
-        showSearch
-        disabled={disabled}
-        loading={loadingProvinces}
-        notFoundContent={loadingProvinces ? <Spin size="small" /> : 'Không tìm thấy'}
-        filterOption={(input, option) =>
-          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        className="h-11"
-      >
-        {provinces.map((province) => (
-          <Option 
-            value={province.name} 
-            key={province.code}
-            code={province.code}
-            name={province.name}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-2">
+          <Text className="text-gray-600 font-medium">Tỉnh/Thành phố</Text>
+          <Select
+            placeholder="Chọn tỉnh/thành phố"
+            value={value.province}
+            onChange={handleProvinceChange}
+            showSearch
+            disabled={disabled}
+            loading={loadingProvinces}
+            notFoundContent={loadingProvinces ? <Spin size="small" /> : 'Không tìm thấy'}
+            filterOption={(input, option) =>
+              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            className="h-12 rounded-xl"
           >
-            {province.name}
-          </Option>
-        ))}
-      </Select>
+            {provinces.map((province) => (
+              <Option 
+                value={province.name} 
+                key={province.code}
+                code={province.code}
+                name={province.name}
+              >
+                {province.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
 
-      <Select
-        placeholder="Chọn quận/huyện"
-        value={value.district}
-        onChange={handleDistrictChange}
-        showSearch
-        disabled={disabled || !selectedProvinceCode}
-        loading={loadingDistricts}
-        notFoundContent={loadingDistricts ? <Spin size="small" /> : 'Không tìm thấy'}
-        filterOption={(input, option) =>
-          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        className="h-11"
-      >
-        {districts.map((district) => (
-          <Option 
-            value={district.name} 
-            key={district.code}
-            code={district.code}
-            name={district.name}
+        <div className="flex flex-col gap-2">
+          <Text className="text-gray-600 font-medium">Quận/Huyện</Text>
+          <Select
+            placeholder="Chọn quận/huyện"
+            value={value.district}
+            onChange={handleDistrictChange}
+            showSearch
+            disabled={disabled || !selectedProvinceCode}
+            loading={loadingDistricts}
+            notFoundContent={loadingDistricts ? <Spin size="small" /> : 'Không tìm thấy'}
+            filterOption={(input, option) =>
+              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            className="h-12 rounded-xl"
           >
-            {district.name}
-          </Option>
-        ))}
-      </Select>
+            {districts.map((district) => (
+              <Option 
+                value={district.name} 
+                key={district.code}
+                code={district.code}
+                name={district.name}
+              >
+                {district.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
 
-      <Select
-        placeholder="Chọn phường/xã"
-        value={value.ward}
-        onChange={handleWardChange}
-        showSearch
-        disabled={disabled || !selectedDistrictCode}
-        loading={loadingWards}
-        notFoundContent={loadingWards ? <Spin size="small" /> : 'Không tìm thấy'}
-        filterOption={(input, option) =>
-          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        className="h-11"
-      >
-        {wards.map((ward) => (
-          <Option 
-            value={ward.name} 
-            key={ward.code}
-            code={ward.code}
-            name={ward.name}
+        <div className="flex flex-col gap-2">
+          <Text className="text-gray-600 font-medium">Phường/Xã</Text>
+          <Select
+            placeholder="Chọn phường/xã"
+            value={value.ward}
+            onChange={handleWardChange}
+            showSearch
+            disabled={disabled || !selectedDistrictCode}
+            loading={loadingWards}
+            notFoundContent={loadingWards ? <Spin size="small" /> : 'Không tìm thấy'}
+            filterOption={(input, option) =>
+              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            className="h-12 rounded-xl"
           >
-            {ward.name}
-          </Option>
-        ))}
-      </Select>
+            {wards.map((ward) => (
+              <Option 
+                value={ward.name} 
+                key={ward.code}
+                code={ward.code}
+                name={ward.name}
+              >
+                {ward.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Text className="text-gray-600 font-medium">Địa chỉ chi tiết</Text>
+        <Input
+          prefix={<EnvironmentOutlined className="text-gray-400" />}
+          placeholder="Số nhà, tên đường, thôn/xóm..."
+          value={value.detailAddress}
+          onChange={handleDetailChange}
+          disabled={disabled}
+          className="h-12 rounded-xl border-gray-200 hover:border-green-400 focus:border-green-500 transition-all"
+        />
+      </div>
     </div>
   );
 };
