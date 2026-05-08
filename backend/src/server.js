@@ -135,7 +135,7 @@ try {
 }
 
 const htxJournalRoutes = require('./routes/htxJournalRoutes.js');
-app.use('/api/htx-journals', htxJournalRoutes);
+app.use('/api/htx/journals', htxJournalRoutes);
 
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
