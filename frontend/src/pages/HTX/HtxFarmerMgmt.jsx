@@ -25,6 +25,9 @@ const HtxFarmerMgmt = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [farmTypeFilter, setFarmTypeFilter] = useState(null);
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchFarmers();
@@ -50,10 +53,18 @@ const HtxFarmerMgmt = () => {
     const emailMatch = (f.email || '').toLowerCase().includes(searchVal);
     const phoneMatch = (f.phone || '').includes(searchVal);
     const farmTypeMatch = farmTypeFilter ? f.farmType === farmTypeFilter : true;
-    return (nameMatch || emailMatch || phoneMatch) && farmTypeMatch;
+    const statusMatch = statusFilter ? f.status === statusFilter : true;
+    return (nameMatch || emailMatch || phoneMatch) && farmTypeMatch && statusMatch;
   });
 
   const columns = [
+    {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      align: 'center',
+      render: (_, __, index) => <Text className="text-gray-400">{(currentPage - 1) * pageSize + index + 1}</Text>
+    },
     {
       title: 'NÔNG DÂN',
       key: 'farmer_info',
@@ -204,19 +215,29 @@ const HtxFarmerMgmt = () => {
               allowClear
               onChange={e => setSearchText(e.target.value)}
             />
-            <div className="flex items-center gap-2 bg-gray-50 px-4 py-1 rounded-xl border border-gray-100">
-               <FilterOutlined className="text-gray-400" />
-               <select 
-                 className="bg-transparent border-0 text-sm font-medium focus:outline-none py-1"
-                 onChange={e => setFarmTypeFilter(e.target.value || null)}
-               >
-                 <option value="">Tất cả loại hình</option>
-                 <option value="Trồng trọt">Trồng trọt</option>
-                 <option value="Chăn nuôi">Chăn nuôi</option>
-                 <option value="Thủy sản">Thủy sản</option>
-                 <option value="Hỗn hợp">Hỗn hợp</option>
-               </select>
-            </div>
+            <Select
+              placeholder="Tất cả loại hình"
+              prefix={<FilterOutlined className="text-gray-400" />}
+              className="w-48 h-10 premium-select"
+              allowClear
+              onChange={val => setFarmTypeFilter(val)}
+              options={[
+                { value: 'Trồng trọt', label: 'Trồng trọt' },
+                { value: 'Chăn nuôi', label: 'Chăn nuôi' },
+                { value: 'Thủy sản', label: 'Thủy sản' },
+                { value: 'Hỗn hợp', label: 'Hỗn hợp' },
+              ]}
+            />
+            <Select
+              placeholder="Tất cả trạng thái"
+              className="w-48 h-10 premium-select"
+              allowClear
+              onChange={val => setStatusFilter(val)}
+              options={[
+                { value: 'Active', label: <Tag color="green" className="m-0 border-0">Đang hoạt động</Tag> },
+                { value: 'Inactive', label: <Tag color="red" className="m-0 border-0">Ngừng hoạt động</Tag> },
+              ]}
+            />
           </Space>
           <Text className="text-gray-400 text-xs italic self-center">
             Đang hiển thị <Text strong className="text-green-600">{filteredFarmers.length}</Text> trên tổng số {farmers.length} hộ
@@ -234,7 +255,12 @@ const HtxFarmerMgmt = () => {
           className="premium-table-refined custom-pagination"
           scroll={{ x: 1000 }}
           pagination={{ 
-            pageSize: 10,
+            current: currentPage,
+            pageSize: pageSize,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            },
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50'],
             locale: { items_per_page: '/ trang' },
