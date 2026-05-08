@@ -52,7 +52,9 @@ const HtxFarmerMgmt = () => {
     const nameMatch = (f.fullname || f.username || '').toLowerCase().includes(searchVal);
     const emailMatch = (f.email || '').toLowerCase().includes(searchVal);
     const phoneMatch = (f.phone || '').includes(searchVal);
-    const farmTypeMatch = farmTypeFilter ? f.farmType === farmTypeFilter : true;
+    const farmTypeMatch = farmTypeFilter 
+      ? (farmTypeFilter === 'none' ? !f.farmType : f.farmType === farmTypeFilter)
+      : true;
     const statusMatch = statusFilter ? f.status === statusFilter : true;
     return (nameMatch || emailMatch || phoneMatch) && farmTypeMatch && statusMatch;
   });
@@ -107,7 +109,9 @@ const HtxFarmerMgmt = () => {
         <div className="flex flex-col">
           <Text strong className="text-xs text-green-700">{record.farmName || 'Chưa đặt tên'}</Text>
           <div className="flex items-center gap-2 mt-1">
-            <Tag color="cyan" className="rounded-md border-0 text-[10px] uppercase font-bold">{record.farmType || 'N/A'}</Tag>
+            <Tag color={record.farmType ? "cyan" : "default"} className="rounded-md border-0 text-[10px] uppercase font-bold">
+              {record.farmType || 'Chưa cập nhật'}
+            </Tag>
             {record.farmArea && (
               <span className="text-[10px] text-gray-400">
                 <AreaChartOutlined className="mr-1" /> {record.farmArea.toLocaleString()} m²
@@ -226,6 +230,7 @@ const HtxFarmerMgmt = () => {
                 { value: 'Chăn nuôi', label: 'Chăn nuôi' },
                 { value: 'Thủy sản', label: 'Thủy sản' },
                 { value: 'Hỗn hợp', label: 'Hỗn hợp' },
+                { value: 'none', label: <Text type="secondary" italic>Chưa cập nhật</Text> },
               ]}
             />
             <Select
