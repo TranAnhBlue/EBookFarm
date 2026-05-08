@@ -80,15 +80,17 @@ const Register = () => {
         {/* Form Content */}
         <div className="w-full md:w-7/12 p-5 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
             <div className="mb-4 md:mb-8">
-                <div className="hidden md:flex items-center gap-3 mb-8">
+                <Link to="/" className="hidden md:flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity cursor-pointer">
                     <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
                         <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
-                </div>
+                </Link>
                 {/* Mobile Logo */}
                 <div className="block md:hidden mb-4">
-                    <img src={logo} alt="Logo" className="h-8 w-auto mb-4" />
+                    <Link to="/">
+                        <img src={logo} alt="Logo" className="h-8 w-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" />
+                    </Link>
                 </div>
                 <Title level={3} className="!font-black !text-gray-800 !mb-1 md:!text-3xl">Tạo tài khoản</Title>
                 <Text className="text-gray-400 font-medium text-xs md:text-sm">Bắt đầu miễn phí ngay hôm nay</Text>

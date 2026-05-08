@@ -81,7 +81,7 @@ const Login = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
             
             <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-12">
+                <Link to="/" className="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity cursor-pointer">
                     <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-white/20 p-2">
                         <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                     </div>
@@ -89,7 +89,7 @@ const Login = () => {
                         <span className="font-black text-2xl leading-none uppercase tracking-tighter">EBookFarm</span>
                         <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 text-emerald-100">Agri-tech Solution</span>
                     </div>
-                </div>
+                </Link>
 
                 <Title level={1} className="!text-white !font-black !text-4xl !mb-6 leading-tight">
                     Chào mừng bạn quay lại hệ thống
@@ -112,7 +112,9 @@ const Login = () => {
         {/* Right Side: Form */}
         <div className="w-full md:w-1/2 p-5 sm:p-10 md:p-16 flex flex-col justify-center">
             <div className="mb-4 md:mb-10 block md:hidden">
-                <img src={logo} alt="Logo" className="h-8 w-auto mb-4" />
+                <Link to="/">
+                    <img src={logo} alt="Logo" className="h-8 w-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" />
+                </Link>
             </div>
 
             <div className="mb-6 md:mb-10">
