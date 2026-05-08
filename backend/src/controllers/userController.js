@@ -62,7 +62,8 @@ const updateProfile = async (req, res) => {
       certifications,
       organization,
       bio,
-      avatar
+      avatar,
+      password // Thêm password vào đây
     } = req.body;
     
     const user = await User.findById(req.user._id);
@@ -89,6 +90,12 @@ const updateProfile = async (req, res) => {
       user.organization = organization !== undefined ? organization : user.organization;
       user.bio = bio !== undefined ? bio : user.bio;
       user.avatar = avatar !== undefined ? avatar : user.avatar;
+
+      // Xử lý đổi mật khẩu
+      if (password) {
+        user.password = password;
+        user.mustChangePassword = false; // Đã đổi thì không cần bắt buộc nữa
+      }
 
       const updatedUser = await user.save();
       console.log('✅ Profile updated successfully:', updatedUser._id);

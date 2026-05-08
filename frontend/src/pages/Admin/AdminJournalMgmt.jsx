@@ -60,10 +60,8 @@ const AdminJournalMgmt = () => {
 
       // Status filter
       let matchStatus = true;
-      if (statusFilter === 'completed') {
-        matchStatus = journal.status === 'Completed';
-      } else if (statusFilter === 'inprogress') {
-        matchStatus = journal.status !== 'Completed';
+      if (statusFilter !== 'all') {
+        matchStatus = journal.status === statusFilter;
       }
 
       // Date range filter
@@ -294,16 +292,22 @@ const AdminJournalMgmt = () => {
                 <span>Tất cả trạng thái</span>
               </Space>
             </Option>
-            <Option value="inprogress">
+            <Option value="Draft">
               <Space>
                 <ClockCircleOutlined className="text-orange-500" />
                 <span>Đang thực hiện</span>
               </Space>
             </Option>
-            <Option value="completed">
+            <Option value="Submitted">
+              <Space>
+                <ClockCircleOutlined className="text-blue-500" />
+                <span>Chờ duyệt</span>
+              </Space>
+            </Option>
+            <Option value="Verified">
               <Space>
                 <CheckCircleOutlined className="text-green-500" />
-                <span>Hoàn thành</span>
+                <span>Đã duyệt (HTX)</span>
               </Space>
             </Option>
           </Select>
@@ -344,18 +348,19 @@ const AdminJournalMgmt = () => {
         </Space>
       </Card>
 
-      {/* Table */}
       <Card bordered={false} className="shadow-sm rounded-2xl overflow-hidden">
         <Table 
           columns={columns} 
           dataSource={filteredJournals} 
           loading={isLoading}
+          className="premium-table-refined custom-pagination"
           pagination={{ 
             current: currentPage,
             pageSize: pageSize,
             showSizeChanger: true,
             showTotal: (total) => <span className="text-gray-400">Tổng <b className="text-green-600">{total}</b> nhật ký</span>,
             pageSizeOptions: ['10', '20', '50', '100'],
+            locale: { items_per_page: '/ trang' },
             onChange: (page, size) => {
               setCurrentPage(page);
               setPageSize(size);

@@ -43,6 +43,9 @@ const HtxJournalMgmt = () => {
   // Farmer filter in drawer
   const [farmerSearch, setFarmerSearch] = useState('');
   const [farmerStatusFilter, setFarmerStatusFilter] = useState(null);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchJournals();
@@ -155,6 +158,15 @@ const HtxJournalMgmt = () => {
 
   const columns = [
     {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => (
+        <span className="text-gray-400 font-mono">{(currentPage - 1) * pageSize + index + 1}</span>
+      )
+    },
+    {
       title: 'Tên Sổ',
       dataIndex: 'name',
       key: 'name',
@@ -168,9 +180,14 @@ const HtxJournalMgmt = () => {
       title: 'Trạng Thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (
-        <Tag color={status === 'Active' ? 'green' : 'gray'}>{status}</Tag>
-      )
+      render: (status) => {
+        let color = 'gray';
+        let text = status;
+        if (status === 'Active') { color = 'green'; text = 'Đang hoạt động'; }
+        if (status === 'Completed') { color = 'blue'; text = 'Đã hoàn tất'; }
+        if (status === 'Archived') { color = 'orange'; text = 'Đã lưu trữ'; }
+        return <Tag color={color} className="rounded-full px-3">{text}</Tag>;
+      }
     },
     {
       title: 'Số Nông Dân',
@@ -270,9 +287,9 @@ const HtxJournalMgmt = () => {
               size="large"
               className="rounded-xl"
             >
-              <Option value="Active">Đang hoạt động (Active)</Option>
-              <Option value="Completed">Đã kết thúc (Completed)</Option>
-              <Option value="Archived">Đã lưu trữ (Archived)</Option>
+              <Option value="Active">Đang hoạt động</Option>
+              <Option value="Completed">Đã hoàn tất</Option>
+              <Option value="Archived">Đã lưu trữ</Option>
             </Select>
           </div>
           <div className="text-gray-400 text-sm italic">
@@ -286,9 +303,19 @@ const HtxJournalMgmt = () => {
         dataSource={filteredJournals}
         rowKey="_id"
         loading={loading}
-        className="premium-table"
+        className="premium-table custom-pagination"
         scroll={{ x: 800 }}
-        pagination={{ pageSize: 10, size: 'small' }}
+        pagination={{ 
+          current: currentPage,
+          pageSize: pageSize,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          locale: { items_per_page: '/ trang' },
+          onChange: (page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }
+        }}
       />
 
       {/* Modal Tạo Sổ */}
@@ -370,7 +397,12 @@ const HtxJournalMgmt = () => {
             <Descriptions bordered column={1} className="mb-6">
               <Descriptions.Item label="Tên Sổ">{selectedJournal.name}</Descriptions.Item>
               <Descriptions.Item label="Biểu Mẫu">{selectedJournal.schemaId?.name}</Descriptions.Item>
-              <Descriptions.Item label="Trạng Thái">{selectedJournal.status}</Descriptions.Item>
+              <Descriptions.Item label="Trạng Thái">
+                <Tag color={selectedJournal.status === 'Active' ? 'green' : 'gray'} className="rounded-full px-3">
+                  {selectedJournal.status === 'Active' ? 'Đang hoạt động' : 
+                   selectedJournal.status === 'Completed' ? 'Đã hoàn tất' : 'Đã lưu trữ'}
+                </Tag>
+              </Descriptions.Item>
               <Descriptions.Item label="Mô Tả">{selectedJournal.description}</Descriptions.Item>
             </Descriptions>
 
