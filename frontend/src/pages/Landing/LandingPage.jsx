@@ -105,7 +105,7 @@ const LandingPage = () => {
     };
 
     const handleQrSearch = async (values) => {
-        const qrCode = values.qrCode.trim();
+        const qrCode = values?.qrCode?.trim();
         if (!qrCode) {
             message.warning('Vui lòng nhập mã truy xuất!');
             return;
@@ -113,11 +113,10 @@ const LandingPage = () => {
 
         setQrSearching(true);
         try {
-            // Check if QR code exists
-            const response = await fetch(`${API_URL}/journals/qr/${qrCode}`);
-            const data = await response.json();
+            // Use the standard api service instead of fetch with undefined API_URL
+            const { data } = await api.get(`/journals/qr/${qrCode}`);
 
-            if (response.ok && data.success) {
+            if (data.success) {
                 // Navigate to trace page
                 navigate(`/trace/${qrCode}`);
             } else {
@@ -125,7 +124,7 @@ const LandingPage = () => {
             }
         } catch (error) {
             console.error('QR search error:', error);
-            message.error('Không thể kết nối đến server. Vui lòng thử lại sau!');
+            // Error messaging is handled by api interceptor, but we can add specific handling if needed
         } finally {
             setQrSearching(false);
         }
