@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntdApp } from 'antd';
@@ -123,93 +123,95 @@ const App = () => {
               onSuccess={() => setShowForceChangePassword(false)}
             />
             <Router>
-              <Routes>
-                {/* Public Guest Portal */}
-                <Route element={<PublicLayout />}>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="reference/tcvn" element={<TCVNReference />} />
-                  <Route path="news" element={<NewsListAll />} />
-                  <Route path="news/:id" element={<NewsDetail />} />
-                </Route>
-
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
-                <Route path="/trace/:qrCode" element={<JournalTrace />} />
-                <Route path="/403" element={<Forbidden />} />
-                <Route path="/404" element={<NotFound />} />
-
-                {/* Main App Layout (Authenticated) */}
-                <Route element={
-                  <ProtectedRoute>
-                    <MainLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route path="app" element={<RoleBasedRedirect />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="farmers" element={<HtxFarmerMgmt />} />
-                  <Route path="inventory" element={<HtxInventoryMgmt />} />
-                  <Route path="reports" element={<Reports />} />
-                  <Route path="tcvn" element={<TCVNReference />} />
-                  <Route path="account-info" element={<AccountInfo />} />
-                  <Route path="change-password" element={<ChangePassword />} />
-
-                  {/* Admin-only routes */}
-                  <Route path="form-builder" element={<ProtectedRoute requireAdmin><FormBuilder /></ProtectedRoute>} />
-                  <Route path="admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
-                  <Route path="admin/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
-                  <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
-                  <Route path="admin/accounts-mgmt" element={<ProtectedRoute requireAdmin><AccountInfo /></ProtectedRoute>} />
-                  <Route path="admin/groups" element={<ProtectedRoute requireAdmin><GroupManagement /></ProtectedRoute>} />
-                  <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
-                  <Route path="admin/news" element={<ProtectedRoute requireAdmin><NewsManagement /></ProtectedRoute>} />
-                  <Route path="admin/consultations" element={<ProtectedRoute requireAdmin><ConsultationManagement /></ProtectedRoute>} />
-                  <Route path="admin/gemini-test" element={<ProtectedRoute requireAdmin><GeminiTest /></ProtectedRoute>} />
-                  <Route path="admin/openai-test" element={<ProtectedRoute requireAdmin><OpenAITest /></ProtectedRoute>} />
-                  <Route path="admin/groq-test" element={<ProtectedRoute requireAdmin><GroqTest /></ProtectedRoute>} />
-                  <Route path="admin/rag-test" element={<ProtectedRoute requireAdmin><RAGTest /></ProtectedRoute>} />
-                  <Route path="admin/chat-stats" element={<ProtectedRoute requireAdmin><ChatStats /></ProtectedRoute>} />
-                  <Route path="admin/logs" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
-                  <Route path="admin/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
-
-                  {/* HTX-only routes */}
-                  <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
-                  <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
-                  <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
-
-                  {/* Agriculture Models & Inventory */}
-                  <Route path="agriculture-models" element={<ProtectedRoute><AgricultureModels /></ProtectedRoute>} />
-                  <Route path="inventory/items" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
-                  <Route path="inventory/categories" element={<ProtectedRoute><InventoryCategory /></ProtectedRoute>} />
-                  <Route path="inventory/models" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
-                  
-                  {/* Farmer-only routes (Category-based nesting) */}
-                  <Route path="vietgap/:subCategory">
-                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+              <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div></div>}>
+                <Routes>
+                  {/* Public Guest Portal */}
+                  <Route element={<PublicLayout />}>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="reference/tcvn" element={<TCVNReference />} />
+                    <Route path="news" element={<NewsListAll />} />
+                    <Route path="news/:id" element={<NewsDetail />} />
                   </Route>
 
-                  <Route path="huuco/:subCategory">
-                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
+                  <Route path="/trace/:qrCode" element={<JournalTrace />} />
+                  <Route path="/403" element={<Forbidden />} />
+                  <Route path="/404" element={<NotFound />} />
+
+                  {/* Main App Layout (Authenticated) */}
+                  <Route element={
+                    <ProtectedRoute>
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route path="app" element={<RoleBasedRedirect />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="farmers" element={<HtxFarmerMgmt />} />
+                    <Route path="inventory" element={<HtxInventoryMgmt />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="tcvn" element={<TCVNReference />} />
+                    <Route path="account-info" element={<AccountInfo />} />
+                    <Route path="change-password" element={<ChangePassword />} />
+
+                    {/* Admin-only routes */}
+                    <Route path="form-builder" element={<ProtectedRoute requireAdmin><FormBuilder /></ProtectedRoute>} />
+                    <Route path="admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
+                    <Route path="admin/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
+                    <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
+                    <Route path="admin/accounts-mgmt" element={<ProtectedRoute requireAdmin><AccountInfo /></ProtectedRoute>} />
+                    <Route path="admin/groups" element={<ProtectedRoute requireAdmin><GroupManagement /></ProtectedRoute>} />
+                    <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
+                    <Route path="admin/news" element={<ProtectedRoute requireAdmin><NewsManagement /></ProtectedRoute>} />
+                    <Route path="admin/consultations" element={<ProtectedRoute requireAdmin><ConsultationManagement /></ProtectedRoute>} />
+                    <Route path="admin/gemini-test" element={<ProtectedRoute requireAdmin><GeminiTest /></ProtectedRoute>} />
+                    <Route path="admin/openai-test" element={<ProtectedRoute requireAdmin><OpenAITest /></ProtectedRoute>} />
+                    <Route path="admin/groq-test" element={<ProtectedRoute requireAdmin><GroqTest /></ProtectedRoute>} />
+                    <Route path="admin/rag-test" element={<ProtectedRoute requireAdmin><RAGTest /></ProtectedRoute>} />
+                    <Route path="admin/chat-stats" element={<ProtectedRoute requireAdmin><ChatStats /></ProtectedRoute>} />
+                    <Route path="admin/logs" element={<ProtectedRoute requireAdmin><SystemLogs /></ProtectedRoute>} />
+                    <Route path="admin/backup" element={<ProtectedRoute requireAdmin><BackupMgmt /></ProtectedRoute>} />
+
+                    {/* HTX-only routes */}
+                    <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
+                    <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
+                    <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
+
+                    {/* Agriculture Models & Inventory */}
+                    <Route path="agriculture-models" element={<ProtectedRoute><AgricultureModels /></ProtectedRoute>} />
+                    <Route path="inventory/items" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
+                    <Route path="inventory/categories" element={<ProtectedRoute><InventoryCategory /></ProtectedRoute>} />
+                    <Route path="inventory/models" element={<ProtectedRoute><AdminInventory /></ProtectedRoute>} />
+                    
+                    {/* Farmer-only routes (Category-based nesting) */}
+                    <Route path="vietgap/:subCategory">
+                      <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                      <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                      <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    </Route>
+
+                    <Route path="huuco/:subCategory">
+                      <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                      <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                      <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    </Route>
+
+                    <Route path="thongminh/:subCategory">
+                      <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
+                      <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                      <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                    </Route>
+
+                    <Route path="docs" element={<ProtectedRoute farmerOnly><ProductionTech /></ProtectedRoute>} />
+                    <Route path="inventory/farmer" element={<ProtectedRoute farmerOnly><FarmerInventory /></ProtectedRoute>} />
                   </Route>
 
-                  <Route path="thongminh/:subCategory">
-                    <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
-                    <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                    <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
-                  </Route>
-
-                  <Route path="docs" element={<ProtectedRoute farmerOnly><ProductionTech /></ProtectedRoute>} />
-                  <Route path="inventory/farmer" element={<ProtectedRoute farmerOnly><FarmerInventory /></ProtectedRoute>} />
-                </Route>
-
-                {/* Catch-all: 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  {/* Catch-all: 404 */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </Router>
           </AntdApp>
         </ConfigProvider>
