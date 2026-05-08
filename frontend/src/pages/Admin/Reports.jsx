@@ -77,10 +77,27 @@ const Reports = () => {
   });
 
   // Fetch timeline data (Area)
-  const { data: timelineData, isLoading: timelineLoading } = useQuery({
+  const { data: rawTimelineData, isLoading: timelineLoading } = useQuery({
     queryKey: ['activity-timeline'],
     queryFn: () => api.get('/reports/activity-timeline').then(res => res.data.data)
   });
+
+  // Fill empty months with 0
+  const timelineData = React.useMemo(() => {
+    if (!rawTimelineData) return [];
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const label = `T${d.getMonth() + 1}/${d.getFullYear()}`;
+      const existing = rawTimelineData.find(item => item.name === label);
+      months.push({
+        name: label,
+        hoat_dong: existing ? existing.hoat_dong : 0
+      });
+    }
+    return months;
+  }, [rawTimelineData]);
 
   // Hàm chuyển đổi tiếng Việt có dấu sang không dấu để tránh lỗi font PDF
   const removeAccents = (str) => {
@@ -524,9 +541,10 @@ const Reports = () => {
                       animationDuration={1500}
                     >
                       {pieData.map((entry, index) => {
-                        let color = '#3b82f6'; // Mặc định Blue (Draft)
-                        if (entry.name === 'Hoàn thành') color = '#22c55e'; // Green
+                        let color = '#3b82f6'; // Bản nháp (Blue)
+                        if (entry.name === 'Đã duyệt' || entry.name === 'Hoàn thành') color = '#22c55e'; // Green
                         if (entry.name === 'Chờ duyệt') color = '#f59e0b'; // Orange
+                        if (entry.name === 'Khác') color = '#94a3b8'; // Gray
                         return <Cell key={`cell-${index}`} fill={color} cornerRadius={8} />;
                       })}
                     </Pie>
