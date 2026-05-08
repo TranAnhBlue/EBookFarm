@@ -12,9 +12,12 @@ const ChangePassword = () => {
     const updateMutation = useMutation({
         mutationFn: (values) => {
             if (values.newPassword !== values.confirmPassword) {
-                throw new Error('Mật khẩu xác nhận không khớp!');
+                return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
             }
-            return api.put('/users/profile', { password: values.newPassword });
+            return api.put('/users/profile', { 
+                currentPassword: values.currentPassword, 
+                password: values.newPassword 
+            });
         },
         onSuccess: () => {
             message.success('Đổi mật khẩu thành công!');

@@ -63,12 +63,28 @@ const updateProfile = async (req, res) => {
       organization,
       bio,
       avatar,
-      password // Thêm password vào đây
+      currentPassword, // Thêm currentPassword
+      password
     } = req.body;
     
     const user = await User.findById(req.user._id);
 
     if (user) {
+      // Nếu có yêu cầu đổi mật khẩu, phải kiểm tra mật khẩu cũ
+      if (password) {
+        if (!currentPassword) {
+          return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mật khẩu hiện tại.' });
+        }
+        
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+          return res.status(401).json({ success: false, message: 'Mật khẩu hiện tại không chính xác.' });
+        }
+        
+        user.password = password;
+        user.mustChangePassword = false;
+      }
+
       user.fullname = fullname !== undefined ? fullname : user.fullname;
       user.phone = phone !== undefined ? phone : user.phone;
       user.dateOfBirth = dateOfBirth !== undefined ? dateOfBirth : user.dateOfBirth;
@@ -90,12 +106,6 @@ const updateProfile = async (req, res) => {
       user.organization = organization !== undefined ? organization : user.organization;
       user.bio = bio !== undefined ? bio : user.bio;
       user.avatar = avatar !== undefined ? avatar : user.avatar;
-
-      // Xử lý đổi mật khẩu
-      if (password) {
-        user.password = password;
-        user.mustChangePassword = false; // Đã đổi thì không cần bắt buộc nữa
-      }
 
       const updatedUser = await user.save();
       console.log('✅ Profile updated successfully:', updatedUser._id);
