@@ -24,8 +24,9 @@ import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
-import HtxFarmerMgmt from './pages/HTX/HtxFarmerMgmt';
-import Reports from './pages/Admin/Reports';
+const HtxFarmerMgmt = lazy(() => import('./pages/HTX/HtxFarmerMgmt'));
+const HtxInventoryMgmt = lazy(() => import('./pages/HTX/HtxInventoryMgmt'));
+const Reports = lazy(() => import('./pages/Admin/Reports'));
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
 import GroupManagement from './pages/Admin/GroupManagement';
@@ -147,6 +148,8 @@ const App = () => {
                 }>
                   <Route path="app" element={<RoleBasedRedirect />} />
                   <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="farmers" element={<HtxFarmerMgmt />} />
+                  <Route path="inventory" element={<HtxInventoryMgmt />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="tcvn" element={<TCVNReference />} />
                   <Route path="account-info" element={<AccountInfo />} />

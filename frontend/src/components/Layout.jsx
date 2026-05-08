@@ -242,6 +242,11 @@ const MainLayout = () => {
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý sổ HTX</span>,
     },
+    {
+      key: '/inventory',
+      icon: <InboxOutlined className="text-lg" />,
+      label: <span className="font-medium">Kho vật tư tập trung</span>,
+    },
   ];
 
   const items = user?.role?.toUpperCase() === 'ADMIN'

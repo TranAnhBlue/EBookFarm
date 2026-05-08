@@ -1,36 +1,43 @@
 const { InventoryItem, InventoryTransaction } = require('../models/Inventory');
-const { createLog } = require('./logController');
+const User = require('../models/User');
 
-const getItems = async (req, res) => {
+// Lấy danh sách vật tư của HTX hoặc Nông dân
+const getInventory = async (req, res) => {
   try {
-    const items = await InventoryItem.find({});
+    const owner = req.user._id;
+    const items = await InventoryItem.find({ owner }).sort({ updatedAt: -1 });
     res.json({ success: true, data: items });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const createItem = async (req, res) => {
+// Thêm vật tư mới (Nhập kho)
+const addItem = async (req, res) => {
   try {
-    const item = new InventoryItem(req.body);
-    const created = await item.save();
-    
-    // Log action
-    await createLog(req.user.id, 'Tạo vật tư mới', created._id, 'InventoryItem', { name: created.name });
+    const { name, category, unit, quantity, minQuantity } = req.body;
+    const owner = req.user._id;
 
-    res.status(201).json({ success: true, data: created });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+    // Kiểm tra xem đã có vật tư này chưa
+    let item = await InventoryItem.findOne({ name, owner, unit });
 
-const updateItem = async (req, res) => {
-  try {
-    const item = await InventoryItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
+    if (item) {
+      item.quantity += Number(quantity);
+      await item.save();
+    } else {
+      item = await InventoryItem.create({
+        name, category, unit, quantity, minQuantity, owner
+      });
+    }
 
-    // Log action
-    await createLog(req.user.id, 'Cập nhật vật tư', item._id, 'InventoryItem', { name: item.name });
+    // Ghi log giao dịch
+    await InventoryTransaction.create({
+      itemId: item._id,
+      type: 'Import',
+      quantity: Number(quantity),
+      performedBy: owner,
+      note: 'Nhập kho hệ thống'
+    });
 
     res.json({ success: true, data: item });
   } catch (error) {
@@ -38,56 +45,83 @@ const updateItem = async (req, res) => {
   }
 };
 
-const deleteItem = async (req, res) => {
+// HTX cấp phát vật tư cho nông dân
+const distributeItem = async (req, res) => {
   try {
-    const item = await InventoryItem.findById(req.params.id);
-    if (!item) return res.status(404).json({ success: false, message: 'Item not found' });
+    const { itemId, farmerId, quantity, note } = req.body;
+    const htxId = req.user._id;
 
-    const itemName = item.name;
-    await item.deleteOne();
+    // 1. Kiểm tra kho HTX
+    const htxItem = await InventoryItem.findOne({ _id: itemId, owner: htxId });
+    if (!htxItem) return res.status(404).json({ success: false, message: 'Vật tư không tồn tại trong kho HTX.' });
+    if (htxItem.quantity < quantity) return res.status(400).json({ success: false, message: 'Số lượng trong kho không đủ để cấp phát.' });
 
-    // Log action
-    await createLog(req.user.id, 'Xóa vật tư', req.params.id, 'InventoryItem', { name: itemName });
+    // 2. Trừ kho HTX
+    htxItem.quantity -= Number(quantity);
+    await htxItem.save();
 
-    res.json({ success: true, message: 'Item deleted' });
+    // 3. Tăng kho Nông dân (Hoặc tạo mới nếu chưa có)
+    let farmerItem = await InventoryItem.findOne({ 
+      name: htxItem.name, 
+      owner: farmerId, 
+      unit: htxItem.unit 
+    });
+
+    if (farmerItem) {
+      farmerItem.quantity += Number(quantity);
+      await farmerItem.save();
+    } else {
+      farmerItem = await InventoryItem.create({
+        name: htxItem.name,
+        category: htxItem.category,
+        unit: htxItem.unit,
+        quantity: Number(quantity),
+        owner: farmerId
+      });
+    }
+
+    // 4. Ghi log giao dịch cấp phát
+    await InventoryTransaction.create({
+      itemId: htxItem._id,
+      type: 'Distribute',
+      quantity: Number(quantity),
+      receiverId: farmerId,
+      performedBy: htxId,
+      note: note || `Cấp phát từ HTX`
+    });
+
+    res.json({ success: true, message: 'Cấp phát vật tư thành công.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const processTransaction = async (req, res) => {
+// Lấy lịch sử giao dịch
+const getTransactions = async (req, res) => {
   try {
-    const { itemId, type, quantity, note, journalId } = req.body;
-    const item = await InventoryItem.findById(itemId);
-    
-    if (!item) {
-        return res.status(404).json({ success: false, message: 'Item not found' });
-    }
+    const userId = req.user._id;
+    // Tìm các giao dịch mà user này thực hiện hoặc nhận
+    const transactions = await InventoryTransaction.find({
+      $or: [
+        { performedBy: userId },
+        { receiverId: userId }
+      ]
+    })
+    .populate('itemId', 'name unit category')
+    .populate('receiverId', 'fullname username')
+    .populate('performedBy', 'fullname username')
+    .sort({ createdAt: -1 })
+    .limit(50);
 
-    if (type === 'Export' && item.quantity < quantity) {
-        return res.status(400).json({ success: false, message: 'Insufficient quantity in inventory' });
-    }
-
-    const transaction = new InventoryTransaction({
-        itemId, type, quantity, note, journalId
-    });
-
-    await transaction.save();
-
-    item.quantity = type === 'Import' ? item.quantity + quantity : item.quantity - quantity;
-    await item.save();
-
-    // Log action
-    await createLog(req.user.id, `${type === 'Import' ? 'Nhập' : 'Xuất'} kho`, item._id, 'InventoryItem', { 
-      quantity, 
-      type, 
-      itemName: item.name 
-    });
-
-    res.status(201).json({ success: true, data: transaction });
-  } catch(err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.json({ success: true, data: transactions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-}
+};
 
-module.exports = { getItems, createItem, updateItem, deleteItem, processTransaction };
+module.exports = {
+  getInventory,
+  addItem,
+  distributeItem,
+  getTransactions
+};
