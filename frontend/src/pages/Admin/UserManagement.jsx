@@ -48,7 +48,8 @@ const UserManagement = () => {
     { title: 'Tên đăng nhập', key: 'username' },
     { title: 'Họ và tên', key: 'fullname' },
     { title: 'Email', key: 'email' },
-    { title: 'Vai trò', key: 'role' }
+    { title: 'Vai trò', key: 'role' },
+    { title: 'Mật khẩu', key: 'password' }
   ];
 
   const userTemplate = [

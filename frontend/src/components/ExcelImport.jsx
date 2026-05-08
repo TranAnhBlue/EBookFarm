@@ -24,7 +24,20 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
           return;
         }
 
-        setData(parsedData);
+        // Map Vietnamese headers back to keys
+        const mappedData = parsedData.map(row => {
+          const newRow = {};
+          columns.forEach(col => {
+            // Find value in row that matches either the title or the key
+            const value = row[col.title] !== undefined ? row[col.title] : row[col.key];
+            if (value !== undefined) {
+                newRow[col.key] = value;
+            }
+          });
+          return newRow;
+        });
+
+        setData(mappedData);
         setIsVisible(true);
       } catch (error) {
         message.error('Lỗi khi đọc tệp Excel: ' + error.message);
@@ -38,21 +51,30 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
     setLoading(true);
     try {
       await onImport(data);
-      message.success(`Đã nhập thành công ${data.length} bản ghi!`);
       setIsVisible(false);
       setData([]);
     } catch (error) {
-      message.error('Lỗi khi nhập dữ liệu: ' + error.message);
+      // Error is handled by api interceptor, but we can log it
+      console.error('Import error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const downloadTemplate = () => {
-    const ws = XLSX.utils.json_to_sheet(templateData || [{}]);
+    // Create data with localized headers
+    const templateWithHeaders = (templateData || [{}]).map(item => {
+        const newItem = {};
+        columns.forEach(col => {
+            newItem[col.title] = item[col.key] || '';
+        });
+        return newItem;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(templateWithHeaders);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
-    XLSX.writeFile(wb, `${title}_Template.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Danh sach mau");
+    XLSX.writeFile(wb, `EBookFarm_${title}_Mau.xlsx`);
   };
 
   return (
