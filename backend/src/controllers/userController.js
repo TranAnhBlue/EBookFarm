@@ -78,7 +78,7 @@ const updateProfile = async (req, res) => {
         
         const isMatch = await user.matchPassword(currentPassword);
         if (!isMatch) {
-          return res.status(401).json({ success: false, message: 'Mật khẩu hiện tại không chính xác.' });
+          return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác.' });
         }
         
         user.password = password;
