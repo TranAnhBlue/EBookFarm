@@ -65,6 +65,11 @@ const HtxJournalMgmt = () => {
   const [farmerSearch, setFarmerSearch] = useState('');
   const [farmerStatusFilter, setFarmerStatusFilter] = useState(null);
 
+  // Feedback Modal state
+  const [isFeedbackModalVisible, setIsFeedbackModalVisible] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackTarget, setFeedbackTarget] = useState(null);
+
   useEffect(() => {
     fetchJournals();
     fetchSchemas();
@@ -600,10 +605,9 @@ const HtxJournalMgmt = () => {
                             danger
                             icon={<CloseCircleOutlined />}
                             onClick={() => {
-                              const feedback = window.prompt("Nhập lý do cần chỉnh sửa:");
-                              if (feedback !== null) {
-                                handleUpdateStatus(selectedJournal._id, record.farmerId._id, 'Cần chỉnh sửa', feedback);
-                              }
+                              setFeedbackTarget({ journalId: selectedJournal._id, farmerId: record.farmerId._id });
+                              setFeedbackText('');
+                              setIsFeedbackModalVisible(true);
                             }}
                             className="rounded-lg"
                           />
@@ -722,6 +726,38 @@ const HtxJournalMgmt = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Modal Nhập Lý Do Chỉnh Sửa (Feedback) */}
+      <Modal
+        title={<div className="flex items-center gap-2"><CloseCircleOutlined className="text-orange-500" /><Text strong className="text-lg">Lý Do Cần Chỉnh Sửa</Text></div>}
+        open={isFeedbackModalVisible}
+        onCancel={() => setIsFeedbackModalVisible(false)}
+        onOk={() => {
+          if (!feedbackText.trim()) {
+            message.warning('Vui lòng nhập lý do');
+            return;
+          }
+          handleUpdateStatus(feedbackTarget.journalId, feedbackTarget.farmerId, 'Cần chỉnh sửa', feedbackText);
+          setIsFeedbackModalVisible(false);
+        }}
+        okText="Gửi Yêu Cầu"
+        cancelText="Hủy"
+        centered
+        className="rounded-3xl"
+        okButtonProps={{ className: 'bg-green-600 border-0 rounded-xl' }}
+        cancelButtonProps={{ className: 'rounded-xl' }}
+      >
+        <div className="py-4">
+          <Text className="text-gray-500 mb-2 block">Vui lòng mô tả chi tiết các nội dung cần nông dân chỉnh sửa lại:</Text>
+          <TextArea
+            rows={4}
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="Ví dụ: Hình ảnh vật tư chưa rõ ràng, cần bổ sung thêm hóa đơn..."
+            className="rounded-xl border-gray-200 focus:border-green-500 focus:ring-green-500"
+          />
+        </div>
       </Modal>
     </div>
   );
