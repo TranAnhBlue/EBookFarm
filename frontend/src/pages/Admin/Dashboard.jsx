@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Col, Row, Typography, Space, Button, Badge, Skeleton, Tag } from 'antd';
-import { CloudOutlined, ArrowRightOutlined, CompassOutlined, GlobalOutlined } from '@ant-design/icons';
+import { CloudOutlined, ArrowRightOutlined, CompassOutlined, GlobalOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, PawPrint, Fish, Settings, Link as LinkIcon, Package, Sun, CloudRain, Wind, Droplets } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -138,6 +138,7 @@ const Dashboard = () => {
   ];
 
   const htxQuickAccess = [
+    { title: 'Quản lý nông dân', icon: <TeamOutlined className="w-8 h-8" />, path: '/htx/farmers', color: '#22c55e' },
     { title: 'Quản lý sổ HTX', icon: <LinkIcon className="w-8 h-8" />, path: '/htx/journals', color: '#f59e0b' },
     { title: 'Báo cáo & Thống kê', icon: <Package className="w-8 h-8" />, path: '/reports', color: '#ec4899' },
   ];
