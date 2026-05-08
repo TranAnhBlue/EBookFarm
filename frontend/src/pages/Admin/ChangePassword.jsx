@@ -23,7 +23,7 @@ const ChangePassword = () => {
             message.success('Đổi mật khẩu thành công!');
             form.resetFields();
         },
-        onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')
+        onError: (err) => message.error(err.response?.data?.message || err.message || 'Có lỗi xảy ra!')
     });
 
     return (
