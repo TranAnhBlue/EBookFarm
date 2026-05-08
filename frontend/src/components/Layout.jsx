@@ -23,7 +23,8 @@ import {
   PhoneOutlined,
   RobotOutlined,
   ThunderboltOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  TeamOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
 import logoImg from '../assets/logo-ebookfarm.jpg';
