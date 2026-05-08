@@ -46,23 +46,27 @@ const PublicNavbar = () => {
 
     return (
         <nav className="fixed top-0 w-full z-50 glass-card border-b border-gray-100 flex justify-center">
-            <div className="w-full max-w-7xl px-6 md:px-12 py-4 flex justify-between items-center">
-                <div className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80" onClick={() => navigate('/')}>
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-gray-50">
-                        <img src={logo} alt="EBookFarm Logo" className="w-[140%] h-[140%] object-contain mix-blend-multiply" />
-                    </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="text-green-600 font-extrabold text-[18px] leading-[1.1] uppercase tracking-tight">Nhật ký sản xuất</span>
-                        <span className="text-green-600 font-extrabold text-[18px] leading-[1.1] uppercase tracking-tight">Điện tử</span>
+            <div className="w-full max-w-7xl px-6 md:px-12 py-4 flex items-center justify-between">
+                
+                {/* Left Side: Logo */}
+                <div className="flex-1 flex justify-start">
+                    <div className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80" onClick={() => navigate('/')}>
+                        <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm border border-gray-50">
+                            <img src={logo} alt="EBookFarm Logo" className="w-[140%] h-[140%] object-contain mix-blend-multiply" />
+                        </div>
+                        <div className="flex flex-col justify-center">
+                            <span className="text-green-600 font-extrabold text-[18px] leading-[1.1] uppercase tracking-tight">Nhật ký sản xuất</span>
+                            <span className="text-green-600 font-extrabold text-[18px] leading-[1.1] uppercase tracking-tight">Điện tử</span>
+                        </div>
                     </div>
                 </div>
 
-                <Space size={0} className="flex items-center">
-                    {/* Desktop Menu */}
-                    <Space size="large" className="hidden md:flex mr-6">
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/')}>Trang chủ</Button>
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
-                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600" onClick={() => {
+                {/* Center: Desktop Menu */}
+                <div className="hidden lg:flex justify-center items-center">
+                    <Space size="large">
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => navigate('/')}>Trang chủ</Button>
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => {
                             if (window.location.pathname === '/') {
                                 document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
                             } else {
@@ -71,53 +75,58 @@ const PublicNavbar = () => {
                             }
                         }}>Về chúng tôi</Button>
                     </Space>
+                </div>
 
-                    {token ? (
-                        <div className="flex items-center">
-                            <Button
-                                type="text"
-                                icon={<DashboardOutlined />}
-                                className="font-bold text-green-600 hover:bg-green-50 rounded-lg px-3 hidden sm:flex items-center transition-all"
-                                onClick={() => navigate('/dashboard')}
-                            >
-                                Bảng điều khiển
-                            </Button>
+                {/* Right Side: Auth & Mobile Menu */}
+                <div className="flex-1 flex justify-end items-center">
+                    <Space size={0} className="flex items-center">
+                        {token ? (
+                            <div className="flex items-center">
+                                <Button
+                                    type="text"
+                                    icon={<DashboardOutlined />}
+                                    className="font-bold text-green-600 hover:bg-green-50 rounded-lg px-3 hidden sm:flex items-center transition-all"
+                                    onClick={() => navigate('/dashboard')}
+                                >
+                                    Bảng điều khiển
+                                </Button>
 
-                            <AntdDivider type="vertical" className="h-8 border-gray-100 mx-4 hidden sm:block" />
+                                <AntdDivider type="vertical" className="h-8 border-gray-100 mx-4 hidden sm:block" />
 
-                            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                                <div className="flex items-center gap-3 cursor-pointer p-1.5 hover:bg-gray-50/80 rounded-2xl transition-all border border-transparent hover:border-gray-100">
-                                    <Avatar
-                                        size={40}
-                                        src={getAvatarUrl(user?.avatar)}
-                                        style={{ backgroundColor: '#16a34a' }}
-                                        icon={!user?.avatar && <UserOutlined />}
-                                        className="shadow-sm border-2 border-white"
-                                    />
-                                    <div className="hidden md:flex flex-col justify-center min-w-[80px]">
-                                        <span className="text-[10px] text-gray-400 font-black uppercase leading-none tracking-widest mb-0.5">Xin chào</span>
-                                        <span className="text-[14px] text-gray-800 font-extrabold leading-none truncate">
-                                            {user?.fullname || user?.username || user?.email?.split('@')[0] || 'Người dùng'}
-                                        </span>
+                                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+                                    <div className="flex items-center gap-3 cursor-pointer p-1.5 hover:bg-gray-50/80 rounded-2xl transition-all border border-transparent hover:border-gray-100">
+                                        <Avatar
+                                            size={40}
+                                            src={getAvatarUrl(user?.avatar)}
+                                            style={{ backgroundColor: '#16a34a' }}
+                                            icon={!user?.avatar && <UserOutlined />}
+                                            className="shadow-sm border-2 border-white"
+                                        />
+                                        <div className="hidden md:flex flex-col justify-center min-w-[80px]">
+                                            <span className="text-[10px] text-gray-400 font-black uppercase leading-none tracking-widest mb-0.5">Xin chào</span>
+                                            <span className="text-[14px] text-gray-800 font-extrabold leading-none truncate">
+                                                {user?.fullname || user?.username || user?.email?.split('@')[0] || 'Người dùng'}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            </Dropdown>
-                        </div>
-                    ) : (
-                        <Space size="small">
-                            <Button type="text" className="font-bold text-green-600 px-2" onClick={() => navigate('/login')}>Đăng nhập</Button>
-                            <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100 hidden xs:flex" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
-                        </Space>
-                    )}
+                                </Dropdown>
+                            </div>
+                        ) : (
+                            <Space size="small">
+                                <Button type="text" className="font-bold text-green-600 px-2" onClick={() => navigate('/login')}>Đăng nhập</Button>
+                                <Button type="primary" size="large" className="bg-green-600 hover:bg-green-700 rounded-xl font-bold px-4 md:px-6 border-0 shadow-lg shadow-green-100 hidden xs:flex" onClick={() => navigate('/register')}>Bắt đầu ngay</Button>
+                            </Space>
+                        )}
 
-                    {/* Mobile Menu Toggle */}
-                    <Button
-                        type="text"
-                        icon={<MenuOutlined />}
-                        className="md:hidden ml-2 text-xl text-gray-600"
-                        onClick={() => setMobileMenuOpen(true)}
-                    />
-                </Space>
+                        {/* Mobile Menu Toggle */}
+                        <Button
+                            type="text"
+                            icon={<MenuOutlined />}
+                            className="lg:hidden ml-2 text-xl text-gray-600"
+                            onClick={() => setMobileMenuOpen(true)}
+                        />
+                    </Space>
+                </div>
 
                 {/* Mobile Drawer */}
                 <Drawer
