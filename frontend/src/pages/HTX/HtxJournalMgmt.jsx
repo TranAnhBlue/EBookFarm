@@ -15,13 +15,20 @@ import {
   CheckOutlined,
   ClockCircleOutlined,
   HomeOutlined,
-  UserOutlined
+  UserOutlined,
+  FilePdfOutlined,
+  BarChartOutlined,
+  FileExcelOutlined
 } from '@ant-design/icons';
+import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import JournalEntry from '../Journal/JournalEntry';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import logoEBookFarm from '../../assets/logo-ebookfarm.jpg';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -55,6 +62,11 @@ const HtxJournalMgmt = () => {
   // QR Modal state
   const [isQrModalVisible, setIsQrModalVisible] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
+
+  // Summary Modal state
+  const [isSummaryVisible, setIsSummaryVisible] = useState(false);
+  const [summaryData, setSummaryData] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Filter state
   const [searchText, setSearchText] = useState('');
@@ -177,6 +189,161 @@ const HtxJournalMgmt = () => {
     }
   };
 
+  const fetchSummary = async (journalId) => {
+    try {
+      setSummaryLoading(true);
+      setIsSummaryVisible(true);
+      const res = await api.get(`/htx-journals/${journalId}/summary`);
+      if (res.data.success) {
+        setSummaryData(res.data.data);
+      }
+    } catch (error) {
+      message.error('Lỗi khi tải báo cáo tổng hợp');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  const exportSummaryExcel = () => {
+    if (!summaryData) return;
+
+    const exportData = [];
+    
+    // Header info
+    exportData.push(['BÁO CÁO TỔNG HỢP SỔ NHẬT KÝ HTX']);
+    exportData.push(['Tên sổ:', selectedJournal?.name]);
+    exportData.push(['Ngày xuất báo cáo:', new Date().toLocaleString('vi-VN')]);
+    exportData.push(['']);
+    
+    // Stats info
+    exportData.push(['THỐNG KÊ CHUNG']);
+    exportData.push(['Tổng số hộ thành viên:', summaryData.totalFarmers]);
+    Object.entries(summaryData.farmersStatus).forEach(([status, count]) => {
+      exportData.push([`Trạng thái - ${status}:`, count]);
+    });
+    exportData.push(['']);
+
+    // Aggregated Data
+    exportData.push(['DỮ LIỆU TÍCH HỢP TOÀN HTX']);
+    Object.entries(summaryData.dataAggregation).forEach(([tableName, fields]) => {
+      const hasData = Object.values(fields).some(f => f.type === 'number' ? f.value > 0 : f.value.length > 0);
+      if (!hasData) return;
+
+      exportData.push([`--- ${tableName.toUpperCase()} ---`]);
+      Object.entries(fields).forEach(([fieldName, info]) => {
+        if (info.type === 'number' && info.value > 0) {
+          exportData.push([fieldName, info.value]);
+        } else if (info.type !== 'number' && info.value.length > 0) {
+          if (['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) return;
+          exportData.push([fieldName, info.value.join(', ')]);
+        }
+      });
+      exportData.push(['']);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bao Cao HTX");
+    XLSX.writeFile(wb, `Bao_Cao_HTX_${selectedJournal?.name}_${new Date().getTime()}.xlsx`);
+    message.success('Đã xuất file Excel thành công!');
+  };
+
+  const exportSummaryPDF = async () => {
+    if (!summaryData) return;
+    const hide = message.loading('Đang khởi tạo font chữ và tạo báo cáo PDF...', 0);
+
+    try {
+      const doc = new jsPDF();
+      
+      // Load fonts for Vietnamese support
+      const fonts = [
+        { name: 'Roboto-Regular.ttf', style: 'normal', url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf' },
+        { name: 'Roboto-Bold.ttf', style: 'bold', url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf' }
+      ];
+
+      for (const font of fonts) {
+        const response = await fetch(font.url);
+        const buffer = await response.arrayBuffer();
+        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+        doc.addFileToVFS(font.name, base64);
+        doc.addFont(font.name, 'Roboto', font.style);
+      }
+      doc.setFont('Roboto', 'normal');
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      
+      // Header
+      doc.setFontSize(18);
+      doc.setTextColor(34, 197, 94); // Green
+      doc.setFont('Roboto', 'bold');
+      doc.text("BÁO CÁO TỔNG HỢP NHẬT KÝ HTX", pageWidth / 2, 20, { align: 'center' });
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.setFont('Roboto', 'normal');
+      doc.text(`Sổ: ${selectedJournal?.name}`, 14, 30);
+      doc.text(`Ngày lập: ${new Date().toLocaleString('vi-VN')}`, 14, 36);
+      doc.text(`Đơn vị: ${user?.fullname || user?.username}`, 14, 42);
+
+      doc.line(14, 48, pageWidth - 14, 48);
+
+      // Stats Table
+      const statsRows = [
+        ['Tổng số hộ thành viên', summaryData.totalFarmers, 'Hộ'],
+        ...Object.entries(summaryData.farmersStatus).map(([status, count]) => [
+          `Trạng thái: ${status}`, count, 'Hộ'
+        ])
+      ];
+
+      autoTable(doc, {
+        head: [['Hạng mục thống kê', 'Số lượng', 'Đơn vị']],
+        body: statsRows,
+        startY: 55,
+        styles: { font: 'Roboto' },
+        headStyles: { fillColor: [34, 197, 94] }
+      });
+
+      // Integrated Data
+      let currentY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(12);
+      doc.setFont('Roboto', 'bold');
+      doc.text("DỮ LIỆU TÍCH HỢP TOÀN HTX", 14, currentY);
+      currentY += 5;
+
+      Object.entries(summaryData.dataAggregation).forEach(([tableName, fields]) => {
+        const rows = [];
+        Object.entries(fields).forEach(([fieldName, info]) => {
+          if (info.type === 'number' && info.value > 0) {
+            rows.push([fieldName, info.value.toLocaleString()]);
+          } else if (info.type !== 'number' && info.value.length > 0) {
+            if (!['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) {
+              rows.push([fieldName, info.value.join(', ')]);
+            }
+          }
+        });
+
+        if (rows.length > 0) {
+          autoTable(doc, {
+            head: [[{ content: tableName, colSpan: 2, styles: { halign: 'left', fillColor: [240, 240, 240], textColor: [50, 50, 50] } }]],
+            body: rows,
+            startY: currentY + 5,
+            styles: { font: 'Roboto', fontSize: 9 },
+            columnStyles: { 0: { cellWidth: 60 } }
+          });
+          currentY = doc.lastAutoTable.finalY + 5;
+        }
+      });
+
+      doc.save(`Bao_Cao_PDF_HTX_${selectedJournal?.name}_${new Date().getTime()}.pdf`);
+      hide();
+      message.success('Đã xuất báo cáo PDF thành công!');
+    } catch (error) {
+      hide();
+      console.error(error);
+      message.error('Lỗi khi xuất PDF');
+    }
+  };
+
   const columns = [
     {
       title: 'STT',
@@ -255,6 +422,17 @@ const HtxJournalMgmt = () => {
                 setIsDrawerVisible(true);
               }}
               className="bg-green-50 hover:bg-green-100 rounded-xl"
+            />
+          </Tooltip>
+          <Tooltip title="Báo cáo tổng hợp">
+            <Button
+              type="text"
+              icon={<BarChartOutlined className="text-purple-600" />}
+              onClick={() => {
+                setSelectedJournal(record);
+                fetchSummary(record._id);
+              }}
+              className="bg-purple-50 hover:bg-purple-100 rounded-xl"
             />
           </Tooltip>
         </Space>
@@ -758,6 +936,96 @@ const HtxJournalMgmt = () => {
             className="rounded-xl border-gray-200 focus:border-green-500 focus:ring-green-500"
           />
         </div>
+      </Modal>
+
+      {/* Modal Báo Cáo Tổng Hợp */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <BarChartOutlined className="text-purple-600" />
+            <Text strong className="text-lg">Báo Cáo Tổng Hợp Sổ Nhật Ký</Text>
+          </div>
+        }
+        open={isSummaryVisible}
+        onCancel={() => setIsSummaryVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsSummaryVisible(false)} className="rounded-xl">Đóng</Button>,
+          <Button key="excel" type="primary" icon={<FileExcelOutlined />} onClick={exportSummaryExcel} className="bg-green-600 border-0 rounded-xl">Xuất Excel</Button>,
+          <Button key="pdf" type="default" icon={<FilePdfOutlined />} onClick={exportSummaryPDF} className="rounded-xl">Xuất PDF</Button>
+        ]}
+        width={900}
+        centered
+        className="rounded-3xl"
+      >
+        {summaryLoading ? (
+          <div className="py-20 text-center"><Skeleton active /></div>
+        ) : summaryData ? (
+          <div className="py-4 space-y-6">
+            <Row gutter={16}>
+              <Col span={8}>
+                <Card className="bg-blue-50 border-0 rounded-2xl">
+                  <Statistic title="Tổng số hộ" value={summaryData.totalFarmers} prefix={<TeamOutlined className="text-blue-500" />} />
+                </Card>
+              </Col>
+              <Col span={16}>
+                <Card className="bg-green-50 border-0 rounded-2xl">
+                  <div className="flex gap-4">
+                    {Object.entries(summaryData.farmersStatus).map(([status, count]) => (
+                      <div key={status} className="text-center">
+                        <Text className="text-gray-400 text-[10px] uppercase block">{status}</Text>
+                        <Text strong className="text-lg text-green-700">{count}</Text>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+
+            <Divider orientation="left"><Text strong className="text-purple-600">DỮ LIỆU TÍCH HỢP TOÀN HTX</Text></Divider>
+
+            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-4">
+              {Object.entries(summaryData.dataAggregation).map(([tableName, fields]) => {
+                const hasData = Object.values(fields).some(f => f.type === 'number' ? f.value > 0 : f.value.length > 0);
+                if (!hasData) return null;
+
+                return (
+                  <Card key={tableName} size="small" title={<Text strong className="text-gray-700">{tableName}</Text>} className="rounded-xl border-gray-100 shadow-sm">
+                    <Row gutter={[16, 16]}>
+                      {Object.entries(fields).map(([fieldName, info]) => {
+                        if (info.type === 'number' && info.value > 0) {
+                          return (
+                            <Col span={8} key={fieldName}>
+                              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <Text className="text-gray-400 text-xs block">{fieldName}</Text>
+                                <Text strong className="text-green-600 text-base">{info.value.toLocaleString()}</Text>
+                              </div>
+                            </Col>
+                          );
+                        } else if (info.type !== 'number' && info.value.length > 0) {
+                           // Skip some metadata fields if needed
+                           if (['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) return null;
+                           return (
+                            <Col span={24} key={fieldName}>
+                              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <Text className="text-gray-400 text-xs block mb-1">{fieldName} (Danh sách tổng hợp):</Text>
+                                <Space wrap>
+                                  {info.value.map((v, idx) => <Tag key={idx} color="blue" className="rounded-md">{v}</Tag>)}
+                                </Space>
+                              </div>
+                            </Col>
+                           );
+                        }
+                        return null;
+                      })}
+                    </Row>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <Empty description="Không có dữ liệu tổng hợp" />
+        )}
       </Modal>
     </div>
   );

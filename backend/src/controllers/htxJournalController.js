@@ -236,11 +236,72 @@ const getFarmersForHtx = async (req, res) => {
   }
 };
 
+const getHtxJournalSummary = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const htxJournal = await HtxJournal.findById(id).populate('schemaId');
+    if (!htxJournal) return res.status(404).json({ success: false, message: 'Không tìm thấy sổ.' });
+
+    const farmJournals = await FarmJournal.find({ htxJournalId: id }).populate('userId', 'fullname username');
+    
+    // Aggregation logic
+    const summary = {
+      totalFarmers: farmJournals.length,
+      farmersStatus: {},
+      dataAggregation: {} // Will hold sums or lists of values per field
+    };
+
+    // Initialize status counts
+    farmJournals.forEach(fj => {
+      const status = fj.htxStatus || 'Chưa nhập';
+      summary.farmersStatus[status] = (summary.farmersStatus[status] || 0) + 1;
+    });
+
+    // Aggregate entries based on schema fields
+    if (htxJournal.schemaId && htxJournal.schemaId.tables) {
+      htxJournal.schemaId.tables.forEach(table => {
+        const tableName = table.tableName;
+        summary.dataAggregation[tableName] = {};
+
+        table.fields.forEach(field => {
+          const fieldName = field.name;
+          const fieldType = field.type;
+
+          let aggregatedValue = fieldType === 'number' ? 0 : [];
+
+          farmJournals.forEach(fj => {
+            const val = fj.entries?.[tableName]?.[fieldName];
+            if (val !== undefined && val !== null) {
+              if (fieldType === 'number') {
+                aggregatedValue += Number(val);
+              } else if (typeof val === 'string' && val.trim() !== '') {
+                if (!aggregatedValue.includes(val)) {
+                  aggregatedValue.push(val);
+                }
+              }
+            }
+          });
+
+          summary.dataAggregation[tableName][fieldName] = {
+            type: fieldType,
+            value: aggregatedValue
+          };
+        });
+      });
+    }
+
+    res.json({ success: true, data: summary });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createHtxJournal,
   getHtxJournals,
   addFarmersToJournal,
   updateFarmerStatus,
   getMyHtxJournals,
-  getFarmersForHtx
+  getFarmersForHtx,
+  getHtxJournalSummary
 };

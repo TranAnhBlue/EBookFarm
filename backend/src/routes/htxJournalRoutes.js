@@ -6,7 +6,8 @@ const {
   addFarmersToJournal, 
   updateFarmerStatus, 
   getMyHtxJournals,
-  getFarmersForHtx
+  getFarmersForHtx,
+  getHtxJournalSummary
 } = require('../controllers/htxJournalController');
 const { protect, admin, htx } = require('../middlewares/authMiddleware');
 
@@ -34,5 +35,8 @@ router.route('/:id/farmers')
 
 router.route('/:id/farmers/:farmerId/status')
   .put(protect, htxOrAdmin, updateFarmerStatus);
+
+router.route('/:id/summary')
+  .get(protect, htxOrAdmin, getHtxJournalSummary);
 
 module.exports = router;
