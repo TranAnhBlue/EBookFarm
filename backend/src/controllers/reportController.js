@@ -1,38 +1,80 @@
 const User = require('../models/User');
 const Group = require('../models/Group');
 const FarmJournal = require('../models/FarmJournal');
-const { InventoryItem } = require('../models/Inventory'); // Corrected to destructure
+const HtxJournal = require('../models/HtxJournal');
+const { InventoryItem } = require('../models/Inventory');
+// Helper to get HTX filter
+const getHtxScopeFilter = async (user) => {
+  if (user.role?.toUpperCase() !== 'HTX') return null;
+  const htxJournals = await HtxJournal.find({ htxId: user._id }).select('_id');
+  const htxJournalIds = htxJournals.map(j => j._id);
+  return { htxJournalId: { $in: htxJournalIds } };
+};
+
 
 
 
 // Tổng hợp thống kê nhanh cho Dashboard
 const getDashboardStats = async (req, res) => {
   try {
-    const isAdmin = req.user.role === 'Admin';
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    const isHtx = req.user.role?.toUpperCase() === 'HTX';
     const userId = req.user._id;
 
-    // Phân quyền dữ liệu
-    const filter = isAdmin ? {} : { userId };
+    let filter = {};
+    if (isAdmin) {
+      filter = {};
+    } else if (isHtx) {
+      const htxFilter = await getHtxScopeFilter(req.user);
+      filter = htxFilter || { _id: null }; 
+    } else {
+      filter = { userId };
+    }
 
     const [totalUsers, totalGroups, totalJournals, completedJournals, inventoryCount] = await Promise.all([
-      isAdmin ? User.countDocuments() : 0,
+      isAdmin ? User.countDocuments() : (isHtx ? User.countDocuments({ role: { $regex: /^farmer$/i } }) : 0),
       isAdmin ? Group.countDocuments() : 0,
       FarmJournal.countDocuments(filter),
-      FarmJournal.countDocuments({ ...filter, status: { $in: ['Verified', 'Completed'] } }),
+      FarmJournal.countDocuments({ ...filter, status: { $in: ['Verified', 'Locked'] } }),
       (isAdmin && InventoryItem) ? InventoryItem.countDocuments() : 0
     ]);
+
+    // Additional stats for HTX
+    let extraStats = {};
+    if (isHtx) {
+      const htxJournals = await HtxJournal.find({ htxId: req.user._id }).populate('farmers.farmerId');
+      const uniqueFarmerIds = new Set();
+      let totalArea = 0;
+      
+      htxJournals.forEach(hj => {
+        hj.farmers.forEach(f => {
+          if (f.farmerId) {
+            uniqueFarmerIds.add(f.farmerId._id.toString());
+            totalArea += (f.farmerId.farmArea || 0);
+          }
+        });
+      });
+
+      extraStats = {
+        totalFarmersCount: uniqueFarmerIds.size,
+        totalArea: totalArea,
+        activeSchedules: htxJournals.filter(j => j.status === 'Active').length
+      };
+    }
 
     res.json({
       success: true,
       data: {
-        totalUsers,
+        totalUsers: isHtx ? extraStats.totalFarmersCount : totalUsers,
         totalGroups,
         totalJournals,
         completedJournals,
-        inventoryCount
+        inventoryCount,
+        ...extraStats
       }
     });
   } catch (error) {
+    console.error('Report Error:', error);
     res.status(500).json({ success: false, message: 'Lỗi khi lấy thống kê dashboard.' });
   }
 };
@@ -40,7 +82,18 @@ const getDashboardStats = async (req, res) => {
 // Dữ liệu biểu đồ trạng thái nhật ký
 const getJournalStatusStats = async (req, res) => {
   try {
-    const filter = req.user.role === 'Admin' ? {} : { userId: req.user._id };
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    const isHtx = req.user.role?.toUpperCase() === 'HTX';
+    
+    let filter = {};
+    if (isAdmin) {
+      filter = {};
+    } else if (isHtx) {
+      const htxFilter = await getHtxScopeFilter(req.user);
+      filter = htxFilter || { _id: null };
+    } else {
+      filter = { userId: req.user._id };
+    }
     
     const stats = await FarmJournal.aggregate([
       { $match: filter },
@@ -51,7 +104,10 @@ const getJournalStatusStats = async (req, res) => {
               { $eq: ["$status", "Draft"] }, "Bản nháp",
               { $cond: [
                 { $eq: ["$status", "Submitted"] }, "Chờ duyệt",
-                "Hoàn thành"
+                { $cond: [
+                  { $eq: ["$status", "Verified"] }, "Đã duyệt",
+                  "Khác"
+                ]}
               ]}
             ]
           }, 
@@ -74,7 +130,19 @@ const getJournalStatusStats = async (req, res) => {
 // Dữ liệu biểu đồ hoạt động theo tháng (6 tháng gần nhất)
 const getActivityTimeline = async (req, res) => {
   try {
-    const filter = req.user.role === 'Admin' ? {} : { userId: req.user._id };
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    const isHtx = req.user.role?.toUpperCase() === 'HTX';
+
+    let filter = {};
+    if (isAdmin) {
+      filter = {};
+    } else if (isHtx) {
+      const htxFilter = await getHtxScopeFilter(req.user);
+      filter = htxFilter || { _id: null };
+    } else {
+      filter = { userId: req.user._id };
+    }
+
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
