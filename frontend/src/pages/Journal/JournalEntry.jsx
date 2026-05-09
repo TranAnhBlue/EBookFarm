@@ -1779,6 +1779,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             message: 'pH phải từ 6.0 đến 9.0!'
           });
         }
+        }
 
         // Oxy (mg/l)
         if (field.name.includes('oxy') || field.name.includes('Oxy')) {
@@ -1989,15 +1990,16 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                       f.label.toLowerCase().includes('thức ăn')
                   )?.name;
               
-              const selectedSupplyName = tableData[supplyFieldName];
-              if (!selectedSupplyName) return Promise.resolve();
+              const selectedSupplyId = tableData[supplyFieldName];
+              if (!selectedSupplyId) return Promise.resolve();
 
-              const item = inventory.find(i => i.name === selectedSupplyName);
+              const item = inventory.find(i => i._id === selectedSupplyId);
               
               // Debug logging
               console.log('Validating Stock:', {
                   field: field.label,
                   enteredValue: value,
+                  stockId: selectedSupplyId,
                   stockValue: item?.quantity,
                   isGreater: Number(value) > Number(item?.quantity)
               });
@@ -2093,6 +2095,88 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     return rules;
   };
 
+  // --- LOAD DATA ---
+  useEffect(() => {
+    if (journalData) {
+      console.log('Loading journal data:', journalData.entries);
+      // Nạp trực tiếp toàn bộ entries vào form
+      if (journalData.entries) {
+        form.setFieldsValue(journalData.entries);
+      }
+    }
+  }, [journalData, form]);
+
+  const onFinish = async (formData) => {
+    try {
+      setSubmitting(true);
+      
+      // Xử lý trừ kho tự động
+      const consumePromises = [];
+      for (const tableName in formData) {
+        const tableData = formData[tableName];
+        if (!tableData || typeof tableData !== 'object') continue;
+        
+        for (const fieldName in tableData) {
+          const value = tableData[fieldName];
+          if (!value) continue;
+
+          // Kiểm tra xem đây có phải là field số lượng không
+          const field = schema.tables.find(t => t.tableName === tableName)
+            ?.fields.find(f => f.name === fieldName);
+          
+          if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón'))) {
+            // Tìm field vật tư tương ứng trong cùng bảng
+            const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
+              ?.fields.find(f => 
+                f.label.toLowerCase().includes('phân bón') || 
+                f.label.toLowerCase().includes('thuốc') || 
+                f.label.toLowerCase().includes('vật tư') ||
+                f.label.toLowerCase().includes('giống') ||
+                f.label.toLowerCase().includes('thức ăn')
+              )?.name;
+            
+            const selectedSupplyId = tableData[supplyFieldName];
+            if (selectedSupplyId) {
+              const invItem = inventory?.find(item => item._id === selectedSupplyId);
+              if (invItem) {
+                consumePromises.push(
+                  api.post('/inventory/consume', {
+                    itemId: invItem._id,
+                    quantity: Number(value),
+                    note: `Trừ kho tự động từ nhật ký: ${schema.name}`,
+                    journalId: id
+                  }).catch(err => {
+                    console.error('Lỗi trừ kho:', err);
+                    message.warning(`Không thể trừ kho cho ${invItem.name}: ${err.response?.data?.message || 'Lỗi chưa xác định'}`);
+                  })
+                );
+              }
+            }
+          }
+        }
+      }
+
+      await Promise.all(consumePromises);
+
+      if (isEditing) {
+        await api.put(`/journals/${id}`, { entries: formData });
+        message.success('Cập nhật nhật ký thành công!');
+      } else {
+        await api.post('/journals', { schemaId, entries: formData });
+        message.success('Tạo nhật ký mới thành công!');
+      }
+      
+      queryClient.invalidateQueries(['journals']);
+      queryClient.invalidateQueries(['inventory']);
+      navigate(-1);
+    } catch (error) {
+      console.error('Save error:', error);
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra khi lưu nhật ký');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState("0");
   
   // Fetch farmer inventory
@@ -2182,7 +2266,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                                 allowClear
                                                 onChange={(value) => {
                                                     // Tìm vật tư để lấy đơn vị nếu có trường đơn vị tương ứng
-                                                    const selected = options.find(o => o.name === value);
+                                                    const selected = options.find(o => o._id === value);
                                                     if (selected) {
                                                         // Tự động tìm trường đơn vị trong cùng bảng
                                                         const unitFieldName = table.fields.find(f => 
@@ -2196,7 +2280,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                                 }}
                                             >
                                                 {options.map(item => (
-                                                    <Option key={item._id} value={item.name}>
+                                                    <Option key={item._id} value={item._id}>
                                                         <div className="flex justify-between items-center w-full">
                                                             <span>{item.name}</span>
                                                             <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
@@ -2240,8 +2324,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                             f.label.toLowerCase().includes('thức ăn')
                                         )?.name;
                                         
-                                        const selectedSupplyName = getFieldValue([table.tableName, supplyFieldName]);
-                                        const inventoryItem = inventory?.find(item => item.name === selectedSupplyName);
+                                        const selectedSupplyId = getFieldValue([table.tableName, supplyFieldName]);
+                                        const inventoryItem = inventory?.find(item => item._id === selectedSupplyId);
 
                                         return (
                                             <InputNumber 
