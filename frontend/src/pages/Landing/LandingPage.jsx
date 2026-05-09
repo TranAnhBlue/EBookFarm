@@ -219,125 +219,122 @@ const LandingPage = () => {
             </section>
 
             {/* QR Lookup Section for Consumers */}
-            <section className="bg-white py-16 md:py-20 px-6 relative overflow-hidden border-t border-b border-gray-100">
-                <div className="absolute top-0 left-0 w-full h-full opacity-5 z-0">
-                    <div className="absolute top-10 right-10 w-32 h-32">
-                        <QrcodeOutlined className="text-9xl text-green-600" />
-                    </div>
-                    <div className="absolute bottom-10 left-10 w-32 h-32">
-                        <SearchOutlined className="text-9xl text-blue-600" />
-                    </div>
-                </div>
+            <section className="py-24 md:py-32 px-6 relative overflow-hidden bg-[#fafafa]">
+                {/* Tech background elements */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#22c55e 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }}></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/20 to-transparent"></div>
 
                 <div className="max-w-5xl mx-auto relative z-10">
-                    <div className="text-center mb-10 scroll-reveal">
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center shadow-lg pulse-glow">
-                                <QrcodeOutlined className="text-3xl text-white" />
-                            </div>
+                    <div className="text-center mb-16 scroll-reveal">
+                        <div className="inline-flex items-center gap-3 bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 mb-6 hover-lift transition-all">
+                            <QrcodeOutlined className="text-green-600 text-xl" />
+                            <Text className="text-gray-900 font-black uppercase text-[10px] tracking-widest">Trung tâm xác thực</Text>
                         </div>
-                        <Title level={2} className="!text-gray-900 !mb-3 md:!text-4xl font-black">
+                        <Title level={2} className="!text-gray-900 !mb-4 md:!text-5xl font-black">
                             Tra cứu nguồn gốc sản phẩm
                         </Title>
                         <Paragraph className="text-gray-500 text-lg max-w-2xl mx-auto">
-                            Quét mã QR trên bao bì sản phẩm hoặc nhập mã để xem đầy đủ thông tin truy xuất nguồn gốc
+                            Minh bạch thông tin từ nông trại đến bàn ăn chỉ với một thao tác quét mã hoặc nhập mã truy xuất.
                         </Paragraph>
                     </div>
 
-                    <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden scroll-reveal hover-lift">
-                        <div className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-8 md:p-12">
-                            <Form
-                                form={qrForm}
-                                onFinish={handleQrSearch}
-                                className="max-w-2xl mx-auto"
-                            >
-                                <Row gutter={[16, 16]} align="middle">
-                                    <Col xs={24} md={16}>
+                    <div className="relative scroll-reveal">
+                        {/* Decorative glow behind card */}
+                        <div className="absolute -inset-4 bg-gradient-to-br from-green-500/10 to-blue-500/10 blur-3xl rounded-[50px] -z-10"></div>
+                        
+                        <Card className="rounded-[40px] shadow-2xl border-white bg-white/70 backdrop-blur-xl overflow-hidden p-0" styles={{ body: { padding: 0 } }}>
+                            <div className="grid md:grid-cols-12">
+                                {/* Left Side: Input Form */}
+                                <div className="md:col-span-7 p-8 md:p-12 space-y-8 border-b md:border-b-0 md:border-r border-gray-100">
+                                    <div className="space-y-2">
+                                        <Text className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Xác thực bằng mã</Text>
+                                        <Title level={4} className="!text-gray-900 !mb-0 font-black">Nhập mã truy xuất điện tử</Title>
+                                    </div>
+
+                                    <Form form={qrForm} onFinish={handleQrSearch} className="space-y-4">
                                         <Form.Item name="qrCode" className="!mb-0">
                                             <Input
                                                 size="large"
-                                                placeholder="Nhập mã truy xuất (ví dụ: 1a83ca5c-fa92-4fd2-9ca5-9ece4d5cf7d7)"
-                                                prefix={<QrcodeOutlined className="text-gray-400 text-lg" />}
-                                                className="h-14 rounded-2xl text-base shadow-sm"
+                                                placeholder="Nhập mã (ví dụ: 1a83ca5c...)"
+                                                prefix={<SearchOutlined className="text-blue-500 mr-2" />}
+                                                className="h-16 rounded-[20px] text-base border-gray-100 bg-gray-50/50 hover:bg-white focus:bg-white transition-all shadow-inner"
                                                 disabled={qrSearching}
                                             />
                                         </Form.Item>
-                                    </Col>
-                                    <Col xs={24} md={8}>
                                         <Button
                                             type="primary"
                                             htmlType="submit"
                                             size="large"
                                             block
                                             loading={qrSearching}
-                                            className="h-14 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 border-0 font-bold text-base shadow-lg shine-effect"
-                                            icon={<SearchOutlined />}
+                                            className="h-16 rounded-[20px] bg-gradient-to-r from-gray-900 to-blue-900 hover:from-black hover:to-blue-800 border-0 font-black text-lg shadow-xl shadow-blue-100 transition-all hover-lift"
                                         >
-                                            Tra cứu ngay
+                                            Tra cứu thông tin ngay <ArrowRightOutlined className="ml-2" />
                                         </Button>
-                                    </Col>
-                                </Row>
-                            </Form>
+                                    </Form>
 
-                            <Divider className="my-8">
-                                <Text className="text-gray-400 text-sm font-medium">HOẶC</Text>
-                            </Divider>
-
-                            <div className="text-center space-y-4">
-                                <div className="inline-flex items-center gap-3 bg-white px-6 py-4 rounded-2xl shadow-md hover:shadow-lg transition-all hover-lift">
-                                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                        <CameraOutlined className="text-2xl" />
-                                    </div>
-                                    <div className="text-left">
-                                        <Text strong className="block text-gray-900">Quét mã QR bằng camera</Text>
-                                        <Text className="text-gray-500 text-sm">Sử dụng ứng dụng camera trên điện thoại</Text>
+                                    <div className="pt-4 space-y-4">
+                                        <Text className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Hướng dẫn quét QR</Text>
+                                        <div className="flex flex-wrap gap-3">
+                                            {[
+                                                { icon: '📱', text: 'iPhone Camera', color: 'blue' },
+                                                { icon: '📷', text: 'Android Camera', color: 'green' },
+                                                { icon: '💬', text: 'Zalo / Messenger', color: 'purple' }
+                                            ].map((guide, i) => (
+                                                <Tag key={i} color={guide.color} className="rounded-xl px-4 py-2 border-0 font-bold bg-white shadow-sm hover-lift cursor-pointer flex items-center gap-2 m-0">
+                                                    <span>{guide.icon}</span>
+                                                    <span className="text-[11px]">{guide.text}</span>
+                                                </Tag>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="pt-4">
-                                    <Text className="text-gray-400 text-xs block mb-3">Hướng dẫn quét QR:</Text>
-                                    <div className="flex flex-wrap justify-center gap-3">
-                                        <Tag color="blue" className="rounded-full px-4 py-1">
-                                            📱 Mở Camera trên iPhone
-                                        </Tag>
-                                        <Tag color="green" className="rounded-full px-4 py-1">
-                                            📷 Mở Camera trên Android
-                                        </Tag>
-                                        <Tag color="purple" className="rounded-full px-4 py-1">
-                                            💬 Quét bằng Zalo/Messenger
-                                        </Tag>
+                                {/* Right Side: Camera Simulation Area */}
+                                <div className="md:col-span-5 bg-slate-900 p-8 md:p-12 relative flex flex-col items-center justify-center text-center overflow-hidden">
+                                    {/* Scan Animation Pattern */}
+                                    <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                        <div className="absolute top-0 left-0 w-full h-full scan-line"></div>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <QrcodeOutlined style={{ fontSize: '300px' }} className="text-green-500/20" />
+                                        </div>
+                                    </div>
+
+                                    <div className="relative space-y-6 z-10">
+                                        {/* Viewfinder Frame */}
+                                        <div className="w-48 h-48 mx-auto relative border-2 border-green-500/30 rounded-[32px] p-4 group cursor-pointer hover:border-green-400 transition-all">
+                                            <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-green-500 rounded-tl-xl"></div>
+                                            <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-green-500 rounded-tr-xl"></div>
+                                            <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-green-500 rounded-bl-xl"></div>
+                                            <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-green-500 rounded-br-xl"></div>
+                                            
+                                            <div className="w-full h-full bg-white/5 rounded-[20px] flex items-center justify-center group-hover:bg-green-500/10 transition-all">
+                                                <CameraOutlined className="text-4xl text-green-500" />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Text className="text-white font-black text-lg block">Quét QR bằng camera</Text>
+                                            <Text className="text-gray-400 text-xs block leading-relaxed">
+                                                Tự động nhận diện và chuyển hướng<br />đến trang chi tiết sản phẩm.
+                                            </Text>
+                                        </div>
+                                        
+                                        <div className="flex justify-center gap-4 pt-4">
+                                            <div className="flex flex-col items-center gap-1">
+                                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-green-500"><CheckOutlined /></div>
+                                                <Text className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Nhanh chóng</Text>
+                                            </div>
+                                            <div className="flex flex-col items-center gap-1">
+                                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-blue-500"><SafetyOutlined /></div>
+                                                <Text className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Xác thực</Text>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Example QR Codes */}
-                        <div className="bg-white p-8 border-t border-gray-100">
-                            <Text className="block text-center text-gray-500 text-sm mb-6">
-                                💡 <strong>Mẹo:</strong> Mã truy xuất thường có dạng chuỗi ký tự dài, bạn có thể tìm thấy trên nhãn sản phẩm hoặc bao bì
-                            </Text>
-                            <Row gutter={[16, 16]} className="text-center">
-                                <Col xs={8}>
-                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-                                        <CheckCircleFilled className="text-green-500 text-2xl mb-2" />
-                                        <Text className="block text-xs text-gray-600 font-medium">Minh bạch</Text>
-                                    </div>
-                                </Col>
-                                <Col xs={8}>
-                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-                                        <SafetyCertificateFilled className="text-blue-500 text-2xl mb-2" />
-                                        <Text className="block text-xs text-gray-600 font-medium">Uy tín</Text>
-                                    </div>
-                                </Col>
-                                <Col xs={8}>
-                                    <div className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-                                        <SafetyOutlined className="text-orange-500 text-2xl mb-2" />
-                                        <Text className="block text-xs text-gray-600 font-medium">An toàn</Text>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </div>
-                    </Card>
+                        </Card>
+                    </div>
                 </div>
             </section>
 
@@ -488,14 +485,10 @@ const LandingPage = () => {
             </section>
 
             {/* Benefits Section */}
-            <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
-                {/* Background decorative image */}
-                <div className="absolute top-1/2 left-0 w-1/3 h-96 opacity-5 -translate-y-1/2">
-                    <img src="/images/supply.png" alt="" className="w-full h-full object-contain" />
-                </div>
-                <div className="absolute top-1/2 right-0 w-1/3 h-96 opacity-5 -translate-y-1/2">
-                    <img src="/images/trace.png" alt="" className="w-full h-full object-contain" />
-                </div>
+            <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-100/30 blur-[120px] rounded-full pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-100/30 blur-[120px] rounded-full pointer-events-none"></div>
 
                 <div className="max-w-7xl mx-auto space-y-16 relative z-10">
                     <div className="text-center max-w-3xl mx-auto space-y-4 scroll-reveal">
@@ -503,63 +496,80 @@ const LandingPage = () => {
                             <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
                                 <TrophyOutlined className="text-2xl text-green-600" />
                             </div>
-                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Lợi ích</Tag>
+                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Giá trị mang lại</Tag>
                         </div>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Giá trị mà doanh nghiệp nhận được</Title>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Giá trị mà doanh nghiệp nhận được</Title>
                         <Paragraph className="text-gray-500 text-lg">Khi triển khai hệ thống truy xuất nguồn gốc với EBookFarm</Paragraph>
                     </div>
 
-                    <Row gutter={[20, 20]} className="mt-12">
+                    <Row gutter={[24, 24]} className="mt-12">
                         {[
                             {
                                 icon: <TrophyOutlined />,
                                 title: 'Tạo ưu thế cạnh tranh',
-                                desc: 'Áp dụng truy xuất nguồn gốc giúp tăng cơ hội đàm phán và bán được giá tốt hơn.',
-                                color: '#f59e0b'
+                                desc: 'Áp dụng truy xuất nguồn gốc giúp tăng cơ hội đàm phán và bán được giá tốt hơn trên thị trường.',
+                                color: 'orange',
+                                gradient: 'from-orange-400 to-amber-600'
                             },
                             {
                                 icon: <LineChartOutlined />,
                                 title: 'Tối ưu quy trình sản xuất',
-                                desc: 'Quản lý hiệu quả vùng sản xuất, kiểm soát rủi ro, tối ưu nhân sự và chi phí.',
-                                color: '#3b82f6'
+                                desc: 'Quản lý hiệu quả vùng sản xuất, kiểm soát rủi ro, tối ưu nhân sự và chi phí vận hành.',
+                                color: 'blue',
+                                gradient: 'from-blue-400 to-indigo-600'
                             },
                             {
                                 icon: <SafetyOutlined />,
                                 title: 'Nâng cao uy tín thương hiệu',
-                                desc: 'Minh bạch thông tin làm tăng niềm tin người tiêu dùng, bảo vệ thương hiệu.',
-                                color: '#10b981'
+                                desc: 'Minh bạch thông tin làm tăng niềm tin người tiêu dùng và bảo vệ giá trị thương hiệu bền vững.',
+                                color: 'green',
+                                gradient: 'from-green-400 to-emerald-600'
                             },
                             {
                                 icon: <GlobalOutlined />,
                                 title: 'Mở rộng thị trường xuất khẩu',
-                                desc: 'Đáp ứng tiêu chuẩn quốc tế, dễ dàng tiếp cận thị trường nước ngoài.',
-                                color: '#8b5cf6'
+                                desc: 'Đáp ứng đầy đủ các tiêu chuẩn khắt khe quốc tế, dễ dàng tiếp cận thị trường nước ngoài.',
+                                color: 'purple',
+                                gradient: 'from-purple-400 to-violet-600'
                             },
                             {
                                 icon: <TeamOutlined />,
                                 title: 'Minh bạch chuỗi cung ứng',
-                                desc: 'Hỗ trợ minh bạch toàn bộ hoạt động để chứng minh năng lực doanh nghiệp.',
-                                color: '#ec4899'
+                                desc: 'Hỗ trợ minh bạch toàn bộ hoạt động sản xuất để chứng minh năng lực thực tế của doanh nghiệp.',
+                                color: 'pink',
+                                gradient: 'from-pink-400 to-rose-600'
                             },
                             {
                                 icon: <DollarOutlined />,
                                 title: 'Tăng doanh thu bền vững',
-                                desc: 'Quảng bá thông tin sản phẩm, tăng độ nhận diện và doanh số bán hàng.',
-                                color: '#06b6d4'
+                                desc: 'Quảng bá thông tin sản phẩm chuyên nghiệp, tăng độ nhận diện thương hiệu và doanh số bán hàng.',
+                                color: 'cyan',
+                                gradient: 'from-cyan-400 to-teal-600'
                             }
                         ].map((item, idx) => (
                             <Col xs={24} sm={12} lg={8} key={idx}>
-                                <div className="flex gap-4 p-6 rounded-2xl hover:bg-gray-50 transition-all scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.1}s` }}>
-                                    <div 
-                                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg pulse-glow rotate-hover"
-                                        style={{ background: `${item.color}15`, color: item.color }}
-                                    >
-                                        <span className="text-2xl">{item.icon}</span>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Title level={4} className="!mb-0 !text-gray-900">{item.title}</Title>
-                                        <Text className="text-gray-500 text-sm leading-relaxed">{item.desc}</Text>
-                                    </div>
+                                <div className="h-full group scroll-reveal" style={{ animationDelay: `${idx * 0.1}s` }}>
+                                    <Card className="h-full rounded-[32px] border-white shadow-sm hover:shadow-2xl transition-all duration-500 hover-lift bg-white/80 backdrop-blur-md overflow-hidden">
+                                        <div className="relative p-2">
+                                            {/* Glow Background for Icon */}
+                                            <div className={`absolute top-0 left-0 w-24 h-24 bg-gradient-to-br ${item.gradient} opacity-[0.03] rounded-br-[60px] -z-10 group-hover:opacity-[0.08] transition-opacity`}></div>
+                                            
+                                            <div className="space-y-6 p-4">
+                                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-white shadow-xl transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br ${item.gradient}`}>
+                                                    {item.icon}
+                                                </div>
+                                                
+                                                <div className="space-y-3">
+                                                    <Title level={3} className="!mb-0 !text-gray-900 !text-xl font-black group-hover:text-blue-600 transition-colors">
+                                                        {item.title}
+                                                    </Title>
+                                                    <Paragraph className="text-gray-500 text-sm leading-relaxed mb-0">
+                                                        {item.desc}
+                                                    </Paragraph>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
                                 </div>
                             </Col>
                         ))}
