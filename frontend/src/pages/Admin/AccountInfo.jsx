@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert } from 'antd';
-import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined } from '@ant-design/icons';
+import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert, Empty } from 'antd';
+import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -8,9 +8,107 @@ import dayjs from 'dayjs';
 import { getProvinces, getDistrictsByProvince, getWardsByDistrict, checkMergeWarning } from '../../services/locationService';
 import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
+const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading }) => {
+    const [form] = Form.useForm();
+    const [fileUrl, setFileUrl] = useState('');
+
+    useEffect(() => {
+        if (visible) {
+            if (initialValues) {
+                form.setFieldsValue({
+                    ...initialValues,
+                    issueDate: initialValues.issueDate ? dayjs(initialValues.issueDate) : null,
+                    expiryDate: initialValues.expiryDate ? dayjs(initialValues.expiryDate) : null,
+                });
+                setFileUrl(initialValues.fileUrl || '');
+            } else {
+                form.resetFields();
+                setFileUrl('');
+            }
+        }
+    }, [visible, initialValues, form]);
+
+    const handleFileUpload = (info) => {
+        if (info.file.status === 'done') {
+            setFileUrl(info.file.response.data.url || info.file.response.data.fileUrl);
+            message.success('Tải tệp lên thành công');
+        } else if (info.file.status === 'error') {
+            message.error('Tải tệp thất bại');
+        }
+    };
+
+    return (
+        <Modal
+            title={initialValues ? "Chỉnh sửa chứng nhận" : "Thêm chứng nhận mới"}
+            open={visible}
+            onCancel={onCancel}
+            onOk={() => {
+                form.validateFields().then(values => {
+                    onSave({ ...values, fileUrl });
+                });
+            }}
+            confirmLoading={loading}
+            width={600}
+            centered
+        >
+            <Form form={form} layout="vertical">
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item name="name" label="Tên chứng nhận" rules={[{ required: true, message: 'Vui lòng nhập tên chứng nhận!' }]}>
+                            <Select placeholder="Chọn loại chứng nhận" showSearch>
+                                <Option value="VietGAP">VietGAP</Option>
+                                <Option value="GlobalGAP">GlobalGAP</Option>
+                                <Option value="Organic">Hữu cơ (Organic)</Option>
+                                <Option value="HACCP">HACCP</Option>
+                                <Option value="ISO 22000">ISO 22000</Option>
+                                <Option value="OCOP">OCOP</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="code" label="Số hiệu chứng chỉ">
+                            <Input placeholder="Ví dụ: VG-2024-001" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="issuer" label="Tổ chức cấp">
+                            <Input placeholder="Ví dụ: Trung tâm Kiểm định..." />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="issueDate" label="Ngày cấp">
+                            <DatePicker className="w-full" format="DD/MM/YYYY" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="expiryDate" label="Ngày hết hạn">
+                            <DatePicker className="w-full" format="DD/MM/YYYY" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item label="Bản scan chứng chỉ (Ảnh/PDF)">
+                            <Upload
+                                name="file"
+                                action={`${API_URL}/upload/file`}
+                                headers={{ Authorization: `Bearer ${localStorage.getItem('token')}` }}
+                                onChange={handleFileUpload}
+                                maxCount={1}
+                                showUploadList={true}
+                            >
+                                <Button icon={<CameraOutlined />}>Tải tệp lên</Button>
+                            </Upload>
+                            {fileUrl && <Text type="success" className="text-[10px] mt-1 block">Đã đính kèm tệp</Text>}
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        </Modal>
+    );
+};
 
 const AccountInfo = () => {
     const { user, setUser } = useAuthStore();
@@ -32,6 +130,11 @@ const AccountInfo = () => {
 
     const [mergeWarning, setMergeWarning] = useState(null);
 
+    // Certifications state
+    const [isCertModalVisible, setIsCertModalVisible] = useState(false);
+    const [editingCert, setEditingCert] = useState(null);
+    const [localCerts, setLocalCerts] = useState(user?.certifications || []);
+
     // Load danh sách tỉnh/thành khi component mount
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -51,6 +154,7 @@ const AccountInfo = () => {
                 dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null
             });
             setAvatarUrl(user.avatar || '');
+            setLocalCerts(user.certifications || []);
         }
     }, [user, form]);
 
@@ -128,10 +232,9 @@ const AccountInfo = () => {
                 farmCode: values.farmCode,
                 farmArea: values.farmArea,
                 farmType: values.farmType,
-                certifications: values.certifications,
-                organization: values.organization,
                 bio: values.bio,
-                avatar: avatarUrl
+                avatar: avatarUrl,
+                certifications: localCerts
             };
 
             // Chuyển dateOfBirth sang ISO string
@@ -372,13 +475,23 @@ const AccountInfo = () => {
                                 </div>
                             )}
 
-                            {user?.certifications && user.certifications.length > 0 && (
-                                <div>
-                                    <Text type="secondary" className="text-[10px] uppercase font-bold block mb-2">Chứng nhận</Text>
+                            {localCerts && localCerts.length > 0 && (
+                                <div className="mt-4">
+                                    <Text type="secondary" className="text-[10px] uppercase font-bold block mb-2">Chứng nhận hiện có</Text>
                                     <div className="flex flex-wrap gap-1">
-                                        {user.certifications.map((cert, idx) => (
-                                            <Tag key={idx} color="green" className="text-xs">{cert}</Tag>
-                                        ))}
+                                        {localCerts.map((cert, idx) => {
+                                            let color = 'default';
+                                            if (cert.status === 'Approved') color = 'success';
+                                            if (cert.status === 'Pending') color = 'warning';
+                                            if (cert.status === 'Rejected') color = 'error';
+                                            return (
+                                                <Tooltip title={`${cert.status === 'Approved' ? 'Đã duyệt' : cert.status === 'Pending' ? 'Chờ duyệt' : 'Từ chối'}`} key={idx}>
+                                                    <Tag color={color} className="text-[10px] rounded-full border-0 font-bold">
+                                                        {cert.name} {cert.status === 'Approved' && '✓'}
+                                                    </Tag>
+                                                </Tooltip>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -576,9 +689,87 @@ const AccountInfo = () => {
                                 <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} placeholder="Số nhà, tên đường..." />
                             </Form.Item>
 
-                            {/* Thông tin nông trại (chỉ hiện với User role) */}
-                            {user?.role === 'User' && (
+                            {/* Thông tin nông trại (chỉ hiện với Farmer/User role) */}
+                            {['Farmer', 'User'].includes(user?.role) && (
                                 <>
+                                    <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-8">
+                                        <SafetyCertificateOutlined className="mr-2" />
+                                        Quản lý chứng nhận
+                                    </Divider>
+
+                                    <div className="bg-gray-50/50 p-4 rounded-2xl border border-dashed border-gray-200 mb-6">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <div>
+                                                <Text strong>Danh sách chứng chỉ</Text>
+                                                <Paragraph className="text-[11px] text-gray-500 m-0">Tải lên VietGAP, Organic hoặc các chứng chỉ khác để HTX phê duyệt</Paragraph>
+                                            </div>
+                                            <Button 
+                                                type="primary" 
+                                                size="small" 
+                                                icon={<PlusOutlined />} 
+                                                onClick={() => {
+                                                    setEditingCert(null);
+                                                    setIsCertModalVisible(true);
+                                                }}
+                                                className="bg-green-600 border-0 rounded-lg"
+                                            >
+                                                Thêm mới
+                                            </Button>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            {localCerts.length === 0 ? (
+                                                <div className="text-center py-4 bg-white rounded-xl border border-gray-100">
+                                                    <Text className="text-gray-300 italic text-xs">Chưa có chứng nhận nào được tải lên</Text>
+                                                </div>
+                                            ) : (
+                                                localCerts.map((cert, index) => (
+                                                    <div key={index} className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
+                                                                <SafetyCertificateOutlined />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Text strong className="text-sm">{cert.name}</Text>
+                                                                    <Tag 
+                                                                        color={cert.status === 'Approved' ? 'success' : cert.status === 'Pending' ? 'warning' : 'error'} 
+                                                                        className="m-0 text-[9px] border-0 rounded-full font-bold uppercase"
+                                                                    >
+                                                                        {cert.status === 'Approved' ? 'Đã duyệt' : cert.status === 'Pending' ? 'Chờ HTX duyệt' : 'Từ chối'}
+                                                                    </Tag>
+                                                                </div>
+                                                                <Text className="text-[10px] text-gray-400 block">Số hiệu: {cert.code || '---'} | Hạn: {cert.expiryDate ? dayjs(cert.expiryDate).format('DD/MM/YYYY') : 'Vô thời hạn'}</Text>
+                                                            </div>
+                                                        </div>
+                                                        <Space>
+                                                            <Button 
+                                                                size="small" 
+                                                                type="text" 
+                                                                icon={<EditOutlined className="text-blue-500" />} 
+                                                                onClick={() => {
+                                                                    setEditingCert({ ...cert, index });
+                                                                    setIsCertModalVisible(true);
+                                                                }}
+                                                            />
+                                                            <Button 
+                                                                size="small" 
+                                                                type="text" 
+                                                                danger 
+                                                                icon={<DeleteOutlined />} 
+                                                                onClick={() => {
+                                                                    const newCerts = [...localCerts];
+                                                                    newCerts.splice(index, 1);
+                                                                    setLocalCerts(newCerts);
+                                                                }}
+                                                            />
+                                                        </Space>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+
                                     <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-6">
                                         <ShopOutlined className="mr-2" />
                                         Thông tin nông trại
@@ -605,21 +796,6 @@ const AccountInfo = () => {
                                             </Select>
                                         </Form.Item>
                                     </div>
-
-                                    <Form.Item name="certifications" label="Chứng nhận">
-                                        <Select
-                                            mode="tags"
-                                            className="rounded-lg"
-                                            placeholder="VietGAP, Hữu cơ, GlobalGAP..."
-                                            suffixIcon={<SafetyCertificateOutlined />}
-                                        >
-                                            <Option value="VietGAP">VietGAP</Option>
-                                            <Option value="Hữu cơ">Hữu cơ</Option>
-                                            <Option value="GlobalGAP">GlobalGAP</Option>
-                                            <Option value="HACCP">HACCP</Option>
-                                            <Option value="ISO 22000">ISO 22000</Option>
-                                        </Select>
-                                    </Form.Item>
                                 </>
                             )}
 
@@ -638,6 +814,23 @@ const AccountInfo = () => {
                     </Card>
                 </Col>
             </Row>
+
+            <CertificationModal 
+                visible={isCertModalVisible}
+                onCancel={() => setIsCertModalVisible(false)}
+                initialValues={editingCert}
+                loading={updateMutation.isLoading}
+                onSave={(newCert) => {
+                    if (editingCert) {
+                        const newCerts = [...localCerts];
+                        newCerts[editingCert.index] = { ...newCert, status: 'Pending' }; // Reset status on edit
+                        setLocalCerts(newCerts);
+                    } else {
+                        setLocalCerts([...localCerts, { ...newCert, status: 'Pending' }]);
+                    }
+                    setIsCertModalVisible(false);
+                }}
+            />
         </div>
     );
 };
