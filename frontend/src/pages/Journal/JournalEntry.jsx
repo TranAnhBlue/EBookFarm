@@ -1970,6 +1970,43 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           });
         }
 
+        // --- KIỂM TRA TỒN KHO VẬT TƯ ---
+        if (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) {
+          rules.push({
+            validator: (_, value) => {
+              if (!value || !inventory) return Promise.resolve();
+              
+              const currentValues = form.getFieldsValue();
+              for (const tableName in currentValues) {
+                  const tableData = currentValues[tableName];
+                  if (!tableData || typeof tableData !== 'object') continue;
+                  
+                  // Tìm field vật tư trong cùng bảng này
+                  if (tableData[field.name] === value) {
+                      const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
+                          ?.fields.find(f => 
+                              f.label.toLowerCase().includes('phân bón') || 
+                              f.label.toLowerCase().includes('thuốc') || 
+                              f.label.toLowerCase().includes('vật tư') ||
+                              f.label.toLowerCase().includes('giống') ||
+                              f.label.toLowerCase().includes('thức ăn')
+                          )?.name;
+                      
+                      const selectedSupplyName = tableData[supplyFieldName];
+                      if (!selectedSupplyName) continue;
+
+                      const item = inventory.find(i => i.name === selectedSupplyName);
+                      
+                      if (item && value > item.quantity) {
+                          return Promise.reject(new Error(`Số lượng vượt quá tồn kho (${item.quantity} ${item.unit})!`));
+                      }
+                  }
+              }
+              return Promise.resolve();
+            }
+          });
+        }
+
         break;
 
       case 'date':
@@ -2179,15 +2216,48 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                 })()
                             )}
                             {field.type === 'number' && (
-                                <InputNumber 
-                                    size="large" 
-                                    className="w-full rounded-xl border-gray-200"
-                                    placeholder={`Nhập ${field.label.toLowerCase()}`}
-                                    min={0}
-                                    max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
-                                    formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
-                                    parser={field.name.includes('dienTich') ? (value) => value.replace(/\$\s?|(,*)/g, '') : undefined}
-                                />
+                                <Form.Item
+                                    noStyle
+                                    dependencies={[[table.tableName, table.fields.find(f => 
+                                        f.label.toLowerCase().includes('phân bón') || 
+                                        f.label.toLowerCase().includes('thuốc') || 
+                                        f.label.toLowerCase().includes('vật tư') ||
+                                        f.label.toLowerCase().includes('giống') ||
+                                        f.label.toLowerCase().includes('thức ăn')
+                                    )?.name]]}
+                                >
+                                    {({ getFieldValue }) => {
+                                        // Tìm tên vật tư đã chọn trong bảng này
+                                        const supplyFieldName = table.fields.find(f => 
+                                            f.label.toLowerCase().includes('phân bón') || 
+                                            f.label.toLowerCase().includes('thuốc') || 
+                                            f.label.toLowerCase().includes('vật tư') ||
+                                            f.label.toLowerCase().includes('giống') ||
+                                            f.label.toLowerCase().includes('thức ăn')
+                                        )?.name;
+                                        
+                                        const selectedSupplyName = getFieldValue([table.tableName, supplyFieldName]);
+                                        const inventoryItem = inventory?.find(item => item.name === selectedSupplyName);
+
+                                        return (
+                                            <InputNumber 
+                                                size="large" 
+                                                className="w-full rounded-xl border-gray-200"
+                                                placeholder={`Nhập ${field.label.toLowerCase()}`}
+                                                min={0}
+                                                status={
+                                                    inventoryItem && 
+                                                    (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong')) && 
+                                                    getFieldValue([table.tableName, field.name]) > inventoryItem.quantity 
+                                                    ? 'error' : ''
+                                                }
+                                                max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
+                                                formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
+                                                parser={field.name.includes('dienTich') ? (value) => value.replace(/\$\s?|(,*)/g, '') : undefined}
+                                            />
+                                        );
+                                    }}
+                                </Form.Item>
                             )}
                             {field.type === 'date' && (
                                 <DatePicker 
