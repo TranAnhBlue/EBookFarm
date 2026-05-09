@@ -2096,14 +2096,34 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
   // --- LOAD DATA ---
   useEffect(() => {
-    if (journalData) {
+    if (journalData && schema) {
       console.log('Loading journal data:', journalData.entries);
-      // Nạp trực tiếp toàn bộ entries vào form
-      if (journalData.entries) {
-        form.setFieldsValue(journalData.entries);
+      const rawEntries = journalData.entries || {};
+      // Tạo một bản sao sâu (deep copy) để tránh thay đổi trực tiếp rawEntries
+      const convertedEntries = JSON.parse(JSON.stringify(rawEntries));
+
+      // Duyệt qua schema để tìm và convert các trường ngày tháng sang dayjs
+      if (schema.tables) {
+        schema.tables.forEach(table => {
+          const tableName = table.tableName;
+          if (convertedEntries[tableName]) {
+            table.fields.forEach(field => {
+              if (field.type === 'date' && convertedEntries[tableName][field.name]) {
+                convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
+              }
+            });
+          }
+        });
       }
+
+      // Convert các trường ngày tháng ở cấp độ ngoài (phẳng) nếu có
+      if (convertedEntries['Ngày bắt đầu']) {
+        convertedEntries['Ngày bắt đầu'] = dayjs(convertedEntries['Ngày bắt đầu']);
+      }
+
+      form.setFieldsValue(convertedEntries);
     }
-  }, [journalData, form]);
+  }, [journalData, schema, form]);
 
   const onFinish = async (formData) => {
     try {
