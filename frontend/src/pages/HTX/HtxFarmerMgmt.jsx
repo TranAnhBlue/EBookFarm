@@ -16,9 +16,10 @@ import {
   SafetyCertificateOutlined,
   EyeOutlined,
   CloseCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  ClockCircleOutlined
 } from '@ant-design/icons';
-import { Modal, List, Divider } from 'antd';
+import { Modal, List, Divider, Empty } from 'antd';
 import api from '../../services/api';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
@@ -44,7 +45,7 @@ const HtxFarmerMgmt = () => {
   const fetchFarmers = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/htx-journals/farmers');
+      const res = await api.get('/htx/journals/farmers');
       if (res.data.success) {
         setFarmers(res.data.data);
       }

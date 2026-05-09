@@ -91,7 +91,7 @@ const HtxJournalMgmt = () => {
   const fetchJournals = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/htx-journals');
+      const res = await api.get('/htx/journals');
       if (res.data.success) {
         setJournals(res.data.data);
       }
@@ -115,7 +115,7 @@ const HtxJournalMgmt = () => {
 
   const fetchFarmers = async () => {
     try {
-      const res = await api.get('/htx-journals/farmers');
+      const res = await api.get('/htx/journals/farmers');
       if (res.data.success) {
         setFarmersList(res.data.data);
       }
@@ -127,7 +127,7 @@ const HtxJournalMgmt = () => {
   const handleCreateJournal = async (values) => {
     try {
       setLoading(true);
-      const res = await api.post('/htx-journals', values);
+      const res = await api.post('/htx/journals', values);
       if (res.data.success) {
         message.success('Tạo sổ nhật ký thành công');
         setIsModalVisible(false);
@@ -148,7 +148,7 @@ const HtxJournalMgmt = () => {
     }
     try {
       setLoading(true);
-      const res = await api.post(`/htx-journals/${selectedJournal._id}/farmers`, {
+      const res = await api.post(`/htx/journals/${selectedJournal._id}/farmers`, {
         farmerIds: selectedFarmerIds
       });
       if (res.data.success) {
@@ -167,13 +167,13 @@ const HtxJournalMgmt = () => {
   const handleUpdateStatus = async (journalId, farmerId, status, feedback) => {
     try {
       setLoading(true);
-      const res = await api.put(`/htx-journals/${journalId}/farmers/${farmerId}/status`, {
+      const res = await api.put(`/htx/journals/${journalId}/farmers/${farmerId}/status`, {
         status,
         feedback
       });
       if (res.data.success) {
         message.success('Cập nhật trạng thái thành công');
-        const updatedRes = await api.get('/htx-journals');
+        const updatedRes = await api.get('/htx/journals');
         if (updatedRes.data.success) {
             setJournals(updatedRes.data.data);
             const updatedJournal = updatedRes.data.data.find(j => j._id === journalId);
@@ -192,7 +192,7 @@ const HtxJournalMgmt = () => {
   const handleToggleBrandAuth = async (farmJournalId, isAuthorized) => {
     try {
       setLoading(true);
-      const res = await api.put(`/htx-journals/authorize-brand/${farmJournalId}`, { authorized: isAuthorized });
+      const res = await api.put(`/htx/journals/authorize-brand/${farmJournalId}`, { authorized: isAuthorized });
       if (res.data.success) {
         message.success(res.data.message);
         fetchJournals();
