@@ -283,38 +283,47 @@ const JournalList = () => {
   const getEntryValue = (journal, fieldNames, tableNames = []) => {
     if (!journal?.entries) return null;
     
-    // Nếu có tableNames cụ thể thì ưu tiên kiểm tra trước
+    // Chuẩn hóa danh sách tên trường cần tìm (viết thường)
+    const normalizedSearchNames = fieldNames.map(name => name.toLowerCase().trim());
+
+    const findInObject = (obj) => {
+      if (!obj || typeof obj !== 'object') return null;
+      
+      const keys = Object.keys(obj);
+      // 1. Tìm khớp chính xác (không phân biệt hoa thường)
+      for (const key of keys) {
+        const lowerKey = key.toLowerCase().trim();
+        if (normalizedSearchNames.includes(lowerKey)) {
+          if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+        }
+      }
+      
+      // 2. Tìm khớp một phần (chứa từ khóa quan trọng)
+      for (const key of keys) {
+        const lowerKey = key.toLowerCase();
+        if (normalizedSearchNames.some(sn => lowerKey.includes(sn) || sn.includes(lowerKey))) {
+          if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+        }
+      }
+      return null;
+    };
+
+    // Ưu tiên kiểm tra các bảng được chỉ định
     if (tableNames.length > 0) {
       for (const table of tableNames) {
-        if (journal.entries[table]) {
-          for (const field of fieldNames) {
-            if (journal.entries[table][field] !== undefined && journal.entries[table][field] !== null && journal.entries[table][field] !== '') {
-              return journal.entries[table][field];
-            }
-          }
-        }
+        const result = findInObject(journal.entries[table]);
+        if (result) return result;
       }
     }
 
-    // Nếu không tìm thấy hoặc không có tableNames, quét TẤT CẢ các bảng
+    // Quét TẤT CẢ các bảng
     for (const table in journal.entries) {
-      if (typeof journal.entries[table] === 'object' && journal.entries[table] !== null) {
-        for (const field of fieldNames) {
-          if (journal.entries[table][field] !== undefined && journal.entries[table][field] !== null && journal.entries[table][field] !== '') {
-            return journal.entries[table][field];
-          }
-        }
-      }
+      const result = findInObject(journal.entries[table]);
+      if (result) return result;
     }
     
-    // Cuối cùng mới kiểm tra cấp cao nhất
-    for (const field of fieldNames) {
-      if (journal.entries[field] !== undefined && journal.entries[field] !== null && journal.entries[field] !== '') {
-        return journal.entries[field];
-      }
-    }
-    
-    return null;
+    // Kiểm tra cấp cao nhất
+    return findInObject(journal.entries);
   };
 
   const columns = [

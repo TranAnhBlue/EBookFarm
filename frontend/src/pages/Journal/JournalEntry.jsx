@@ -1994,6 +1994,14 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
               const item = inventory.find(i => i.name === selectedSupplyName);
               
+              // Debug logging
+              console.log('Validating Stock:', {
+                  field: field.label,
+                  enteredValue: value,
+                  stockValue: item?.quantity,
+                  isGreater: Number(value) > Number(item?.quantity)
+              });
+
               if (item && Number(value) > Number(item.quantity)) {
                   return Promise.reject(new Error(`Số lượng vượt quá tồn kho (${item.quantity} ${item.unit})!`));
               }
@@ -2241,12 +2249,18 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                                 className="w-full rounded-xl border-gray-200"
                                                 placeholder={`Nhập ${field.label.toLowerCase()}`}
                                                 min={0}
-                                                status={
-                                                    inventoryItem && 
-                                                    (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) && 
-                                                    Number(getFieldValue([table.tableName, field.name])) > Number(inventoryItem.quantity) 
-                                                    ? 'error' : ''
-                                                }
+                                                status={(() => {
+                                                    const isOver = inventoryItem && 
+                                                        (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) && 
+                                                        Number(getFieldValue([table.tableName, field.name])) > Number(inventoryItem.quantity);
+                                                    
+                                                    if (isOver) console.warn('InputNumber STATUS ERROR:', { 
+                                                        input: getFieldValue([table.tableName, field.name]), 
+                                                        stock: inventoryItem.quantity 
+                                                    });
+                                                    
+                                                    return isOver ? 'error' : '';
+                                                })()}
                                                 max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
                                                 formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
                                                 parser={field.name.includes('dienTich') ? (value) => value.replace(/\$\s?|(,*)/g, '') : undefined}
