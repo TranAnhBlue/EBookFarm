@@ -219,7 +219,7 @@ const LandingPage = () => {
             </section>
 
             {/* QR Lookup Section for Consumers */}
-            <section className="py-24 md:py-32 px-6 relative overflow-hidden bg-[#fafafa]">
+            <section className="py-16 md:py-20 px-6 relative overflow-hidden bg-[#fafafa]">
                 {/* Tech background elements */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#22c55e 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }}></div>
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/20 to-transparent"></div>
@@ -339,7 +339,7 @@ const LandingPage = () => {
             </section>
 
             {/* TCVN Highlight Section */}
-            <section className="bg-white py-24 md:py-32 px-6">
+            <section className="bg-white py-16 md:py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <Row gutter={[48, 48]} align="middle">
                         <Col xs={24} md={12}>
@@ -485,12 +485,12 @@ const LandingPage = () => {
             </section>
 
             {/* Benefits Section */}
-            <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
+            <section className="bg-slate-50 py-16 md:py-20 px-6 relative overflow-hidden">
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-100/30 blur-[120px] rounded-full pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-100/30 blur-[120px] rounded-full pointer-events-none"></div>
 
-                <div className="max-w-7xl mx-auto space-y-16 relative z-10">
+                <div className="max-w-7xl mx-auto space-y-12 relative z-10">
                     <div className="text-center max-w-3xl mx-auto space-y-4 scroll-reveal">
                         <div className="flex items-center justify-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
@@ -578,13 +578,13 @@ const LandingPage = () => {
             </section>
 
             {/* Technology & Standards Section */}
-            <section className="bg-gradient-to-br from-blue-50 to-green-50 py-24 md:py-32 px-6 relative overflow-hidden">
+            <section className="bg-gradient-to-br from-blue-50 to-green-50 py-16 md:py-20 px-6 relative overflow-hidden">
                 {/* Background decorative elements */}
                 <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-200/30 blur-[100px] rounded-full blob-animate"></div>
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-200/30 blur-[100px] rounded-full blob-animate" style={{ animationDelay: '3s' }}></div>
 
                 <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 scroll-reveal">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-12 scroll-reveal">
                         <div className="flex items-center justify-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
                                 <BlockOutlined className="text-2xl text-blue-600" />
@@ -655,7 +655,7 @@ const LandingPage = () => {
             </section>
 
             {/* Implementation Process Section */}
-            <section className="bg-white py-24 md:py-32 px-6 relative overflow-hidden">
+            <section id="process" className="bg-white py-16 md:py-20 px-6 relative overflow-hidden">
                 {/* Background decorative circles */}
                 <div className="absolute top-20 right-10 w-96 h-96 border-4 border-green-100 rounded-full opacity-30"></div>
                 <div className="absolute bottom-20 left-10 w-80 h-80 border-4 border-blue-100 rounded-full opacity-30"></div>
@@ -756,7 +756,7 @@ const LandingPage = () => {
             </section>
 
             {/* Product Showcase Section */}
-            <section className="bg-white py-24 md:py-32 px-6 overflow-hidden">
+            <section className="bg-white py-16 md:py-20 px-6 overflow-hidden">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8 scroll-reveal">
                         <div className="max-w-2xl space-y-4">
@@ -1020,7 +1020,7 @@ const LandingPage = () => {
             </Modal>
 
             {/* Success Stories Section */}
-            <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
+            <section className="bg-slate-50 py-16 md:py-20 px-6 relative overflow-hidden">
                 {/* Background pattern */}
                 <div className="absolute inset-0 opacity-5">
                     <div className="absolute top-10 left-10 w-32 h-32">
@@ -1230,7 +1230,7 @@ const LandingPage = () => {
             </Modal>
 
             {/* About Us Section */}
-            <section id="about-us" className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 py-24 md:py-32 px-6 relative overflow-hidden">
+            <section id="about-us" className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 py-16 md:py-20 px-6 relative overflow-hidden">
                 {/* Decorative blobs */}
                 <div className="absolute -top-20 -left-20 w-96 h-96 bg-green-500/10 blur-[120px] rounded-full blob-animate"></div>
                 <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-blue-500/10 blur-[120px] rounded-full blob-animate" style={{ animationDelay: '3s' }}></div>
