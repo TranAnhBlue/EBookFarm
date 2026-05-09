@@ -5,7 +5,7 @@ const getNews = async (req, res) => {
   try {
     const filter = req.user && req.user.role === 'Admin' ? {} : { isPublished: true };
     console.log('Fetching news with filter:', filter);
-    const news = await News.find(filter).sort({ publishedAt: -1 }).populate('author', 'username fullname');
+    const news = await News.find(filter).sort({ publishedAt: -1 }).populate('author', 'username fullname avatar');
     console.log(`Found ${news.length} news articles`);
     res.json({ success: true, data: news });
   } catch (error) {
@@ -15,7 +15,7 @@ const getNews = async (req, res) => {
 
 const getNewsById = async (req, res) => {
   try {
-    const news = await News.findById(req.params.id).populate('author', 'username fullname');
+    const news = await News.findById(req.params.id).populate('author', 'username fullname avatar');
     if (news) {
       res.json({ success: true, data: news });
     } else {

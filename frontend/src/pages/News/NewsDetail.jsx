@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Button, Skeleton, Space, Tag, Divider, Avatar, Row, Col, Affix, message } from 'antd';
-import { 
-    ArrowLeftOutlined, 
-    ShareAltOutlined, 
-    HeartOutlined, 
+import {
+    ArrowLeftOutlined,
+    ShareAltOutlined,
+    HeartOutlined,
     HeartFilled,
     MessageOutlined,
     FacebookFilled,
@@ -51,7 +51,7 @@ const NewsDetail = () => {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(window.location.href);
-        message.success('Đã sao chép liên kết bài viết!');
+        message.success('Đã sao chép liên kết tin tức!');
     };
 
     if (isLoading) {
@@ -67,7 +67,7 @@ const NewsDetail = () => {
     if (!news) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
-                <Title level={4}>Không tìm thấy bài viết</Title>
+                <Title level={4}>Không tìm thấy tin tức</Title>
                 <Button onClick={() => navigate('/news')}>Quay lại danh sách</Button>
             </div>
         );
@@ -82,8 +82,8 @@ const NewsDetail = () => {
                         <Affix offsetTop={100}>
                             <div className="flex flex-col items-center gap-8 py-4">
                                 <div className="flex flex-col items-center gap-1 group">
-                                    <Button 
-                                        shape="circle" 
+                                    <Button
+                                        shape="circle"
                                         size="large"
                                         onClick={() => setLiked(!liked)}
                                         className={`border-0 shadow-sm flex items-center justify-center transition-all ${liked ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black'}`}
@@ -92,8 +92,8 @@ const NewsDetail = () => {
                                     <Text className="text-xs font-bold text-gray-400 group-hover:text-black">12</Text>
                                 </div>
                                 <div className="flex flex-col items-center gap-1 group">
-                                    <Button 
-                                        shape="circle" 
+                                    <Button
+                                        shape="circle"
                                         size="large"
                                         className="border-0 shadow-sm flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black"
                                         icon={<MessageOutlined />}
@@ -114,13 +114,13 @@ const NewsDetail = () => {
                     <Col xs={24} lg={15}>
                         <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                             {/* Breadcrumb replacement */}
-                            <Button 
-                                type="text" 
-                                icon={<ArrowLeftOutlined />} 
+                            <Button
+                                type="text"
+                                icon={<ArrowLeftOutlined />}
                                 onClick={() => navigate('/news')}
                                 className="text-gray-500 hover:text-green-600 font-bold p-0 mb-8"
                             >
-                                DANH SÁCH BÀI VIẾT
+                                DANH SÁCH TIN TỨC
                             </Button>
 
                             <Title className="!text-[#292929] !font-black !mb-8 leading-[1.2] !text-3xl md:!text-5xl tracking-tight">
@@ -130,8 +130,8 @@ const NewsDetail = () => {
                             {/* Author Box */}
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-3">
-                                    <Avatar 
-                                        size={48} 
+                                    <Avatar
+                                        size={48}
                                         src={typeof news.author === 'object' ? getAvatarUrl(news.author?.avatar) : null}
                                         style={{ backgroundColor: '#16a34a', fontSize: 18, fontWeight: 700 }}
                                         className="border-2 border-white shadow-sm flex-shrink-0"
@@ -159,8 +159,8 @@ const NewsDetail = () => {
                                 </Paragraph>
 
                                 <div className="rounded-[32px] overflow-hidden shadow-sm mb-12 border border-gray-100">
-                                    <img 
-                                        src={news.image || getFallbackImage(news.category)} 
+                                    <img
+                                        src={news.image || getFallbackImage(news.category)}
                                         alt={news.title}
                                         className="w-full h-auto object-cover max-h-[500px]"
                                     />
@@ -177,7 +177,7 @@ const NewsDetail = () => {
                                             </Paragraph>
                                         ))
                                     ) : (
-                                        <Paragraph className="italic text-gray-400">Nội dung bài viết đang được cập nhật...</Paragraph>
+                                        <Paragraph className="italic text-gray-400">Nội dung tin tức đang được cập nhật...</Paragraph>
                                     )}
                                 </div>
                             </div>
@@ -193,13 +193,13 @@ const NewsDetail = () => {
                             <div className="mt-12 p-10 rounded-[32px] bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6 border border-gray-100 shadow-sm">
                                 <div className="flex items-center gap-4">
                                     <Title level={4} className="!mb-0 !text-[#292929]">Bạn thấy hữu ích?</Title>
-                                    <Button 
-                                        size="large" 
+                                    <Button
+                                        size="large"
                                         className={`rounded-full flex items-center gap-2 font-bold px-6 ${liked ? 'bg-red-500 text-white border-red-500' : 'bg-white border-gray-200'}`}
                                         onClick={() => setLiked(!liked)}
                                         icon={liked ? <HeartFilled /> : <HeartOutlined />}
                                     >
-                                        {liked ? 'Đã thích' : 'Thích bài viết'}
+                                        {liked ? 'Đã thích' : 'Thích tin tức'}
                                     </Button>
                                 </div>
                                 <Space size="middle">
@@ -226,7 +226,7 @@ const NewsDetail = () => {
 
                             {/* Related Posts */}
                             <div>
-                                <Title level={5} className="!text-[#292929] !font-black !text-xs !uppercase !tracking-widest !mb-6">BÀI VIẾT LIÊN QUAN</Title>
+                                <Title level={5} className="!text-[#292929] !font-black !text-xs !uppercase !tracking-widest !mb-6">TIN TỨC LIÊN QUAN</Title>
                                 <div className="space-y-8">
                                     {relatedNews.length > 0 ? relatedNews.map((n, idx) => (
                                         <div key={idx} className="group cursor-pointer" onClick={() => navigate(`/news/${n._id}`)}>
@@ -238,15 +238,15 @@ const NewsDetail = () => {
                                             </Title>
                                             <Text className="text-gray-400 text-xs uppercase font-black">{dayjs(n.publishedAt).format('MMMM DD, YYYY')}</Text>
                                         </div>
-                                    )) : <Text className="italic text-gray-400">Không có bài viết liên quan</Text>}
+                                    )) : <Text className="italic text-gray-400">Không có tin tức liên quan</Text>}
                                 </div>
                             </div>
 
                             {/* Newsletter / CTA */}
                             <div className="bg-[#1a1a1a] p-10 rounded-[32px] text-white shadow-xl">
                                 <Title level={4} className="!text-white !font-black !mb-4">Đăng ký bản tin</Title>
-                                <Paragraph className="text-gray-400 text-sm mb-6 leading-relaxed">Nhận thông báo về các bài viết công nghệ mới nhất từ chúng tôi.</Paragraph>
-                                <Button type="primary" size="large" className="w-full bg-green-600 border-0 font-black rounded-full h-12 hover:scale-105 transition-transform">Đăng ký ngay</Button>
+                                <Paragraph className="text-gray-400 text-sm mb-6 leading-relaxed">Nhận thông báo về các tin tức công nghệ mới nhất từ chúng tôi.</Paragraph>
+                                <Button type="primary" size="large" className="w-full bg-green-600 border-0 font-black rounded-full h-12 hover:scale-105 transition-transform" onClick={() => navigate('/register')}>Đăng ký ngay</Button>
                             </div>
                         </div>
                     </Col>

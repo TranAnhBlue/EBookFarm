@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Row, Col, Typography, Button, Skeleton, Space, Tag, Avatar, Divider, Card, Tabs } from 'antd';
-import { 
-    ArrowLeftOutlined, 
-    CalendarOutlined, 
-    ClockCircleOutlined, 
-    CheckCircleFilled, 
-    BookOutlined, 
+import {
+    ArrowLeftOutlined,
+    CalendarOutlined,
+    ClockCircleOutlined,
+    CheckCircleFilled,
+    BookOutlined,
     MoreOutlined,
     FireOutlined,
     GlobalOutlined,
@@ -52,9 +52,9 @@ const NewsListAll = () => {
         <div className="bg-white min-h-screen font-['Roboto',_sans-serif]">
             <div className="max-w-7xl mx-auto px-6 py-10 animate-in fade-in duration-700">
                 {/* Back Button */}
-                <Button 
-                    type="text" 
-                    icon={<ArrowLeftOutlined />} 
+                <Button
+                    type="text"
+                    icon={<ArrowLeftOutlined />}
                     onClick={() => navigate(-1)}
                     className="text-gray-500 hover:text-green-600 font-bold p-0 mb-8 flex items-center gap-2 group"
                 >
@@ -62,9 +62,9 @@ const NewsListAll = () => {
                 </Button>
 
                 <div className="mb-12">
-                    <Title level={1} className="!text-[#242424] !font-black !mb-4 !text-4xl md:!text-5xl tracking-tight">Bài viết nổi bật</Title>
+                    <Title level={1} className="!text-[#242424] !font-black !mb-4 !text-4xl md:!text-5xl tracking-tight">Tin tức nổi bật</Title>
                     <Paragraph className="text-[#505050] text-lg max-w-3xl leading-relaxed">
-                        Tổng hợp các bài viết chia sẻ về kinh nghiệm sản xuất nông nghiệp sạch, 
+                        Tổng hợp các bài viết chia sẻ về kinh nghiệm sản xuất nông nghiệp sạch,
                         ứng dụng công nghệ số và cập nhật biến động thị trường mới nhất.
                     </Paragraph>
                 </div>
@@ -73,14 +73,13 @@ const NewsListAll = () => {
                 <div className="mb-10 border-b border-gray-100 overflow-x-auto font-['Roboto',_sans-serif]">
                     <div className="flex items-center gap-8 pb-3 min-w-max">
                         {categories.map(cat => (
-                            <div 
+                            <div
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`cursor-pointer font-bold text-sm transition-all pb-3 relative tracking-wide ${
-                                    selectedCategory === cat 
-                                    ? 'text-[#242424] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#242424]' 
+                                className={`cursor-pointer font-bold text-sm transition-all pb-3 relative tracking-wide ${selectedCategory === cat
+                                    ? 'text-[#242424] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#242424]'
                                     : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                                    }`}
                             >
                                 {cat.toUpperCase()}
                             </div>
@@ -98,7 +97,7 @@ const NewsListAll = () => {
                         ) : filteredNews.length > 0 ? (
                             <div className="space-y-12">
                                 {filteredNews.map((news, index) => (
-                                    <article 
+                                    <article
                                         key={news._id || index}
                                         className="group cursor-pointer"
                                         onClick={() => navigate(`/news/${news._id}`)}
@@ -107,13 +106,13 @@ const NewsListAll = () => {
                                             {/* Author Header */}
                                             <div className="flex items-center justify-between mb-5">
                                                 <div className="flex items-center gap-2">
-                                                    <Avatar 
-                                                        size={28} 
+                                                    <Avatar
+                                                        size={28}
                                                         src={typeof news.author === 'object' ? getAvatarUrl(news.author?.avatar) : null}
                                                         style={{ backgroundColor: '#16a34a', fontSize: 12, fontWeight: 700 }}
                                                         className="border border-gray-100 flex-shrink-0"
                                                     >
-                                                        {typeof news.author === 'object' 
+                                                        {typeof news.author === 'object'
                                                             ? (!news.author?.avatar && getInitialAvatar(news.author?.fullname || news.author?.username))
                                                             : 'E'
                                                         }
@@ -180,17 +179,16 @@ const NewsListAll = () => {
                         <div className="sticky top-24 space-y-12 pl-6">
                             {/* Topic Cloud */}
                             <div>
-                                <Title level={5} className="!text-[#757575] !uppercase !text-[11px] !font-black !tracking-widest !mb-6">XEM CÁC BÀI VIẾT THEO CHỦ ĐỀ</Title>
+                                <Title level={5} className="!text-[#757575] !uppercase !text-[11px] !font-black !tracking-widest !mb-6">XEM CÁC TIN TỨC THEO CHỦ ĐỀ</Title>
                                 <div className="flex flex-wrap gap-2">
                                     {categories.map(cat => (
                                         <button
                                             key={cat}
                                             onClick={() => setSelectedCategory(cat)}
-                                            className={`px-4 py-2 rounded-full text-[11px] font-black transition-all border-0 cursor-pointer font-['Roboto',_sans-serif] tracking-wider ${
-                                                selectedCategory === cat
-                                                ? 'bg-green-600 text-white shadow-md shadow-green-100' 
+                                            className={`px-4 py-2 rounded-full text-[11px] font-black transition-all border-0 cursor-pointer font-['Roboto',_sans-serif] tracking-wider ${selectedCategory === cat
+                                                ? 'bg-green-600 text-white shadow-md shadow-green-100'
                                                 : 'bg-gray-100 text-[#505050] hover:bg-gray-200'
-                                            }`}
+                                                }`}
                                         >
                                             {cat.toUpperCase()}
                                         </button>
