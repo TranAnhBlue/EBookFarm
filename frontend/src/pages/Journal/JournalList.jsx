@@ -43,6 +43,16 @@ const JournalList = () => {
   const [currentQr, setCurrentQr] = useState('');
   const [viewMode, setViewMode] = useState('card');
 
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedJournalId, setSelectedJournalId] = useState(null);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [importSchemaId, setImportSchemaId] = useState(null);
+  const [selectedJournals, setSelectedJournals] = useState([]);
+  const [historyModalVisible, setHistoryModalVisible] = useState(false);
+  const [historyJournalId, setHistoryJournalId] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('all'); // all, personal, htx
+
   const { data: journalsRaw, isLoading } = useQuery({
     queryKey: ['journals', category.key],
     queryFn: () => {
@@ -60,9 +70,9 @@ const JournalList = () => {
   });
 
   // Lọc dự phòng phía client: nếu backend chưa có field category thì filter theo tên
-  const channuoiNames = new Set(['Gia cầm', 'Bò thịt', 'Bò sữa', 'Ong', 'Dê thịt', 'Dê sữa', 'Lợn thịt', 'Lúa hữu cơ']);
+  const channuoiNames = useMemo(() => new Set(['Gia cầm', 'Bò thịt', 'Bò sữa', 'Ong', 'Dê thịt', 'Dê sữa', 'Lợn thịt', 'Lúa hữu cơ']), []);
   
-  const schemas = schemasRaw?.filter(s => {
+  const schemas = useMemo(() => schemasRaw?.filter(s => {
     if (!category.key) return true;
     if (s.category && s.category === category.key) return true;
     if (!s.category) {
@@ -70,9 +80,9 @@ const JournalList = () => {
       if (category.key === 'trongtrot') return !channuoiNames.has(s.name);
     }
     return false;
-  });
+  }), [schemasRaw, category.key, channuoiNames]);
 
-  const journals = journalsRaw?.filter(j => {
+  const journals = useMemo(() => journalsRaw?.filter(j => {
     // Filter by category
     let categoryMatch = true;
     if (category.key) {
@@ -97,17 +107,7 @@ const JournalList = () => {
     if (typeFilter === 'htx') return !!j.htxJournalId;
     
     return true;
-  });
-
-  const [viewModalVisible, setViewModalVisible] = useState(false);
-  const [selectedJournalId, setSelectedJournalId] = useState(null);
-  const [importModalVisible, setImportModalVisible] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [importSchemaId, setImportSchemaId] = useState(null);
-  const [selectedJournals, setSelectedJournals] = useState([]);
-  const [historyModalVisible, setHistoryModalVisible] = useState(false);
-  const [historyJournalId, setHistoryJournalId] = useState(null);
-  const [typeFilter, setTypeFilter] = useState('all'); // all, personal, htx
+  }), [journalsRaw, category.key, typeFilter, channuoiNames]);
 
   const { data: fullJournal, isLoading: isFetchingFull } = useQuery({
     queryKey: ['journal-detail', selectedJournalId],
