@@ -1779,7 +1779,6 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             message: 'pH phải từ 6.0 đến 9.0!'
           });
         }
-        }
 
         // Oxy (mg/l)
         if (field.name.includes('oxy') || field.name.includes('Oxy')) {
