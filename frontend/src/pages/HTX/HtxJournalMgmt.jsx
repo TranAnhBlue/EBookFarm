@@ -189,6 +189,31 @@ const HtxJournalMgmt = () => {
     }
   };
 
+  const handleToggleBrandAuth = async (farmJournalId, isAuthorized) => {
+    try {
+      setLoading(true);
+      const res = await api.put(`/htx-journals/authorize-brand/${farmJournalId}`, { authorized: isAuthorized });
+      if (res.data.success) {
+        message.success(res.data.message);
+        fetchJournals();
+        if (selectedJournal) {
+          // Re-find and update selected journal to refresh the drawer
+          api.get('/htx-journals').then(response => {
+            if (response.data.success) {
+              setJournals(response.data.data);
+              const updated = response.data.data.find(j => j._id === selectedJournal._id);
+              if (updated) setSelectedJournal(updated);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Lỗi khi cấp quyền thương hiệu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchSummary = async (journalId) => {
     try {
       setSummaryLoading(true);
@@ -748,6 +773,19 @@ const HtxJournalMgmt = () => {
                     }
                   },
                   {
+                    title: 'THƯƠNG HIỆU',
+                    key: 'brand',
+                    align: 'center',
+                    render: (_, record) => {
+                      const isAuth = record.farmJournalId?.brandAuthorized;
+                      return isAuth ? (
+                        <Tag color="gold" icon={<SafetyCertificateOutlined />} className="rounded-full px-3 font-bold">HTX Verified</Tag>
+                      ) : (
+                        <Tag color="default" className="rounded-full px-3">Chưa cấp</Tag>
+                      );
+                    }
+                  },
+                  {
                     title: 'HÀNH ĐỘNG',
                     key: 'action',
                     align: 'right',
@@ -790,6 +828,17 @@ const HtxJournalMgmt = () => {
                             className="rounded-lg"
                           />
                         </Tooltip>
+                        {record.farmJournalId && record.status === 'Đã duyệt' && (
+                          <Tooltip title={record.farmJournalId?.brandAuthorized ? "Thu hồi thương hiệu" : "Cấp quyền thương hiệu HTX"}>
+                            <Button
+                              size="small"
+                              icon={<SafetyCertificateOutlined />}
+                              onClick={() => handleToggleBrandAuth(record.farmJournalId?._id || record.farmJournalId, !record.farmJournalId?.brandAuthorized)}
+                              className={`rounded-lg border-0 ${record.farmJournalId?.brandAuthorized ? 'bg-gold-50 text-gold-600' : 'bg-gray-100 text-gray-400'}`}
+                              style={record.farmJournalId?.brandAuthorized ? { backgroundColor: '#fff7e6', color: '#faad14' } : {}}
+                            />
+                          </Tooltip>
+                        )}
                         {record.farmJournalId && (
                           <Tooltip title="QR Truy xuất">
                             <Button

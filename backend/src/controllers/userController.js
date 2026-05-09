@@ -213,4 +213,44 @@ const bulkCreateUsers = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, updateUserRoleStatus, updateProfile, createUser, deleteUser, bulkCreateUsers };
+const verifyCertification = async (req, res) => {
+  try {
+    const { userId, certId } = req.params;
+    const { status, feedback } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+    }
+
+    const cert = user.certifications.id(certId);
+    if (!cert) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy chứng chỉ' });
+    }
+
+    cert.status = status;
+    cert.feedback = feedback || cert.feedback;
+    cert.verifiedBy = req.user._id;
+    cert.verifiedAt = new Date();
+
+    await user.save();
+
+    res.json({ 
+      success: true, 
+      message: `Đã ${status === 'Approved' ? 'phê duyệt' : 'từ chối'} chứng chỉ`,
+      data: cert 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { 
+  getUsers, 
+  updateUserRoleStatus, 
+  updateProfile, 
+  createUser, 
+  deleteUser, 
+  bulkCreateUsers,
+  verifyCertification 
+};

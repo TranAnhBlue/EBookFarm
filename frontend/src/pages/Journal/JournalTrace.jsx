@@ -137,7 +137,14 @@ const JournalTrace = () => {
                   <FileTextOutlined className="text-3xl text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <Title level={2} className="!mb-2">{schema.name}</Title>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Title level={2} className="!mb-0">{schema.name}</Title>
+                    {journal.brandAuthorized && (
+                      <Tooltip title={`Sản phẩm đã được ${journal.htxJournalId?.htxId?.fullname || 'HTX'} kiểm duyệt và cấp quyền thương hiệu`}>
+                        <SafetyCertificateOutlined className="text-2xl text-gold-500" style={{ color: '#faad14' }} />
+                      </Tooltip>
+                    )}
+                  </div>
                   <Text className="text-gray-500 text-base">{schema.description || 'Sản phẩm nông nghiệp chất lượng cao'}</Text>
                 </div>
               </div>
@@ -177,15 +184,32 @@ const JournalTrace = () => {
             </Col>
 
             <Col xs={24} md={8}>
-              <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl h-full flex flex-col justify-center items-center">
-                <SafetyOutlined className="text-6xl text-green-600 mb-4" />
-                <Tag color={statusInfo.color} className="text-lg px-4 py-2 rounded-full mb-3">
-                  {statusInfo.icon} {statusInfo.text}
-                </Tag>
-                <Text className="text-center text-gray-600">
-                  Sản phẩm đã được xác thực và đăng ký trong hệ thống truy xuất nguồn gốc
-                </Text>
-              </div>
+              {journal.brandAuthorized ? (
+                <div className="bg-gradient-to-br from-gold-50 to-yellow-100 p-6 rounded-xl h-full flex flex-col justify-center items-center border-2 border-gold-200 relative overflow-hidden" style={{ backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
+                  <div className="absolute top-0 right-0 p-2 opacity-10">
+                    <SafetyCertificateOutlined style={{ fontSize: '100px' }} />
+                  </div>
+                  <SafetyCertificateOutlined className="text-6xl text-gold-500 mb-4" style={{ color: '#faad14' }} />
+                  <Title level={4} className="!mb-1 !text-gold-700 uppercase tracking-wider font-black text-center">Bảo chứng HTX</Title>
+                  <Tag color="gold" className="text-lg px-4 py-1 rounded-full mb-3 border-0 font-bold" style={{ backgroundColor: '#faad14', color: 'white' }}>
+                    HTX VERIFIED
+                  </Tag>
+                  <Text className="text-center text-gray-700 font-medium">
+                    Sản phẩm mang thương hiệu chính thức của <br/>
+                    <Text strong className="text-gold-600">{journal.htxJournalId?.htxId?.fullname || 'Hợp Tác Xã'}</Text>
+                  </Text>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl h-full flex flex-col justify-center items-center">
+                  <SafetyOutlined className="text-6xl text-green-600 mb-4" />
+                  <Tag color={statusInfo.color} className="text-lg px-4 py-2 rounded-full mb-3">
+                    {statusInfo.icon} {statusInfo.text}
+                  </Tag>
+                  <Text className="text-center text-gray-600">
+                    Sản phẩm đã được xác thực và đăng ký trong hệ thống truy xuất nguồn gốc
+                  </Text>
+                </div>
+              )}
             </Col>
           </Row>
         </Card>
@@ -432,6 +456,38 @@ const JournalTrace = () => {
             })}
           />
         </Card>
+
+        {/* Brand/HTX Verification Section */}
+        {journal.brandAuthorized && journal.htxJournalId?.htxId && (
+          <Card className="mt-6 shadow-lg rounded-2xl border-0 bg-gradient-to-r from-gold-500 to-yellow-600 text-white overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #faad14 0%, #ffc53d 100%)' }}>
+            <div className="absolute right-[-20px] top-[-20px] opacity-20">
+              <SafetyCertificateOutlined style={{ fontSize: '150px' }} />
+            </div>
+            <Row gutter={[24, 24]} align="middle">
+              <Col xs={24} sm={6} className="text-center">
+                <div className="bg-white p-2 rounded-full inline-block shadow-lg">
+                   <Avatar size={100} src={journal.htxJournalId.htxId.avatar} icon={<HomeOutlined />} className="bg-gold-50 text-gold-600" />
+                </div>
+              </Col>
+              <Col xs={24} sm={18}>
+                <Title level={3} className="!text-white !mb-1">Xác nhận thương hiệu HTX</Title>
+                <Paragraph className="text-white/90 text-lg mb-4 font-medium italic">
+                  "Lô hàng này đã được Hợp tác xã kiểm định chất lượng nghiêm ngặt và đủ điều kiện mang thương hiệu chính thức của HTX ra thị trường."
+                </Paragraph>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-xl border border-white/30">
+                    <Text className="text-white/70 text-xs block uppercase font-bold tracking-wider">Đơn vị bảo chứng</Text>
+                    <Text className="text-white text-base font-bold">{journal.htxJournalId.htxId.fullname}</Text>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-xl border border-white/30">
+                    <Text className="text-white/70 text-xs block uppercase font-bold tracking-wider">Thời điểm xác nhận</Text>
+                    <Text className="text-white text-base font-bold">{dayjs(journal.brandAuthorizedAt).format('HH:mm - DD/MM/YYYY')}</Text>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        )}
 
         {/* Footer */}
         <div className="mt-8 text-center pb-8">

@@ -298,6 +298,32 @@ const getHtxJournalSummary = async (req, res) => {
   }
 };
 
+const authorizeBrand = async (req, res) => {
+  try {
+    const { id } = req.params; // id của FarmJournal
+    const { authorized } = req.body;
+
+    const journal = await FarmJournal.findById(id);
+    if (!journal) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
+    }
+
+    journal.brandAuthorized = authorized;
+    journal.brandAuthorizedAt = authorized ? new Date() : null;
+    journal.brandAuthorizedBy = authorized ? req.user._id : null;
+
+    await journal.save();
+
+    res.json({ 
+      success: true, 
+      message: authorized ? 'Đã cấp quyền thương hiệu HTX' : 'Đã thu hồi quyền thương hiệu',
+      data: journal 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createHtxJournal,
   getHtxJournals,
@@ -305,5 +331,6 @@ module.exports = {
   updateFarmerStatus,
   getMyHtxJournals,
   getFarmersForHtx,
-  getHtxJournalSummary
+  getHtxJournalSummary,
+  authorizeBrand
 };

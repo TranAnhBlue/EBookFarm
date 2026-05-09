@@ -39,7 +39,12 @@ const farmJournalSchema = new mongoose.Schema({
   lastEditedAt: { type: Date },
   lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   feedback: { type: String }, // Nhận xét từ HTX
-  htxStatus: { type: String } // Trạng thái đồng bộ từ HTX (Đã duyệt, Cần chỉnh sửa...)
+  htxStatus: { type: String }, // Trạng thái đồng bộ từ HTX (Đã duyệt, Cần chỉnh sửa...)
+  
+  // Quản lý thương hiệu HTX
+  brandAuthorized: { type: Boolean, default: false }, // Đã được HTX cấp quyền thương hiệu chưa
+  brandAuthorizedAt: { type: Date }, // Thời điểm cấp quyền
+  brandAuthorizedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Người cấp quyền
 }, { timestamps: true });
 
 const FarmJournal = mongoose.model('FarmJournal', farmJournalSchema);

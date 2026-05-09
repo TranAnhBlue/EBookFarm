@@ -7,7 +7,8 @@ const {
   updateFarmerStatus, 
   getMyHtxJournals,
   getFarmersForHtx,
-  getHtxJournalSummary
+  getHtxJournalSummary,
+  authorizeBrand
 } = require('../controllers/htxJournalController');
 const { protect, admin, htx } = require('../middlewares/authMiddleware');
 
@@ -38,5 +39,8 @@ router.route('/:id/farmers/:farmerId/status')
 
 router.route('/:id/summary')
   .get(protect, htxOrAdmin, getHtxJournalSummary);
+
+router.route('/authorize-brand/:id')
+  .put(protect, htxOrAdmin, authorizeBrand);
 
 module.exports = router;

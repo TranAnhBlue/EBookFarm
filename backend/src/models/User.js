@@ -33,7 +33,18 @@ const userSchema = new mongoose.Schema({
   farmCode: { type: String },
   farmArea: { type: Number }, // Diện tích (m²)
   farmType: { type: String, enum: ['Trồng trọt', 'Chăn nuôi', 'Thủy sản', 'Hỗn hợp'] },
-  certifications: [{ type: String }], // VietGAP, Hữu cơ, GlobalGAP...
+  certifications: [{
+    name: String, // VietGAP, Hữu cơ, GlobalGAP...
+    code: String, // Số hiệu chứng chỉ
+    issueDate: Date,
+    expiryDate: Date,
+    issuer: String, // Tổ chức cấp
+    fileUrl: String, // Link file scan
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    verifiedAt: { type: Date },
+    feedback: { type: String }
+  }],
   organization: { type: String }, // Tổ chức/HTX/Công ty
   
   resetPasswordToken: String,

@@ -12,8 +12,13 @@ import {
   TeamOutlined,
   FilterOutlined,
   ReloadOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  SafetyCertificateOutlined,
+  EyeOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
+import { Modal, List, Divider } from 'antd';
 import api from '../../services/api';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
@@ -28,6 +33,9 @@ const HtxFarmerMgmt = () => {
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isCertModalVisible, setIsCertModalVisible] = useState(false);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
+  const [certLoading, setCertLoading] = useState(false);
 
   useEffect(() => {
     fetchFarmers();
@@ -44,6 +52,32 @@ const HtxFarmerMgmt = () => {
       message.error('Lỗi khi tải danh sách nông dân');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleVerifyCert = async (certId, status, feedback = '') => {
+    try {
+      setCertLoading(true);
+      const res = await api.put(`/users/${selectedFarmer._id}/certifications/${certId}/verify`, { status, feedback });
+      if (res.data.success) {
+        message.success(res.data.message);
+        // Cập nhật lại list local
+        const updatedFarmers = farmers.map(f => {
+          if (f._id === selectedFarmer._id) {
+            const updatedCerts = f.certifications.map(c => c._id === certId ? { ...c, status, verifiedAt: new Date() } : c);
+            return { ...f, certifications: updatedCerts };
+          }
+          return f;
+        });
+        setFarmers(updatedFarmers);
+        // Cập nhật nông dân đang chọn trong Modal
+        const current = updatedFarmers.find(f => f._id === selectedFarmer._id);
+        setSelectedFarmer(current);
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Lỗi khi phê duyệt chứng nhận');
+    } finally {
+      setCertLoading(false);
     }
   };
 
@@ -125,12 +159,29 @@ const HtxFarmerMgmt = () => {
       title: 'CHỨNG NHẬN',
       dataIndex: 'certifications',
       key: 'certs',
-      render: (certs) => (
-        <Space wrap size={[4, 4]}>
-          {certs && certs.length > 0 ? certs.map(c => (
-            <Tag key={c} color="success" className="rounded-full border-0 text-[9px] font-bold px-2">{c}</Tag>
-          )) : <Text className="text-[10px] text-gray-300 italic">Chưa có</Text>}
-        </Space>
+      render: (certs, record) => (
+        <Button 
+          type="text" 
+          size="small" 
+          className="p-0 h-auto hover:bg-transparent"
+          onClick={() => {
+            setSelectedFarmer(record);
+            setIsCertModalVisible(true);
+          }}
+        >
+          <Space wrap size={[4, 4]}>
+            {certs && certs.length > 0 ? certs.map((c, i) => {
+              let color = 'default';
+              if (c.status === 'Approved') color = 'success';
+              if (c.status === 'Pending') color = 'warning';
+              if (c.status === 'Rejected') color = 'error';
+              return <Tag key={i} color={color} className="rounded-full border-0 text-[9px] font-bold px-2 m-0">{c.name || c}</Tag>;
+            }) : <Text className="text-[10px] text-gray-300 italic">Chưa có</Text>}
+            <Tooltip title="Quản lý chứng nhận">
+               <SafetyCertificateOutlined className="text-blue-500 ml-1" />
+            </Tooltip>
+          </Space>
+        </Button>
       )
     },
     {
@@ -273,6 +324,96 @@ const HtxFarmerMgmt = () => {
           }}
         />
       </Card>
+
+      {/* Certification Management Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <SafetyCertificateOutlined className="text-gold-500" />
+            <Text strong>Quản Lý Chứng Nhận: {selectedFarmer?.fullname || selectedFarmer?.username}</Text>
+          </div>
+        }
+        open={isCertModalVisible}
+        onCancel={() => setIsCertModalVisible(false)}
+        footer={null}
+        width={700}
+        centered
+        className="premium-modal"
+      >
+        <div className="py-4">
+          <List
+            dataSource={selectedFarmer?.certifications || []}
+            locale={{ emptyText: <Empty description="Nông dân chưa tải lên chứng nhận nào" /> }}
+            renderItem={(cert) => (
+              <List.Item
+                className="bg-gray-50/50 p-4 rounded-2xl mb-3 border border-gray-100"
+                actions={[
+                  cert.status === 'Pending' && (
+                    <Space>
+                      <Button 
+                        size="small" 
+                        type="primary" 
+                        icon={<CheckCircleOutlined />}
+                        className="bg-green-600 border-0 rounded-lg"
+                        onClick={() => handleVerifyCert(cert._id, 'Approved')}
+                        loading={certLoading}
+                      >
+                        Duyệt
+                      </Button>
+                      <Button 
+                        size="small" 
+                        danger 
+                        icon={<CloseCircleOutlined />}
+                        className="rounded-lg"
+                        onClick={() => handleVerifyCert(cert._id, 'Rejected')}
+                        loading={certLoading}
+                      >
+                        Từ chối
+                      </Button>
+                    </Space>
+                  ),
+                  cert.status === 'Approved' && <Tag color="success" className="rounded-full border-0 font-bold uppercase text-[10px]">Đã duyệt</Tag>,
+                  cert.status === 'Rejected' && <Tag color="error" className="rounded-full border-0 font-bold uppercase text-[10px]">Đã từ chối</Tag>
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                      <span className="text-2xl">📜</span>
+                    </div>
+                  }
+                  title={
+                    <div className="flex items-center gap-2">
+                      <Text strong className="text-gray-800 text-base">{cert.name}</Text>
+                      {cert.code && <Tag color="blue" className="m-0 font-mono text-[10px]">{cert.code}</Tag>}
+                    </div>
+                  }
+                  description={
+                    <div className="space-y-1 mt-1">
+                      <div className="flex gap-4">
+                        <Text type="secondary" className="text-xs">
+                          <ClockCircleOutlined className="mr-1" />
+                          Hạn dùng: {cert.expiryDate ? dayjs(cert.expiryDate).format('DD/MM/YYYY') : '---'}
+                        </Text>
+                        {cert.fileUrl && (
+                          <a href={cert.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-xs flex items-center hover:underline">
+                            <EyeOutlined className="mr-1" /> Xem tệp đính kèm
+                          </a>
+                        )}
+                      </div>
+                      {cert.verifiedAt && (
+                        <Text type="secondary" className="text-[10px] italic block">
+                          Đã xác minh vào {dayjs(cert.verifiedAt).format('HH:mm - DD/MM/YYYY')}
+                        </Text>
+                      )}
+                    </div>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
