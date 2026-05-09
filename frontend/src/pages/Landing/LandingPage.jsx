@@ -654,102 +654,127 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Implementation Process Section */}
+            {/* Product Traceability Supply Chain Section */}
             <section id="process" className="bg-white py-16 md:py-20 px-6 relative overflow-hidden">
-                {/* Background decorative circles */}
-                <div className="absolute top-20 right-10 w-96 h-96 border-4 border-green-100 rounded-full opacity-30"></div>
-                <div className="absolute bottom-20 left-10 w-80 h-80 border-4 border-blue-100 rounded-full opacity-30"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-gray-100 rounded-full opacity-20"></div>
-
-                <div className="max-w-5xl mx-auto space-y-16 relative z-10">
-                    <div className="text-center space-y-4 scroll-reveal">
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                                <CheckCircleFilled className="text-2xl text-green-600" />
-                            </div>
-                            <Tag color="green" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Quy trình</Tag>
+                {/* Tech grid background */}
+                <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#22c55e 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+                
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 scroll-reveal">
+                        <div className="inline-flex items-center gap-2 bg-green-50 px-4 py-2 rounded-full border border-green-100 mb-2">
+                            <SafetyCertificateOutlined className="text-green-600" />
+                            <Text className="text-green-700 font-bold text-[10px] uppercase tracking-widest">Chuỗi giá trị</Text>
                         </div>
-                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">Triển khai chỉ trong 3 bước</Title>
-                        <Paragraph className="text-gray-500 text-lg">Đơn giản, nhanh chóng và được hỗ trợ toàn diện</Paragraph>
+                        <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black gradient-text">
+                            Quy Trình Truy Xuất Toàn Diện
+                        </Title>
+                        <Paragraph className="text-gray-500 text-lg">
+                            Mô hình hóa toàn bộ chuỗi cung ứng, đảm bảo tính minh bạch và xác thực dữ liệu tại từng điểm chạm.
+                        </Paragraph>
                     </div>
 
-                    <div className="relative mt-20">
-                        {/* Connecting Line */}
-                        <div className="absolute left-[39px] top-10 bottom-10 w-0.5 bg-gradient-to-b from-green-500 via-blue-500 to-orange-500 opacity-20 hidden md:block"></div>
+                    {/* 5-Step Supply Chain Flow */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 relative mb-20 scroll-reveal">
+                        {/* Connecting line (Desktop) */}
+                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-100 -translate-y-1/2 -z-10"></div>
 
-                        <div className="space-y-12 relative z-10">
-                            {[
-                                {
-                                    step: '01',
-                                    title: 'Đăng ký & Tư vấn',
-                                    color: 'green',
-                                    icon: <PhoneOutlined />,
-                                    desc: 'Liên hệ với EBookFarm qua form đăng ký hoặc hotline. Đội ngũ chuyên gia giàu kinh nghiệm sẽ khảo sát thực tế và tư vấn giải pháp tối ưu nhất, phù hợp với quy mô và đặc thù nông sản của bạn.',
-                                    tags: ['Tư vấn miễn phí', 'Khảo sát nhu cầu', 'Báo giá chi tiết']
-                                },
-                                {
-                                    step: '02',
-                                    title: 'Triển khai & Đào tạo',
-                                    color: 'blue',
-                                    icon: <SettingOutlined />,
-                                    desc: 'Cài đặt hệ thống, khởi tạo tài khoản và chuẩn hóa dữ liệu vùng trồng. Chúng tôi sẽ trực tiếp đào tạo kỹ thuật ghi nhật ký cho nông dân và hướng dẫn quản lý cho cán bộ HTX/Doanh nghiệp.',
-                                    tags: ['Đào tạo trực tiếp', 'Tài liệu hướng dẫn', 'Hỗ trợ 24/7']
-                                },
-                                {
-                                    step: '03',
-                                    title: 'Vận hành & Tối ưu',
-                                    color: 'orange',
-                                    icon: <RocketOutlined />,
-                                    desc: 'Chính thức ghi nhật ký điện tử và phát hành mã QR truy xuất nguồn gốc. EBookFarm đồng hành cùng bạn trong suốt quá trình vận hành, liên tục cập nhật tính năng mới để tối ưu hóa hiệu quả sản xuất.',
-                                    tags: ['Giám sát hiệu suất', 'Cập nhật tính năng', 'Tối ưu liên tục']
-                                }
-                            ].map((item, idx) => (
-                                <div key={idx} className="flex flex-col md:flex-row gap-8 scroll-reveal group">
-                                    {/* Step Number Column */}
-                                    <div className="flex-shrink-0 flex md:flex-col items-center">
-                                        <div className={`w-20 h-20 rounded-[24px] flex items-center justify-center text-2xl font-black shadow-2xl relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-6
-                                            ${item.color === 'green' ? 'bg-green-600 text-white shadow-green-200' : 
-                                              item.color === 'blue' ? 'bg-blue-600 text-white shadow-blue-200' : 
-                                              'bg-orange-600 text-white shadow-orange-200'}`}>
-                                            {item.step}
-                                            {/* Glow Effect */}
-                                            <div className={`absolute -inset-2 blur-xl opacity-30 rounded-[30px] -z-10 
-                                                ${item.color === 'green' ? 'bg-green-500' : 
-                                                  item.color === 'blue' ? 'bg-blue-500' : 
-                                                  'bg-orange-500'}`}></div>
+                        {[
+                            {
+                                step: "01",
+                                title: "Sản Xuất Ban Đầu",
+                                items: ["Thu hoạch", "Ghi nhận dữ liệu", "Mã số lô"],
+                                icon: <HomeOutlined />,
+                                color: "from-blue-600 to-blue-400",
+                                shadow: "shadow-blue-100",
+                                bg: "bg-blue-50/50"
+                            },
+                            {
+                                step: "02",
+                                title: "Thu Gom & Vận Chuyển",
+                                items: ["Gom hàng", "Kiểm tra chất lượng", "Đóng gói sơ bộ"],
+                                icon: <TruckOutlined />,
+                                color: "from-cyan-600 to-cyan-400",
+                                shadow: "shadow-cyan-100",
+                                bg: "bg-cyan-50/50"
+                            },
+                            {
+                                step: "03",
+                                title: "Chế Biến & Sản Xuất",
+                                items: ["Xử lý nguyên liệu", "Quy trình sản xuất", "Gán nhãn & QR"],
+                                icon: <DatabaseOutlined />,
+                                color: "from-green-600 to-green-400",
+                                shadow: "shadow-green-100",
+                                bg: "bg-green-50/50"
+                            },
+                            {
+                                step: "04",
+                                title: "Lưu Kho & Phân Phối",
+                                items: ["Nhập kho", "Quản lý tồn kho", "Đại lý phân phối"],
+                                icon: <ShopOutlined />,
+                                color: "from-orange-600 to-orange-400",
+                                shadow: "shadow-orange-100",
+                                bg: "bg-orange-50/50"
+                            },
+                            {
+                                step: "05",
+                                title: "Bán Lẻ & Tiêu Dùng",
+                                items: ["Bày bán sản phẩm", "Khách hàng quét mã", "Truy cập thông tin"],
+                                icon: <CheckOutlined />,
+                                color: "from-red-600 to-red-400",
+                                shadow: "shadow-red-100",
+                                bg: "bg-red-50/50"
+                            }
+                        ].map((item, index) => (
+                            <div key={index} className="relative group hover-lift">
+                                <Card className={`rounded-[32px] border-0 shadow-xl ${item.shadow} ${item.bg} h-full overflow-hidden`}>
+                                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white text-2xl mb-6 shadow-lg`}>
+                                        {item.icon}
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-4xl font-black opacity-10 italic">{item.step}</span>
+                                        </div>
+                                        <Title level={4} className="!text-gray-800 !mb-2 !text-base font-black leading-tight h-12 flex items-center">{item.title}</Title>
+                                        <ul className="space-y-2 m-0 p-0 list-none">
+                                            {item.items.map((point, pIdx) => (
+                                                <li key={pIdx} className="flex items-center gap-2 text-gray-500 text-xs font-medium">
+                                                    <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${item.color}`}></div>
+                                                    {point}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </Card>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Data Management Layer */}
+                    <div className="bg-slate-50 rounded-[40px] p-8 md:p-12 border border-gray-100 scroll-reveal">
+                        <div className="flex flex-col md:flex-row items-center gap-8">
+                            <div className="md:w-1/3 text-center md:text-left space-y-4 border-b md:border-b-0 md:border-r border-gray-200 pb-8 md:pb-0 md:pr-8">
+                                <Title level={3} className="!font-black !text-gray-800 !mb-0">Hệ Thống Quản Lý & Truy Xuất Dữ Liệu</Title>
+                                <Text className="text-gray-500 block">Nền tảng hợp nhất giúp lưu trữ và xác thực thông tin xuyên suốt chuỗi giá trị.</Text>
+                            </div>
+                            
+                            <div className="md:w-2/3 grid grid-cols-2 md:grid-cols-4 gap-8 w-full">
+                                {[
+                                    { icon: <FileTextOutlined />, label: "Ghi nhận", desc: "Dữ liệu thực địa" },
+                                    { icon: <CloudServerOutlined />, label: "Lưu trữ", desc: "Database/Cloud" },
+                                    { icon: <ShareAltOutlined />, label: "Chia sẻ", desc: "Đa nền tảng" },
+                                    { icon: <SecurityScanOutlined />, label: "Kiểm chứng", desc: "Xác thực QR" }
+                                ].map((step, i) => (
+                                    <div key={i} className="text-center space-y-3">
+                                        <div className="w-16 h-16 mx-auto rounded-2xl bg-white shadow-sm flex items-center justify-center text-green-600 text-2xl border border-gray-50">
+                                            {step.icon}
+                                        </div>
+                                        <div>
+                                            <Text className="block font-black text-gray-800 text-sm">{step.label}</Text>
+                                            <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{step.desc}</Text>
                                         </div>
                                     </div>
-
-                                    {/* Content Card */}
-                                    <div className="flex-1">
-                                        <Card className="rounded-[32px] border-gray-50 shadow-sm hover:shadow-2xl transition-all duration-500 hover-lift bg-white/80 backdrop-blur-sm group-hover:border-blue-100">
-                                            <div className="p-2 md:p-4">
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl
-                                                        ${item.color === 'green' ? 'bg-green-50 text-green-600' : 
-                                                          item.color === 'blue' ? 'bg-blue-50 text-blue-600' : 
-                                                          'bg-orange-50 text-orange-600'}`}>
-                                                        {item.icon}
-                                                    </div>
-                                                    <Title level={3} className="!mb-0 !text-gray-900 md:!text-2xl font-black">{item.title}</Title>
-                                                </div>
-                                                
-                                                <Paragraph className="text-gray-500 text-base leading-relaxed mb-6">
-                                                    {item.desc}
-                                                </Paragraph>
-
-                                                <div className="flex flex-wrap gap-2">
-                                                    {item.tags.map((tag, i) => (
-                                                        <Tag key={i} color={item.color} className="rounded-full px-4 py-1 font-medium border-0 opacity-80 hover:opacity-100 transition-opacity">
-                                                            {tag}
-                                                        </Tag>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
