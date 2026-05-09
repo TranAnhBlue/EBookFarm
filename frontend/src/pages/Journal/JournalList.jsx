@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -280,13 +280,25 @@ const JournalList = () => {
     }
   };
 
-  const getEntryValue = (journal, fieldNames, tableNames = ['Thông tin chung', 'Thông tin cơ sở', 'Tổng quan']) => {
+  const getEntryValue = (journal, fieldNames, tableNames = []) => {
     if (!journal?.entries) return null;
     
-    // Try each table name
-    for (const table of tableNames) {
-      if (journal.entries[table]) {
-        // Try each field name variation
+    // Nếu có tableNames cụ thể thì ưu tiên kiểm tra trước
+    if (tableNames.length > 0) {
+      for (const table of tableNames) {
+        if (journal.entries[table]) {
+          for (const field of fieldNames) {
+            if (journal.entries[table][field] !== undefined && journal.entries[table][field] !== null && journal.entries[table][field] !== '') {
+              return journal.entries[table][field];
+            }
+          }
+        }
+      }
+    }
+
+    // Nếu không tìm thấy hoặc không có tableNames, quét TẤT CẢ các bảng
+    for (const table in journal.entries) {
+      if (typeof journal.entries[table] === 'object' && journal.entries[table] !== null) {
         for (const field of fieldNames) {
           if (journal.entries[table][field] !== undefined && journal.entries[table][field] !== null && journal.entries[table][field] !== '') {
             return journal.entries[table][field];
@@ -295,7 +307,7 @@ const JournalList = () => {
       }
     }
     
-    // Try top-level keys as fallback
+    // Cuối cùng mới kiểm tra cấp cao nhất
     for (const field of fieldNames) {
       if (journal.entries[field] !== undefined && journal.entries[field] !== null && journal.entries[field] !== '') {
         return journal.entries[field];
@@ -507,6 +519,17 @@ const JournalList = () => {
                               ) : null;
                             })()}
 
+                             {/* Lô sản xuất */}
+                            {(() => {
+                              const value = getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'lo_san_xuat', 'block_id']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
+                                  <div className="text-right"><Text strong>{value}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
+
                             {/* Diện tích */}
                             <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
                             <div className="text-right">
@@ -527,12 +550,45 @@ const JournalList = () => {
                               </Text>
                             </div>
 
-                            {/* Tên cây trồng / Đối tượng nuôi */}
+                            {/* Đối tượng (Cây trồng / Vật nuôi) */}
                             {(() => {
-                              const value = getEntryValue(journal, ['tenCayTrong', 'Tên cây trồng', 'cay_trong', 'doi_tuong_nuoi', 'Tên đối tượng nuôi']);
+                              const value = getEntryValue(journal, ['tenCayTrong', 'Tên cây trồng', 'cay_trong', 'doi_tuong_nuoi', 'Tên đối tượng nuôi', 'san_pham']);
                               return value ? (
                                 <>
-                                  <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Cây trồng:</div>
+                                  <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Đối tượng:</div>
+                                  <div className="text-right"><Text strong>{value}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
+
+                            {/* Giống */}
+                            {(() => {
+                              const value = getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'Giống cây trồng', 'Giống vật nuôi', 'giong_cay_trong']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
+                                  <div className="text-right"><Text strong>{value}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
+
+                            {/* Ngày bắt đầu */}
+                            {(() => {
+                              const value = getEntryValue(journal, ['ngayBatDau', 'Ngày bắt đầu', 'ngayTha', 'ngay_bat_dau', 'startDate']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><ClockCircleOutlined className="text-green-500" /> Ngày bắt đầu:</div>
+                                  <div className="text-right"><Text strong>{new Date(value).toLocaleDateString('vi-VN')}</Text></div>
+                                </>
+                              ) : null;
+                            })()}
+
+                            {/* Mã số thửa / Ao */}
+                            {(() => {
+                              const value = getEntryValue(journal, ['maSoThua', 'Mã số thửa', 'ma_so_thua', 'ma_ao', 'ma_long']);
+                              return value ? (
+                                <>
+                                  <div className="flex items-center gap-1.5"><FileOutlined className="text-green-500" /> Mã số thửa/Ao:</div>
                                   <div className="text-right"><Text strong>{value}</Text></div>
                                 </>
                               ) : null;
