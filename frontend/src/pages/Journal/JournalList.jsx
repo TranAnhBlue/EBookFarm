@@ -42,6 +42,8 @@ const JournalList = () => {
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [currentQr, setCurrentQr] = useState('');
   const [viewMode, setViewMode] = useState('card');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedJournalId, setSelectedJournalId] = useState(null);
@@ -365,6 +367,12 @@ const JournalList = () => {
 
   const columns = [
     {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1
+    },
+    {
       title: 'Tên quy trình',
       dataIndex: ['schemaId', 'name'],
       key: 'schema',
@@ -556,8 +564,9 @@ const JournalList = () => {
         {viewMode === 'card' && (
           <div className="p-6 bg-gray-50 min-h-[400px]">
             {journals && journals.length > 0 ? (
-              <Row gutter={[24, 24]}>
-                {journals?.map(journal => (
+              <>
+                <Row gutter={[24, 24]}>
+                  {journals?.slice((currentPage - 1) * pageSize, currentPage * pageSize).map(journal => (
                   <Col xs={24} sm={12} lg={8} key={journal._id}>
                     <Card
                       hoverable
@@ -662,6 +671,21 @@ const JournalList = () => {
                   </Col>
                 ))}
               </Row>
+                <div className="mt-8 flex justify-center pb-4">
+                  <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={journals.length}
+                    onChange={(page, size) => {
+                      setCurrentPage(page);
+                      setPageSize(size);
+                    }}
+                    showSizeChanger
+                    pageSizeOptions={['6', '12', '24', '48']}
+                    showTotal={(total) => <Text className="text-gray-400 text-xs">Tổng cộng <b className="text-green-600">{total}</b> nhật ký</Text>}
+                  />
+                </div>
+              </>
             ) : !isLoading && (
               <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-gray-200">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
@@ -697,7 +721,18 @@ const JournalList = () => {
               columns={columns}
               rowKey="_id"
               loading={isLoading}
-              pagination={{ pageSize: 8, className: "px-6 py-4" }}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: journals?.length,
+                onChange: (page, size) => {
+                  setCurrentPage(page);
+                  setPageSize(size);
+                },
+                showSizeChanger: true,
+                pageSizeOptions: ['6', '12', '24', '48'],
+                className: "px-6 py-4"
+              }}
               className="border-0"
               size={isMobile ? 'small' : 'middle'}
               scroll={{ x: 800 }}

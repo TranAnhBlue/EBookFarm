@@ -101,6 +101,9 @@ const updateJournal = async (req, res) => {
           }
           journal.entries = req.body.entries || journal.entries;
           journal.status = req.body.status || journal.status;
+          if (req.body.images) {
+            journal.images = req.body.images;
+          }
           const updated = await journal.save();
           
           // Đồng bộ trạng thái lên HtxJournal nếu có

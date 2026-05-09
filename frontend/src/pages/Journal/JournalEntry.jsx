@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag } from 'antd';
+import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
 import dayjs from 'dayjs';
 import { InboxOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,6 +19,9 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
 
   const id = propsId || paramId;
   const schemaId = propsSchemaId || paramSchemaId;
@@ -79,7 +82,21 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         convertedEntries['Ngày bắt đầu'] = dayjs(rawEntries['Ngày bắt đầu']);
       }
 
+
       form.setFieldsValue({ ...convertedEntries, status: journalData.status });
+
+      // Load existing images/attachments
+      if (journalData.images && journalData.images.length > 0) {
+          const fileBaseURL = api.defaults.baseURL.replace('/api', '');
+          const existingFiles = journalData.images.map((img, index) => ({
+              uid: img._id || `existing-${index}`,
+              name: img.caption || img.url.split('/').pop(),
+              status: 'done',
+              url: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+              thumbUrl: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+          }));
+          setFileList(existingFiles);
+      }
     }
   }, [isEditing, journalData, schema, form]);
 
@@ -99,47 +116,64 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       name: 'file',
       multiple: true,
       fileList: fileList,
-      showUploadList: true,
-      beforeUpload: (file) => {
-          // Kiểm tra kích thước file (giới hạn 10MB)
-          const isLt10M = file.size / 1024 / 1024 < 10;
-          if (!isLt10M) {
-              message.error('File phải nhỏ hơn 10MB!');
-              return Upload.LIST_IGNORE;
-          }
+      showUploadList: {
+          showPreviewIcon: true,
+          showRemoveIcon: !isReadOnly,
+          showDownloadIcon: true
+      },
+      customRequest: async ({ file, onSuccess, onError, onProgress }) => {
+          const formData = new FormData();
+          formData.append('file', file);
           
-          // Tạo preview URL cho file
-          const reader = new FileReader();
-          reader.onload = (e) => {
+          try {
+              const res = await api.post('/upload/document', formData, {
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                  onUploadProgress: (event) => {
+                      const percent = Math.floor((event.loaded / event.total) * 100);
+                      onProgress({ percent });
+                  }
+              });
+              
+              if (res.data.success) {
+              const fileBaseURL = api.defaults.baseURL.replace('/api', '');
               const newFile = {
-                  uid: file.uid,
-                  name: file.name,
-                  status: 'done',
-                  url: e.target.result,
-                  originFileObj: file,
-                  thumbUrl: file.type.startsWith('image/') ? e.target.result : null
-              };
-              setFileList(prev => [...prev, newFile]);
-          };
-          reader.readAsDataURL(file);
-          
-          return false; // Ngăn upload tự động
+                      uid: file.uid,
+                      name: file.name,
+                      status: 'done',
+                      url: res.data.data.url.startsWith('http') ? res.data.data.url : `${fileBaseURL}${res.data.data.url}`,
+                      thumbUrl: file.type.startsWith('image/') ? (res.data.data.url.startsWith('http') ? res.data.data.url : `${fileBaseURL}${res.data.data.url}`) : null,
+                  };
+                  
+                  setFileList(prev => {
+                      const filtered = prev.filter(f => f.uid !== file.uid);
+                      return [...filtered, newFile];
+                  });
+                  onSuccess(res.data.data);
+              }
+          } catch (err) {
+              message.error(`Lỗi khi tải lên ${file.name}`);
+              onError(err);
+          }
       },
       onRemove: (file) => {
+          if (isReadOnly) return false;
           setFileList(prev => prev.filter(item => item.uid !== file.uid));
       },
       onPreview: async (file) => {
-          // Xử lý preview file
-          if (file.url) {
-              window.open(file.url, '_blank');
+          const url = file.url || file.thumbUrl;
+          if (!url) return;
+
+          // Nếu là ảnh thì hiện Modal Preview của Ant Design
+          const isImage = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url) || file.type?.startsWith('image/');
+          
+          if (isImage) {
+              setPreviewImage(url);
+              setPreviewOpen(true);
+              setPreviewTitle(file.name || url.substring(url.lastIndexOf('/') + 1));
+          } else {
+              // Nếu là file khác (PDF, Word) thì mở tab mới
+              window.open(url, '_blank');
           }
-      },
-      itemRender: (originNode) => {
-          return (
-              <div className="inline-block m-2">
-                  {originNode}
-              </div>
-          );
       }
   };
 
@@ -1245,7 +1279,21 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           const payload = {
               schemaId: activeSchemaId,
               status: status || 'Draft',
-              entries: entries
+              entries: entries,
+              images: fileList
+                .filter(f => f.status === 'done')
+                .map(f => {
+                    // Extract relative path from URL if it's our own server
+                    const fileBaseURL = api.defaults.baseURL.replace('/api', '');
+                    let finalUrl = f.url;
+                    if (finalUrl.startsWith(fileBaseURL)) {
+                        finalUrl = finalUrl.replace(fileBaseURL, '');
+                    }
+                    return {
+                        url: finalUrl,
+                        caption: f.name
+                    };
+                })
           };
           
           if(isEditing) {
@@ -2558,6 +2606,23 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                 </div>
             </Card>
         </Form>
+        
+        {/* Image Preview Modal */}
+        <Modal
+            open={previewOpen}
+            title={previewTitle}
+            footer={null}
+            onCancel={() => setPreviewOpen(false)}
+            centered
+            width={800}
+        >
+            <Image
+                alt="preview"
+                style={{ width: '100%' }}
+                src={previewImage}
+                preview={false}
+            />
+        </Modal>
     </div>
   );
 };
