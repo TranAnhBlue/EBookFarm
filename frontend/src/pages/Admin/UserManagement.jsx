@@ -36,6 +36,9 @@ const UserManagement = () => {
     queryFn: () => api.get('/groups').then(res => res.data.data)
   });
 
+  // Fetch HTX list for selection
+  const htxList = users?.filter(u => u.role?.toUpperCase() === 'HTX' || u.role?.toUpperCase() === 'HTX');
+
   const importMutation = useMutation({
     mutationFn: (users) => api.post('/users/bulk', { users }),
     onSuccess: () => {
@@ -117,14 +120,17 @@ const UserManagement = () => {
       )
     },
     {
-      title: 'Nhóm / HTX',
-      dataIndex: 'groupId',
-      key: 'groupId',
-      render: (group) => (
-        <Text italic className="text-gray-500">
-          {group?.name || 'Cá nhân / Tự do'}
-        </Text>
-      )
+      title: 'Đơn vị / HTX',
+      key: 'htxId',
+      render: (_, record) => {
+        if (record.role?.toUpperCase() === 'HTX') return <Tag color="gold">Tổ chức quản lý</Tag>;
+        const htx = htxList?.find(h => h._id === (record.htxId?._id || record.htxId));
+        return (
+          <Text italic className="text-gray-500">
+            {htx ? htx.fullname || htx.username : 'Cá nhân / Tự do'}
+          </Text>
+        );
+      }
     },
     {
       title: 'Trạng thái',
@@ -316,8 +322,29 @@ const UserManagement = () => {
           </div>
 
           <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.role !== currentValues.role}
+          >
+            {({ getFieldValue }) => 
+              getFieldValue('role') === 'Farmer' ? (
+                <Form.Item
+                  name="htxId"
+                  label="Hợp tác xã liên kết"
+                  tooltip="Gán nông dân này vào một HTX cụ thể để họ quản lý"
+                >
+                  <Select placeholder="Chọn HTX quản lý..." className="h-11 w-full" dropdownClassName="rounded-xl" allowClear>
+                    {htxList?.map(h => (
+                      <Select.Option key={h._id} value={h._id}>{h.fullname || h.username}</Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              ) : null
+            }
+          </Form.Item>
+
+          <Form.Item
             name="groupId"
-            label="Nhóm / Hợp tác xã (Nếu có)"
+            label="Nhóm sản xuất (Internal Group)"
           >
             <Select placeholder="Chọn nhóm sản xuất..." className="h-11 w-full" dropdownClassName="rounded-xl" allowClear>
               {groups?.map(g => (

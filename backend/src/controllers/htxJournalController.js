@@ -244,8 +244,17 @@ const getMyHtxJournals = async (req, res) => {
 
 const getFarmersForHtx = async (req, res) => {
   try {
-    // Lấy thông tin chi tiết hơn của nông dân để phục vụ trang quản lý nông dân
-    const farmers = await User.find({ role: { $regex: /^farmer$/i } })
+    const isHtx = req.user.role?.toUpperCase() === 'HTX';
+    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+
+    let filter = { role: { $regex: /^farmer$/i } };
+
+    if (isHtx) {
+      // Chỉ lấy nông dân thuộc HTX này
+      filter.htxId = req.user._id;
+    }
+
+    const farmers = await User.find(filter)
       .select('fullname username email phone address farmName farmArea farmType certifications avatar status createdAt');
     res.json({ success: true, data: farmers });
   } catch (error) {

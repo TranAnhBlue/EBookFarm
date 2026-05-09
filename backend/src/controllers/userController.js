@@ -12,7 +12,7 @@ const getUsers = async (req, res) => {
 
 const updateUserRoleStatus = async (req, res) => {
   try {
-    const { role, status, fullname, email, password, groupId } = req.body;
+    const { role, status, fullname, email, password, groupId, htxId } = req.body;
     const user = await User.findById(req.params.id);
  
     if (user) {
@@ -21,6 +21,7 @@ const updateUserRoleStatus = async (req, res) => {
       user.fullname = fullname !== undefined ? fullname : user.fullname;
       user.email = email !== undefined ? email : user.email;
       user.groupId = groupId !== undefined ? groupId : user.groupId;
+      user.htxId = htxId !== undefined ? htxId : user.htxId;
       if (password) user.password = password;
 
       const updatedUser = await user.save();
@@ -127,7 +128,7 @@ const updateProfile = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { username, password, role, status, fullname, email, groupId } = req.body;
+    const { username, password, role, status, fullname, email, groupId, htxId } = req.body;
     const userExists = await User.findOne({ username });
 
     if (userExists) {
@@ -142,6 +143,7 @@ const createUser = async (req, res) => {
       fullname,
       email,
       groupId,
+      htxId,
       mustChangePassword: true, // Bắt buộc đổi mật khẩu lần đầu
     });
 

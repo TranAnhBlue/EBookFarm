@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['Admin', 'Farmer', 'HTX', 'User', 'Htx'], default: 'Farmer' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
+  htxId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Liên kết nông dân với một HTX cụ thể
   
   // Bảo mật
   mustChangePassword: { type: Boolean, default: false }, // Bắt buộc đổi mật khẩu lần đầu
