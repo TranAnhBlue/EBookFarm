@@ -49,13 +49,31 @@ const NotificationBell = () => {
         setVisible(false);
 
         // Navigate based on type and relatedId
-        if (item.relatedId) {
-            if (item.relatedModel === 'HtxJournal') {
-                navigate('/htx/journals');
-            } else if (item.relatedModel === 'FarmJournal') {
-                navigate(`/journals/view/${item.relatedId}`);
-            } else if (item.type === 'Journal_Assigned') {
-                navigate('/dashboard');
+        if (item.relatedId || item.relatedModel) {
+            switch (item.relatedModel) {
+                case 'HtxJournal':
+                    navigate('/htx/journals');
+                    break;
+                case 'FarmJournal':
+                    navigate(`/journals/view/${item.relatedId}`);
+                    break;
+                case 'InventoryItem':
+                    navigate('/inventory/farmer'); // Nông dân nhận được thì bay vào kho
+                    break;
+                case 'Consultation':
+                    navigate('/admin/consultations'); // Admin xử lý tư vấn
+                    break;
+                case 'User':
+                    navigate('/admin/users'); // Admin duyệt user mới
+                    break;
+                case 'News':
+                    navigate('/dashboard'); // Mọi người về trang chủ xem tin
+                    break;
+                default:
+                    if (item.type === 'Journal_Assigned') {
+                        navigate('/dashboard');
+                    }
+                    break;
             }
         }
     };
@@ -71,6 +89,8 @@ const NotificationBell = () => {
             case 'Journal_Verified': return <Tag color="green" className="mr-0">Đã duyệt</Tag>;
             case 'Journal_Revision_Requested': return <Tag color="orange" className="mr-0">Cần sửa</Tag>;
             case 'Journal_Assigned': return <Tag color="purple" className="mr-0">Phân công</Tag>;
+            case 'System': return <Tag color="cyan" className="mr-0">Hệ thống</Tag>;
+            case 'Announcement': return <Tag color="magenta" className="mr-0">Tin tức</Tag>;
             default: return null;
         }
     };
