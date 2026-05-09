@@ -156,7 +156,11 @@ const UserManagement = () => {
             className="text-blue-500 hover:bg-blue-50 rounded-lg"
             onClick={() => {
               setEditingUser(record);
-              form.setFieldsValue(record);
+              form.setFieldsValue({
+                ...record,
+                groupId: record.groupId?._id || record.groupId,
+                htxId: record.htxId?._id || record.htxId
+              });
               setIsModalOpen(true);
             }}
           />

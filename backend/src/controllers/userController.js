@@ -3,7 +3,10 @@ const { createLog } = require('./logController');
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-password').populate('groupId', 'name');
+    const users = await User.find({})
+      .select('-password')
+      .populate('groupId', 'name')
+      .populate('htxId', 'fullname username');
     res.json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách người dùng.' });
