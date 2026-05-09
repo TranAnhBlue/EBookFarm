@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -73,15 +73,30 @@ const JournalList = () => {
   });
 
   const journals = journalsRaw?.filter(j => {
-    if (!category.key) return true;
-    const s = j.schemaId;
-    if (!s) return false;
-    if (s.category && s.category === category.key) return true;
-    if (!s.category) {
-      if (category.key === 'channuoi') return channuoiNames.has(s.name);
-      if (category.key === 'trongtrot') return !channuoiNames.has(s.name);
+    // Filter by category
+    let categoryMatch = true;
+    if (category.key) {
+      const s = j.schemaId;
+      if (!s) {
+        categoryMatch = false;
+      } else if (s.category && s.category === category.key) {
+        categoryMatch = true;
+      } else if (!s.category) {
+        if (category.key === 'channuoi') categoryMatch = channuoiNames.has(s.name);
+        else if (category.key === 'trongtrot') categoryMatch = !channuoiNames.has(s.name);
+        else categoryMatch = false;
+      } else {
+        categoryMatch = false;
+      }
     }
-    return false;
+
+    if (!categoryMatch) return false;
+
+    // Filter by type (Personal vs HTX)
+    if (typeFilter === 'personal') return !j.htxJournalId;
+    if (typeFilter === 'htx') return !!j.htxJournalId;
+    
+    return true;
   });
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -92,6 +107,7 @@ const JournalList = () => {
   const [selectedJournals, setSelectedJournals] = useState([]);
   const [historyModalVisible, setHistoryModalVisible] = useState(false);
   const [historyJournalId, setHistoryJournalId] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('all'); // all, personal, htx
 
   const { data: fullJournal, isLoading: isFetchingFull } = useQuery({
     queryKey: ['journal-detail', selectedJournalId],
@@ -361,6 +377,15 @@ const JournalList = () => {
       render: (text) => <Tag color="blue" className="rounded-md border-blue-100 font-medium">{text}</Tag>
     },
     {
+      title: 'Loại hình',
+      key: 'type',
+      render: (_, record) => (
+        record.htxJournalId ? 
+          <Tag color="purple" icon={<TeamOutlined />} className="rounded-md font-bold px-3">HTX Liên kết</Tag> : 
+          <Tag color="cyan" icon={<UserOutlined />} className="rounded-md font-bold px-3">Cá nhân</Tag>
+      )
+    },
+    {
       title: 'Trạng thái',
       key: 'status',
       render: (_, record) => getStatusBadge(record)
@@ -446,7 +471,17 @@ const JournalList = () => {
           <Title level={3} className="!mb-0 text-gray-800">{category.label}</Title>
           <Text className="text-gray-400 text-sm">{category.desc}</Text>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Select
+            value={typeFilter}
+            onChange={setTypeFilter}
+            className="w-40 shadow-sm"
+            placeholder="Phân loại sổ"
+          >
+            <Select.Option value="all">Tất cả loại sổ</Select.Option>
+            <Select.Option value="personal">Sổ cá nhân</Select.Option>
+            <Select.Option value="htx">Sổ HTX liên kết</Select.Option>
+          </Select>
           <Space.Compact className="shadow-sm rounded-lg overflow-hidden bg-white">
             <Button
               type={viewMode === 'table' ? 'primary' : 'default'}
@@ -454,7 +489,7 @@ const JournalList = () => {
               onClick={() => setViewMode('table')}
               className={viewMode === 'table' ? 'bg-green-600 hover:bg-green-700 border-0' : 'text-gray-500'}
             >
-              Xem ở dạng bảng
+              {screens.md && 'Xem ở dạng bảng'}
             </Button>
             <Button
               type={viewMode === 'card' ? 'primary' : 'default'}
@@ -462,7 +497,7 @@ const JournalList = () => {
               onClick={() => setViewMode('card')}
               className={viewMode === 'card' ? 'bg-green-600 hover:bg-green-700 border-0' : 'text-gray-500'}
             >
-              Xem ở dạng thẻ
+              {screens.md && 'Xem ở dạng thẻ'}
             </Button>
           </Space.Compact>
         </div>
@@ -534,8 +569,19 @@ const JournalList = () => {
                           <Leaf className="w-6 h-6" />
                         </div>
                         <div className="flex-1 space-y-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex flex-col gap-1">
+                              <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
+                              {journal.htxJournalId ? (
+                                <Tag color="purple" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-purple-50 text-purple-600">
+                                  <TeamOutlined className="mr-1" /> HTX LIÊN KẾT
+                                </Tag>
+                              ) : (
+                                <Tag color="cyan" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-cyan-50 text-cyan-600">
+                                  <UserOutlined className="mr-1" /> CÁ NHÂN TỰ DO
+                                </Tag>
+                              )}
+                            </div>
                           </div>
                           <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
                             
