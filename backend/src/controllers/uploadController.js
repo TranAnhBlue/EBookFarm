@@ -60,4 +60,22 @@ const uploadDocument = async (req, res) => {
   }
 };
 
-module.exports = { uploadAvatar, uploadDocument };
+// Upload ảnh chung (cho tin tức, gallery)
+const uploadImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Không có file nào được tải lên!' });
+    }
+    // Cloudinary trả về URL qua req.file.path
+    const imageUrl = req.file.path;
+    res.json({
+      success: true,
+      message: 'Upload ảnh thành công!',
+      url: imageUrl,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { uploadAvatar, uploadDocument, uploadImage };

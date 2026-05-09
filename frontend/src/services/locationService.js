@@ -1,118 +1,79 @@
 import axios from 'axios';
 
-// API nguồn chuẩn (GSO)
-const LOCATION_API_BASE = 'https://provinces.open-api.vn/api';
-
-// ĐƯỜNG DẪN API BẢN VÁ (PATCH DATA) - Bạn có thể thay bằng URL Server của bạn hoặc Github Gist
-// File này sẽ chứa các thông tin sáp nhập mới nhất (ví dụ Phú Thọ, TP. Thủ Đức...)
-const PATCH_DATA_URL = 'https://raw.githubusercontent.com/TranAnhBlue/EBookFarm-Data/main/location_patches.json';
-
-// Biến lưu trữ dữ liệu bản vá sau khi kéo về
-let cachedPatches = null;
-
 /**
- * Hàm kéo dữ liệu sáp nhập mới nhất từ API/Github
+ * API v2 — Dữ liệu sau sáp nhập tỉnh thành 07/2025
+ * Docs: https://provinces.open-api.vn/
  */
-const fetchLocationPatches = async () => {
-  if (cachedPatches) return cachedPatches;
-  try {
-    const response = await axios.get(PATCH_DATA_URL);
-    cachedPatches = response.data;
-    console.log('✅ Đã tải dữ liệu sáp nhập địa giới hành chính mới nhất.');
-    return cachedPatches;
-  } catch (error) {
-    console.warn('⚠️ Không thể kéo dữ liệu sáp nhập từ xa, đang sử dụng dữ liệu mặc định.');
-    // Dữ liệu dự phòng nếu không kéo được API
-    return {
-      wards: {
-        '232': [
-          { code: 'ts_01', name: 'Xã Thanh Sơn', fullName: 'Xã Thanh Sơn' },
-          { code: 'ts_02', name: 'Xã Võ Miếu', fullName: 'Xã Võ Miếu' },
-          { code: 'ts_03', name: 'Xã Văn Miếu', fullName: 'Xã Văn Miếu' },
-          { code: 'ts_04', name: 'Xã Cự Đồng', fullName: 'Xã Cự Đồng' },
-          { code: 'ts_05', name: 'Xã Hương Cần', fullName: 'Xã Hương Cần' },
-          { code: 'ts_06', name: 'Xã Lương Nha', fullName: 'Xã Lương Nha' },
-          { code: 'ts_07', name: 'Xã Khả Cửu', fullName: 'Xã Khả Cửu' }
-        ]
-      }
-    };
-  }
+const LOCATION_API = 'https://provinces.open-api.vn/api/v2';
+
+// ── Simple in-memory cache ──────────────────────────────────────────────────
+const cache = {};
+const cached = async (key, fetcher) => {
+  if (cache[key]) return cache[key];
+  cache[key] = await fetcher();
+  return cache[key];
 };
+// ───────────────────────────────────────────────────────────────────────────
 
 /**
- * Hàm hợp nhất dữ liệu API với dữ liệu sáp nhập
+ * Lấy danh sách tỉnh/thành phố (sau sáp nhập)
+ * @returns {Array<{ code, name, fullName }>}
  */
-const applyPatches = async (type, parentCode, originalData) => {
-  const patches = await fetchLocationPatches();
-  const currentPatches = patches[type]?.[parentCode.toString()] || [];
-  
-  if (currentPatches.length === 0) return originalData;
-
-  const patchedData = [...originalData];
-  currentPatches.forEach(patch => {
-    const index = patchedData.findIndex(item => item.code.toString() === patch.code.toString());
-    if (index !== -1) {
-      patchedData[index] = { ...patchedData[index], ...patch };
-    } else {
-      patchedData.push(patch);
+export const getProvinces = () =>
+  cached('provinces', async () => {
+    try {
+      const { data } = await axios.get(`${LOCATION_API}/p/`);
+      return (data || []).map(p => ({
+        code: p.code,
+        name: p.name,
+        fullName: p.full_name || p.name,
+      }));
+    } catch {
+      return [];
     }
   });
-  return patchedData;
-};
 
-export const getProvinces = async () => {
-  try {
-    const response = await axios.get(`${LOCATION_API_BASE}/p/`);
-    return (response.data || []).map(p => ({
-      code: p.code,
-      name: p.name,
-      fullName: p.full_name,
-      codeName: p.code_name
-    }));
-  } catch (error) {
-    return [];
-  }
-};
-
-export const getDistrictsByProvince = async (provinceCode) => {
-  if (!provinceCode) return [];
-  try {
-    const response = await axios.get(`${LOCATION_API_BASE}/p/${provinceCode}?depth=2`);
-    const districts = (response.data?.districts || []).map(d => ({
-      code: d.code,
-      name: d.name,
-      fullName: d.full_name
-    }));
-    return await applyPatches('districts', provinceCode, districts);
-  } catch (error) {
-    return [];
-  }
-};
-
-export const getWardsByDistrict = async (districtCode) => {
-  if (!districtCode) return [];
-  try {
-    const response = await axios.get(`${LOCATION_API_BASE}/d/${districtCode}?depth=2`);
-    const wards = (response.data?.wards || []).map(w => ({
-      code: w.code,
-      name: w.name,
-      fullName: w.full_name
-    }));
-    return await applyPatches('wards', districtCode, wards);
-  } catch (error) {
-    return [];
-  }
-};
-
-export const checkMergeWarning = (provinceName, districtName) => {
-  if (provinceName?.includes('Hồ Chí Minh')) {
-    const oldDistricts = ['Quận 2', 'Quận 9', 'Quận Thủ Đức'];
-    if (oldDistricts.includes(districtName)) {
-      return {
-        type: 'warning',
-        message: `${districtName} đã được sáp nhập vào TP. Thủ Đức.`
-      };
+/**
+ * Lấy danh sách quận/huyện theo tỉnh (sau sáp nhập)
+ * @param {number|string} provinceCode
+ * @returns {Array<{ code, name, fullName }>}
+ */
+export const getDistrictsByProvince = (provinceCode) => {
+  if (!provinceCode) return Promise.resolve([]);
+  return cached(`districts_${provinceCode}`, async () => {
+    try {
+      const { data } = await axios.get(`${LOCATION_API}/p/${provinceCode}?depth=2`);
+      return (data?.districts || []).map(d => ({
+        code: d.code,
+        name: d.name,
+        fullName: d.full_name || d.name,
+      }));
+    } catch {
+      return [];
     }
-  }
-  return null;
+  });
 };
+
+/**
+ * Lấy danh sách phường/xã theo quận/huyện (sau sáp nhập)
+ * @param {number|string} districtCode
+ * @returns {Array<{ code, name, fullName }>}
+ */
+export const getWardsByDistrict = (districtCode) => {
+  if (!districtCode) return Promise.resolve([]);
+  return cached(`wards_${districtCode}`, async () => {
+    try {
+      const { data } = await axios.get(`${LOCATION_API}/d/${districtCode}?depth=2`);
+      return (data?.wards || []).map(w => ({
+        code: w.code,
+        name: w.name,
+        fullName: w.full_name || w.name,
+      }));
+    } catch {
+      return [];
+    }
+  });
+};
+
+// Giữ lại export này để tránh lỗi nếu có nơi nào đó import
+export const checkMergeWarning = () => null;
