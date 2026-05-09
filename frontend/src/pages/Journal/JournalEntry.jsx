@@ -2133,8 +2133,25 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       }
 
       form.setFieldsValue(convertedEntries);
+    } else if (!isEditing && user && schema) {
+      // Tự động điền thông tin từ Profile cho sổ mới
+      const autoFillData = {};
+      schema.tables.forEach(table => {
+        const tableName = table.tableName;
+        autoFillData[tableName] = {};
+        table.fields.forEach(field => {
+          const lowerLabel = field.label.toLowerCase();
+          if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ tên')) {
+            autoFillData[tableName][field.name] = user.fullname || user.username;
+          }
+          if (lowerLabel.includes('địa chỉ')) {
+            autoFillData[tableName][field.name] = user.address || '';
+          }
+        });
+      });
+      form.setFieldsValue(autoFillData);
     }
-  }, [journalData, schema, form]);
+  }, [journalData, schema, form, user, isEditing]);
 
   const onFinish = async (formData) => {
     try {
