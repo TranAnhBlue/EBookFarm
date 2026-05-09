@@ -66,6 +66,7 @@ const PublicNavbar = () => {
                     <Space size="large">
                         <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => navigate('/')}>Trang chủ</Button>
                         <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => navigate('/reference/tcvn')}>Tra cứu TCVN</Button>
+                        <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => navigate('/news')}>Tin tức</Button>
                         <Button type="text" className="font-bold text-gray-600 hover:text-green-600 px-4 py-2 rounded-xl transition-all" onClick={() => {
                             if (window.location.pathname === '/') {
                                 document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
@@ -144,6 +145,7 @@ const PublicNavbar = () => {
                     <div className="flex flex-col gap-4">
                         <Button type="text" className="text-left font-bold text-gray-600" onClick={() => { navigate('/'); setMobileMenuOpen(false); }}>Trang chủ</Button>
                         <Button type="text" className="text-left font-bold text-gray-600" onClick={() => { navigate('/reference/tcvn'); setMobileMenuOpen(false); }}>Tra cứu TCVN</Button>
+                        <Button type="text" className="text-left font-bold text-gray-600" onClick={() => { navigate('/news'); setMobileMenuOpen(false); }}>Tin tức</Button>
                         <Button type="text" className="text-left font-bold text-gray-600" onClick={() => {
                             setMobileMenuOpen(false);
                             if (window.location.pathname === '/') {
