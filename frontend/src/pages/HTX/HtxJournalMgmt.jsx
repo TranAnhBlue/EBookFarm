@@ -23,6 +23,7 @@ import {
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import dayjs from 'dayjs';
 import JournalEntry from '../Journal/JournalEntry';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
@@ -1075,16 +1076,42 @@ const HtxJournalMgmt = () => {
                 const hasData = Object.values(fields).some(f => f.type === 'number' ? f.value > 0 : f.value.length > 0);
                 if (!hasData) return null;
 
+                // Dictionary to translate backend keys to friendly Vietnamese labels
+                const translateLabel = (key) => {
+                  const dictionary = {
+                    'owner_name': 'Họ tên chủ hộ',
+                    'address': 'Địa chỉ',
+                    'area': 'Tổng diện tích (m²/ha)',
+                    'start_date': 'Ngày bắt đầu',
+                    'lot_code': 'Lô sản xuất',
+                    'farm_name': 'Tên cơ sở',
+                    'farm_address': 'Địa chỉ sản xuất',
+                    'parcel_code': 'Mã số thửa',
+                    'brand_code': 'Mã thương hiệu',
+                  };
+                  return dictionary[key] || key;
+                };
+
+                // Helper to format values (like ISO dates)
+                const formatValue = (val) => {
+                  if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(val)) {
+                    return dayjs(val).format('DD/MM/YYYY');
+                  }
+                  return val;
+                };
+
                 return (
-                  <Card key={tableName} size="small" title={<Text strong className="text-gray-700">{tableName}</Text>} className="rounded-xl border-gray-100 shadow-sm">
+                  <Card key={tableName} size="small" title={<Text strong className="text-gray-700">{translateLabel(tableName)}</Text>} className="rounded-xl border-gray-100 shadow-sm overflow-hidden">
                     <Row gutter={[16, 16]}>
                       {Object.entries(fields).map(([fieldName, info]) => {
+                        const friendlyName = translateLabel(fieldName);
+
                         if (info.type === 'number' && info.value > 0) {
                           return (
-                            <Col span={8} key={fieldName}>
-                              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                <Text className="text-gray-400 text-xs block">{fieldName}</Text>
-                                <Text strong className="text-green-600 text-base">{info.value.toLocaleString()}</Text>
+                            <Col span={12} md={8} key={fieldName}>
+                              <div className="bg-green-50/50 p-4 rounded-xl border border-green-100 hover:shadow-md transition-all duration-300 h-full flex flex-col justify-center">
+                                <Text className="text-gray-500 text-[11px] font-semibold block uppercase tracking-wider mb-2">{friendlyName}</Text>
+                                <Text strong className="text-green-600 text-2xl">{info.value.toLocaleString()}</Text>
                               </div>
                             </Col>
                           );
@@ -1093,11 +1120,19 @@ const HtxJournalMgmt = () => {
                           if (['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) return null;
                           return (
                             <Col span={24} key={fieldName}>
-                              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                <Text className="text-gray-400 text-xs block mb-1">{fieldName} (Danh sách tổng hợp):</Text>
-                                <Space wrap>
-                                  {info.value.map((v, idx) => <Tag key={idx} color="blue" className="rounded-md">{v}</Tag>)}
-                                </Space>
+                              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:border-blue-200 transition-colors duration-300">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                  <Text className="text-gray-700 font-semibold">{friendlyName}</Text>
+                                  <Text className="text-gray-400 text-xs italic">(Danh sách tổng hợp)</Text>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {info.value.map((v, idx) => (
+                                    <Tag key={idx} color="blue" className="rounded-lg px-3 py-1 m-0 text-blue-700 bg-blue-50 border-blue-100 text-sm">
+                                      {formatValue(v)}
+                                    </Tag>
+                                  ))}
+                                </div>
                               </div>
                             </Col>
                           );
