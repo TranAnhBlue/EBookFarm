@@ -37,6 +37,24 @@ const createNews = async (req, res) => {
       title: createdNews.title,
       category: createdNews.category
     });
+
+    // Notify all active users if the news is published immediately
+    if (createdNews.isPublished) {
+      const User = require('../models/User');
+      const { createNotification } = require('./notificationController');
+      const users = await User.find({ status: 'active', role: { $regex: /^(farmer|htx)$/i } });
+      for (const u of users) {
+        await createNotification({
+          recipient: u._id,
+          sender: req.user.id,
+          title: 'Tin tức / Thông báo mới',
+          message: `Bài viết mới: ${createdNews.title}`,
+          type: 'Announcement',
+          relatedId: createdNews._id,
+          relatedModel: 'News'
+        });
+      }
+    }
     
     res.status(201).json({ success: true, data: createdNews });
   } catch (error) {

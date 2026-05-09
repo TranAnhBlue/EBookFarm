@@ -1,5 +1,6 @@
 const { InventoryItem, InventoryTransaction } = require('../models/Inventory');
 const User = require('../models/User');
+const { createNotification } = require('./notificationController');
 
 // Lấy danh sách vật tư của HTX hoặc Nông dân
 const getInventory = async (req, res) => {
@@ -88,6 +89,17 @@ const distributeItem = async (req, res) => {
       receiverId: farmerId,
       performedBy: htxId,
       note: note || `Cấp phát từ HTX`
+    });
+
+    // 5. Gửi thông báo cho Nông dân
+    await createNotification({
+      recipient: farmerId,
+      sender: htxId,
+      title: 'Nhận vật tư mới',
+      message: `HTX vừa cấp cho bạn ${quantity} ${htxItem.unit} ${htxItem.name}. Vui lòng kiểm tra mục Tồn kho.`,
+      type: 'System',
+      relatedId: farmerItem._id,
+      relatedModel: 'InventoryItem'
     });
 
     res.json({ success: true, message: 'Cấp phát vật tư thành công.' });

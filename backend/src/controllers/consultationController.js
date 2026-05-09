@@ -1,4 +1,6 @@
 const Consultation = require('../models/Consultation');
+const { createNotification } = require('./notificationController');
+const User = require('../models/User');
 const Groq = require('groq-sdk');
 
 // Initialize Groq
@@ -67,6 +69,20 @@ exports.createConsultation = async (req, res) => {
         }
 
         await consultation.save();
+
+        // 3. Thông báo cho Admin biết có yêu cầu tư vấn mới
+        const admins = await User.find({ role: { $regex: /^admin$/i } });
+        for (const admin of admins) {
+            await createNotification({
+                recipient: admin._id,
+                sender: null,
+                title: 'Yêu cầu tư vấn mới',
+                message: `Khách hàng ${fullname} vừa gửi yêu cầu tư vấn về mảng ${category}.`,
+                type: 'System',
+                relatedId: consultation._id,
+                relatedModel: 'Consultation'
+            });
+        }
 
         res.status(201).json({
             success: true,

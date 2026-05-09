@@ -32,6 +32,21 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Notify admins about the new registration
+      const { createNotification } = require('./notificationController');
+      const admins = await User.find({ role: { $regex: /^admin$/i } });
+      for (const admin of admins) {
+        await createNotification({
+          recipient: admin._id,
+          sender: user._id,
+          title: 'Tài khoản đăng ký mới',
+          message: `Người dùng ${fullname || username} (${email}) vừa tạo tài khoản với vai trò ${role || 'Farmer'}.`,
+          type: 'System',
+          relatedId: user._id,
+          relatedModel: 'User'
+        });
+      }
+
       res.status(201).json({
         success: true,
         data: {
@@ -265,6 +280,21 @@ const googleLogin = async (req, res) => {
         role: 'Farmer',
         status: 'Active'
       });
+
+      // Notify admins about the new Google registration
+      const { createNotification } = require('./notificationController');
+      const admins = await User.find({ role: { $regex: /^admin$/i } });
+      for (const admin of admins) {
+        await createNotification({
+          recipient: admin._id,
+          sender: user._id,
+          title: 'Tài khoản đăng nhập Google mới',
+          message: `Người dùng ${name} (${email}) vừa đăng nhập lần đầu bằng Google.`,
+          type: 'System',
+          relatedId: user._id,
+          relatedModel: 'User'
+        });
+      }
     } else if (!user.googleId) {
       // Link google account to existing email account
       user.googleId = sub;
