@@ -884,13 +884,13 @@ const LandingPage = () => {
 
                     {/* Strategic Objectives */}
                     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12 mb-12 scroll-reveal">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
-                                <TrophyOutlined className="text-2xl text-orange-400" />
+                        <div className="flex flex-col items-center gap-4 mb-12 text-center">
+                            <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/10">
+                                <TrophyOutlined className="text-3xl text-orange-400" />
                             </div>
-                            <Title level={3} className="!text-white !mb-0">Mục tiêu chiến lược</Title>
+                            <Title level={3} className="!text-white !mb-0 md:!text-4xl font-black">Mục tiêu chiến lược</Title>
                         </div>
-                        <Row gutter={[24, 24]}>
+                        <Row gutter={[32, 32]} justify="center">
                             {[
                                 {
                                     icon: <LineChartOutlined />,
@@ -909,12 +909,12 @@ const LandingPage = () => {
                                 }
                             ].map((obj, idx) => (
                                 <Col xs={24} md={8} key={idx}>
-                                    <div className="flex gap-4">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-1"
+                                    <div className="flex flex-col items-center text-center gap-4 group">
+                                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
                                             style={{ background: `${obj.color}20`, color: obj.color }}>
-                                            <span className="text-xl">{obj.icon}</span>
+                                            <span className="text-3xl">{obj.icon}</span>
                                         </div>
-                                        <Text className="text-gray-300 text-sm leading-relaxed">{obj.text}</Text>
+                                        <Text className="text-gray-300 text-sm leading-relaxed max-w-[280px]">{obj.text}</Text>
                                     </div>
                                 </Col>
                             ))}
