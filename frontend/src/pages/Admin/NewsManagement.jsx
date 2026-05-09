@@ -83,28 +83,42 @@ const NewsManagement = () => {
 
     const createMutation = useMutation({
         mutationFn: (values) => api.post('/news', values),
-        onSuccess: () => {
+        onSuccess: (res) => {
+            const newItem = res.data.data;
+            // Cập nhật cache trực tiếp — không cần reload
+            queryClient.setQueryData(['news'], (old) =>
+                old ? [newItem, ...old] : [newItem]
+            );
             message.success('Đã đăng tin tức mới!');
-            queryClient.invalidateQueries(['news']);
             handleClose();
-        }
+        },
+        onError: (err) => message.error(err.response?.data?.message || 'Có lỗi xảy ra!')
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, values }) => api.put(`/news/${id}`, values),
-        onSuccess: () => {
+        onSuccess: (res) => {
+            const updated = res.data.data;
+            // Cập nhật đúng bản ghi trong cache — thumbnail hiện ngay
+            queryClient.setQueryData(['news'], (old) =>
+                old ? old.map(n => n._id === updated._id ? updated : n) : [updated]
+            );
             message.success('Đã cập nhật tin tức!');
-            queryClient.invalidateQueries(['news']);
             handleClose();
-        }
+        },
+        onError: (err) => message.error(err.response?.data?.message || 'Có lỗi xảy ra!')
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/news/${id}`),
-        onSuccess: () => {
+        onSuccess: (_, id) => {
+            // Xóa khỏi cache trực tiếp
+            queryClient.setQueryData(['news'], (old) =>
+                old ? old.filter(n => n._id !== id) : []
+            );
             message.success('Đã xóa tin tức');
-            queryClient.invalidateQueries(['news']);
-        }
+        },
+        onError: (err) => message.error(err.response?.data?.message || 'Có lỗi xảy ra!')
     });
 
     const handleEdit = (record) => {

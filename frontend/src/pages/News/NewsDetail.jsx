@@ -180,7 +180,43 @@ const NewsDetail = () => {
                                         <Paragraph className="italic text-gray-400">Nội dung tin tức đang được cập nhật...</Paragraph>
                                     )}
                                 </div>
+
+                                {/* Gallery ảnh bổ sung */}
+                                {news.gallery && news.gallery.length > 0 && (
+                                    <div className="mt-10">
+                                        <Text className="text-[11px] font-black uppercase tracking-widest text-[#757575] block mb-5">
+                                            📷 Thư viện ảnh ({news.gallery.length} ảnh)
+                                        </Text>
+                                        <div className={`grid gap-3 ${
+                                            news.gallery.length === 1 ? 'grid-cols-1' :
+                                            news.gallery.length === 2 ? 'grid-cols-2' :
+                                            'grid-cols-2 md:grid-cols-3'
+                                        }`}>
+                                            {news.gallery.map((imgUrl, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="group relative overflow-hidden rounded-[20px] cursor-pointer bg-gray-100"
+                                                    style={{ aspectRatio: '4/3' }}
+                                                    onClick={() => window.open(imgUrl, '_blank')}
+                                                >
+                                                    <img
+                                                        src={imgUrl}
+                                                        alt={`Ảnh ${idx + 1}`}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        onError={e => { e.target.style.display = 'none'; }}
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                                        <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-bold bg-black/40 px-3 py-1 rounded-full transition-opacity duration-300">
+                                                            Xem ảnh
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+
 
                             {/* Tags Section */}
                             <div className="mt-16 flex flex-wrap gap-2">
