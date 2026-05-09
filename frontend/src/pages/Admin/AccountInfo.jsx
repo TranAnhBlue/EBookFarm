@@ -93,7 +93,7 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
                         <Form.Item label="Bản scan chứng chỉ (Ảnh/PDF)">
                             <Upload
                                 name="file"
-                                action={`${API_URL}/upload/file`}
+                                action={`${API_URL}/upload/document`}
                                 headers={{ Authorization: `Bearer ${localStorage.getItem('token')}` }}
                                 onChange={handleFileUpload}
                                 maxCount={1}
