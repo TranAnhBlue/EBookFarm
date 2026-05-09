@@ -1281,7 +1281,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   });
 
   // Validation rules cho các trường khác nhau - Tăng cường cho chăn nuôi VietGAHP
-  const getValidationRules = (field) => {
+  const getValidationRules = (field, tableName) => {
     const rules = [];
     
     // Required validation
@@ -1974,34 +1974,30 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         if (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) {
           rules.push({
             validator: (_, value) => {
-              if (!value || !inventory) return Promise.resolve();
+              if (value === undefined || value === null || value === '' || !inventory) return Promise.resolve();
               
-              const currentValues = form.getFieldsValue();
-              for (const tableName in currentValues) {
-                  const tableData = currentValues[tableName];
-                  if (!tableData || typeof tableData !== 'object') continue;
-                  
-                  // Tìm field vật tư trong cùng bảng này
-                  if (tableData[field.name] === value) {
-                      const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
-                          ?.fields.find(f => 
-                              f.label.toLowerCase().includes('phân bón') || 
-                              f.label.toLowerCase().includes('thuốc') || 
-                              f.label.toLowerCase().includes('vật tư') ||
-                              f.label.toLowerCase().includes('giống') ||
-                              f.label.toLowerCase().includes('thức ăn')
-                          )?.name;
-                      
-                      const selectedSupplyName = tableData[supplyFieldName];
-                      if (!selectedSupplyName) continue;
+              const tableData = form.getFieldValue(tableName);
+              if (!tableData) return Promise.resolve();
+              
+              // Tìm field vật tư trong cùng bảng này
+              const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
+                  ?.fields.find(f => 
+                      f.label.toLowerCase().includes('phân bón') || 
+                      f.label.toLowerCase().includes('thuốc') || 
+                      f.label.toLowerCase().includes('vật tư') ||
+                      f.label.toLowerCase().includes('giống') ||
+                      f.label.toLowerCase().includes('thức ăn')
+                  )?.name;
+              
+              const selectedSupplyName = tableData[supplyFieldName];
+              if (!selectedSupplyName) return Promise.resolve();
 
-                      const item = inventory.find(i => i.name === selectedSupplyName);
-                      
-                      if (item && value > item.quantity) {
-                          return Promise.reject(new Error(`Số lượng vượt quá tồn kho (${item.quantity} ${item.unit})!`));
-                      }
-                  }
+              const item = inventory.find(i => i.name === selectedSupplyName);
+              
+              if (item && Number(value) > Number(item.quantity)) {
+                  return Promise.reject(new Error(`Số lượng vượt quá tồn kho (${item.quantity} ${item.unit})!`));
               }
+              
               return Promise.resolve();
             }
           });
@@ -2156,7 +2152,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                     )}
                                 </Space>
                             }
-                            rules={getValidationRules(field)}
+                            rules={getValidationRules(field, table.tableName)}
                             className="mb-4"
                         >
                             {field.type === 'text' && (
@@ -2247,8 +2243,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                                 min={0}
                                                 status={
                                                     inventoryItem && 
-                                                    (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong')) && 
-                                                    getFieldValue([table.tableName, field.name]) > inventoryItem.quantity 
+                                                    (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) && 
+                                                    Number(getFieldValue([table.tableName, field.name])) > Number(inventoryItem.quantity) 
                                                     ? 'error' : ''
                                                 }
                                                 max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
