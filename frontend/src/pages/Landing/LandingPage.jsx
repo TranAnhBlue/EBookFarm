@@ -747,6 +747,7 @@ const LandingPage = () => {
                                 location: 'Bắc Giang',
                                 area: '500 ha',
                                 product: 'Vải thiều',
+                                image: '/images/lychee_farm.png',
                                 result: 'Quản lý 500ha vải thiều, số hóa toàn bộ quy trình từ chăm sóc đến thu hoạch. Sản phẩm đạt chuẩn VietGAP và xuất khẩu thành công.',
                                 stats: ['500+ nông hộ', 'VietGAP', 'Xuất khẩu']
                             },
@@ -755,6 +756,7 @@ const LandingPage = () => {
                                 location: 'Tây Nguyên',
                                 area: '20 ha',
                                 product: 'Sachi hữu cơ',
+                                image: '/images/sachi_farm.png',
                                 result: 'Quản lý 20ha sachi và nhà xưởng 3000m². Minh bạch toàn bộ quy trình với đối tác xuất khẩu Đài Loan.',
                                 stats: ['20 ha', 'Hữu cơ', 'Xuất Đài Loan']
                             },
@@ -763,54 +765,51 @@ const LandingPage = () => {
                                 location: 'Toàn quốc',
                                 area: '100+ ha',
                                 product: 'Dược liệu',
+                                image: '/images/medicinal_plants.png',
                                 result: 'Truy xuất nguồn gốc dược liệu từ vùng trồng đến sản xuất. Đảm bảo chất lượng và minh bạch với đối tác.',
                                 stats: ['100+ ha', 'GMP', 'Dược phẩm']
                             }
                         ].map((story, idx) => (
                             <Col xs={24} md={8} key={idx}>
-                                <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100 scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.15}s` }}>
-                                    <div className="space-y-6">
-                                        {/* Image placeholder with gradient */}
-                                        <div className="relative h-48 -mx-6 -mt-6 mb-6 rounded-t-3xl overflow-hidden bg-gradient-to-br from-green-400 to-blue-500">
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <ShopOutlined className="text-white text-6xl opacity-30" />
-                                            </div>
-                                            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/50 to-transparent"></div>
-                                            <div className="absolute bottom-4 left-4 right-4">
-                                                <Text className="text-white font-bold text-lg block">{story.name}</Text>
-                                                <Text className="text-white/80 text-sm flex items-center gap-1">
+                                <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100 scroll-reveal hover-lift overflow-hidden" style={{ animationDelay: `${idx * 0.15}s` }} styles={{ body: { padding: 0 } }}>
+                                    <div className="space-y-0">
+                                        {/* Real Success Story Image */}
+                                        <div className="relative h-56 overflow-hidden">
+                                            <img 
+                                                src={story.image} 
+                                                alt={story.name} 
+                                                className="w-full h-full object-cover transform transition-transform duration-700 hover:scale-110" 
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                                            <div className="absolute bottom-4 left-6 right-6">
+                                                <Text className="text-white font-black text-lg block leading-tight mb-1">{story.name}</Text>
+                                                <Text className="text-white/80 text-xs flex items-center gap-1 uppercase tracking-widest font-bold">
                                                     <GlobalOutlined /> {story.location}
                                                 </Text>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-start justify-between">
-                                            <div className="space-y-1">
-                                                <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center pulse-glow">
-                                                    <CheckOutlined className="text-xl" />
+                                        <div className="p-6 space-y-6">
+                                            <div className="flex gap-4 text-center">
+                                                <div className="flex-1 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                                    <Text className="block text-lg font-black text-gray-900">{story.area}</Text>
+                                                    <Text className="text-[10px] text-gray-400 uppercase font-black tracking-wider">Diện tích</Text>
+                                                </div>
+                                                <div className="flex-1 p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                                    <Text className="block text-lg font-black text-gray-900">{story.product}</Text>
+                                                    <Text className="text-[10px] text-gray-400 uppercase font-black tracking-wider">Sản phẩm</Text>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div className="flex gap-4 text-center">
-                                            <div className="flex-1 p-3 bg-gray-50 rounded-xl">
-                                                <Text className="block text-lg font-black text-gray-900">{story.area}</Text>
-                                                <Text className="text-xs text-gray-500">Diện tích</Text>
-                                            </div>
-                                            <div className="flex-1 p-3 bg-gray-50 rounded-xl">
-                                                <Text className="block text-lg font-black text-gray-900">{story.product}</Text>
-                                                <Text className="text-xs text-gray-500">Sản phẩm</Text>
-                                            </div>
-                                        </div>
 
-                                        <Paragraph className="text-gray-500 text-sm leading-relaxed">
-                                            {story.result}
-                                        </Paragraph>
+                                            <Paragraph className="text-gray-500 text-sm leading-relaxed mb-4">
+                                                {story.result}
+                                            </Paragraph>
 
-                                        <div className="flex flex-wrap gap-2">
-                                            {story.stats.map((stat, i) => (
-                                                <Tag key={i} color="green" className="rounded-full">{stat}</Tag>
-                                            ))}
+                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
+                                                {story.stats.map((stat, i) => (
+                                                    <Tag key={i} color="green" className="rounded-full px-3 font-medium border-green-100">{stat}</Tag>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </Card>
