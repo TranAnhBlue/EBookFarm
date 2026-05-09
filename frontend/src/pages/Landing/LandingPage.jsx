@@ -5,6 +5,7 @@ import {
     CheckCircleFilled,
     ThunderboltFilled,
     SafetyCertificateFilled,
+    SafetyCertificateOutlined,
     GlobalOutlined,
     SearchOutlined,
     EditOutlined,
@@ -24,7 +25,13 @@ import {
     CheckOutlined,
     CameraOutlined,
     EnvironmentOutlined,
-    SettingOutlined
+    SettingOutlined,
+    TruckOutlined,
+    DatabaseOutlined,
+    HomeOutlined,
+    FileTextOutlined,
+    ShareAltOutlined,
+    SecurityScanOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
