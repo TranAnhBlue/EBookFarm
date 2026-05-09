@@ -42,18 +42,45 @@ const getDashboardStats = async (req, res) => {
     // Additional stats for HTX
     let extraStats = {};
     if (isHtx) {
-      const htxJournals = await HtxJournal.find({ htxId: req.user._id }).populate('farmers.farmerId');
+      const htxJournals = await HtxJournal.find({ htxId: req.user._id })
+        .populate('farmers.farmerId')
+        .populate('farmers.farmJournalId');
+        
       const uniqueFarmerIds = new Set();
       let totalArea = 0;
       
-      htxJournals.forEach(hj => {
-        hj.farmers.forEach(f => {
+      for (const hj of htxJournals) {
+        for (const f of hj.farmers) {
           if (f.farmerId) {
             uniqueFarmerIds.add(f.farmerId._id.toString());
-            totalArea += (f.farmerId.farmArea || 0);
+            
+            let areaFound = false;
+            // Try to get area from dynamic journal entries first
+            if (f.farmJournalId && f.farmJournalId.entries) {
+              const entries = f.farmJournalId.entries;
+              for (const tableName in entries) {
+                const tableData = entries[tableName];
+                for (const fieldName in tableData) {
+                  const lowerName = fieldName.toLowerCase();
+                  if (['area', 'pond_area', 'farm_size', 'cultivation_area'].includes(lowerName)) {
+                    const val = Number(tableData[fieldName]);
+                    if (!isNaN(val) && val > 0) {
+                      totalArea += val;
+                      areaFound = true;
+                      break; 
+                    }
+                  }
+                }
+                if (areaFound) break;
+              }
+            }
+            
+            if (!areaFound) {
+              totalArea += (f.farmerId.farmArea || 0);
+            }
           }
-        });
-      });
+        }
+      }
 
       extraStats = {
         totalFarmersCount: uniqueFarmerIds.size,
