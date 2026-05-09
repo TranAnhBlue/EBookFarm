@@ -1,7 +1,7 @@
 const Notification = require('../models/Notification');
 
 // Create a notification (Internal helper)
-const createNotification = async ({ recipient, sender, title, message, type, relatedId, relatedModel }) => {
+const createNotification = async ({ recipient, sender, title, message, type, relatedId, relatedModel, categoryLabel }) => {
   try {
     const notification = new Notification({
       recipient,
@@ -10,7 +10,8 @@ const createNotification = async ({ recipient, sender, title, message, type, rel
       message,
       type,
       relatedId,
-      relatedModel
+      relatedModel,
+      categoryLabel
     });
     await notification.save();
     return notification;

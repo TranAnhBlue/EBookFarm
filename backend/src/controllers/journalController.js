@@ -16,6 +16,21 @@ const createJournal = async (req, res) => {
       schemaId: createdJournal.schemaId
     });
     
+    // Thông báo cho Admin biết có nông dân tạo sổ cá nhân
+    const User = require('../models/User');
+    const admins = await User.find({ role: { $regex: /^admin$/i } });
+    for (const admin of admins) {
+      await createNotification({
+        recipient: admin._id,
+        sender: req.user._id,
+        title: 'Nhật ký nông hộ mới',
+        message: `Nông dân ${req.user.fullname || req.user.username} vừa tạo một sổ nhật ký cá nhân.`,
+        type: 'System',
+        relatedId: createdJournal._id,
+        relatedModel: 'FarmJournal'
+      });
+    }
+    
     res.status(201).json({ success: true, data: createdJournal });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

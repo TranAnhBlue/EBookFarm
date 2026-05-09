@@ -19,6 +19,21 @@ const createHtxJournal = async (req, res) => {
     });
 
     const saved = await htxJournal.save();
+
+    // Thông báo cho toàn bộ Admin biết có sổ HTX mới được tạo
+    const admins = await User.find({ role: { $regex: /^admin$/i } });
+    for (const admin of admins) {
+      await createNotification({
+        recipient: admin._id,
+        sender: req.user._id,
+        title: 'Sổ nhật ký HTX mới',
+        message: `HTX ${req.user.fullname || req.user.username} vừa tạo sổ kế hoạch mới: ${name}`,
+        type: 'System',
+        relatedId: saved._id,
+        relatedModel: 'HtxJournal'
+      });
+    }
+
     res.status(201).json({ success: true, data: saved });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
