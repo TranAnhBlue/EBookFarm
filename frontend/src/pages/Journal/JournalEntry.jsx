@@ -1284,10 +1284,17 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   const getValidationRules = (field, tableName) => {
     const rules = [];
     
+    // Ánh xạ kiểu dữ liệu của hệ thống sang kiểu của Ant Design Validator
+    let antdType = 'string';
+    if (field.type === 'number') antdType = 'number';
+    if (field.type === 'date') antdType = 'object';
+    if (field.type === 'email') antdType = 'email';
+
     // Required validation
     if (field.required) {
       rules.push({ 
         required: true, 
+        type: antdType,
         message: `Vui lòng nhập ${field.label}` 
       });
     }
