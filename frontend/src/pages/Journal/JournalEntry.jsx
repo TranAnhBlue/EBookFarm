@@ -1382,6 +1382,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         rules.push({
           type: 'number',
           min: 0,
+          transform: (value) => value ? Number(value) : value,
           message: 'Giá trị phải là số dương!'
         });
 
@@ -2102,7 +2103,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       // Tạo một bản sao sâu (deep copy) để tránh thay đổi trực tiếp rawEntries
       const convertedEntries = JSON.parse(JSON.stringify(rawEntries));
 
-      // Duyệt qua schema để tìm và convert các trường ngày tháng sang dayjs
+      // Duyệt qua schema để tìm và convert các trường ngày tháng sang dayjs và trường số sang Number
       if (schema.tables) {
         schema.tables.forEach(table => {
           const tableName = table.tableName;
@@ -2110,6 +2111,9 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             table.fields.forEach(field => {
               if (field.type === 'date' && convertedEntries[tableName][field.name]) {
                 convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
+              }
+              if (field.type === 'number' && convertedEntries[tableName][field.name] !== undefined && convertedEntries[tableName][field.name] !== null && convertedEntries[tableName][field.name] !== '') {
+                convertedEntries[tableName][field.name] = Number(convertedEntries[tableName][field.name]);
               }
             });
           }
@@ -2366,7 +2370,10 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                                 })()}
                                                 max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
                                                 formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
-                                                parser={field.name.includes('dienTich') ? (value) => value.replace(/\$\s?|(,*)/g, '') : undefined}
+                                                parser={field.name.includes('dienTich') ? (value) => {
+                                                    const parsed = value.replace(/\$\s?|(,*)/g, '');
+                                                    return parsed ? Number(parsed) : '';
+                                                } : undefined}
                                             />
                                         );
                                     }}
