@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
+import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
@@ -69,13 +70,13 @@ const NewsListAll = () => {
                 </div>
 
                 {/* Category Tabs (F8 Style) */}
-                <div className="mb-10 border-b border-gray-100 overflow-x-auto">
+                <div className="mb-10 border-b border-gray-100 overflow-x-auto font-['Roboto',_sans-serif]">
                     <div className="flex items-center gap-8 pb-3 min-w-max">
                         {categories.map(cat => (
                             <div 
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`cursor-pointer font-bold text-sm transition-all pb-3 relative ${
+                                className={`cursor-pointer font-bold text-sm transition-all pb-3 relative tracking-wide ${
                                     selectedCategory === cat 
                                     ? 'text-[#242424] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#242424]' 
                                     : 'text-gray-400 hover:text-gray-600'
@@ -102,19 +103,29 @@ const NewsListAll = () => {
                                         className="group cursor-pointer"
                                         onClick={() => navigate(`/news/${news._id}`)}
                                     >
-                                        <div className="bg-white rounded-[24px] border border-gray-100 p-8 transition-all hover:shadow-2xl hover:border-transparent group-hover:-translate-y-1">
+                                        <div className="bg-white rounded-[24px] border-[2px] border-[#e8e8e8] p-6 transition-all hover:border-green-500/50 hover:shadow-md">
                                             {/* Author Header */}
-                                            <div className="flex items-center justify-between mb-6">
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar size={36} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} className="border-2 border-white shadow-sm" />
+                                            <div className="flex items-center justify-between mb-5">
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar 
+                                                        size={28} 
+                                                        src={typeof news.author === 'object' ? getAvatarUrl(news.author?.avatar) : null}
+                                                        style={{ backgroundColor: '#16a34a', fontSize: 12, fontWeight: 700 }}
+                                                        className="border border-gray-100 flex-shrink-0"
+                                                    >
+                                                        {typeof news.author === 'object' 
+                                                            ? (!news.author?.avatar && getInitialAvatar(news.author?.fullname || news.author?.username))
+                                                            : 'E'
+                                                        }
+                                                    </Avatar>
                                                     <Text className="font-bold text-[#242424] text-sm flex items-center gap-1.5">
                                                         {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
                                                         <CheckCircleFilled className="text-blue-500 text-[11px]" />
                                                     </Text>
                                                 </div>
-                                                <Space className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <BookOutlined className="text-lg hover:text-black" />
-                                                    <MoreOutlined className="text-lg hover:text-black" />
+                                                <Space className="text-gray-300 transition-all group-hover:text-gray-900">
+                                                    <BookOutlined className="text-lg hover:text-black cursor-pointer" />
+                                                    <MoreOutlined className="text-lg hover:text-black cursor-pointer" />
                                                 </Space>
                                             </div>
 
@@ -139,11 +150,14 @@ const NewsListAll = () => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="w-full md:w-[260px] aspect-[16/9] md:aspect-square lg:aspect-[16/10] flex-shrink-0 overflow-hidden rounded-[20px] shadow-sm">
+                                                <div className="w-full md:w-[200px] aspect-[16/9] md:aspect-square lg:aspect-[16/10] flex-shrink-0 overflow-hidden rounded-[20px] shadow-sm bg-gray-50">
                                                     <img
                                                         src={news.image || getFallbackImage(news.category)}
                                                         alt={news.title}
                                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        onError={(e) => {
+                                                            e.target.src = getFallbackImage(news.category);
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
@@ -172,9 +186,9 @@ const NewsListAll = () => {
                                         <button
                                             key={cat}
                                             onClick={() => setSelectedCategory(cat)}
-                                            className={`px-4 py-2 rounded-full text-xs font-black transition-all ${
+                                            className={`px-4 py-2 rounded-full text-[11px] font-black transition-all border-0 cursor-pointer font-['Roboto',_sans-serif] tracking-wider ${
                                                 selectedCategory === cat
-                                                ? 'bg-green-600 text-white' 
+                                                ? 'bg-green-600 text-white shadow-md shadow-green-100' 
                                                 : 'bg-gray-100 text-[#505050] hover:bg-gray-200'
                                             }`}
                                         >

@@ -16,6 +16,7 @@ import {
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
+import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
 
 const { Title, Text, Paragraph } = Typography;
@@ -129,7 +130,17 @@ const NewsDetail = () => {
                             {/* Author Box */}
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-3">
-                                    <Avatar size={48} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} />
+                                    <Avatar 
+                                        size={48} 
+                                        src={typeof news.author === 'object' ? getAvatarUrl(news.author?.avatar) : null}
+                                        style={{ backgroundColor: '#16a34a', fontSize: 18, fontWeight: 700 }}
+                                        className="border-2 border-white shadow-sm flex-shrink-0"
+                                    >
+                                        {typeof news.author === 'object'
+                                            ? (!news.author?.avatar && getInitialAvatar(news.author?.fullname || news.author?.username))
+                                            : 'E'
+                                        }
+                                    </Avatar>
                                     <div className="flex flex-col">
                                         <Text className="font-bold text-[#292929]">{(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}</Text>
                                         <Text className="text-gray-500 text-xs">{dayjs(news.publishedAt).format('DD [tháng] MM, YYYY')} • 6 phút đọc</Text>
