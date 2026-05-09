@@ -129,9 +129,9 @@ const NewsDetail = () => {
                             {/* Author Box */}
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-3">
-                                    <Avatar size={48} src={`https://i.pravatar.cc/150?u=${news.author || 'admin'}`} />
+                                    <Avatar size={48} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} />
                                     <div className="flex flex-col">
-                                        <Text className="font-bold text-[#292929]">{news.author || 'EBookFarm Editor'}</Text>
+                                        <Text className="font-bold text-[#292929]">{(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}</Text>
                                         <Text className="text-gray-500 text-xs">{dayjs(news.publishedAt).format('DD [tháng] MM, YYYY')} • 6 phút đọc</Text>
                                     </div>
                                 </div>

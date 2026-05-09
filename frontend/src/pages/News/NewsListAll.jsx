@@ -79,9 +79,9 @@ const NewsListAll = () => {
                                         {/* Author Header */}
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-2">
-                                                <Avatar size={28} src={`https://i.pravatar.cc/150?u=${news.author || 'admin'}`} />
+                                                <Avatar size={28} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} />
                                                 <Text className="font-bold text-[#292929] text-sm flex items-center gap-1">
-                                                    {news.author || 'EBookFarm Editor'}
+                                                    {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
                                                     <CheckCircleFilled className="text-blue-500 text-[10px]" />
                                                 </Text>
                                             </div>
