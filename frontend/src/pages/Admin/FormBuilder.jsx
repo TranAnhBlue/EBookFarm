@@ -200,10 +200,10 @@ const FormBuilder = () => {
           }
         ]
       };
-    } else if (type === 'thuyssan') {
+    } else if (type === 'thuysan') {
       templateData = {
         name: 'Nhật ký Thủy sản (Cá tra)',
-        category: 'thuyssan',
+        category: 'thuysan',
         description: 'Nhật ký nuôi cá tra theo tiêu chuẩn VietGAP',
         tables: [
           {
@@ -429,7 +429,7 @@ const FormBuilder = () => {
           >
             <Option value="trongtrot">Mẫu Trồng trọt</Option>
             <Option value="channuoi">Mẫu Chăn nuôi</Option>
-            <Option value="thuyssan">Mẫu Thủy sản</Option>
+            <Option value="thuysan">Mẫu Thủy sản</Option>
             <Option value="huuco">Mẫu Hữu cơ</Option>
             <Option value="chebup">Mẫu Chè búp</Option>
           </Select>
@@ -518,7 +518,7 @@ const FormBuilder = () => {
                 <Select placeholder="Chọn lĩnh vực">
                   <Option value="trongtrot">VietGAP Trồng trọt</Option>
                   <Option value="channuoi">VietGAHP Chăn nuôi</Option>
-                  <Option value="thuyssan">VietGAP Thủy sản</Option>
+                  <Option value="thuysan">VietGAP Thủy sản</Option>
                   <Option value="huuco">Nông nghiệp Hữu cơ</Option>
                   <Option value="thongminh">Nông nghiệp Thông minh</Option>
                 </Select>
@@ -647,7 +647,7 @@ const FormBuilder = () => {
               <Tag color="green" className="rounded-full px-3 py-1">
                 {previewData.category === 'trongtrot' ? 'Trồng trọt' : 
                  previewData.category === 'channuoi' ? 'Chăn nuôi' : 
-                 previewData.category === 'thuyssan' ? 'Thủy sản' : 'Khác'}
+                 previewData.category === 'thuysan' ? 'Thủy sản' : 'Khác'}
               </Tag>
               {previewData.description && (
                 <div className="mt-3">

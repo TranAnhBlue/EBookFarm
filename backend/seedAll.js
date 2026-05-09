@@ -726,11 +726,11 @@ const channuoiSchemas = [
 ];
 
 // ════════════════════════════════════════════════════════════
-//  THUỶ SẢN  (category: 'thuyssan')
+//  THUỶ SẢN  (category: 'thuysan')
 // ════════════════════════════════════════════════════════════
-const thuyssanSchemas = [
+const thuysanSchemas = [
   {
-    name: 'Cá tra', category: 'thuyssan',
+    name: 'Cá tra', category: 'thuysan',
     description: 'Nhật ký nuôi cá tra theo tiêu chuẩn VietGAP',
     tables: [
       commonInfo([{ name: 'pond_area', label: 'Diện tích ao (m²)', type: 'number', required: true }]),
@@ -760,7 +760,7 @@ const thuyssanSchemas = [
     ]
   },
   {
-    name: 'Cá rô phi thương phẩm', category: 'thuyssan',
+    name: 'Cá rô phi thương phẩm', category: 'thuysan',
     description: 'Nhật ký nuôi cá rô phi thương phẩm theo VietGAP',
     tables: [
       commonInfo(),
@@ -782,7 +782,7 @@ const thuyssanSchemas = [
     ]
   },
   {
-    name: 'Tôm chân trắng', category: 'thuyssan',
+    name: 'Tôm chân trắng', category: 'thuysan',
     description: 'Nhật ký nuôi tôm thẻ chân trắng (Litopenaeus vannamei)',
     tables: [
       commonInfo([{ name: 'salinity_entry', label: 'Độ mặn ban đầu (‰)', type: 'number', required: false }]),
@@ -813,7 +813,7 @@ const thuyssanSchemas = [
     ]
   },
   {
-    name: 'Tôm sú', category: 'thuyssan',
+    name: 'Tôm sú', category: 'thuysan',
     description: 'Nhật ký nuôi tôm sú theo tiêu chuẩn VietGAP',
     tables: [
       commonInfo(),
@@ -835,7 +835,7 @@ const thuyssanSchemas = [
     ]
   },
   {
-    name: 'Cua biển', category: 'thuyssan',
+    name: 'Cua biển', category: 'thuysan',
     description: 'Nhật ký nuôi cua biển thương phẩm',
     tables: [
       commonInfo(),
@@ -996,7 +996,7 @@ const seed = async () => {
     const all = [
       ...trongtrotSchemas, 
       ...channuoiSchemas, 
-      ...thuyssanSchemas,
+      ...thuysanSchemas,
       ...huucoCayTrongSchemas
     ];
     
@@ -1016,8 +1016,8 @@ const seed = async () => {
     console.log(`\n✅ CHĂN NUÔI (${channuoiSchemas.length} schema):`);
     channuoiSchemas.forEach(s => console.log(`   - ${s.name}`));
 
-    console.log(`\n✅ THUỶ SẢN (${thuyssanSchemas.length} schema):`);
-    thuyssanSchemas.forEach(s => console.log(`   - ${s.name}`));
+    console.log(`\n✅ THUỶ SẢN (${thuysanSchemas.length} schema):`);
+    thuysanSchemas.forEach(s => console.log(`   - ${s.name}`));
 
     console.log(`\n✅ HỮU CƠ - CÂY TRỒNG (${huucoCayTrongSchemas.length} schema):`);
     huucoCayTrongSchemas.forEach(s => console.log(`   - ${s.name}`));

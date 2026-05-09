@@ -94,11 +94,11 @@ const addFarmersToJournal = async (req, res) => {
       const categoryLabels = {
         'trongtrot': 'VietGAP Trồng trọt',
         'channuoi': 'VietGAHP Chăn nuôi',
-        'thuyssan': 'VietGAP Thủy sản',
+        'thuysan': 'VietGAP Thủy sản',
         'huuco': 'Hữu cơ',
         'huuco_caytrong': 'Hữu cơ Cây trồng',
         'huuco_channuoi': 'Hữu cơ Chăn nuôi',
-        'huuco_thuyssan': 'Hữu cơ Thủy sản',
+        'huuco_thuysan': 'Hữu cơ Thủy sản',
         'thongminh': 'Nông nghiệp Thông minh'
       };
       
@@ -169,11 +169,11 @@ const updateFarmerStatus = async (req, res) => {
         const categoryLabels = {
           'trongtrot': 'VietGAP Trồng trọt',
           'channuoi': 'VietGAHP Chăn nuôi',
-          'thuyssan': 'VietGAP Thủy sản',
+          'thuysan': 'VietGAP Thủy sản',
           'huuco': 'Hữu cơ',
           'huuco_caytrong': 'Hữu cơ Cây trồng',
           'huuco_channuoi': 'Hữu cơ Chăn nuôi',
-          'huuco_thuyssan': 'Hữu cơ Thủy sản',
+          'huuco_thuysan': 'Hữu cơ Thủy sản',
           'thongminh': 'Nông nghiệp Thông minh'
         };
         const FormSchema = require('../models/FormSchema');
