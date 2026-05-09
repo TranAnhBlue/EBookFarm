@@ -1044,9 +1044,6 @@ const LandingPage = () => {
                     </div>
                 )}
             </Modal>
-                    </Row>
-                </div>
-            </section>
 
             {/* About Us Section */}
             <section id="about-us" className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 py-24 md:py-32 px-6 relative overflow-hidden">
