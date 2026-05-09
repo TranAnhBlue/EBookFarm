@@ -5,11 +5,11 @@ const { protect, admin } = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.route('/')
-  .get(protect, getNews)
+  .get(getNews)
   .post(protect, admin, createNews);
 
 router.route('/:id')
-  .get(protect, getNewsById)
+  .get(getNewsById)
   .put(protect, admin, updateNews)
   .delete(protect, admin, deleteNews);
 

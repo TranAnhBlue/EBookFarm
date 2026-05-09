@@ -48,7 +48,7 @@ const NewsListAll = () => {
     };
 
     return (
-        <div className="bg-white min-h-screen font-['Inter',_sans-serif]">
+        <div className="bg-white min-h-screen font-['Roboto',_sans-serif]">
             <div className="max-w-7xl mx-auto px-6 py-10 animate-in fade-in duration-700">
                 {/* Back Button */}
                 <Button 
@@ -102,11 +102,11 @@ const NewsListAll = () => {
                                         className="group cursor-pointer"
                                         onClick={() => navigate(`/news/${news._id}`)}
                                     >
-                                        <div className="bg-white rounded-[16px] border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-transparent">
+                                        <div className="bg-white rounded-[24px] border border-gray-100 p-8 transition-all hover:shadow-2xl hover:border-transparent group-hover:-translate-y-1">
                                             {/* Author Header */}
-                                            <div className="flex items-center justify-between mb-5">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar size={32} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} className="border border-gray-100" />
+                                            <div className="flex items-center justify-between mb-6">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar size={36} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} className="border-2 border-white shadow-sm" />
                                                     <Text className="font-bold text-[#242424] text-sm flex items-center gap-1.5">
                                                         {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
                                                         <CheckCircleFilled className="text-blue-500 text-[11px]" />
@@ -139,7 +139,7 @@ const NewsListAll = () => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="w-full md:w-[240px] aspect-[16/9] md:aspect-square lg:aspect-[16/10] flex-shrink-0 overflow-hidden rounded-[16px]">
+                                                <div className="w-full md:w-[260px] aspect-[16/9] md:aspect-square lg:aspect-[16/10] flex-shrink-0 overflow-hidden rounded-[20px] shadow-sm">
                                                     <img
                                                         src={news.image || getFallbackImage(news.category)}
                                                         alt={news.title}

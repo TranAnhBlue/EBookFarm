@@ -73,7 +73,7 @@ const NewsDetail = () => {
     }
 
     return (
-        <div className="bg-white min-h-screen font-['Inter',_sans-serif] pb-24">
+        <div className="bg-white min-h-screen font-['Roboto',_sans-serif] pb-24">
             <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10">
                 <Row gutter={48}>
                     {/* Left Side: Floating Actions */}
@@ -143,17 +143,17 @@ const NewsDetail = () => {
 
                             {/* Content */}
                             <div className="space-y-8 text-[#292929]">
-                                <Paragraph className="text-xl font-bold italic leading-relaxed border-l-4 border-green-500 pl-6 bg-green-50/30 py-6 rounded-r-2xl">
+                                <Paragraph className="text-xl font-bold italic leading-relaxed border-l-4 border-green-500 pl-6 bg-green-50/30 py-8 rounded-[24px]">
                                     {news.summary}
                                 </Paragraph>
 
-                                <div className="rounded-3xl overflow-hidden shadow-sm mb-12">
+                                <div className="rounded-[32px] overflow-hidden shadow-sm mb-12 border border-gray-100">
                                     <img 
                                         src={news.image || getFallbackImage(news.category)} 
                                         alt={news.title}
                                         className="w-full h-auto object-cover max-h-[500px]"
                                     />
-                                    <div className="bg-gray-50 p-4 text-center text-gray-500 text-sm italic">
+                                    <div className="bg-gray-50 p-6 text-center text-gray-500 text-sm italic">
                                         Hình ảnh minh họa cho {news.title}
                                     </div>
                                 </div>
@@ -179,7 +179,7 @@ const NewsDetail = () => {
                             </div>
 
                             {/* Reaction Section */}
-                            <div className="mt-12 p-8 rounded-3xl bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6 border border-gray-100">
+                            <div className="mt-12 p-10 rounded-[32px] bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6 border border-gray-100 shadow-sm">
                                 <div className="flex items-center gap-4">
                                     <Title level={4} className="!mb-0 !text-[#292929]">Bạn thấy hữu ích?</Title>
                                     <Button 
@@ -232,10 +232,10 @@ const NewsDetail = () => {
                             </div>
 
                             {/* Newsletter / CTA */}
-                            <div className="bg-[#1a1a1a] p-8 rounded-3xl text-white">
+                            <div className="bg-[#1a1a1a] p-10 rounded-[32px] text-white shadow-xl">
                                 <Title level={4} className="!text-white !font-black !mb-4">Đăng ký bản tin</Title>
-                                <Paragraph className="text-gray-400 text-sm mb-6">Nhận thông báo về các bài viết công nghệ mới nhất từ chúng tôi.</Paragraph>
-                                <Button type="primary" size="large" className="w-full bg-green-600 border-0 font-black rounded-full h-12">Đăng ký ngay</Button>
+                                <Paragraph className="text-gray-400 text-sm mb-6 leading-relaxed">Nhận thông báo về các bài viết công nghệ mới nhất từ chúng tôi.</Paragraph>
+                                <Button type="primary" size="large" className="w-full bg-green-600 border-0 font-black rounded-full h-12 hover:scale-105 transition-transform">Đăng ký ngay</Button>
                             </div>
                         </div>
                     </Col>
