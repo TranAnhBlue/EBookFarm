@@ -713,6 +713,98 @@ const LandingPage = () => {
                 </div>
             </section>
 
+            {/* Product Showcase Section */}
+            <section className="bg-white py-24 md:py-32 px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8 scroll-reveal">
+                        <div className="max-w-2xl space-y-4">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center">
+                                    <QrcodeOutlined className="text-2xl text-orange-600" />
+                                </div>
+                                <Tag color="orange" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1">Sản phẩm thực tế</Tag>
+                            </div>
+                            <Title level={2} className="!text-gray-900 !mb-0 md:!text-5xl font-black">Sản phẩm đã được minh bạch hóa</Title>
+                            <Paragraph className="text-gray-500 text-lg">
+                                Hàng ngàn sản phẩm nông sản đã được gắn mã QR truy xuất nguồn gốc, giúp người tiêu dùng an tâm sử dụng và nâng cao giá trị thương hiệu.
+                            </Paragraph>
+                        </div>
+                        <Button 
+                            type="primary" 
+                            size="large" 
+                            className="bg-orange-600 hover:bg-orange-700 h-14 px-8 rounded-xl font-bold border-0 shadow-lg shadow-orange-200"
+                        >
+                            Xem tất cả sản phẩm <ArrowRightOutlined />
+                        </Button>
+                    </div>
+
+                    <Row gutter={[32, 32]}>
+                        {[
+                            {
+                                name: 'Gạo sạch ST25 Organic',
+                                brand: 'HTX Nông nghiệp Hiệp Hòa',
+                                image: '/images/rice_product.png',
+                                tag: 'Lương thực',
+                                color: 'green'
+                            },
+                            {
+                                name: 'Trái cây xuất khẩu chuẩn VietGAP',
+                                brand: 'Trang trại Ogasachi',
+                                image: '/images/fruit_product.png',
+                                tag: 'Trái cây',
+                                color: 'orange'
+                            },
+                            {
+                                name: 'Mật ong hoa rừng tự nhiên',
+                                brand: 'Công ty TNHH Dược liệu Việt',
+                                image: '/images/honey_product.png',
+                                tag: 'Thực phẩm',
+                                color: 'gold'
+                            }
+                        ].map((product, idx) => (
+                            <Col xs={24} md={8} key={idx}>
+                                <div className="group relative scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.1}s` }}>
+                                    <div className="relative h-[450px] rounded-[40px] overflow-hidden shadow-2xl">
+                                        <img 
+                                            src={product.image} 
+                                            alt={product.name} 
+                                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
+                                        
+                                        {/* Floating Badge */}
+                                        <div className="absolute top-6 left-6">
+                                            <Tag color={product.color} className="rounded-full px-4 py-1 font-bold border-0 shadow-lg">
+                                                {product.tag}
+                                            </Tag>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="absolute bottom-8 left-8 right-8 space-y-3">
+                                            <div className="flex items-center gap-2 text-white/70 text-xs font-bold uppercase tracking-wider">
+                                                <ShopOutlined /> {product.brand}
+                                            </div>
+                                            <Title level={3} className="!text-white !mb-0 !text-2xl font-black leading-tight">
+                                                {product.name}
+                                            </Title>
+                                            <div className="pt-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                                                <div className="flex items-center gap-2 text-orange-400 font-bold">
+                                                    <QrcodeOutlined className="text-xl" />
+                                                    <span>Đã quét 2.5k+ lần</span>
+                                                </div>
+                                                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+                                                    <ArrowRightOutlined />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                </div>
+            </section>
+
             {/* Success Stories Section */}
             <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
                 {/* Background pattern */}
