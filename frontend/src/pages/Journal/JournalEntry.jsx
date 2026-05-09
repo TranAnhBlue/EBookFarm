@@ -2509,8 +2509,11 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                 <div className="w-1/2">
                     <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
                         <Select size="large" className="rounded-xl">
+                            <Option value="Assigned" disabled>Mới được phân công (Chờ ghi chép)</Option>
                             <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
                             <Option value="Submitted">Hoàn tất (Gửi duyệt HTX)</Option>
+                            <Option value="Revision Requested" disabled>Đang bị trả về (Yêu cầu sửa lại)</Option>
+                            <Option value="Verified" disabled>Đã được HTX Duyệt (Thành công)</Option>
                         </Select>
                     </Form.Item>
                 </div>
