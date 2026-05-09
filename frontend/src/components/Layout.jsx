@@ -349,7 +349,7 @@ const MainLayout = () => {
         <div className="p-6 mt-auto border-t border-gray-50 shrink-0 bg-white">
           <div className="bg-green-50 rounded-2xl p-4 border border-green-100 shadow-sm shadow-green-50/50">
             <Text strong className="text-green-800 text-xs block mb-1">Hỗ trợ kỹ thuật?</Text>
-            <Text className="text-green-600 text-[10px] block mb-3">Liên hệ hotline: 1900 8888</Text>
+            <Text className="text-green-600 text-[10px] block mb-3">Liên hệ hotline: 0981.439.283</Text>
             <Button type="primary" size="small" block className="rounded-lg text-[10px] h-8 font-bold">Gửi yêu cầu</Button>
           </div>
         </div>
