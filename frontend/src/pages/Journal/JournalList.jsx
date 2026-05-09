@@ -99,6 +99,23 @@ const JournalList = () => {
     enabled: !!selectedJournalId
   });
 
+  // Fetch inventory for mapping supply IDs to names
+  const { data: inventory } = useQuery({
+    queryKey: ['farmer-inventory-mapping'],
+    queryFn: () => api.get('/inventory').then(res => res.data.data),
+    enabled: !!user && user.role?.toUpperCase() === 'FARMER'
+  });
+
+  // Helper function to map value to name if it's an ID
+  const displayMappedValue = (value) => {
+    if (!value) return <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
+    if (inventory && typeof value === 'string' && value.length === 24) {
+      const item = inventory.find(i => i._id === value);
+      if (item) return item.name;
+    }
+    return value;
+  };
+
   // Helper functions for status
   const getStatusBadge = (record) => {
     const status = record.status;
@@ -529,15 +546,12 @@ const JournalList = () => {
                             })()}
 
                              {/* Lô sản xuất */}
-                            {(() => {
-                              const value = getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'lo_san_xuat', 'block_id']);
-                              return value ? (
-                                <>
-                                  <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
-                                  <div className="text-right"><Text strong>{value}</Text></div>
-                                </>
-                              ) : null;
-                            })()}
+                             <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
+                             <div className="text-right">
+                               <Text strong>
+                                 {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'lo_san_xuat', 'block_id']))}
+                               </Text>
+                             </div>
 
                             {/* Diện tích */}
                             <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
@@ -560,26 +574,20 @@ const JournalList = () => {
                             </div>
 
                             {/* Đối tượng (Cây trồng / Vật nuôi) */}
-                            {(() => {
-                              const value = getEntryValue(journal, ['tenCayTrong', 'Tên cây trồng', 'cay_trong', 'doi_tuong_nuoi', 'Tên đối tượng nuôi', 'san_pham']);
-                              return value ? (
-                                <>
-                                  <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Đối tượng:</div>
-                                  <div className="text-right"><Text strong>{value}</Text></div>
-                                </>
-                              ) : null;
-                            })()}
+                            <div className="flex items-center gap-1.5"><TagOutlined className="text-green-500" /> Đối tượng:</div>
+                            <div className="text-right">
+                              <Text strong>
+                                {displayMappedValue(getEntryValue(journal, ['tenCayTrong', 'Tên cây trồng', 'cay_trong', 'doi_tuong_nuoi', 'Tên đối tượng nuôi', 'san_pham']))}
+                              </Text>
+                            </div>
 
                             {/* Giống */}
-                            {(() => {
-                              const value = getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'Giống cây trồng', 'Giống vật nuôi', 'giong_cay_trong']);
-                              return value ? (
-                                <>
-                                  <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
-                                  <div className="text-right"><Text strong>{value}</Text></div>
-                                </>
-                              ) : null;
-                            })()}
+                            <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
+                            <div className="text-right">
+                              <Text strong>
+                                {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'Giống cây trồng', 'Giống vật nuôi', 'giong_cay_trong', 'giống chè']))}
+                              </Text>
+                            </div>
 
                             {/* Ngày bắt đầu */}
                             {(() => {
