@@ -23,10 +23,9 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String }, // URL ảnh đại diện
   bio: { type: String }, // Giới thiệu ngắn
   
-  // Địa chỉ
+  // Địa chỉ (sau sáp nhập 07/2025: Tỉnh/TP → Phường/Xã, không còn cấp Huyện)
   address: { type: String },
   province: { type: String },
-  district: { type: String },
   ward: { type: String },
   
   // Thông tin nông trại (cho User/Farmer)

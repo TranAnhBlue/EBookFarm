@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import dayjs from 'dayjs';
-import { getProvinces, getDistrictsByProvince, getWardsByDistrict, checkMergeWarning } from '../../services/locationService';
+import { getProvinces, getWardsByProvince } from '../../services/locationService';
 import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
 const { Title, Text, Paragraph } = Typography;
@@ -116,19 +116,12 @@ const AccountInfo = () => {
     const [form] = Form.useForm();
     const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
 
-    // State cho địa phương
+    // State cho địa phương (sau sáp nhập: chỉ còn Tỉnh → Phường/Xã)
     const [provinces, setProvinces] = useState([]);
-    const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
-
     const [selectedProvinceCode, setSelectedProvinceCode] = useState(null);
-    const [selectedDistrictCode, setSelectedDistrictCode] = useState(null);
-
     const [loadingProvinces, setLoadingProvinces] = useState(false);
-    const [loadingDistricts, setLoadingDistricts] = useState(false);
     const [loadingWards, setLoadingWards] = useState(false);
-
-    const [mergeWarning, setMergeWarning] = useState(null);
 
     // Certifications state
     const [isCertModalVisible, setIsCertModalVisible] = useState(false);
@@ -158,58 +151,26 @@ const AccountInfo = () => {
         }
     }, [user, form]);
 
-    // Load districts khi chọn province
+    // Load phường/xã khi chọn tỉnh
     useEffect(() => {
-        const fetchDistricts = async () => {
+        const fetch = async () => {
             if (selectedProvinceCode) {
-                setLoadingDistricts(true);
-                const data = await getDistrictsByProvince(selectedProvinceCode);
-                setDistricts(data);
-                setLoadingDistricts(false);
-            }
-        };
-        fetchDistricts();
-    }, [selectedProvinceCode]);
-
-    // Load wards khi chọn district
-    useEffect(() => {
-        const fetchWards = async () => {
-            if (selectedDistrictCode) {
                 setLoadingWards(true);
-                const data = await getWardsByDistrict(selectedDistrictCode);
+                const data = await getWardsByProvince(selectedProvinceCode);
                 setWards(data);
                 setLoadingWards(false);
+            } else {
+                setWards([]);
             }
         };
-        fetchWards();
-    }, [selectedDistrictCode]);
+        fetch();
+    }, [selectedProvinceCode]);
 
     // Xử lý khi chọn province
     const handleProvinceChange = (value, option) => {
         setSelectedProvinceCode(option.code);
-        form.setFieldsValue({
-            province: option.name,
-            district: undefined,
-            ward: undefined
-        });
-        setDistricts([]);
         setWards([]);
-        setSelectedDistrictCode(null);
-    };
-
-    // Xử lý khi chọn district
-    const handleDistrictChange = (value, option) => {
-        setSelectedDistrictCode(option.code);
-        form.setFieldsValue({
-            district: option.name,
-            ward: undefined
-        });
-        setWards([]);
-
-        // Kiểm tra cảnh báo sáp nhập
-        const provinceName = form.getFieldValue('province');
-        const warning = checkMergeWarning(provinceName, option.name);
-        setMergeWarning(warning);
+        form.setFieldsValue({ province: option.name, ward: undefined });
     };
 
     // Xử lý khi chọn ward
@@ -226,7 +187,6 @@ const AccountInfo = () => {
                 gender: values.gender,
                 address: values.address,
                 province: values.province,
-                district: values.district,
                 ward: values.ward,
                 farmName: values.farmName,
                 farmCode: values.farmCode,
@@ -412,7 +372,7 @@ const AccountInfo = () => {
                                 </div>
                             )}
 
-                            {(user?.province || user?.district || user?.ward || user?.address) && (
+                            {(user?.province || user?.ward || user?.address) && (
                                 <div className="flex items-start gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
                                         <EnvironmentOutlined />
@@ -420,7 +380,7 @@ const AccountInfo = () => {
                                     <div className="flex-1 min-w-0">
                                         <Text type="secondary" className="text-[10px] uppercase font-bold block">Địa chỉ</Text>
                                         <Text strong className="text-xs block">
-                                            {[user?.address, user?.ward, user?.district, user?.province]
+                                            {[user?.address, user?.ward, user?.province]
                                                 .filter(Boolean)
                                                 .join(', ')}
                                         </Text>
@@ -594,20 +554,7 @@ const AccountInfo = () => {
                                 Địa chỉ
                             </Divider>
 
-                            {mergeWarning && (
-                                <Alert
-                                    message="Thông báo sáp nhập đơn vị hành chính"
-                                    description={mergeWarning.message}
-                                    type="warning"
-                                    icon={<WarningOutlined />}
-                                    showIcon
-                                    closable
-                                    onClose={() => setMergeWarning(null)}
-                                    className="mb-4"
-                                />
-                            )}
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Form.Item name="province" label="Tỉnh/Thành phố">
                                     <Select
                                         className="h-11"
@@ -633,37 +580,11 @@ const AccountInfo = () => {
                                     </Select>
                                 </Form.Item>
 
-                                <Form.Item name="district" label="Quận/Huyện">
-                                    <Select
-                                        className="h-11"
-                                        placeholder="Chọn quận/huyện"
-                                        disabled={!selectedProvinceCode}
-                                        showSearch
-                                        loading={loadingDistricts}
-                                        notFoundContent={loadingDistricts ? <Spin size="small" /> : 'Không tìm thấy'}
-                                        filterOption={(input, option) =>
-                                            (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-                                        }
-                                        onChange={handleDistrictChange}
-                                    >
-                                        {districts.map((district) => (
-                                            <Option
-                                                value={district.name}
-                                                key={district.code}
-                                                code={district.code}
-                                                name={district.name}
-                                            >
-                                                {district.name}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-
                                 <Form.Item name="ward" label="Phường/Xã">
                                     <Select
                                         className="h-11"
                                         placeholder="Chọn phường/xã"
-                                        disabled={!selectedDistrictCode}
+                                        disabled={!selectedProvinceCode}
                                         showSearch
                                         loading={loadingWards}
                                         notFoundContent={loadingWards ? <Spin size="small" /> : 'Không tìm thấy'}
