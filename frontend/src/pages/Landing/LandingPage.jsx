@@ -658,58 +658,85 @@ const LandingPage = () => {
                         <Paragraph className="text-gray-500 text-lg">Đơn giản, nhanh chóng và được hỗ trợ toàn diện</Paragraph>
                     </div>
 
-                    <Steps
-                        direction="vertical"
-                        current={-1}
-                        className="scroll-reveal"
-                        items={[
-                            {
-                                title: <Text strong className="text-xl">Đăng ký & Tư vấn</Text>,
-                                description: (
-                                    <div className="mt-4 space-y-2">
-                                        <Paragraph className="text-gray-500">
-                                            Liên hệ với EBookFarm qua form đăng ký hoặc hotline. Đội ngũ chuyên gia sẽ tư vấn giải pháp phù hợp với quy mô và nhu cầu của bạn.
-                                        </Paragraph>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Tag color="blue">Tư vấn miễn phí</Tag>
-                                            <Tag color="blue">Khảo sát nhu cầu</Tag>
-                                            <Tag color="blue">Báo giá chi tiết</Tag>
+                    <div className="relative mt-20">
+                        {/* Connecting Line */}
+                        <div className="absolute left-[39px] top-10 bottom-10 w-0.5 bg-gradient-to-b from-green-500 via-blue-500 to-orange-500 opacity-20 hidden md:block"></div>
+
+                        <div className="space-y-12 relative z-10">
+                            {[
+                                {
+                                    step: '01',
+                                    title: 'Đăng ký & Tư vấn',
+                                    color: 'green',
+                                    icon: <PhoneOutlined />,
+                                    desc: 'Liên hệ với EBookFarm qua form đăng ký hoặc hotline. Đội ngũ chuyên gia giàu kinh nghiệm sẽ khảo sát thực tế và tư vấn giải pháp tối ưu nhất, phù hợp với quy mô và đặc thù nông sản của bạn.',
+                                    tags: ['Tư vấn miễn phí', 'Khảo sát nhu cầu', 'Báo giá chi tiết']
+                                },
+                                {
+                                    step: '02',
+                                    title: 'Triển khai & Đào tạo',
+                                    color: 'blue',
+                                    icon: <SettingOutlined />,
+                                    desc: 'Cài đặt hệ thống, khởi tạo tài khoản và chuẩn hóa dữ liệu vùng trồng. Chúng tôi sẽ trực tiếp đào tạo kỹ thuật ghi nhật ký cho nông dân và hướng dẫn quản lý cho cán bộ HTX/Doanh nghiệp.',
+                                    tags: ['Đào tạo trực tiếp', 'Tài liệu hướng dẫn', 'Hỗ trợ 24/7']
+                                },
+                                {
+                                    step: '03',
+                                    title: 'Vận hành & Tối ưu',
+                                    color: 'orange',
+                                    icon: <RocketOutlined />,
+                                    desc: 'Chính thức ghi nhật ký điện tử và phát hành mã QR truy xuất nguồn gốc. EBookFarm đồng hành cùng bạn trong suốt quá trình vận hành, liên tục cập nhật tính năng mới để tối ưu hóa hiệu quả sản xuất.',
+                                    tags: ['Giám sát hiệu suất', 'Cập nhật tính năng', 'Tối ưu liên tục']
+                                }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex flex-col md:flex-row gap-8 scroll-reveal group">
+                                    {/* Step Number Column */}
+                                    <div className="flex-shrink-0 flex md:flex-col items-center">
+                                        <div className={`w-20 h-20 rounded-[24px] flex items-center justify-center text-2xl font-black shadow-2xl relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-6
+                                            ${item.color === 'green' ? 'bg-green-600 text-white shadow-green-200' : 
+                                              item.color === 'blue' ? 'bg-blue-600 text-white shadow-blue-200' : 
+                                              'bg-orange-600 text-white shadow-orange-200'}`}>
+                                            {item.step}
+                                            {/* Glow Effect */}
+                                            <div className={`absolute -inset-2 blur-xl opacity-30 rounded-[30px] -z-10 
+                                                ${item.color === 'green' ? 'bg-green-500' : 
+                                                  item.color === 'blue' ? 'bg-blue-500' : 
+                                                  'bg-orange-500'}`}></div>
                                         </div>
                                     </div>
-                                )
-                            },
-                            {
-                                title: <Text strong className="text-xl">Triển khai & Đào tạo</Text>,
-                                description: (
-                                    <div className="mt-4 space-y-2">
-                                        <Paragraph className="text-gray-500">
-                                            Cài đặt hệ thống, tạo tài khoản và đào tạo sử dụng cho đội ngũ. Hỗ trợ nhập liệu ban đầu và tùy chỉnh theo quy trình riêng.
-                                        </Paragraph>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Tag color="green">Đào tạo trực tiếp</Tag>
-                                            <Tag color="green">Tài liệu hướng dẫn</Tag>
-                                            <Tag color="green">Hỗ trợ 24/7</Tag>
-                                        </div>
+
+                                    {/* Content Card */}
+                                    <div className="flex-1">
+                                        <Card className="rounded-[32px] border-gray-50 shadow-sm hover:shadow-2xl transition-all duration-500 hover-lift bg-white/80 backdrop-blur-sm group-hover:border-blue-100">
+                                            <div className="p-2 md:p-4">
+                                                <div className="flex items-center gap-4 mb-4">
+                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl
+                                                        ${item.color === 'green' ? 'bg-green-50 text-green-600' : 
+                                                          item.color === 'blue' ? 'bg-blue-50 text-blue-600' : 
+                                                          'bg-orange-50 text-orange-600'}`}>
+                                                        {item.icon}
+                                                    </div>
+                                                    <Title level={3} className="!mb-0 !text-gray-900 md:!text-2xl font-black">{item.title}</Title>
+                                                </div>
+                                                
+                                                <Paragraph className="text-gray-500 text-base leading-relaxed mb-6">
+                                                    {item.desc}
+                                                </Paragraph>
+
+                                                <div className="flex flex-wrap gap-2">
+                                                    {item.tags.map((tag, i) => (
+                                                        <Tag key={i} color={item.color} className="rounded-full px-4 py-1 font-medium border-0 opacity-80 hover:opacity-100 transition-opacity">
+                                                            {tag}
+                                                        </Tag>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </Card>
                                     </div>
-                                )
-                            },
-                            {
-                                title: <Text strong className="text-xl">Vận hành & Tối ưu</Text>,
-                                description: (
-                                    <div className="mt-4 space-y-2">
-                                        <Paragraph className="text-gray-500">
-                                            Bắt đầu sử dụng hệ thống, ghi nhật ký sản xuất và tạo mã QR truy xuất. Đội ngũ kỹ thuật luôn sẵn sàng hỗ trợ và tối ưu hóa.
-                                        </Paragraph>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Tag color="orange">Giám sát hiệu suất</Tag>
-                                            <Tag color="orange">Cập nhật tính năng</Tag>
-                                            <Tag color="orange">Tối ưu liên tục</Tag>
-                                        </div>
-                                    </div>
-                                )
-                            }
-                        ]}
-                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </section>
 
