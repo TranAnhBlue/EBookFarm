@@ -48,6 +48,8 @@ const LandingPage = () => {
     const [qrSearching, setQrSearching] = useState(false);
     const [showStoryModal, setShowStoryModal] = useState(false);
     const [selectedStory, setSelectedStory] = useState(null);
+    const [showProductModal, setShowProductModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     const handleGetStarted = () => {
         if (user) {
@@ -775,25 +777,74 @@ const LandingPage = () => {
                                 brand: 'HTX Nông nghiệp Hiệp Hòa',
                                 image: '/images/rice_product.png',
                                 tag: 'Lương thực',
-                                color: 'green'
+                                color: 'green',
+                                detail: {
+                                    origin: 'Cánh đồng Hiệp Hòa, Bắc Giang',
+                                    farmer: 'Nguyễn Văn A',
+                                    variety: 'ST25 (Gạo ngon nhất thế giới)',
+                                    harvestDate: '15/10/2025',
+                                    standards: ['VietGAP', 'Organic USDA'],
+                                    timeline: [
+                                        { date: '01/06/2025', activity: 'Làm đất và gieo mạ', note: 'Sử dụng giống ST25 thuần chủng' },
+                                        { date: '20/06/2025', activity: 'Cấy lúa', note: 'Mật độ 25 khóm/m2' },
+                                        { date: '15/07/2025', activity: 'Bón phân hữu cơ đợt 1', note: 'Sử dụng phân bón vi sinh chuyên dụng' },
+                                        { date: '10/09/2025', activity: 'Kiểm tra chất lượng trước thu hoạch', note: 'Không phát hiện dư lượng thuốc BVTV' },
+                                        { date: '15/10/2025', activity: 'Thu hoạch và sấy khô', note: 'Độ ẩm đạt chuẩn 14%' }
+                                    ]
+                                }
                             },
                             {
                                 name: 'Trái cây xuất khẩu chuẩn VietGAP',
                                 brand: 'Trang trại Ogasachi',
                                 image: '/images/fruit_product.png',
                                 tag: 'Trái cây',
-                                color: 'orange'
+                                color: 'orange',
+                                detail: {
+                                    origin: 'Cao nguyên Lâm Đồng',
+                                    farmer: 'Trần Thị B',
+                                    variety: 'Táo/Cam organic',
+                                    harvestDate: '20/11/2025',
+                                    standards: ['GlobalGAP', 'HACCP'],
+                                    timeline: [
+                                        { date: '10/01/2025', activity: 'Cắt tỉa cành vụ mới', note: 'Tạo tán và vệ sinh vườn' },
+                                        { date: '15/03/2025', activity: 'Ra hoa và thụ phấn', note: 'Thời tiết thuận lợi, tỷ lệ đậu quả cao' },
+                                        { date: '20/06/2025', activity: 'Bao trái', note: 'Sử dụng túi bao chuyên dụng ngăn côn trùng' },
+                                        { date: '05/11/2025', activity: 'Kiểm định chất lượng xuất khẩu', note: 'Đạt chuẩn size và độ đường (Brix)' },
+                                        { date: '20/11/2025', activity: 'Thu hoạch và đóng gói', note: 'Quy trình lạnh khép kín' }
+                                    ]
+                                }
                             },
                             {
                                 name: 'Mật ong hoa rừng tự nhiên',
                                 brand: 'Công ty TNHH Dược liệu Việt',
                                 image: '/images/honey_product.png',
                                 tag: 'Thực phẩm',
-                                color: 'gold'
+                                color: 'gold',
+                                detail: {
+                                    origin: 'Rừng nguyên sinh Yên Bái',
+                                    farmer: 'HTX nuôi ong rừng',
+                                    variety: 'Mật ong đa hoa rừng',
+                                    harvestDate: '01/05/2025',
+                                    standards: ['ISO 22000', 'OCOP 4 sao'],
+                                    timeline: [
+                                        { date: '01/03/2025', activity: 'Đặt thùng ong', note: 'Vùng hoa rừng tự nhiên, không ô nhiễm' },
+                                        { date: '15/03/2025', activity: 'Kiểm tra đàn ong', note: 'Đàn khỏe mạnh, mật đang tích tụ tốt' },
+                                        { date: '10/04/2025', activity: 'Kiểm tra độ chín của mật', note: 'Vít nắp đạt 90%' },
+                                        { date: '01/05/2025', activity: 'Khai thác mật', note: 'Sử dụng công nghệ quay ly tâm hiện đại' },
+                                        { date: '10/05/2025', activity: 'Lọc và đóng chai', note: 'Quy trình vô trùng tuyệt đối' }
+                                    ]
+                                }
                             }
                         ].map((product, idx) => (
                             <Col xs={24} md={8} key={idx}>
-                                <div className="group relative scroll-reveal hover-lift" style={{ animationDelay: `${idx * 0.1}s` }}>
+                                <div 
+                                    className="group relative scroll-reveal hover-lift cursor-pointer" 
+                                    style={{ animationDelay: `${idx * 0.1}s` }}
+                                    onClick={() => {
+                                        setSelectedProduct(product);
+                                        setShowProductModal(true);
+                                    }}
+                                >
                                     <div className="relative h-[450px] rounded-[40px] overflow-hidden shadow-2xl">
                                         <img 
                                             src={product.image} 
@@ -820,7 +871,7 @@ const LandingPage = () => {
                                             <div className="pt-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
                                                 <div className="flex items-center gap-2 text-orange-400 font-bold">
                                                     <QrcodeOutlined className="text-xl" />
-                                                    <span>Đã quét 2.5k+ lần</span>
+                                                    <span>Xem báo cáo truy xuất</span>
                                                 </div>
                                                 <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
                                                     <ArrowRightOutlined />
@@ -834,6 +885,129 @@ const LandingPage = () => {
                     </Row>
                 </div>
             </section>
+
+            {/* Product Traceability Modal */}
+            <Modal
+                open={showProductModal}
+                onCancel={() => setShowProductModal(false)}
+                footer={null}
+                width={700}
+                centered
+                styles={{ content: { padding: 0, borderRadius: '32px', overflow: 'hidden' } }}
+                className="product-trace-modal"
+            >
+                {selectedProduct && (
+                    <div className="bg-white">
+                        {/* Header Area */}
+                        <div className="bg-gradient-to-r from-gray-900 to-blue-900 p-8 text-white relative">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-16 h-16 bg-white rounded-2xl p-2 flex items-center justify-center">
+                                    <QrcodeOutlined className="text-4xl text-blue-900" />
+                                </div>
+                                <div>
+                                    <Text className="text-blue-300 text-xs font-black uppercase tracking-widest block mb-1">Xác thực nguồn gốc</Text>
+                                    <Title level={3} className="!text-white !mb-0 font-black">{selectedProduct.name}</Title>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap gap-3 mt-6">
+                                <Tag color="blue" className="rounded-full px-4 border-0 font-bold bg-white/10 text-white">Lô: EB-{new Date().getFullYear()}-001</Tag>
+                                <Tag color="green" className="rounded-full px-4 border-0 font-bold bg-white/10 text-white">Trạng thái: Đã kiểm duyệt</Tag>
+                            </div>
+                            
+                            {/* Decorative QR Pattern */}
+                            <div className="absolute right-0 top-0 h-full w-1/3 opacity-10 flex items-center justify-center overflow-hidden pointer-events-none">
+                                <QrcodeOutlined style={{ fontSize: '200px' }} />
+                            </div>
+                        </div>
+
+                        <div className="p-8 md:p-10 space-y-10">
+                            {/* Info Grid */}
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <Text className="text-gray-400 text-[10px] uppercase font-black tracking-wider">Nhà sản xuất</Text>
+                                    <Text strong className="text-gray-800 block text-base">{selectedProduct.brand}</Text>
+                                </div>
+                                <div className="space-y-1">
+                                    <Text className="text-gray-400 text-[10px] uppercase font-black tracking-wider">Hộ nông dân / Vùng trồng</Text>
+                                    <Text strong className="text-gray-800 block text-base">{selectedProduct.detail.farmer} - {selectedProduct.detail.origin}</Text>
+                                </div>
+                                <div className="space-y-1">
+                                    <Text className="text-gray-400 text-[10px] uppercase font-black tracking-wider">Giống / Chủng loại</Text>
+                                    <Text strong className="text-gray-800 block text-base">{selectedProduct.detail.variety}</Text>
+                                </div>
+                                <div className="space-y-1">
+                                    <Text className="text-gray-400 text-[10px] uppercase font-black tracking-wider">Ngày thu hoạch</Text>
+                                    <Text strong className="text-gray-800 block text-base">{selectedProduct.detail.harvestDate}</Text>
+                                </div>
+                            </div>
+
+                            {/* Timeline Journey */}
+                            <div>
+                                <Title level={4} className="!mb-6 flex items-center gap-2">
+                                    <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div> 
+                                    Hành trình sản xuất sạch
+                                </Title>
+                                <Steps
+                                    direction="vertical"
+                                    size="small"
+                                    current={selectedProduct.detail.timeline.length}
+                                    items={selectedProduct.detail.timeline.map((t, i) => ({
+                                        title: <Text strong className="text-sm">{t.activity}</Text>,
+                                        description: (
+                                            <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-blue-600 font-bold mb-0.5">{t.date}</div>
+                                                {t.note}
+                                            </div>
+                                        ),
+                                        status: 'finish'
+                                    }))}
+                                />
+                            </div>
+
+                            {/* Certificates Section */}
+                            <div className="bg-gray-50 p-6 rounded-[32px] border border-gray-100">
+                                <div className="flex items-center justify-between mb-4">
+                                    <Title level={5} className="!mb-0 text-gray-800">Chứng nhận chất lượng</Title>
+                                    <CheckCircleFilled className="text-green-500 text-xl" />
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedProduct.detail.standards.map((s, i) => (
+                                        <div key={i} className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                                            <SafetyCertificateFilled className="text-blue-600" />
+                                            <Text strong className="text-xs">{s}</Text>
+                                        </div>
+                                    ))}
+                                </div>
+                                <Text className="text-[10px] text-gray-400 block mt-4 text-center italic">
+                                    * Toàn bộ dữ liệu được xác thực và bảo vệ bởi hệ thống EBookFarm Blockchain
+                                </Text>
+                            </div>
+                            
+                            <div className="flex gap-4">
+                                <Button 
+                                    block 
+                                    size="large" 
+                                    className="h-14 rounded-2xl bg-gray-900 text-white border-0 font-bold hover:!bg-black transition-all"
+                                    onClick={() => setShowProductModal(false)}
+                                >
+                                    Đóng báo cáo
+                                </Button>
+                                <Button 
+                                    type="primary"
+                                    size="large" 
+                                    className="h-14 px-10 rounded-2xl bg-blue-600 border-0 font-bold shadow-lg shadow-blue-200"
+                                    onClick={() => {
+                                        setShowProductModal(false);
+                                        handleGetStarted();
+                                    }}
+                                >
+                                    Tôi muốn dùng hệ thống này
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
 
             {/* Success Stories Section */}
             <section className="bg-slate-50 py-24 md:py-32 px-6 relative overflow-hidden">
