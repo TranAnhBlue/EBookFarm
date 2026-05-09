@@ -46,6 +46,8 @@ const LandingPage = () => {
     const [qrForm] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [qrSearching, setQrSearching] = useState(false);
+    const [showStoryModal, setShowStoryModal] = useState(false);
+    const [selectedStory, setSelectedStory] = useState(null);
 
     const handleGetStarted = () => {
         if (user) {
@@ -869,7 +871,12 @@ const LandingPage = () => {
                                 product: 'Vải thiều',
                                 image: '/images/lychee_farm.png',
                                 result: 'Quản lý 500ha vải thiều, số hóa toàn bộ quy trình từ chăm sóc đến thu hoạch. Sản phẩm đạt chuẩn VietGAP và xuất khẩu thành công.',
-                                stats: ['500+ nông hộ', 'VietGAP', 'Xuất khẩu']
+                                stats: ['500+ nông hộ', 'VietGAP', 'Xuất khẩu'],
+                                detail: {
+                                    challenge: 'Trước đây, HTX gặp khó khăn trong việc kiểm soát nhật ký canh tác của hàng trăm hộ nông dân lẻ tẻ, dẫn đến chất lượng không đồng đều và khó đáp ứng tiêu chuẩn xuất khẩu.',
+                                    solution: 'Áp dụng EBookFarm để số hóa quy trình ghi chép. Mỗi nông hộ được cấp tài khoản mobile để cập nhật hoạt động hàng ngày. Cán bộ HTX giám sát thời gian thực qua bảng điều khiển trung tâm.',
+                                    impact: '100% sản lượng đạt chuẩn VietGAP, giá bán tăng 20% nhờ minh bạch nguồn gốc, mở rộng thị trường sang Nhật Bản và Châu Âu.'
+                                }
                             },
                             {
                                 name: 'Công ty TNHH Ogasachi',
@@ -878,7 +885,12 @@ const LandingPage = () => {
                                 product: 'Sachi hữu cơ',
                                 image: '/images/sachi_farm.png',
                                 result: 'Quản lý 20ha sachi và nhà xưởng 3000m². Minh bạch toàn bộ quy trình với đối tác xuất khẩu Đài Loan.',
-                                stats: ['20 ha', 'Hữu cơ', 'Xuất Đài Loan']
+                                stats: ['20 ha', 'Hữu cơ', 'Xuất Đài Loan'],
+                                detail: {
+                                    challenge: 'Đối tác nước ngoài yêu cầu khắt khe về việc minh bạch quá trình sử dụng phân bón hữu cơ và thuốc BVTV sinh học trong suốt chu kỳ sinh trưởng của cây Sachi.',
+                                    solution: 'Triển khai hệ thống truy xuất nguồn gốc QR code tích hợp với nhật ký sản xuất điện tử. Toàn bộ dữ liệu được lưu trữ không thể thay đổi trên hệ thống.',
+                                    impact: 'Ký kết hợp đồng dài hạn với đối tác Đài Loan, giảm 30% thời gian báo cáo và đối soát dữ liệu chất lượng hàng tháng.'
+                                }
                             },
                             {
                                 name: 'Traphaco Pharma',
@@ -887,14 +899,19 @@ const LandingPage = () => {
                                 product: 'Dược liệu',
                                 image: '/images/medicinal_plants.png',
                                 result: 'Truy xuất nguồn gốc dược liệu từ vùng trồng đến sản xuất. Đảm bảo chất lượng và minh bạch với đối tác.',
-                                stats: ['100+ ha', 'GMP', 'Dược phẩm']
+                                stats: ['100+ ha', 'GMP', 'Dược phẩm'],
+                                detail: {
+                                    challenge: 'Quản lý vùng nguyên liệu dược liệu trải dài trên nhiều tỉnh thành, cần đảm bảo tuân thủ nghiêm ngặt chuẩn GACP-WHO.',
+                                    solution: 'Sử dụng EBookFarm để theo dõi chi tiết từ khâu chọn giống, thổ nhưỡng đến khi thu hoạch và vận chuyển về nhà máy chiết xuất.',
+                                    impact: 'Số hóa hoàn toàn hồ sơ vùng trồng, nâng cao năng lực quản lý chuỗi cung ứng dược liệu sạch, đảm bảo 100% nguyên liệu đầu vào đạt chuẩn.'
+                                }
                             }
                         ].map((story, idx) => (
                             <Col xs={24} md={8} key={idx}>
                                 <Card className="h-full rounded-3xl shadow-sm hover:shadow-2xl transition-all border-gray-100 scroll-reveal hover-lift overflow-hidden" style={{ animationDelay: `${idx * 0.15}s` }} styles={{ body: { padding: 0 } }}>
-                                    <div className="space-y-0">
+                                    <div className="space-y-0 h-full flex flex-col">
                                         {/* Real Success Story Image */}
-                                        <div className="relative h-56 overflow-hidden">
+                                        <div className="relative h-56 overflow-hidden flex-shrink-0">
                                             <img 
                                                 src={story.image} 
                                                 alt={story.name} 
@@ -909,7 +926,7 @@ const LandingPage = () => {
                                             </div>
                                         </div>
 
-                                        <div className="p-6 space-y-6">
+                                        <div className="p-6 space-y-6 flex-1 flex flex-col">
                                             <div className="flex gap-4 text-center">
                                                 <div className="flex-1 p-3 bg-gray-50 rounded-2xl border border-gray-100">
                                                     <Text className="block text-lg font-black text-gray-900">{story.area}</Text>
@@ -921,20 +938,112 @@ const LandingPage = () => {
                                                 </div>
                                             </div>
 
-                                            <Paragraph className="text-gray-500 text-sm leading-relaxed mb-4">
+                                            <Paragraph className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
                                                 {story.result}
                                             </Paragraph>
 
-                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
-                                                {story.stats.map((stat, i) => (
-                                                    <Tag key={i} color="green" className="rounded-full px-3 font-medium border-green-100">{stat}</Tag>
-                                                ))}
+                                            <div className="mt-auto space-y-4">
+                                                <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-50">
+                                                    {story.stats.map((stat, i) => (
+                                                        <Tag key={i} color="green" className="rounded-full px-3 font-medium border-green-100">{stat}</Tag>
+                                                    ))}
+                                                </div>
+                                                <Button 
+                                                    block 
+                                                    className="h-12 rounded-xl font-bold border-gray-200 hover:border-green-500 hover:text-green-600 transition-all"
+                                                    onClick={() => {
+                                                        setSelectedStory(story);
+                                                        setShowStoryModal(true);
+                                                    }}
+                                                >
+                                                    Xem chi tiết câu chuyện
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>
                                 </Card>
                             </Col>
                         ))}
+                    </Row>
+                </div>
+            </section>
+
+            {/* Story Detail Modal */}
+            <Modal
+                open={showStoryModal}
+                onCancel={() => setShowStoryModal(false)}
+                footer={null}
+                width={800}
+                centered
+                styles={{ content: { padding: 0, borderRadius: '32px', overflow: 'hidden' } }}
+                className="story-modal"
+            >
+                {selectedStory && (
+                    <div className="space-y-0">
+                        <div className="relative h-64 overflow-hidden">
+                            <img src={selectedStory.image} alt={selectedStory.name} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                            <div className="absolute bottom-8 left-8 right-8">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Tag color="green" className="rounded-full px-4 border-0 font-bold">Thành công tiêu biểu</Tag>
+                                    <Text className="text-white/80 text-sm"><GlobalOutlined /> {selectedStory.location}</Text>
+                                </div>
+                                <Title level={2} className="!text-white !mb-0 !text-3xl font-black">{selectedStory.name}</Title>
+                            </div>
+                        </div>
+                        <div className="p-8 md:p-10 space-y-8">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="p-4 bg-gray-50 rounded-2xl">
+                                    <Text className="text-xs text-gray-400 block uppercase font-bold mb-1">Diện tích</Text>
+                                    <Text className="text-xl font-black text-gray-900">{selectedStory.area}</Text>
+                                </div>
+                                <div className="p-4 bg-gray-50 rounded-2xl">
+                                    <Text className="text-xs text-gray-400 block uppercase font-bold mb-1">Sản phẩm</Text>
+                                    <Text className="text-xl font-black text-gray-900">{selectedStory.product}</Text>
+                                </div>
+                                <div className="p-4 bg-gray-50 rounded-2xl col-span-2">
+                                    <Text className="text-xs text-gray-400 block uppercase font-bold mb-1">Chứng chỉ hỗ trợ</Text>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedStory.stats.map((s, i) => <Tag key={i} color="blue" className="rounded-full m-0">{s}</Tag>)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <Title level={4} className="!text-red-500 flex items-center gap-2">
+                                        <div className="w-2 h-6 bg-red-500 rounded-full"></div> Thách thức ban đầu
+                                    </Title>
+                                    <Paragraph className="text-gray-600 text-base leading-relaxed">{selectedStory.detail.challenge}</Paragraph>
+                                </div>
+                                <div>
+                                    <Title level={4} className="!text-blue-500 flex items-center gap-2">
+                                        <div className="w-2 h-6 bg-blue-500 rounded-full"></div> Giải pháp từ EBookFarm
+                                    </Title>
+                                    <Paragraph className="text-gray-600 text-base leading-relaxed">{selectedStory.detail.solution}</Paragraph>
+                                </div>
+                                <div>
+                                    <Title level={4} className="!text-green-500 flex items-center gap-2">
+                                        <div className="w-2 h-6 bg-green-500 rounded-full"></div> Kết quả đạt được
+                                    </Title>
+                                    <Paragraph className="text-gray-600 text-base leading-relaxed font-medium">{selectedStory.detail.impact}</Paragraph>
+                                </div>
+                            </div>
+
+                            <Divider />
+                            <div className="flex justify-between items-center bg-green-50 p-6 rounded-3xl">
+                                <div className="space-y-1">
+                                    <Text className="text-gray-500 text-sm block">Bạn muốn đạt được thành công tương tự?</Text>
+                                    <Text strong className="text-green-700 text-lg">Đăng ký tư vấn giải pháp ngay hôm nay!</Text>
+                                </div>
+                                <Button type="primary" size="large" className="bg-green-600 border-0 h-12 rounded-xl font-bold" onClick={() => setShowStoryModal(false)}>
+                                    Nhận tư vấn ngay
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
                     </Row>
                 </div>
             </section>
