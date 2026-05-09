@@ -9,7 +9,9 @@ import {
     FacebookFilled,
     TwitterCircleFilled,
     LinkedinFilled,
-    CopyOutlined
+    CopyOutlined,
+    BookOutlined,
+    MoreOutlined
 } from '@ant-design/icons';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -134,8 +136,8 @@ const NewsDetail = () => {
                                     </div>
                                 </div>
                                 <Space>
-                                    <Button shape="circle" icon={<BookmarkOutlined />} className="border-gray-200 text-gray-400" />
-                                    <Button shape="circle" icon={<MoreOutlined />} className="border-gray-200 text-gray-400" />
+                                    <BookOutlined className="text-gray-400 hover:text-black cursor-pointer" />
+                                    <MoreOutlined className="text-gray-400 hover:text-black cursor-pointer" />
                                 </Space>
                             </div>
 

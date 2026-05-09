@@ -5,7 +5,7 @@ import {
     CalendarOutlined, 
     ClockCircleOutlined, 
     CheckCircleFilled, 
-    BookmarkOutlined, 
+    BookOutlined, 
     MoreOutlined,
     FireOutlined
 } from '@ant-design/icons';
@@ -86,7 +86,7 @@ const NewsListAll = () => {
                                                 </Text>
                                             </div>
                                             <Space className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <BookmarkOutlined className="hover:text-black" />
+                                                <BookOutlined className="hover:text-black" />
                                                 <MoreOutlined className="hover:text-black" />
                                             </Space>
                                         </div>
