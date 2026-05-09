@@ -462,7 +462,7 @@ const HtxJournalMgmt = () => {
     {
       title: 'THAO TÁC',
       key: 'action',
-      align: 'right',
+      align: 'center',
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Thêm nông dân">
@@ -826,7 +826,7 @@ const HtxJournalMgmt = () => {
                   {
                     title: 'HÀNH ĐỘNG',
                     key: 'action',
-                    align: 'right',
+                    align: 'center',
                     render: (_, record) => (
                       <Space>
                         {record.farmJournalId ? (

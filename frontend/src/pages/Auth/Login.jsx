@@ -188,7 +188,6 @@ const Login = () => {
                             onError={() => message.error('Không thể kết nối với máy chủ Google.')}
                             shape="pill"
                             theme="outline"
-                            useOneTap
                             width="280"
                         />
                     </div>
