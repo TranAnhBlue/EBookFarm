@@ -23,7 +23,8 @@ import {
     ShopOutlined,
     CheckOutlined,
     CameraOutlined,
-    EnvironmentOutlined
+    EnvironmentOutlined,
+    SettingOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
