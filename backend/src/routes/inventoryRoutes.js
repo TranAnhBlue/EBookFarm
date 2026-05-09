@@ -5,6 +5,7 @@ const {
   getInventory,
   addItem,
   distributeItem,
+  consumeItem,
   getTransactions
 } = require('../controllers/inventoryController');
 
@@ -13,6 +14,7 @@ router.use(protect);
 router.get('/', getInventory);
 router.post('/add', addItem);
 router.post('/distribute', distributeItem);
+router.post('/consume', consumeItem);
 router.get('/transactions', getTransactions);
 
 module.exports = router;

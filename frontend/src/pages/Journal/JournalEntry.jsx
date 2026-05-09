@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload } from 'antd';
+import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { InboxOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -2053,6 +2053,30 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   };
 
   const [activeTab, setActiveTab] = useState("0");
+  
+  // Fetch farmer inventory
+  const { data: inventory } = useQuery({
+    queryKey: ['farmer-inventory'],
+    queryFn: () => api.get('/inventory').then(res => res.data.data),
+    enabled: !!user && user.role?.toUpperCase() === 'FARMER'
+  });
+
+  const getInventoryOptions = (fieldLabel) => {
+    if (!inventory) return [];
+    const label = fieldLabel.toLowerCase();
+    
+    // Phân loại vật tư dựa trên nhãn trường
+    let category = '';
+    if (label.includes('phân bón')) category = 'Phân bón';
+    else if (label.includes('thuốc')) category = 'Thuốc BVTV';
+    else if (label.includes('giống')) category = 'Giống';
+    else if (label.includes('thức ăn')) category = 'Thức ăn';
+
+    if (category) {
+        return inventory.filter(item => item.category === category || !item.category);
+    }
+    return inventory;
+  };
 
   useEffect(() => {
     if (activeSchemaId) {
@@ -2099,13 +2123,60 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                             className="mb-4"
                         >
                             {field.type === 'text' && (
-                                <Input 
-                                    size="large" 
-                                    className="rounded-xl border-gray-200"
-                                    placeholder={`Nhập ${field.label.toLowerCase()}`}
-                                    maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('tenCoSo') || field.name.includes('hoTen') ? 100 : 50}
-                                    showCount={field.name.includes('diaChi') || field.name.includes('tenCoSo') || field.name.includes('hoTen')}
-                                />
+                                (() => {
+                                    const options = getInventoryOptions(field.label);
+                                    const isSupplyField = field.label.toLowerCase().includes('phân bón') || 
+                                                         field.label.toLowerCase().includes('thuốc') || 
+                                                         field.label.toLowerCase().includes('vật tư') ||
+                                                         field.label.toLowerCase().includes('giống') ||
+                                                         field.label.toLowerCase().includes('thức ăn');
+                                    
+                                    if (isSupplyField && options.length > 0) {
+                                        return (
+                                            <Select 
+                                                size="large" 
+                                                className="rounded-xl border-gray-200"
+                                                placeholder={`Chọn ${field.label.toLowerCase()} từ kho`}
+                                                showSearch
+                                                allowClear
+                                                onChange={(value) => {
+                                                    // Tìm vật tư để lấy đơn vị nếu có trường đơn vị tương ứng
+                                                    const selected = options.find(o => o.name === value);
+                                                    if (selected) {
+                                                        // Tự động tìm trường đơn vị trong cùng bảng
+                                                        const unitFieldName = table.fields.find(f => 
+                                                            f.label.toLowerCase().includes('đơn vị') || 
+                                                            f.name.toLowerCase().includes('donvi')
+                                                        )?.name;
+                                                        if (unitFieldName) {
+                                                            form.setFieldValue([table.tableName, unitFieldName], selected.unit);
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                {options.map(item => (
+                                                    <Option key={item._id} value={item.name}>
+                                                        <div className="flex justify-between items-center w-full">
+                                                            <span>{item.name}</span>
+                                                            <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
+                                                                Kho: {item.quantity} {item.unit}
+                                                            </Tag>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        );
+                                    }
+                                    return (
+                                        <Input 
+                                            size="large" 
+                                            className="rounded-xl border-gray-200"
+                                            placeholder={`Nhập ${field.label.toLowerCase()}`}
+                                            maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('tenCoSo') || field.name.includes('hoTen') ? 100 : 50}
+                                            showCount={field.name.includes('diaChi') || field.name.includes('tenCoSo') || field.name.includes('hoTen')}
+                                        />
+                                    );
+                                })()
                             )}
                             {field.type === 'number' && (
                                 <InputNumber 
@@ -2193,8 +2264,48 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             form={form} 
             layout="vertical" 
             disabled={isReadOnly}
-            onFinish={(values) => {
+            onFinish={async (values) => {
                 console.log('📝 Form onFinish triggered with values:', values);
+                
+                // Xử lý trừ tồn kho nếu có sử dụng vật tư
+                if (user?.role?.toUpperCase() === 'FARMER' && inventory) {
+                    try {
+                        for (const tableName in values) {
+                            if (tableName === 'status') continue;
+                            const tableData = values[tableName];
+                            
+                            // Tìm các trường vật tư và số lượng trong bảng này
+                            for (const fieldName in tableData) {
+                                const fieldValue = tableData[fieldName];
+                                if (!fieldValue) continue;
+
+                                // Tìm vật tư trong kho khớp với tên đã chọn
+                                const inventoryItem = inventory.find(item => item.name === fieldValue);
+                                
+                                if (inventoryItem) {
+                                    // Tìm trường số lượng tương ứng trong bảng này
+                                    const quantityField = schema.tables.find(t => t.tableName === tableName)
+                                        ?.fields.find(f => f.label.toLowerCase().includes('số lượng') || f.name.toLowerCase().includes('soluong'))?.name;
+                                    
+                                    const usageQty = tableData[quantityField];
+                                    
+                                    if (usageQty && Number(usageQty) > 0) {
+                                        await api.post('/inventory/consume', {
+                                            itemId: inventoryItem._id,
+                                            quantity: Number(usageQty),
+                                            note: `Sử dụng cho nhật ký: ${schema.name} - Bảng: ${tableName}`,
+                                            journalId: isEditing ? id : 'Mới'
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi trừ tồn kho:', error);
+                        message.warning('Nhật ký đã lưu nhưng có lỗi khi cập nhật tồn kho vật tư.');
+                    }
+                }
+
                 saveMutation.mutate(values);
             }}
             preserve={true}

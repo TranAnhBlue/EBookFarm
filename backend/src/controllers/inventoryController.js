@@ -119,9 +119,37 @@ const getTransactions = async (req, res) => {
   }
 };
 
+// Nông dân sử dụng vật tư (Trừ kho khi ghi nhật ký)
+const consumeItem = async (req, res) => {
+  try {
+    const { itemId, quantity, note, journalId } = req.body;
+    const userId = req.user._id;
+
+    const item = await InventoryItem.findOne({ _id: itemId, owner: userId });
+    if (!item) return res.status(404).json({ success: false, message: 'Vật tư không tồn tại trong kho của bạn.' });
+    if (item.quantity < quantity) return res.status(400).json({ success: false, message: 'Số lượng trong kho không đủ.' });
+
+    item.quantity -= Number(quantity);
+    await item.save();
+
+    await InventoryTransaction.create({
+      itemId: item._id,
+      type: 'Export', 
+      quantity: Number(quantity),
+      performedBy: userId,
+      note: note || `Sử dụng trong nhật ký: ${journalId || 'N/A'}`
+    });
+
+    res.json({ success: true, message: 'Đã trừ tồn kho vật tư.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getInventory,
   addItem,
   distributeItem,
-  getTransactions
+  getTransactions,
+  consumeItem
 };
