@@ -32,8 +32,22 @@ const FarmerInventory = () => {
 
   const invColumns = [
     {
+      title: 'STT',
+      key: 'index',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <span className="text-gray-400 font-medium">{index + 1}</span>
+    },
+    {
       title: 'Tên Vật tư',
       key: 'name',
+      filters: [
+        { text: 'Phân bón', value: 'Phân bón' },
+        { text: 'Thuốc BVTV', value: 'Thuốc BVTV' },
+        { text: 'Giống', value: 'Giống' },
+        { text: 'Vật tư khác', value: 'Khác' }
+      ],
+      onFilter: (value, record) => record.category === value,
       render: (_, record) => (
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
@@ -73,6 +87,13 @@ const FarmerInventory = () => {
 
   const transColumns = [
     {
+      title: 'STT',
+      key: 'index',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <span className="text-gray-400 font-medium">{index + 1}</span>
+    },
+    {
       title: 'Thời gian',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -81,6 +102,12 @@ const FarmerInventory = () => {
     {
       title: 'Loại giao dịch',
       key: 'type',
+      filters: [
+        { text: 'Nhập kho', value: 'Import' },
+        { text: 'Được HTX cấp phát', value: 'Distribute' },
+        { text: 'Đã sử dụng', value: 'Export' }
+      ],
+      onFilter: (value, record) => record.type === value,
       render: (_, record) => {
         if (record.type === 'Import') return <Tag icon={<ArrowDownOutlined />} color="blue">Nhập kho</Tag>;
         if (record.type === 'Distribute') return <Tag icon={<ArrowDownOutlined />} color="purple">Được HTX cấp phát</Tag>;

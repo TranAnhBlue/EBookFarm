@@ -88,9 +88,23 @@ const HtxInventoryMgmt = () => {
 
   const columns = [
     {
+      title: 'STT',
+      key: 'index',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <span className="text-gray-400 font-medium">{index + 1}</span>
+    },
+    {
       title: 'TÊN VẬT TƯ',
       dataIndex: 'name',
       key: 'name',
+      filters: [
+        { text: 'Phân bón', value: 'Phân bón' },
+        { text: 'Thuốc BVTV', value: 'Thuốc BVTV' },
+        { text: 'Giống', value: 'Giống' },
+        { text: 'Vật tư khác', value: 'Khác' }
+      ],
+      onFilter: (value, record) => record.category === value,
       render: (text, record) => (
         <Space>
           <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
@@ -143,6 +157,13 @@ const HtxInventoryMgmt = () => {
 
   const transactionColumns = [
     {
+      title: 'STT',
+      key: 'index',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <span className="text-gray-400 font-medium">{index + 1}</span>
+    },
+    {
       title: 'THỜI GIAN',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -152,6 +173,12 @@ const HtxInventoryMgmt = () => {
       title: 'LOẠI',
       dataIndex: 'type',
       key: 'type',
+      filters: [
+        { text: 'Nhập kho', value: 'Import' },
+        { text: 'Xuất kho', value: 'Export' },
+        { text: 'Cấp phát', value: 'Distribute' }
+      ],
+      onFilter: (value, record) => record.type === value,
       render: (type) => {
         const config = {
           Import: { color: 'green', text: 'Nhập kho' },
