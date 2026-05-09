@@ -554,7 +554,7 @@ const JournalList = () => {
                             <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
                             <div className="text-right leading-tight">
                               <Text strong>
-                                {getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'Địa chỉ sản xuất', 'dia_chi']) || 
+                                {getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'Địa chỉ sản xuất', 'dia_chi', 'address', 'location', 'dia_diem']) || 
                                  <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}
                               </Text>
                             </div>

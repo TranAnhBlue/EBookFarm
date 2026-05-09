@@ -2154,7 +2154,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           const field = schema.tables.find(t => t.tableName === tableName)
             ?.fields.find(f => f.name === fieldName);
           
-          if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón'))) {
+          if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón') || field.label.toLowerCase().includes('lượng dùng'))) {
             // Tìm field vật tư tương ứng trong cùng bảng
             const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
               ?.fields.find(f => 
@@ -2169,17 +2169,39 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             if (selectedSupplyId) {
               const invItem = inventory?.find(item => item._id === selectedSupplyId);
               if (invItem) {
-                consumePromises.push(
-                  api.post('/inventory/consume', {
-                    itemId: invItem._id,
-                    quantity: Number(value),
-                    note: `Trừ kho tự động từ nhật ký: ${schema.name}`,
-                    journalId: id
-                  }).catch(err => {
-                    console.error('Lỗi trừ kho:', err);
-                    message.warning(`Không thể trừ kho cho ${invItem.name}: ${err.response?.data?.message || 'Lỗi chưa xác định'}`);
-                  })
-                );
+                // Tính toán độ lệch khi Sửa (Edit)
+                let quantityToDeduct = Number(value);
+                let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
+                
+                if (isEditing && journalData?.entries && journalData.entries[tableName]) {
+                    const oldTableData = journalData.entries[tableName];
+                    const oldSupplyId = oldTableData[supplyFieldName];
+                    const oldQuantity = Number(oldTableData[fieldName]) || 0;
+                    
+                    if (oldSupplyId === selectedSupplyId) {
+                        // Cùng 1 vật tư, chỉ trừ phần chênh lệch (nếu số lượng tăng lên) hoặc cộng lại (nếu số lượng giảm xuống)
+                        quantityToDeduct = Number(value) - oldQuantity;
+                        if (quantityToDeduct < 0) {
+                            noteText = `Hoàn trả kho tự động (do sửa giảm số lượng) từ sổ: ${schema.name}`;
+                        } else if (quantityToDeduct > 0) {
+                            noteText = `Trừ kho bổ sung (do sửa tăng số lượng) từ sổ: ${schema.name}`;
+                        }
+                    }
+                }
+
+                if (quantityToDeduct !== 0) {
+                    consumePromises.push(
+                      api.post('/inventory/consume', {
+                        itemId: invItem._id,
+                        quantity: quantityToDeduct,
+                        note: noteText,
+                        journalId: id
+                      }).catch(err => {
+                        console.error('Lỗi trừ kho:', err);
+                        message.warning(`Không thể cập nhật kho cho ${invItem.name}: ${err.response?.data?.message || 'Lỗi chưa xác định'}`);
+                      })
+                    );
+                }
               }
             }
           }
@@ -2197,7 +2219,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       }
       
       queryClient.invalidateQueries(['journals']);
-      queryClient.invalidateQueries(['inventory']);
+      queryClient.invalidateQueries(['farmer-inventory']); // Khớp đúng key để làm mới kho ngay lập tức
       navigate(-1);
     } catch (error) {
       console.error('Save error:', error);
