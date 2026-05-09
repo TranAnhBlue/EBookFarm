@@ -2334,57 +2334,18 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                                 })()
                             )}
                             {field.type === 'number' && (
-                                <Form.Item
-                                    noStyle
-                                    dependencies={[[table.tableName, table.fields.find(f => 
-                                        f.label.toLowerCase().includes('phân bón') || 
-                                        f.label.toLowerCase().includes('thuốc') || 
-                                        f.label.toLowerCase().includes('vật tư') ||
-                                        f.label.toLowerCase().includes('giống') ||
-                                        f.label.toLowerCase().includes('thức ăn')
-                                    )?.name]]}
-                                >
-                                    {({ getFieldValue }) => {
-                                        // Tìm tên vật tư đã chọn trong bảng này
-                                        const supplyFieldName = table.fields.find(f => 
-                                            f.label.toLowerCase().includes('phân bón') || 
-                                            f.label.toLowerCase().includes('thuốc') || 
-                                            f.label.toLowerCase().includes('vật tư') ||
-                                            f.label.toLowerCase().includes('giống') ||
-                                            f.label.toLowerCase().includes('thức ăn')
-                                        )?.name;
-                                        
-                                        const selectedSupplyId = getFieldValue([table.tableName, supplyFieldName]);
-                                        const inventoryItem = inventory?.find(item => item._id === selectedSupplyId);
-
-                                        return (
-                                            <InputNumber 
-                                                size="large" 
-                                                className="w-full rounded-xl border-gray-200"
-                                                placeholder={`Nhập ${field.label.toLowerCase()}`}
-                                                min={0}
-                                                status={(() => {
-                                                    const isOver = inventoryItem && 
-                                                        (field.label.toLowerCase().includes('số lượng') || field.name.toLowerCase().includes('soluong') || field.label.toLowerCase().includes('lượng bón')) && 
-                                                        Number(getFieldValue([table.tableName, field.name])) > Number(inventoryItem.quantity);
-                                                    
-                                                    if (isOver) console.warn('InputNumber STATUS ERROR:', { 
-                                                        input: getFieldValue([table.tableName, field.name]), 
-                                                        stock: inventoryItem.quantity 
-                                                    });
-                                                    
-                                                    return isOver ? 'error' : '';
-                                                })()}
-                                                max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
-                                                formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
-                                                parser={field.name.includes('dienTich') ? (value) => {
-                                                    const parsed = value.replace(/\$\s?|(,*)/g, '');
-                                                    return parsed ? Number(parsed) : '';
-                                                } : undefined}
-                                            />
-                                        );
-                                    }}
-                                </Form.Item>
+                                <InputNumber 
+                                    size="large" 
+                                    className="w-full rounded-xl border-gray-200"
+                                    placeholder={`Nhập ${field.label.toLowerCase()}`}
+                                    min={0}
+                                    max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
+                                    formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
+                                    parser={field.name.includes('dienTich') ? (value) => {
+                                        const parsed = value.replace(/\$\s?|(,*)/g, '');
+                                        return parsed ? Number(parsed) : '';
+                                    } : undefined}
+                                />
                             )}
                             {field.type === 'date' && (
                                 <DatePicker 
