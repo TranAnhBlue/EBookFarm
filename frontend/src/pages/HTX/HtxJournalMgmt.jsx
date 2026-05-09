@@ -26,7 +26,6 @@ import { useAuthStore } from '../../store/authStore';
 import dayjs from 'dayjs';
 import JournalEntry from '../Journal/JournalEntry';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
-import dayjs from 'dayjs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import logoEBookFarm from '../../assets/logo-ebookfarm.jpg';
