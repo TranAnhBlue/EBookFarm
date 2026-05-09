@@ -5,6 +5,7 @@ const newsSchema = new mongoose.Schema({
   summary: { type: String, required: true },
   content: { type: String },
   image: { type: String, default: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=800&q=80' },
+  gallery: [{ type: String }],
   category: { 
     type: String, 
     enum: ['Sản xuất', 'Công nghệ', 'Thị trường', 'Thông báo'],

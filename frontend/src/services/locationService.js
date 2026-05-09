@@ -2,6 +2,7 @@ import axios from 'axios';
 
 /**
  * API v2 — Dữ liệu sau sáp nhập tỉnh thành 07/2025
+ * Sau sáp nhập: cấp huyện bị bãi bỏ → Tỉnh/TP → Xã/Phường trực tiếp
  * Docs: https://provinces.open-api.vn/
  */
 const LOCATION_API = 'https://provinces.open-api.vn/api/v2';
@@ -16,7 +17,7 @@ const cached = async (key, fetcher) => {
 // ───────────────────────────────────────────────────────────────────────────
 
 /**
- * Lấy danh sách tỉnh/thành phố (sau sáp nhập)
+ * Lấy danh sách tỉnh/thành phố (sau sáp nhập, còn 34 tỉnh)
  * @returns {Array<{ code, name, fullName }>}
  */
 export const getProvinces = () =>
@@ -34,40 +35,21 @@ export const getProvinces = () =>
   });
 
 /**
- * Lấy danh sách quận/huyện theo tỉnh (sau sáp nhập)
+ * Lấy danh sách phường/xã theo tỉnh (sau sáp nhập, không còn cấp huyện)
+ * API v2 trả về `wards` trực tiếp từ province với depth=2
  * @param {number|string} provinceCode
- * @returns {Array<{ code, name, fullName }>}
+ * @returns {Array<{ code, name, fullName, divisionType }>}
  */
-export const getDistrictsByProvince = (provinceCode) => {
+export const getWardsByProvince = (provinceCode) => {
   if (!provinceCode) return Promise.resolve([]);
-  return cached(`districts_${provinceCode}`, async () => {
+  return cached(`wards_${provinceCode}`, async () => {
     try {
       const { data } = await axios.get(`${LOCATION_API}/p/${provinceCode}?depth=2`);
-      return (data?.districts || []).map(d => ({
-        code: d.code,
-        name: d.name,
-        fullName: d.full_name || d.name,
-      }));
-    } catch {
-      return [];
-    }
-  });
-};
-
-/**
- * Lấy danh sách phường/xã theo quận/huyện (sau sáp nhập)
- * @param {number|string} districtCode
- * @returns {Array<{ code, name, fullName }>}
- */
-export const getWardsByDistrict = (districtCode) => {
-  if (!districtCode) return Promise.resolve([]);
-  return cached(`wards_${districtCode}`, async () => {
-    try {
-      const { data } = await axios.get(`${LOCATION_API}/d/${districtCode}?depth=2`);
       return (data?.wards || []).map(w => ({
         code: w.code,
         name: w.name,
         fullName: w.full_name || w.name,
+        divisionType: w.division_type, // 'phường' | 'xã' | 'thị trấn'
       }));
     } catch {
       return [];
@@ -75,5 +57,7 @@ export const getWardsByDistrict = (districtCode) => {
   });
 };
 
-// Giữ lại export này để tránh lỗi nếu có nơi nào đó import
+// Giữ lại để không breaking change nếu có nơi dùng API cũ
+export const getDistrictsByProvince = () => Promise.resolve([]);
+export const getWardsByDistrict = () => Promise.resolve([]);
 export const checkMergeWarning = () => null;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     Table, Button, Modal, Form, Input, Select, Space, Tag, Typography,
     message, Card, Popconfirm, Upload, Image, Drawer, Row, Col, Divider, Badge
@@ -35,11 +35,14 @@ const NewsManagement = () => {
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [sortOrder, setSortOrder] = useState('newest');
 
-    // Upload state
     const [coverFileList, setCoverFileList] = useState([]);
     const [galleryFileList, setGalleryFileList] = useState([]);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
+
+    // Dùng ref để lưu URL đã upload — tránh bị ghi đè bởi Ant Design internal state
+    const coverUrlRef = useRef(null);
+    const galleryUrlsRef = useRef([]);
 
     const { data: newsList, isLoading } = useQuery({
         queryKey: ['news'],
@@ -113,14 +116,29 @@ const NewsManagement = () => {
             content: record.content,
             image: record.image,
         });
-        // Nếu có ảnh cover, hiển thị vào upload
+        // Reset refs
+        coverUrlRef.current = record.image || null;
+        galleryUrlsRef.current = record.gallery || [];
+
+        // Hiển thị ảnh cover hiện tại
         if (record.image) {
             setCoverFileList([{
-                uid: '-1',
-                name: 'cover',
-                status: 'done',
+                uid: '-1', name: 'cover', status: 'done',
                 url: record.image.startsWith('http') ? record.image : `${API_BASE}${record.image}`,
+                thumbUrl: record.image.startsWith('http') ? record.image : `${API_BASE}${record.image}`,
             }]);
+        } else {
+            setCoverFileList([]);
+        }
+        // Hiển thị gallery hiện tại
+        if (record.gallery?.length) {
+            setGalleryFileList(record.gallery.map((url, i) => ({
+                uid: `-g${i}`, name: `gallery-${i}`, status: 'done',
+                url: url.startsWith('http') ? url : `${API_BASE}${url}`,
+                thumbUrl: url.startsWith('http') ? url : `${API_BASE}${url}`,
+            })));
+        } else {
+            setGalleryFileList([]);
         }
         setDrawerOpen(true);
     };
@@ -131,19 +149,14 @@ const NewsManagement = () => {
         form.resetFields();
         setCoverFileList([]);
         setGalleryFileList([]);
+        coverUrlRef.current = null;
+        galleryUrlsRef.current = [];
     };
 
     const onFinish = async (values) => {
-        // Lấy URL ảnh cover từ state upload hoặc từ form
-        let imageUrl = values.image;
-        if (coverFileList.length > 0 && coverFileList[0].url) {
-            imageUrl = coverFileList[0].url;
-        }
-
-        // Lấy danh sách ảnh bổ sung
-        const galleryUrls = galleryFileList
-            .filter(f => f.status === 'done' && f.url)
-            .map(f => f.url);
+        // Ưu tiên: ảnh upload mới > URL nhập tay > ảnh cũ
+        const imageUrl = coverUrlRef.current || values.image || null;
+        const galleryUrls = galleryUrlsRef.current;
 
         const payload = {
             ...values,
@@ -158,47 +171,55 @@ const NewsManagement = () => {
         }
     };
 
-    // Custom upload request cho ảnh cover
+    // Cover upload — lưu URL vào ref ngay khi upload xong
     const coverUploadProps = {
         listType: 'picture-card',
         fileList: coverFileList,
         maxCount: 1,
         accept: 'image/*',
         customRequest: async ({ file, onSuccess, onError }) => {
-            const url = await handleUpload(file, 'cover');
+            const url = await handleUpload(file);
             if (url) {
-                const fileUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
-                setCoverFileList([{ uid: file.uid, name: file.name, status: 'done', url: fileUrl }]);
+                coverUrlRef.current = url;
+                const displayUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+                setCoverFileList([{ uid: file.uid, name: file.name, status: 'done', url: displayUrl, thumbUrl: displayUrl }]);
                 onSuccess(url);
             } else {
                 onError(new Error('Upload failed'));
             }
         },
-        onChange: ({ fileList }) => setCoverFileList(fileList),
-        onPreview: (file) => { setPreviewImage(file.url); setPreviewOpen(true); },
-        onRemove: () => setCoverFileList([]),
+        // KHÔNG dùng onChange để tránh ghi đè url
+        onPreview: (file) => { setPreviewImage(file.url || file.thumbUrl); setPreviewOpen(true); },
+        onRemove: () => { setCoverFileList([]); coverUrlRef.current = null; },
     };
 
-    // Custom upload request cho ảnh gallery
+    // Gallery upload — lưu URLs vào ref
     const galleryUploadProps = {
         listType: 'picture-card',
         fileList: galleryFileList,
         accept: 'image/*',
         multiple: true,
         customRequest: async ({ file, onSuccess, onError }) => {
-            const url = await handleUpload(file, 'gallery');
+            const url = await handleUpload(file);
             if (url) {
-                const fileUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
-                setGalleryFileList(prev => [...prev.filter(f => f.uid !== file.uid), {
-                    uid: file.uid, name: file.name, status: 'done', url: fileUrl
-                }]);
+                const displayUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+                // Thêm vào ref
+                galleryUrlsRef.current = [...galleryUrlsRef.current.filter(u => u !== displayUrl), url];
+                setGalleryFileList(prev => [
+                    ...prev.filter(f => f.uid !== file.uid),
+                    { uid: file.uid, name: file.name, status: 'done', url: displayUrl, thumbUrl: displayUrl }
+                ]);
                 onSuccess(url);
             } else {
                 onError(new Error('Upload failed'));
             }
         },
-        onChange: ({ fileList }) => setGalleryFileList(fileList),
-        onPreview: (file) => { setPreviewImage(file.url); setPreviewOpen(true); },
+        // KHÔNG dùng onChange để tránh mất url
+        onPreview: (file) => { setPreviewImage(file.url || file.thumbUrl); setPreviewOpen(true); },
+        onRemove: (file) => {
+            setGalleryFileList(prev => prev.filter(f => f.uid !== file.uid));
+            galleryUrlsRef.current = galleryUrlsRef.current.filter(u => !file.url?.includes(u) && !u.includes(file.url));
+        },
     };
 
     const columns = [
