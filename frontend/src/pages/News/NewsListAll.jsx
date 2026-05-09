@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Row, Col, Typography, Button, Skeleton, Space, Tag, Avatar, Divider, Card } from 'antd';
+import { Row, Col, Typography, Button, Skeleton, Space, Tag, Avatar, Divider, Card, Tabs } from 'antd';
 import { 
     ArrowLeftOutlined, 
     CalendarOutlined, 
@@ -7,7 +7,10 @@ import {
     CheckCircleFilled, 
     BookOutlined, 
     MoreOutlined,
-    FireOutlined
+    FireOutlined,
+    GlobalOutlined,
+    YoutubeFilled,
+    FacebookFilled
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -23,7 +26,7 @@ const { Title, Text, Paragraph } = Typography;
 
 const NewsListAll = () => {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('Tất cả');
 
     const { data: newsItems = [], isLoading } = useQuery({
         queryKey: ['news-all'],
@@ -34,7 +37,7 @@ const NewsListAll = () => {
     });
 
     const categories = ['Tất cả', ...new Set(newsItems.map(item => item.category))];
-    const filteredNews = selectedCategory && selectedCategory !== 'Tất cả'
+    const filteredNews = selectedCategory !== 'Tất cả'
         ? newsItems.filter(n => n.category === selectedCategory)
         : newsItems;
 
@@ -47,86 +50,111 @@ const NewsListAll = () => {
     return (
         <div className="bg-white min-h-screen font-['Inter',_sans-serif]">
             <div className="max-w-7xl mx-auto px-6 py-10 animate-in fade-in duration-700">
-                {/* Header Section */}
+                {/* Back Button */}
+                <Button 
+                    type="text" 
+                    icon={<ArrowLeftOutlined />} 
+                    onClick={() => navigate(-1)}
+                    className="text-gray-500 hover:text-green-600 font-bold p-0 mb-8 flex items-center gap-2 group"
+                >
+                    QUAY LẠI
+                </Button>
+
                 <div className="mb-12">
-                    <Button 
-                        type="text" 
-                        icon={<ArrowLeftOutlined />} 
-                        onClick={() => navigate(-1)}
-                        className="text-gray-500 hover:text-green-600 font-medium p-0 mb-6 flex items-center"
-                    >
-                        Quay lại
-                    </Button>
-                    <Title level={1} className="!text-[#292929] !font-black !mb-2 !text-4xl tracking-tight">Bài viết nổi bật</Title>
-                    <Text className="text-[#505050] text-lg">Tổng hợp các bài viết chia sẻ về nông nghiệp sạch và công nghệ số.</Text>
+                    <Title level={1} className="!text-[#242424] !font-black !mb-4 !text-4xl md:!text-5xl tracking-tight">Bài viết nổi bật</Title>
+                    <Paragraph className="text-[#505050] text-lg max-w-3xl leading-relaxed">
+                        Tổng hợp các bài viết chia sẻ về kinh nghiệm sản xuất nông nghiệp sạch, 
+                        ứng dụng công nghệ số và cập nhật biến động thị trường mới nhất.
+                    </Paragraph>
                 </div>
 
-                <Row gutter={48}>
+                {/* Category Tabs (F8 Style) */}
+                <div className="mb-10 border-b border-gray-100 overflow-x-auto">
+                    <div className="flex items-center gap-8 pb-3 min-w-max">
+                        {categories.map(cat => (
+                            <div 
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`cursor-pointer font-bold text-sm transition-all pb-3 relative ${
+                                    selectedCategory === cat 
+                                    ? 'text-[#242424] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#242424]' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            >
+                                {cat.toUpperCase()}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <Row gutter={64}>
                     {/* Main Content: Post List */}
-                    <Col xs={24} lg={17}>
+                    <Col xs={24} lg={16}>
                         {isLoading ? (
-                            <div className="space-y-8">
-                                {[1, 2, 3].map(i => <Skeleton key={i} active avatar paragraph={{ rows: 4 }} />)}
+                            <div className="space-y-12">
+                                {[1, 2, 3].map(i => <Skeleton key={i} active avatar={{ size: 32 }} paragraph={{ rows: 4 }} />)}
                             </div>
                         ) : filteredNews.length > 0 ? (
-                            <div className="space-y-10">
+                            <div className="space-y-12">
                                 {filteredNews.map((news, index) => (
-                                    <div 
+                                    <article 
                                         key={news._id || index}
-                                        className="group cursor-pointer border-b border-gray-100 pb-10 last:border-0"
+                                        className="group cursor-pointer"
                                         onClick={() => navigate(`/news/${news._id}`)}
                                     >
-                                        {/* Author Header */}
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <Avatar size={28} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} />
-                                                <Text className="font-bold text-[#292929] text-sm flex items-center gap-1">
-                                                    {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
-                                                    <CheckCircleFilled className="text-blue-500 text-[10px]" />
-                                                </Text>
+                                        <div className="bg-white rounded-[16px] border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-transparent">
+                                            {/* Author Header */}
+                                            <div className="flex items-center justify-between mb-5">
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar size={32} src={`https://i.pravatar.cc/150?u=${(typeof news.author === 'object' ? (news.author.username || news.author._id) : news.author) || 'admin'}`} className="border border-gray-100" />
+                                                    <Text className="font-bold text-[#242424] text-sm flex items-center gap-1.5">
+                                                        {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
+                                                        <CheckCircleFilled className="text-blue-500 text-[11px]" />
+                                                    </Text>
+                                                </div>
+                                                <Space className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <BookOutlined className="text-lg hover:text-black" />
+                                                    <MoreOutlined className="text-lg hover:text-black" />
+                                                </Space>
                                             </div>
-                                            <Space className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <BookOutlined className="hover:text-black" />
-                                                <MoreOutlined className="hover:text-black" />
-                                            </Space>
-                                        </div>
 
-                                        {/* Post Body */}
-                                        <div className="flex flex-col md:flex-row gap-6">
-                                            <div className="flex-1">
-                                                <Title level={3} className="!text-[#292929] !font-bold !mb-3 !text-xl group-hover:text-green-600 transition-colors leading-tight">
-                                                    {news.title}
-                                                </Title>
-                                                <Paragraph className="text-[#505050] text-sm md:text-base line-clamp-3 mb-4 leading-relaxed">
-                                                    {news.summary}
-                                                </Paragraph>
-                                                <div className="flex items-center gap-3 text-xs text-gray-500">
-                                                    <Tag className="rounded-full bg-gray-100 border-0 text-[#505050] font-semibold px-3 py-0.5 m-0">
-                                                        {news.category}
-                                                    </Tag>
-                                                    <span className="flex items-center gap-1">
-                                                        <CalendarOutlined /> {dayjs(news.publishedAt).fromNow()}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <ClockCircleOutlined /> 6 phút đọc
-                                                    </span>
+                                            {/* Post Body (Flex) */}
+                                            <div className="flex flex-col-reverse md:flex-row gap-8">
+                                                <div className="flex-1">
+                                                    <Title level={2} className="!text-[#242424] !font-black !mb-3 !text-xl md:!text-2xl group-hover:text-green-600 transition-colors leading-snug tracking-tight">
+                                                        {news.title}
+                                                    </Title>
+                                                    <Paragraph className="text-[#505050] text-sm md:text-base line-clamp-3 mb-5 leading-relaxed">
+                                                        {news.summary}
+                                                    </Paragraph>
+                                                    <div className="flex items-center gap-4 text-xs text-gray-500 font-medium">
+                                                        <span className="bg-gray-100 text-[#505050] px-3 py-1 rounded-full font-bold">
+                                                            {news.category}
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <CalendarOutlined /> {dayjs(news.publishedAt).fromNow()}
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <ClockCircleOutlined /> 6 phút đọc
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full md:w-[240px] aspect-[16/9] md:aspect-square lg:aspect-[16/10] flex-shrink-0 overflow-hidden rounded-[16px]">
+                                                    <img
+                                                        src={news.image || getFallbackImage(news.category)}
+                                                        alt={news.title}
+                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    />
                                                 </div>
                                             </div>
-                                            <div className="w-full md:w-48 h-32 flex-shrink-0">
-                                                <img
-                                                    src={news.image || getFallbackImage(news.category)}
-                                                    alt={news.title}
-                                                    className="w-full h-full object-cover rounded-2xl shadow-sm group-hover:shadow-md transition-shadow"
-                                                />
-                                            </div>
                                         </div>
-                                    </div>
+                                    </article>
                                 ))}
                             </div>
                         ) : (
-                            <div className="py-20 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                                <Title level={4} className="text-gray-400">Chưa có bài viết nào trong chủ đề này</Title>
-                                <Button type="primary" className="bg-green-600 border-0 rounded-full mt-4" onClick={() => setSelectedCategory(null)}>
+                            <div className="py-24 text-center bg-gray-50 rounded-[32px] border border-dashed border-gray-200">
+                                <Title level={4} className="text-gray-400 font-bold">Chưa có bài viết nào trong chủ đề này</Title>
+                                <Button type="primary" className="bg-[#242424] hover:bg-black border-0 rounded-full mt-6 h-12 px-8 font-bold" onClick={() => setSelectedCategory('Tất cả')}>
                                     Xem tất cả bài viết
                                 </Button>
                             </div>
@@ -134,54 +162,60 @@ const NewsListAll = () => {
                     </Col>
 
                     {/* Sidebar */}
-                    <Col xs={24} lg={7} className="hidden lg:block">
-                        <div className="sticky top-10 space-y-12">
-                            {/* Topics Section */}
+                    <Col xs={24} lg={8} className="hidden lg:block">
+                        <div className="sticky top-24 space-y-12 pl-6">
+                            {/* Topic Cloud */}
                             <div>
-                                <Title level={5} className="!text-[#757575] !uppercase !text-xs !font-black !tracking-widest !mb-6">CÁC CHỦ ĐỀ ĐƯỢC ĐỀ XUẤT</Title>
+                                <Title level={5} className="!text-[#757575] !uppercase !text-[11px] !font-black !tracking-widest !mb-6">XEM CÁC BÀI VIẾT THEO CHỦ ĐỀ</Title>
                                 <div className="flex flex-wrap gap-2">
                                     {categories.map(cat => (
                                         <button
                                             key={cat}
-                                            onClick={() => setSelectedCategory(cat === 'Tất cả' ? null : cat)}
-                                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                                                (selectedCategory === cat || (!selectedCategory && cat === 'Tất cả'))
+                                            onClick={() => setSelectedCategory(cat)}
+                                            className={`px-4 py-2 rounded-full text-xs font-black transition-all ${
+                                                selectedCategory === cat
                                                 ? 'bg-green-600 text-white' 
                                                 : 'bg-gray-100 text-[#505050] hover:bg-gray-200'
                                             }`}
                                         >
-                                            {cat}
+                                            {cat.toUpperCase()}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
+                            {/* Banner: Facebook Group */}
+                            <div className="bg-[#1877F2]/10 p-8 rounded-[24px] border border-[#1877F2]/20 group cursor-pointer">
+                                <Title level={4} className="!text-[#1877F2] !font-black !mb-2 flex items-center gap-2">
+                                    <FacebookFilled /> Cộng đồng
+                                </Title>
+                                <Paragraph className="text-[#1877F2]/80 text-sm mb-6 font-medium">Gia nhập cộng đồng nông nghiệp số EBookFarm để cùng trao đổi và học hỏi.</Paragraph>
+                                <Button className="w-full rounded-full font-black border-[#1877F2] text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all h-11">THAM GIA NGAY</Button>
+                            </div>
+
+                            {/* Banner: YouTube */}
+                            <div className="bg-[#FF0000]/5 p-8 rounded-[24px] border border-[#FF0000]/10 group cursor-pointer">
+                                <Title level={4} className="!text-[#FF0000] !font-black !mb-2 flex items-center gap-2">
+                                    <YoutubeFilled /> Video hướng dẫn
+                                </Title>
+                                <Paragraph className="text-[#FF0000]/70 text-sm mb-6 font-medium">Theo dõi các video hướng dẫn kỹ thuật canh tác VietGAP trên YouTube.</Paragraph>
+                                <Button className="w-full rounded-full font-black border-[#FF0000] text-[#FF0000] hover:bg-[#FF0000] hover:text-white transition-all h-11">XEM YOUTUBE</Button>
+                            </div>
+
                             {/* Trending Section */}
                             <div>
-                                <Title level={5} className="!text-[#757575] !uppercase !text-xs !font-black !tracking-widest !mb-6 flex items-center gap-2">
-                                    <FireOutlined className="text-orange-500" /> BÀI VIẾT XEM NHIỀU
+                                <Title level={5} className="!text-[#757575] !uppercase !text-[11px] !font-black !tracking-widest !mb-6 flex items-center gap-2">
+                                    <FireOutlined className="text-orange-500" /> TIN TỨC XEM NHIỀU
                                 </Title>
                                 <div className="space-y-6">
                                     {newsItems.slice(0, 3).map((news, idx) => (
-                                        <div key={idx} className="group cursor-pointer" onClick={() => navigate(`/news/${news._id}`)}>
-                                            <Text className="text-[#505050] text-[10px] font-black uppercase mb-1 block">Tin số {idx + 1}</Text>
-                                            <Title level={5} className="!text-[#292929] !font-bold !text-sm group-hover:text-green-600 transition-colors line-clamp-2 leading-snug">
+                                        <div key={idx} className="group cursor-pointer border-l-2 border-transparent hover:border-green-500 pl-4 transition-all" onClick={() => navigate(`/news/${news._id}`)}>
+                                            <Title level={5} className="!text-[#242424] !font-bold !text-[14px] group-hover:text-green-600 transition-colors line-clamp-2 leading-snug mb-1">
                                                 {news.title}
                                             </Title>
+                                            <Text className="text-gray-400 text-[10px] font-black uppercase">{dayjs(news.publishedAt).format('DD MMM, YYYY')}</Text>
                                         </div>
                                     ))}
-                                </div>
-                            </div>
-
-                            {/* Banner Section */}
-                            <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-3xl text-white relative overflow-hidden group shadow-lg">
-                                <div className="relative z-10">
-                                    <Title level={4} className="!text-white !font-black !mb-2">Gia nhập cộng đồng</Title>
-                                    <Paragraph className="text-green-50 text-sm mb-6">Theo dõi chúng tôi để nhận những tin tức nông nghiệp mới nhất.</Paragraph>
-                                    <Button className="rounded-full font-bold border-0 bg-white text-green-700 hover:scale-105 transition-transform">Theo dõi ngay</Button>
-                                </div>
-                                <div className="absolute -right-8 -bottom-8 text-white/10 rotate-12 transition-transform group-hover:scale-110">
-                                    <FireOutlined style={{ fontSize: '120px' }} />
                                 </div>
                             </div>
                         </div>
@@ -193,4 +227,5 @@ const NewsListAll = () => {
 };
 
 export default NewsListAll;
+
 
