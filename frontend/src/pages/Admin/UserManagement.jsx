@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Table, Typography, Button, Space, Tag, Input, Modal, Form, Select, message, Popconfirm, Breadcrumb } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -37,10 +37,12 @@ const UserManagement = () => {
   });
 
   // Fetch HTX list for selection
-  const htxList = users?.filter(u => u.role?.toUpperCase() === 'HTX' || u.role?.toUpperCase() === 'HTX');
+  const htxList = useMemo(() => {
+    return users?.filter(u => u.role?.toUpperCase() === 'HTX') || [];
+  }, [users]);
 
   const importMutation = useMutation({
-    mutationFn: (users) => api.post('/users/bulk', { users }),
+    mutationFn: (dataToImport) => api.post('/users/bulk', { users: dataToImport }),
     onSuccess: () => {
       message.success('Đã nhập dữ liệu thành công!');
       queryClient.invalidateQueries(['users']);
@@ -86,7 +88,7 @@ const UserManagement = () => {
     }
   });
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'STT',
       key: 'index',
@@ -182,7 +184,7 @@ const UserManagement = () => {
         </Space>
       )
     }
-  ];
+  ], [htxList, form, deleteMutation, navigate, location.pathname]);
 
   const filteredData = users?.filter(u =>
     u.username.toLowerCase().includes(searchText.toLowerCase())
