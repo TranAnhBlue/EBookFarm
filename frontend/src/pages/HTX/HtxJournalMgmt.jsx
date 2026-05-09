@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, message, Tag, Space, Drawer, Descriptions, Card, Typography, Row, Col, Avatar, Statistic, Tooltip, Badge, Divider, Skeleton, Empty } from 'antd';
-import { 
-  PlusOutlined, 
-  EyeOutlined, 
-  UserAddOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined, 
-  QrcodeOutlined, 
+import {
+  PlusOutlined,
+  EyeOutlined,
+  UserAddOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  QrcodeOutlined,
   SafetyCertificateOutlined,
   SearchOutlined,
   FilterOutlined,
@@ -173,14 +173,30 @@ const HtxJournalMgmt = () => {
       });
       if (res.data.success) {
         message.success('Cập nhật trạng thái thành công');
-        const updatedRes = await api.get('/htx/journals');
-        if (updatedRes.data.success) {
-            setJournals(updatedRes.data.data);
-            const updatedJournal = updatedRes.data.data.find(j => j._id === journalId);
-            if (updatedJournal) {
-                setSelectedJournal(updatedJournal);
+
+        // Cập nhật local state
+        const updateFn = (prevJournals) => {
+          return prevJournals.map(j => {
+            if (j._id === journalId) {
+              const updatedFarmers = j.farmers.map(f => {
+                if (f.farmerId?._id === farmerId || f.farmerId === farmerId) {
+                  return { ...f, status, feedback };
+                }
+                return f;
+              });
+              return { ...j, farmers: updatedFarmers };
             }
+            return j;
+          });
+        };
+
+        setJournals(prev => updateFn(prev));
+        if (selectedJournal) {
+          const updated = updateFn([selectedJournal])[0];
+          setSelectedJournal(updated);
         }
+
+        fetchJournals();
       }
     } catch (error) {
       message.error('Lỗi khi cập nhật trạng thái');
@@ -195,17 +211,39 @@ const HtxJournalMgmt = () => {
       const res = await api.put(`/htx/journals/authorize-brand/${farmJournalId}`, { authorized: isAuthorized });
       if (res.data.success) {
         message.success(res.data.message);
-        fetchJournals();
-        if (selectedJournal) {
-          // Re-find and update selected journal to refresh the drawer
-          api.get('/htx-journals').then(response => {
-            if (response.data.success) {
-              setJournals(response.data.data);
-              const updated = response.data.data.find(j => j._id === selectedJournal._id);
-              if (updated) setSelectedJournal(updated);
+
+        // Cập nhật state local ngay lập tức để UI thay đổi luôn
+        const updateJournalsLocal = (prevJournals) => {
+          return prevJournals.map(journal => {
+            const farmerEntry = journal.farmers.find(f => f.farmJournalId?._id === farmJournalId || f.farmJournalId === farmJournalId);
+            if (farmerEntry) {
+              const updatedFarmers = journal.farmers.map(f => {
+                if (f.farmJournalId?._id === farmJournalId || f.farmJournalId === farmJournalId) {
+                  return {
+                    ...f,
+                    farmJournalId: {
+                      ...f.farmJournalId,
+                      brandAuthorized: isAuthorized
+                    }
+                  };
+                }
+                return f;
+              });
+              return { ...journal, farmers: updatedFarmers };
             }
+            return journal;
           });
+        };
+
+        setJournals(prev => updateJournalsLocal(prev));
+
+        if (selectedJournal) {
+          const updatedSelected = updateJournalsLocal([selectedJournal])[0];
+          setSelectedJournal(updatedSelected);
         }
+
+        // Vẫn gọi fetchJournals để đồng bộ hoàn toàn với server
+        fetchJournals();
       }
     } catch (error) {
       message.error(error.response?.data?.message || 'Lỗi khi cấp quyền thương hiệu');
@@ -218,7 +256,7 @@ const HtxJournalMgmt = () => {
     try {
       setSummaryLoading(true);
       setIsSummaryVisible(true);
-      const res = await api.get(`/htx-journals/${journalId}/summary`);
+      const res = await api.get(`/htx/journals/${journalId}/summary`);
       if (res.data.success) {
         setSummaryData(res.data.data);
       }
@@ -233,13 +271,13 @@ const HtxJournalMgmt = () => {
     if (!summaryData) return;
 
     const exportData = [];
-    
+
     // Header info
     exportData.push(['BÁO CÁO TỔNG HỢP SỔ NHẬT KÝ HTX']);
     exportData.push(['Tên sổ:', selectedJournal?.name]);
     exportData.push(['Ngày xuất báo cáo:', new Date().toLocaleString('vi-VN')]);
     exportData.push(['']);
-    
+
     // Stats info
     exportData.push(['THỐNG KÊ CHUNG']);
     exportData.push(['Tổng số hộ thành viên:', summaryData.totalFarmers]);
@@ -279,7 +317,7 @@ const HtxJournalMgmt = () => {
 
     try {
       const doc = new jsPDF();
-      
+
       // Load fonts for Vietnamese support
       const fonts = [
         { name: 'Roboto-Regular.ttf', style: 'normal', url: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf' },
@@ -296,7 +334,7 @@ const HtxJournalMgmt = () => {
       doc.setFont('Roboto', 'normal');
 
       const pageWidth = doc.internal.pageSize.getWidth();
-      
+
       // Header
       doc.setFontSize(18);
       doc.setTextColor(34, 197, 94); // Green
@@ -590,7 +628,7 @@ const HtxJournalMgmt = () => {
           loading={loading}
           className="premium-table-refined custom-pagination"
           scroll={{ x: 800 }}
-          pagination={{ 
+          pagination={{
             current: currentPage,
             pageSize: pageSize,
             showSizeChanger: true,
@@ -703,8 +741,8 @@ const HtxJournalMgmt = () => {
                 <Descriptions.Item label={<Text strong>Biểu Mẫu</Text>}><Tag color="green">{selectedJournal.schemaId?.name}</Tag></Descriptions.Item>
                 <Descriptions.Item label={<Text strong>Trạng Thái</Text>}>
                   <Tag color={selectedJournal.status === 'Active' ? 'green' : 'gray'} className="rounded-full px-3">
-                    {selectedJournal.status === 'Active' ? 'Đang hoạt động' : 
-                     selectedJournal.status === 'Completed' ? 'Đã hoàn tất' : 'Đã lưu trữ'}
+                    {selectedJournal.status === 'Active' ? 'Đang hoạt động' :
+                      selectedJournal.status === 'Completed' ? 'Đã hoàn tất' : 'Đã lưu trữ'}
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label={<Text strong>Mô Tả</Text>} span={2}>{selectedJournal.description || 'Không có mô tả'}</Descriptions.Item>
@@ -714,8 +752,8 @@ const HtxJournalMgmt = () => {
             <div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <div className="flex items-center gap-2">
-                   <div className="h-6 w-1 bg-green-500 rounded-full"></div>
-                   <Text strong className="text-lg">Thành Viên Tham Gia</Text>
+                  <div className="h-6 w-1 bg-green-500 rounded-full"></div>
+                  <Text strong className="text-lg">Thành Viên Tham Gia</Text>
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
                   <Input
@@ -779,7 +817,7 @@ const HtxJournalMgmt = () => {
                     render: (_, record) => {
                       const isAuth = record.farmJournalId?.brandAuthorized;
                       return isAuth ? (
-                        <Tag color="gold" icon={<SafetyCertificateOutlined />} className="rounded-full px-3 font-bold">HTX Verified</Tag>
+                        <Tag color="gold" icon={<SafetyCertificateOutlined />} className="rounded-full px-3 font-bold">Đã được HTX chứng thực</Tag>
                       ) : (
                         <Tag color="default" className="rounded-full px-3">Chưa cấp</Tag>
                       );
@@ -1051,9 +1089,9 @@ const HtxJournalMgmt = () => {
                             </Col>
                           );
                         } else if (info.type !== 'number' && info.value.length > 0) {
-                           // Skip some metadata fields if needed
-                           if (['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) return null;
-                           return (
+                          // Skip some metadata fields if needed
+                          if (['Họ và tên', 'Địa chỉ', 'Mã nông hộ'].includes(fieldName)) return null;
+                          return (
                             <Col span={24} key={fieldName}>
                               <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                 <Text className="text-gray-400 text-xs block mb-1">{fieldName} (Danh sách tổng hợp):</Text>
@@ -1062,7 +1100,7 @@ const HtxJournalMgmt = () => {
                                 </Space>
                               </div>
                             </Col>
-                           );
+                          );
                         }
                         return null;
                       })}

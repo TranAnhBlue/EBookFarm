@@ -233,8 +233,9 @@ const AccountInfo = () => {
                 farmArea: values.farmArea,
                 farmType: values.farmType,
                 bio: values.bio,
+                organization: values.organization,
                 avatar: avatarUrl,
-                certifications: localCerts
+                certifications: values.certifications || localCerts
             };
 
             // Chuyển dateOfBirth sang ISO string
@@ -821,14 +822,23 @@ const AccountInfo = () => {
                 initialValues={editingCert}
                 loading={updateMutation.isLoading}
                 onSave={(newCert) => {
+                    let updatedCerts = [];
                     if (editingCert) {
-                        const newCerts = [...localCerts];
-                        newCerts[editingCert.index] = { ...newCert, status: 'Pending' }; // Reset status on edit
-                        setLocalCerts(newCerts);
+                        updatedCerts = [...localCerts];
+                        updatedCerts[editingCert.index] = { ...newCert, status: 'Pending' };
                     } else {
-                        setLocalCerts([...localCerts, { ...newCert, status: 'Pending' }]);
+                        updatedCerts = [...localCerts, { ...newCert, status: 'Pending' }];
                     }
+                    
+                    setLocalCerts(updatedCerts);
                     setIsCertModalVisible(false);
+
+                    // Tự động lưu luôn lên server để HTX thấy ngay
+                    const currentValues = form.getFieldsValue();
+                    updateMutation.mutate({ 
+                        ...currentValues, 
+                        certifications: updatedCerts 
+                    });
                 }}
             />
         </div>

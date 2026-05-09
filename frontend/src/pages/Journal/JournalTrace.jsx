@@ -52,8 +52,10 @@ const JournalTrace = () => {
       'VietGAP': { color: 'green', icon: '🌿' },
       'Organic': { color: 'lime', icon: '🍃' },
       'GlobalGAP': { color: 'blue', icon: '🌍' },
-      'HACCP': { color: 'orange', icon: '✓' },
+      'HACCP': { color: 'orange', icon: '🛡️' },
       'ISO': { color: 'purple', icon: '⭐' },
+      'OCOP': { color: 'volcano', icon: '💎' },
+      'VietGAHP': { color: 'cyan', icon: '🐄' },
     };
     return badges[certName] || { color: 'default', icon: '📜' };
   };
@@ -140,8 +142,10 @@ const JournalTrace = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <Title level={2} className="!mb-0">{schema.name}</Title>
                     {journal.brandAuthorized && (
-                      <Tooltip title={`Sản phẩm đã được ${journal.htxJournalId?.htxId?.fullname || 'HTX'} kiểm duyệt và cấp quyền thương hiệu`}>
-                        <SafetyCertificateOutlined className="text-2xl text-gold-500" style={{ color: '#faad14' }} />
+                      <Tooltip title={`Sản phẩm đã được ${journal.htxJournalId?.htxId?.fullname || 'HTX'} kiểm duyệt và bảo chứng thương hiệu`}>
+                        <Tag color="gold" icon={<SafetyCertificateOutlined />} className="rounded-full px-3 py-1 font-bold border-0 shadow-sm ml-2">
+                          Bảo chứng HTX
+                        </Tag>
                       </Tooltip>
                     )}
                   </div>
