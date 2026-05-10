@@ -91,28 +91,29 @@ const JournalTrace = () => {
   const schema = journal.schemaId;
   const thongTinChung = journal.entries?.['Thông tin chung'] || {};
 
-  // Hàm hỗ trợ tìm data động vì các form schema có thể đặt tên trường (field.name) khác nhau
-  const getDynamicField = (data, possibleKeywords) => {
-    if (!data || Object.keys(data).length === 0) return null;
+  // Lấy danh sách fields của bảng Thông tin chung từ schema
+  const thongTinChungTable = schema?.tables?.find(t => t.tableName === 'Thông tin chung');
+  const thongTinChungFields = thongTinChungTable?.fields || [];
+
+  // Hàm hỗ trợ tìm data động thông qua label của schema thay vì tên biến
+  const getDynamicFieldByLabel = (fields, data, possibleLabels) => {
+    if (!fields || !data) return null;
     
-    // 1. Tìm chính xác
-    for (const key of Object.keys(data)) {
-      if (possibleKeywords.some(kw => key.toLowerCase() === kw.toLowerCase())) {
-        return data[key];
-      }
-    }
-    
-    // 2. Tìm gần đúng (chứa từ khóa)
-    for (const key of Object.keys(data)) {
-      if (possibleKeywords.some(kw => key.toLowerCase().includes(kw.toLowerCase()))) {
-        return data[key];
+    // Tìm field có label khớp với từ khóa
+    for (const field of fields) {
+      if (!field.label) continue;
+      
+      const labelLower = field.label.toLowerCase();
+      // Khớp chính xác hoặc gần đúng
+      if (possibleLabels.some(kw => labelLower === kw.toLowerCase() || labelLower.includes(kw.toLowerCase()))) {
+        return data[field.name];
       }
     }
     return null;
   };
 
-  const tenCoSo = getDynamicField(thongTinChung, ['tên cơ sở', 'tenCoSo', 'tên nông trại', 'họ tên', 'chủ hộ', 'hoTenChuHo']);
-  const diaChi = getDynamicField(thongTinChung, ['địa chỉ', 'diaChi', 'diaChiSanXuat', 'diaChiCoSo', 'vị trí']);
+  const tenCoSo = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['tên cơ sở', 'họ tên chủ hộ', 'chủ hộ', 'tên nông trại', 'người đại diện']);
+  const diaChi = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['địa chỉ', 'vị trí', 'nơi sản xuất']);
 
   // Get status info
   const getStatusInfo = (status) => {
@@ -212,7 +213,7 @@ const JournalTrace = () => {
 
             <Col xs={24} md={8}>
               {journal.brandAuthorized ? (
-                <div className="bg-gradient-to-br from-gold-50 to-yellow-100 p-6 rounded-xl h-full flex flex-col justify-center items-center border-2 border-gold-200 relative overflow-hidden" style={{ backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
+                <div className="bg-gradient-to-br from-gold-50 to-yellow-100 p-6 pt-10 rounded-xl h-full flex flex-col justify-start items-center border-2 border-gold-200 relative overflow-hidden" style={{ backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
                   <div className="absolute top-0 right-0 p-2 opacity-10">
                     <SafetyCertificateOutlined style={{ fontSize: '100px' }} />
                   </div>
@@ -227,7 +228,7 @@ const JournalTrace = () => {
                   </Text>
                 </div>
               ) : (
-                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl h-full flex flex-col justify-center items-center">
+                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 pt-10 rounded-xl h-full flex flex-col justify-start items-center">
                   <SafetyOutlined className="text-6xl text-green-600 mb-4" />
                   <Tag color={statusInfo.color} className="text-lg px-4 py-2 rounded-full mb-3">
                     {statusInfo.icon} {statusInfo.text}
