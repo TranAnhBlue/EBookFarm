@@ -265,7 +265,7 @@ const NewsDetail = () => {
                                 <Title level={5} className="!text-[#292929] !font-black !text-xs !uppercase !tracking-widest !mb-6">TIN TỨC LIÊN QUAN</Title>
                                 <div className="space-y-8">
                                     {relatedNews.length > 0 ? relatedNews.map((n, idx) => (
-                                        <div key={idx} className="group cursor-pointer border-2 border-gray-200 bg-white shadow-sm rounded-2xl p-4 hover:border-green-500 transition-all" onClick={() => navigate(`/news/${n._id}`)}>
+                                        <div key={idx} className="group cursor-pointer border-2 border-gray-300 bg-white shadow-md rounded-2xl p-4 hover:border-green-600 transition-all" onClick={() => navigate(`/news/${n._id}`)}>
                                             <div className="aspect-[16/9] rounded-xl overflow-hidden mb-3">
                                                 <img src={n.image || getFallbackImage(n.category)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             </div>
