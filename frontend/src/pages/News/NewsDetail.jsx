@@ -77,64 +77,52 @@ const NewsDetail = () => {
         <div className="bg-white min-h-screen font-['Roboto',_sans-serif] pb-24">
             <div className="max-w-7xl mx-auto px-4 md:px-6 pt-10">
                 <Row gutter={48}>
-                    {/* Left Side: Floating Actions */}
-                    <Col xs={0} lg={2}>
-                        <Affix offsetTop={100}>
-                            <div className="flex flex-col items-center gap-8 py-4">
+                    {/* Left Side: Floating Actions (F8 Style) */}
+                    <Col xs={0} lg={2} className="relative">
+                        <Affix offsetTop={120}>
+                            <div className="flex flex-col items-center gap-6 py-4">
                                 <div className="flex flex-col items-center gap-1 group">
-                                    <Button
-                                        shape="circle"
-                                        size="large"
+                                    <div
                                         onClick={() => setLiked(!liked)}
-                                        className={`border-0 shadow-sm flex items-center justify-center transition-all ${liked ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black'}`}
-                                        icon={liked ? <HeartFilled /> : <HeartOutlined />}
-                                    />
-                                    <Text className="text-xs font-bold text-gray-400 group-hover:text-black">12</Text>
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${liked ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#242424]'}`}
+                                    >
+                                        {liked ? <HeartFilled className="text-lg" /> : <HeartOutlined className="text-lg" />}
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-center gap-1 group">
-                                    <Button
-                                        shape="circle"
-                                        size="large"
-                                        className="border-0 shadow-sm flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black"
-                                        icon={<MessageOutlined />}
-                                    />
-                                    <Text className="text-xs font-bold text-gray-400 group-hover:text-black">4</Text>
+                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer transition-all hover:bg-gray-200 text-gray-500 hover:text-[#242424]">
+                                        <MessageOutlined className="text-lg" />
+                                    </div>
                                 </div>
-                                <Divider className="my-2 border-gray-100" />
+                                
+                                <Divider className="my-2 border-gray-200 w-8 min-w-[2rem]" />
+                                
                                 <Space direction="vertical" size="large">
-                                    <FacebookFilled className="text-2xl text-gray-300 hover:text-[#1877F2] cursor-pointer transition-colors" />
-                                    <TwitterCircleFilled className="text-2xl text-gray-300 hover:text-[#1DA1F2] cursor-pointer transition-colors" />
-                                    <LinkedinFilled className="text-2xl text-gray-300 hover:text-[#0A66C2] cursor-pointer transition-colors" />
+                                    <FacebookFilled className="text-2xl text-gray-400 hover:text-[#1877F2] cursor-pointer transition-colors" />
+                                    <TwitterCircleFilled className="text-2xl text-gray-400 hover:text-[#1DA1F2] cursor-pointer transition-colors" />
+                                    <LinkedinFilled className="text-2xl text-gray-400 hover:text-[#0A66C2] cursor-pointer transition-colors" />
+                                    <CopyOutlined onClick={copyToClipboard} className="text-2xl text-gray-400 hover:text-gray-800 cursor-pointer transition-colors" />
                                 </Space>
                             </div>
                         </Affix>
                     </Col>
 
-                    {/* Middle: Article Content */}
+                    {/* Middle: Article Content (F8 Style) */}
                     <Col xs={24} lg={15}>
                         <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            {/* Breadcrumb replacement */}
-                            <Button
-                                type="text"
-                                icon={<ArrowLeftOutlined />}
-                                onClick={() => navigate('/news')}
-                                className="text-gray-500 hover:text-green-600 font-bold p-0 mb-8"
-                            >
-                                DANH SÁCH TIN TỨC
-                            </Button>
-
-                            <Title className="!text-[#292929] !font-black !mb-8 leading-[1.2] !text-3xl md:!text-5xl tracking-tight">
+                            {/* Title - Large and Bold */}
+                            <Title className="!text-[#242424] !font-black !mb-6 leading-[1.4] !text-3xl md:!text-[40px]">
                                 {news.title}
                             </Title>
 
-                            {/* Author Box */}
-                            <div className="flex items-center justify-between mb-10">
+                            {/* Author Box - Clean flex row */}
+                            <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-3">
                                     <Avatar
                                         size={48}
                                         src={typeof news.author === 'object' ? getAvatarUrl(news.author?.avatar) : null}
                                         style={{ backgroundColor: '#16a34a', fontSize: 18, fontWeight: 700 }}
-                                        className="border-2 border-white shadow-sm flex-shrink-0"
+                                        className="border border-gray-100 flex-shrink-0"
                                     >
                                         {typeof news.author === 'object'
                                             ? (!news.author?.avatar && getInitialAvatar(news.author?.fullname || news.author?.username))
@@ -142,51 +130,55 @@ const NewsDetail = () => {
                                         }
                                     </Avatar>
                                     <div className="flex flex-col">
-                                        <Text className="font-bold text-[#292929]">{(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}</Text>
-                                        <Text className="text-gray-500 text-xs">{dayjs(news.publishedAt).format('DD [tháng] MM, YYYY')} • 6 phút đọc</Text>
+                                        <Text className="font-bold text-[#242424] text-[15px]">
+                                            {(typeof news.author === 'object' ? (news.author.fullname || news.author.username) : news.author) || 'EBookFarm Editor'}
+                                        </Text>
+                                        <div className="text-gray-500 text-[13px] mt-0.5">
+                                            {dayjs(news.publishedAt).fromNow()} • 6 phút đọc
+                                        </div>
                                     </div>
                                 </div>
-                                <Space>
-                                    <BookOutlined className="text-gray-400 hover:text-black cursor-pointer" />
-                                    <MoreOutlined className="text-gray-400 hover:text-black cursor-pointer" />
+                                <Space className="text-gray-400">
+                                    <Button type="text" icon={<BookOutlined />} className="hover:text-[#242424] hover:bg-gray-100 rounded-full" />
+                                    <Button type="text" icon={<MoreOutlined />} className="hover:text-[#242424] hover:bg-gray-100 rounded-full" />
                                 </Space>
                             </div>
 
-                            {/* Content */}
-                            <div className="space-y-8 text-[#292929]">
-                                <Paragraph className="text-xl font-bold italic leading-relaxed border-l-4 border-green-500 pl-6 bg-green-50/30 py-8 rounded-[24px]">
+                            {/* Content Section */}
+                            <div className="space-y-8">
+                                {/* Summary - Normal text but slightly highlighted */}
+                                <Paragraph className="text-[18px] text-[#505050] leading-[1.8] font-medium m-0">
                                     {news.summary}
                                 </Paragraph>
 
-                                <div className="rounded-[32px] overflow-hidden shadow-sm mb-12 border border-gray-100">
+                                {/* Main Image - Simple rounded */}
+                                <div className="rounded-2xl overflow-hidden bg-gray-50 mb-8 border border-gray-100">
                                     <img
                                         src={news.image || getFallbackImage(news.category)}
                                         alt={news.title}
                                         className="w-full h-auto object-cover max-h-[500px]"
                                     />
-                                    <div className="bg-gray-50 p-6 text-center text-gray-500 text-sm italic">
-                                        Hình ảnh minh họa cho {news.title}
+                                    <div className="bg-gray-50 p-4 text-center text-gray-500 text-[13px]">
+                                        Hình ảnh: {news.title}
                                     </div>
                                 </div>
 
-                                <div className="prose prose-lg max-w-none text-[#292929] leading-[1.8] text-lg">
+                                {/* Main Body */}
+                                <div className="prose prose-lg max-w-none text-[#292929] leading-[1.8] text-[18px]">
                                     {news.content ? (
                                         news.content.split('\n').map((paragraph, index) => (
-                                            <Paragraph key={index} className="mb-8 last:mb-0">
+                                            <Paragraph key={index} className="mb-6 last:mb-0">
                                                 {paragraph}
                                             </Paragraph>
                                         ))
                                     ) : (
-                                        <Paragraph className="italic text-gray-400">Nội dung tin tức đang được cập nhật...</Paragraph>
+                                        <Paragraph className="italic text-gray-400">Nội dung bài viết đang được cập nhật...</Paragraph>
                                     )}
                                 </div>
 
-                                {/* Gallery ảnh bổ sung */}
+                                {/* Gallery */}
                                 {news.gallery && news.gallery.length > 0 && (
-                                    <div className="mt-10">
-                                        <Text className="text-[11px] font-black uppercase tracking-widest text-[#757575] block mb-5">
-                                            📷 Thư viện ảnh ({news.gallery.length} ảnh)
-                                        </Text>
+                                    <div className="mt-8">
                                         <div className={`grid gap-3 ${
                                             news.gallery.length === 1 ? 'grid-cols-1' :
                                             news.gallery.length === 2 ? 'grid-cols-2' :
@@ -195,7 +187,7 @@ const NewsDetail = () => {
                                             {news.gallery.map((imgUrl, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className="group relative overflow-hidden rounded-[20px] cursor-pointer bg-gray-100"
+                                                    className="group relative overflow-hidden rounded-xl cursor-pointer bg-gray-100 border border-gray-100"
                                                     style={{ aspectRatio: '4/3' }}
                                                     onClick={() => window.open(imgUrl, '_blank')}
                                                 >
@@ -205,11 +197,6 @@ const NewsDetail = () => {
                                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                         onError={e => { e.target.style.display = 'none'; }}
                                                     />
-                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                                                        <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-bold bg-black/40 px-3 py-1 rounded-full transition-opacity duration-300">
-                                                            Xem ảnh
-                                                        </span>
-                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -217,72 +204,65 @@ const NewsDetail = () => {
                                 )}
                             </div>
 
-
-                            {/* Tags Section */}
-                            <div className="mt-16 flex flex-wrap gap-2">
-                                <Tag className="rounded-full bg-gray-100 border-0 text-[#505050] font-bold px-4 py-1 m-0">#nongnghiepsach</Tag>
-                                <Tag className="rounded-full bg-gray-100 border-0 text-[#505050] font-bold px-4 py-1 m-0">#congngheso</Tag>
-                                <Tag className="rounded-full bg-gray-100 border-0 text-[#505050] font-bold px-4 py-1 m-0">#{news.category?.toLowerCase()}</Tag>
+                            {/* Tags Section (F8 Style) */}
+                            <div className="mt-12 flex flex-wrap gap-2">
+                                {['nongnghiepsach', 'congngheso', news.category?.toLowerCase()].map((tag, i) => (
+                                    <Tag key={i} className="rounded-full bg-gray-100 border-0 text-[#333] font-medium px-4 py-1.5 m-0 text-[14px] cursor-pointer hover:bg-gray-200 transition-colors">
+                                        #{tag}
+                                    </Tag>
+                                ))}
                             </div>
 
-                            {/* Reaction Section */}
-                            <div className="mt-12 p-10 rounded-[32px] bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-6 border border-gray-100 shadow-sm">
+                            <Divider className="my-10 border-gray-200" />
+                            
+                            {/* Bottom Reaction Area */}
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <Title level={4} className="!mb-0 !text-[#292929]">Bạn thấy hữu ích?</Title>
-                                    <Button
-                                        size="large"
-                                        className={`rounded-full flex items-center gap-2 font-bold px-6 ${liked ? 'bg-red-500 text-white border-red-500' : 'bg-white border-gray-200'}`}
+                                    <div 
                                         onClick={() => setLiked(!liked)}
-                                        icon={liked ? <HeartFilled /> : <HeartOutlined />}
+                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full border cursor-pointer font-bold transition-all ${liked ? 'bg-red-50 border-red-200 text-red-500' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'}`}
                                     >
-                                        {liked ? 'Đã thích' : 'Thích tin tức'}
-                                    </Button>
+                                        {liked ? <HeartFilled /> : <HeartOutlined />}
+                                        {liked ? 'Đã thích' : 'Thích bài viết'}
+                                    </div>
                                 </div>
-                                <Space size="middle">
-                                    <Button shape="circle" size="large" icon={<ShareAltOutlined />} className="hover:text-green-600" />
-                                    <Button shape="circle" size="large" icon={<CopyOutlined />} onClick={copyToClipboard} className="hover:text-green-600" />
-                                </Space>
                             </div>
                         </article>
                     </Col>
 
-                    {/* Right Side: Sidebar */}
+                    {/* Right Side: Sidebar (F8 Style) */}
                     <Col xs={0} lg={7}>
-                        <div className="sticky top-10 space-y-12 pl-6">
-                            {/* Table of Contents Placeholder */}
-                            <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                                <Title level={5} className="!text-[#292929] !font-black !text-xs !uppercase !tracking-widest !mb-4">NỘI DUNG CHÍNH</Title>
-                                <div className="space-y-4 text-sm text-gray-500 font-medium">
-                                    <div className="hover:text-green-600 cursor-pointer transition-colors border-l-2 border-green-500 pl-4 text-green-600">1. Giới thiệu tổng quan</div>
-                                    <div className="hover:text-green-600 cursor-pointer transition-colors pl-4">2. Các giải pháp công nghệ</div>
-                                    <div className="hover:text-green-600 cursor-pointer transition-colors pl-4">3. Hiệu quả thực tiễn</div>
-                                    <div className="hover:text-green-600 cursor-pointer transition-colors pl-4">4. Kết luận & Khuyến nghị</div>
-                                </div>
-                            </div>
-
-                            {/* Related Posts */}
+                        <div className="sticky top-24 pl-8">
+                            {/* F8 "Bài viết cùng tác giả" or "Related" */}
                             <div>
-                                <Title level={5} className="!text-[#292929] !font-black !text-xs !uppercase !tracking-widest !mb-6">TIN TỨC LIÊN QUAN</Title>
-                                <div className="space-y-8">
+                                <Title level={5} className="!text-[#242424] !font-black !text-[16px] !mb-6">Bài viết liên quan</Title>
+                                <div className="space-y-6">
                                     {relatedNews.length > 0 ? relatedNews.map((n, idx) => (
-                                        <div key={idx} className="group cursor-pointer border-2 border-gray-300 bg-white shadow-md rounded-2xl p-4 hover:border-green-600 transition-all" onClick={() => navigate(`/news/${n._id}`)}>
-                                            <div className="aspect-[16/9] rounded-xl overflow-hidden mb-3">
-                                                <img src={n.image || getFallbackImage(n.category)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <div key={idx} className="group cursor-pointer flex gap-4" onClick={() => navigate(`/news/${n._id}`)}>
+                                            <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 border border-gray-100">
+                                                <img src={n.image || getFallbackImage(n.category)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                             </div>
-                                            <Title level={5} className="!text-[#292929] !font-bold !text-sm group-hover:text-green-600 transition-colors line-clamp-2 leading-snug">
-                                                {n.title}
-                                            </Title>
-                                            <Text className="text-gray-400 text-xs uppercase font-black">{dayjs(n.publishedAt).format('MMMM DD, YYYY')}</Text>
+                                            <div className="flex flex-col justify-center">
+                                                <Title level={5} className="!text-[#242424] !font-bold !text-[14px] group-hover:text-green-600 transition-colors line-clamp-2 leading-snug !mb-1">
+                                                    {n.title}
+                                                </Title>
+                                                <Text className="text-gray-500 text-[12px]">{dayjs(n.publishedAt).format('DD/MM/YYYY')}</Text>
+                                            </div>
                                         </div>
-                                    )) : <Text className="italic text-gray-400">Không có tin tức liên quan</Text>}
+                                    )) : <Text className="italic text-gray-400">Chưa có bài viết liên quan</Text>}
                                 </div>
                             </div>
 
-                            {/* Newsletter / CTA */}
-                            <div className="bg-[#1a1a1a] p-10 rounded-[32px] text-white shadow-xl">
-                                <Title level={4} className="!text-white !font-black !mb-4">Đăng ký bản tin</Title>
-                                <Paragraph className="text-gray-400 text-sm mb-6 leading-relaxed">Nhận thông báo về các tin tức công nghệ mới nhất từ chúng tôi.</Paragraph>
-                                <Button type="primary" size="large" className="w-full bg-green-600 border-0 font-black rounded-full h-12 hover:scale-105 transition-transform" onClick={() => navigate('/register')}>Đăng ký ngay</Button>
+                            {/* F8 "Các chủ đề đề xuất" */}
+                            <div className="mt-12">
+                                <Title level={5} className="!text-[#242424] !font-black !text-[16px] !mb-6">Các chủ đề đề xuất</Title>
+                                <div className="flex flex-wrap gap-2">
+                                    {['Front-end', 'Nông nghiệp số', 'ReactJS', 'VietGAP', 'Thị trường', 'IoT'].map(tag => (
+                                        <span key={tag} className="bg-gray-100 text-[#333] px-3 py-1.5 rounded-full text-[13px] font-medium cursor-pointer hover:bg-gray-200 transition-colors">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </Col>
