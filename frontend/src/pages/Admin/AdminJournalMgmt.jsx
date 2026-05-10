@@ -563,7 +563,9 @@ const AdminJournalMgmt = () => {
               <Descriptions.Item label="Chứng nhận" span={2}>
                 <Space wrap>
                   {selectedJournal.userId?.certifications?.map((cert, idx) => (
-                    <Tag key={idx} color="gold" className="rounded-md border-0 font-bold">{cert}</Tag>
+                    <Tag key={idx} color="gold" className="rounded-md border-0 font-bold">
+                      {typeof cert === 'string' ? cert : (cert.name || cert.code || 'Chứng nhận')}
+                    </Tag>
                   )) || 'Chưa có chứng nhận'}
                 </Space>
               </Descriptions.Item>
