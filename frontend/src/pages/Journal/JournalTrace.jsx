@@ -213,18 +213,18 @@ const JournalTrace = () => {
 
             <Col xs={24} md={8}>
               {journal.brandAuthorized ? (
-                <div className="bg-gradient-to-br from-gold-50 to-yellow-100 p-6 pt-10 rounded-xl h-full flex flex-col justify-start items-center border-2 border-gold-200 relative overflow-hidden" style={{ backgroundColor: '#fffbe6', borderColor: '#ffe58f' }}>
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-100 p-6 pt-10 rounded-2xl h-full flex flex-col justify-start items-center border-2 border-amber-400 relative overflow-hidden shadow-inner">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
                     <SafetyCertificateOutlined style={{ fontSize: '100px' }} />
                   </div>
-                  <SafetyCertificateOutlined className="text-6xl text-gold-500 mb-4" style={{ color: '#faad14' }} />
-                  <Title level={4} className="!mb-1 !text-gold-700 uppercase tracking-wider font-black text-center">Bảo chứng HTX</Title>
-                  <Tag color="gold" className="text-lg px-4 py-1 rounded-full mb-3 border-0 font-bold" style={{ backgroundColor: '#faad14', color: 'white' }}>
+                  <SafetyCertificateOutlined className="text-6xl text-amber-500 mb-4" />
+                  <Title level={4} className="!mb-1 !text-amber-700 uppercase tracking-wider font-black text-center">Bảo chứng HTX</Title>
+                  <Tag className="text-lg px-4 py-1 rounded-full mb-3 border-0 font-bold bg-amber-500 text-white shadow-md">
                     HTX VERIFIED
                   </Tag>
                   <Text className="text-center text-gray-700 font-medium">
                     Sản phẩm mang thương hiệu chính thức của <br/>
-                    <Text strong className="text-gold-600">{journal.htxJournalId?.htxId?.fullname || 'Hợp Tác Xã'}</Text>
+                    <Text strong className="text-amber-700 text-lg">{journal.htxJournalId?.htxId?.fullname || 'Hợp Tác Xã'}</Text>
                   </Text>
                 </div>
               ) : (
