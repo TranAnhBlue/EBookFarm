@@ -321,7 +321,7 @@ const Dashboard = () => {
                 <Col xs={24} lg={12} key={index}>
                   <div
                     onClick={() => navigate(`/news/${news._id}`)}
-                    className="group bg-white border border-gray-100 rounded-xl p-4 h-full hover:shadow-md transition-all flex flex-col sm:flex-row gap-5 cursor-pointer"
+                    className="group bg-white border-2 border-gray-200 rounded-xl p-4 h-full shadow-sm hover:border-green-500 hover:shadow-md transition-all flex flex-col sm:flex-row gap-5 cursor-pointer"
                   >
                     <div className="w-full sm:w-40 h-40 shrink-0 relative overflow-hidden rounded-xl">
                       <img

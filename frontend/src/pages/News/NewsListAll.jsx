@@ -102,7 +102,7 @@ const NewsListAll = () => {
                                         className="group cursor-pointer"
                                         onClick={() => navigate(`/news/${news._id}`)}
                                     >
-                                        <div className="bg-white rounded-[24px] border-[2px] border-[#e8e8e8] p-6 transition-all hover:border-green-500/50 hover:shadow-md">
+                                        <div className="bg-white rounded-[24px] border-2 border-gray-200 shadow-sm p-6 transition-all hover:border-green-500 hover:shadow-md">
                                             {/* Author Header */}
                                             <div className="flex items-center justify-between mb-5">
                                                 <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ const NewsListAll = () => {
                                 </Title>
                                 <div className="space-y-6">
                                     {newsItems.slice(0, 3).map((news, idx) => (
-                                        <div key={idx} className="group cursor-pointer border-l-2 border-transparent hover:border-green-500 pl-4 transition-all" onClick={() => navigate(`/news/${news._id}`)}>
+                                        <div key={idx} className="group cursor-pointer border-2 border-gray-200 bg-white shadow-sm rounded-xl hover:border-green-500 p-3 transition-all" onClick={() => navigate(`/news/${news._id}`)}>
                                             <Title level={5} className="!text-[#242424] !font-bold !text-[14px] group-hover:text-green-600 transition-colors line-clamp-2 leading-snug mb-1">
                                                 {news.title}
                                             </Title>
