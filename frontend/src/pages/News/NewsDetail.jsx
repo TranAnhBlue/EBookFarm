@@ -110,6 +110,16 @@ const NewsDetail = () => {
                     {/* Middle: Article Content (F8 Style) */}
                     <Col xs={24} lg={15}>
                         <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            {/* Back button */}
+                            <Button
+                                type="text"
+                                icon={<ArrowLeftOutlined />}
+                                onClick={() => navigate('/news')}
+                                className="text-gray-400 hover:text-[#242424] font-bold p-0 mb-6 flex items-center hover:bg-transparent"
+                            >
+                                QUAY LẠI
+                            </Button>
+
                             {/* Title - Large and Bold */}
                             <Title className="!text-[#242424] !font-black !mb-6 leading-[1.4] !text-3xl md:!text-[40px]">
                                 {news.title}
