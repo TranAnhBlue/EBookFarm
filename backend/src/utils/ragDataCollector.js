@@ -6,7 +6,7 @@ const TCVN = require('../models/TCVN');
 const FarmJournal = require('../models/FarmJournal');
 const HtxJournal = require('../models/HtxJournal');
 const AgriModel = require('../models/AgriModel');
-const Inventory = require('../models/Inventory');
+const { InventoryItem } = require('../models/Inventory');
 const Consultation = require('../models/Consultation');
 
 /**
@@ -278,10 +278,13 @@ class RAGDataCollector {
                 FarmJournal.countDocuments(),
                 HtxJournal.countDocuments(),
                 AgriModel.countDocuments(),
-                Inventory.countDocuments(),
+                InventoryItem.countDocuments(),
                 News.countDocuments(),
                 Consultation.countDocuments()
             ]);
+
+            const demoJournal = await FarmJournal.findOne({ qrCode: { $exists: true, $ne: null } }).select('qrCode');
+            const demoQrCode = demoJournal ? demoJournal.qrCode : 'demo-qr-123';
 
             return {
                 type: 'system_stats',
@@ -297,7 +300,8 @@ class RAGDataCollector {
                         news: newsCount,
                         consultations: consultationCount
                     },
-                    description: `Hệ thống EBookFarm hiện đang quản lý ${userCount} người dùng, ${groupCount} hợp tác xã, ${farmJournalCount + htxJournalCount} nhật ký sản xuất, ${agriModelCount} mô hình nông nghiệp và ${inventoryCount} mặt hàng trong kho.`
+                    description: `Hệ thống EBookFarm hiện đang quản lý ${userCount} người dùng, ${groupCount} hợp tác xã, ${farmJournalCount + htxJournalCount} nhật ký sản xuất, ${agriModelCount} mô hình nông nghiệp và ${inventoryCount} mặt hàng trong kho.`,
+                    demoQrCode: demoQrCode
                 }
             };
         } catch (error) {

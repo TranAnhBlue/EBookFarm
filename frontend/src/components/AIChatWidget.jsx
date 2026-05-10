@@ -386,9 +386,12 @@ const AIChatWidget = () => {
                                                     components={{
                                                         img: ({ node, alt, src, ...props }) => {
                                                             if (alt === 'QR') {
+                                                                const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+                                                                const qrUrl = src ? src.replace('https://ebookfarm.vn', baseUrl) : `${baseUrl}/trace/demo-qr-123`;
+                                                                
                                                                 return (
                                                                     <div className="flex flex-col items-center justify-center bg-white p-4 my-4 rounded-xl border border-gray-200 shadow-sm">
-                                                                        <QRCode value={src || 'https://ebookfarm.vn'} size={150} />
+                                                                        <QRCode value={qrUrl} size={150} />
                                                                         <div className="text-[11px] font-bold text-gray-400 mt-3 uppercase tracking-wider">Quét mã QR Demo</div>
                                                                     </div>
                                                                 );

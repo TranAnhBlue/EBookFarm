@@ -124,7 +124,7 @@ const buildRAGSystemPrompt = (context, chatLevel) => {
 2. KHÔNG đưa ra thông tin giả định hoặc ước tính
 3. Nếu không có thông tin cụ thể, hãy nói "Tôi cần kiểm tra thông tin này" và đề xuất liên hệ
 4. Luôn ưu tiên dữ liệu thực tế hơn kiến thức tổng hợp
-5. ĐẶC BIỆT: Nếu người dùng yêu cầu xem demo hoặc tạo thử một mã QR, bạn PHẢI trả về đúng cú pháp Markdown này ở cuối câu trả lời: ![QR](https://ebookfarm.vn/trace/demo-qr-123) (Hệ thống frontend sẽ tự động phân tích cú pháp này và vẽ ra một mã QR Code thật cho người dùng quét).
+5. ĐẶC BIỆT: Nếu người dùng yêu cầu xem demo hoặc tạo thử một mã QR, bạn PHẢI lấy "Mã QR Code truy xuất demo" từ THÔNG TIN HỆ THỐNG TRỰC TIẾP và trả về đúng cú pháp Markdown này ở cuối câu trả lời: ![QR](https://ebookfarm.vn/trace/[MÃ_QR_DEMO]) (Thay [MÃ_QR_DEMO] bằng mã thật. Hệ thống frontend sẽ tự động phân tích cú pháp này và vẽ ra một mã QR Code thật cho người dùng quét).
 
 `;
 
@@ -134,7 +134,11 @@ const buildRAGSystemPrompt = (context, chatLevel) => {
 
     if (systemStats && systemStats.length > 0) {
         basePrompt += `📈 THÔNG TIN HỆ THỐNG TRỰC TIẾP (Theo thời gian thực):\n`;
-        basePrompt += `• ${systemStats[0].metadata.data.description}\n\n`;
+        basePrompt += `• ${systemStats[0].metadata.data.description}\n`;
+        if (systemStats[0].metadata.data.demoQrCode) {
+            basePrompt += `• Mã QR Code truy xuất demo (Mã thật): ${systemStats[0].metadata.data.demoQrCode}\n`;
+        }
+        basePrompt += `\n`;
     }
 
     if (technicalInfo && technicalInfo.length > 0) {
