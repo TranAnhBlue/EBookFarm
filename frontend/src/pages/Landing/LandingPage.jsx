@@ -422,6 +422,11 @@ const LandingPage = () => {
                         <Paragraph className="text-gray-500 text-lg">Giải pháp chuyển đổi số toàn diện cho nông nghiệp hiện đại, minh bạch và hiệu quả.</Paragraph>
                     </div>
 
+                    <div className="scroll-reveal w-full max-w-5xl mx-auto rounded-[40px] overflow-hidden shadow-2xl border-[8px] border-white/50 bg-white hover-lift relative group">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <img src="/images/dashboard_mockup.png" alt="EBookFarm Dashboard" className="w-full h-auto" />
+                    </div>
+
                     <Row gutter={[20, 20]} className="mt-12">
                         {[
                             {
@@ -639,23 +644,18 @@ const LandingPage = () => {
                                 ))}
                             </div>
                         </Col>
-                        <Col xs={24} md={12}>
-                            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden scroll-reveal hover-lift">
-                                <div className="p-8 space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <Text className="text-xs font-black text-gray-400 uppercase tracking-widest">Chứng nhận & Tiêu chuẩn</Text>
-                                        <CheckCircleFilled className="text-green-500 text-2xl" />
-                                    </div>
-                                    <div className="space-y-4">
-                                        {['VietGAP', 'GlobalGAP', 'HACCP', 'ISO 22000', 'Organic', 'TCVN 12827:2023'].map((cert, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all hover-lift" style={{ animationDelay: `${idx * 0.05}s` }}>
-                                                <Text strong className="text-gray-900">{cert}</Text>
-                                                <Tag color="green" className="rounded-full">Hỗ trợ</Tag>
-                                            </div>
-                                        ))}
+                        <Col xs={24} md={12} className="relative">
+                            <div className="absolute -inset-4 bg-gradient-to-br from-green-500/20 to-blue-500/20 blur-3xl rounded-[50px] -z-10"></div>
+                            <img src="/images/smart_farm.png" alt="Smart Farm Agriculture" className="w-full rounded-[40px] shadow-2xl scroll-reveal hover-lift object-cover h-[450px]" />
+                            <div className="absolute bottom-8 right-8 glass-card p-4 rounded-2xl shadow-xl border-white animate-bounce-slow">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircleFilled className="text-green-500 text-2xl" />
+                                    <div>
+                                        <Text strong className="block text-gray-900">Đạt chuẩn VietGAP</Text>
+                                        <Text className="text-xs text-gray-500">100% minh bạch</Text>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         </Col>
                     </Row>
                 </div>
@@ -678,6 +678,15 @@ const LandingPage = () => {
                         <Paragraph className="text-gray-500 text-lg">
                             Mô hình hóa toàn bộ chuỗi cung ứng, đảm bảo tính minh bạch và xác thực dữ liệu tại từng điểm chạm.
                         </Paragraph>
+                    </div>
+
+                    {/* Supply Chain Visual */}
+                    <div className="scroll-reveal max-w-4xl mx-auto mb-16 rounded-[40px] overflow-hidden shadow-2xl hover-lift border-[8px] border-white/50 relative">
+                        <img src="/images/supply_chain.png" alt="Agricultural Supply Chain from Farm to Table" className="w-full h-auto" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        <div className="absolute bottom-6 left-8">
+                            <Tag color="green" className="rounded-full px-4 py-1 text-xs font-bold shadow-lg">Từ nông trại đến bàn ăn</Tag>
+                        </div>
                     </div>
 
                     {/* 5-Step Supply Chain Flow */}
