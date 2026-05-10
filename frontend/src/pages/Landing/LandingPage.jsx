@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Button, Row, Col, Card, Space, Tag, Divider, Form, Input, message, Steps, Select, Modal } from 'antd';
+import { Typography, Button, Row, Col, Card, Space, Tag, Divider, Form, Input, message, Steps, Select, Modal, FloatButton } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleFilled,
@@ -1571,6 +1571,14 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+
+            <FloatButton.BackTop 
+                visibilityHeight={400} 
+                shape="circle"
+                type="primary"
+                className="bg-green-600 hover:bg-green-700 w-12 h-12 shadow-2xl"
+                icon={<ArrowRightOutlined className="-rotate-90" />}
+            />
         </div>
     );
 };
