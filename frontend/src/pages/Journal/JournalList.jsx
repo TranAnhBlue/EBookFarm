@@ -538,15 +538,16 @@ const JournalList = () => {
             )}
           </Space>
           <Space>
-            {user?.role?.toUpperCase() !== 'FARMER' && (
               <>
-                <Button
-                  icon={<UploadOutlined />}
-                  onClick={() => setImportModalVisible(true)}
-                  className="text-green-600 border-green-300 hover:bg-green-50"
-                >
-                  Import
-                </Button>
+                {user?.role?.toUpperCase() !== 'FARMER' && (
+                  <Button
+                    icon={<UploadOutlined />}
+                    onClick={() => setImportModalVisible(true)}
+                    className="text-green-600 border-green-300 hover:bg-green-50"
+                  >
+                    Import
+                  </Button>
+                )}
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
@@ -556,7 +557,6 @@ const JournalList = () => {
                   Tạo sổ nhật ký
                 </Button>
               </>
-            )}
           </Space>
         </div>
 
@@ -693,11 +693,8 @@ const JournalList = () => {
                 </div>
                 <Title level={4} className="!mb-1 text-gray-400">Chưa có sổ nhật ký nào</Title>
                 <Text className="text-gray-400 mb-8">
-                  {user?.role?.toUpperCase() === 'FARMER' 
-                    ? 'Bạn chưa được HTX phân công vào sổ nhật ký nào trong danh mục này.' 
-                    : 'Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.'}
+                  Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.
                 </Text>
-                {user?.role?.toUpperCase() !== 'FARMER' && (
                   <Button 
                     type="primary" 
                     size="large" 
@@ -707,7 +704,6 @@ const JournalList = () => {
                   >
                     Tạo sổ ngay
                   </Button>
-                )}
               </div>
             )}
           </div>
