@@ -323,7 +323,7 @@ const LandingPage = () => {
                                         <div className="space-y-2">
                                             <Text className="text-white font-black text-lg block">Quét QR bằng camera</Text>
                                             <Text className="text-gray-400 text-xs block leading-relaxed">
-                                                Tự động nhận diện và chuyển hướng<br />đến trang chi tiết sản phẩm.
+                                                Tự động nhận diện, kiểm chứng hàng chính hãng<br />và hiển thị báo cáo truy xuất minh bạch.
                                             </Text>
                                         </div>
                                         
@@ -446,6 +446,17 @@ const LandingPage = () => {
                                             <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đồng bộ điều khiển Drone & Máy móc</Text>
                                             <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đa nền tảng: Mobile, Tablet và Máy tính</Text>
                                         </div>
+                                        <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm mt-4 transform group-hover:scale-105 transition-transform duration-500 relative">
+                                            <img src="/images/qr_scan_farm.png" alt="Quản lý trên Mobile ngoài đồng" className="w-full h-32 object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                                                        <CheckOutlined className="text-white text-[10px]" />
+                                                    </div>
+                                                    <Text className="text-white text-xs font-bold">App Mobile EBookFarm</Text>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 ),
                                 icon: <ThunderboltFilled />,
@@ -453,8 +464,8 @@ const LandingPage = () => {
                                 bgImage: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
                             },
                             {
-                                title: 'Hỗ trợ truy xuất nguồn gốc',
-                                desc: 'Cung cấp mã QR/mã vạch giúp khách hàng kiểm tra toàn bộ thông tin sản xuất. Đáp ứng VietGAP, GlobalGAP, Nông nghiệp hữu cơ...',
+                                title: 'Tem QR Truy xuất & Chống giả',
+                                desc: 'Cung cấp mã QR định danh độc bản cho từng lô sản phẩm. Giúp người tiêu dùng dễ dàng kiểm chứng hàng thật, ngăn chặn triệt để hàng giả, hàng nhái.',
                                 icon: <QrcodeOutlined />,
                                 color: '#059669',
                                 bgImage: 'linear-gradient(135deg, #059669 0%, #047857 100%)'
@@ -532,8 +543,8 @@ const LandingPage = () => {
                             },
                             {
                                 icon: <SafetyOutlined />,
-                                title: 'Nâng cao uy tín thương hiệu',
-                                desc: 'Minh bạch thông tin làm tăng niềm tin người tiêu dùng và bảo vệ giá trị thương hiệu bền vững.',
+                                title: 'Chống hàng giả & Bảo vệ thương hiệu',
+                                desc: 'Hệ thống tem QR chống giả và dữ liệu Blockchain giúp ngăn chặn hành vi làm nhái, bảo vệ vững chắc uy tín của doanh nghiệp.',
                                 color: 'green',
                                 gradient: 'from-green-400 to-emerald-600'
                             },
