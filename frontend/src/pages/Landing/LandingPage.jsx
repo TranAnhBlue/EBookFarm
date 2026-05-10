@@ -299,12 +299,14 @@ const LandingPage = () => {
 
                                 {/* Right Side: Camera Simulation Area */}
                                 <div className="md:col-span-5 bg-slate-900 p-8 md:p-12 relative flex flex-col items-center justify-center text-center overflow-hidden">
+                                    <img src="/images/qr_scan_farm.png" alt="Quản lý trên Mobile" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-screen" />
                                     {/* Scan Animation Pattern */}
-                                    <div className="absolute inset-0 opacity-20 pointer-events-none">
-                                        <div className="absolute top-0 left-0 w-full h-full scan-line"></div>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <QrcodeOutlined style={{ fontSize: '300px' }} className="text-green-500/20" />
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        <div className="absolute top-0 left-0 w-full h-full scan-line opacity-50"></div>
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                                            <QrcodeOutlined style={{ fontSize: '300px' }} className="text-green-500" />
                                         </div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90"></div>
                                     </div>
 
                                     <div className="relative space-y-6 z-10">
@@ -445,17 +447,6 @@ const LandingPage = () => {
                                             <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Kết nối cảm biến IoT (Đất, Nước, Nhiệt độ)</Text>
                                             <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đồng bộ điều khiển Drone & Máy móc</Text>
                                             <Text className="text-[11px] text-gray-400 flex items-center gap-1"><CheckOutlined className="text-green-500" /> Đa nền tảng: Mobile, Tablet và Máy tính</Text>
-                                        </div>
-                                        <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm mt-4 transform group-hover:scale-105 transition-transform duration-500 relative">
-                                            <img src="/images/qr_scan_farm.png" alt="Quản lý trên Mobile ngoài đồng" className="w-full h-32 object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                                                        <CheckOutlined className="text-white text-[10px]" />
-                                                    </div>
-                                                    <Text className="text-white text-xs font-bold">App Mobile EBookFarm</Text>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 ),
