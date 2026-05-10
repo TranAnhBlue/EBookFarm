@@ -13,11 +13,13 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import ExcelImport from '../../components/ExcelImport';
+import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text } = Typography;
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,13 +57,15 @@ const UserManagement = () => {
     { title: 'Tên đăng nhập', key: 'username' },
     { title: 'Họ và tên', key: 'fullname' },
     { title: 'Email', key: 'email' },
+    { title: 'Số điện thoại', key: 'phone' },
+    { title: 'Địa chỉ', key: 'address' },
     { title: 'Vai trò', key: 'role' },
     { title: 'Mật khẩu', key: 'password' }
   ];
 
   const userTemplate = [
-    { username: 'nguyenvana', fullname: 'Nguyễn Văn A', email: 'vana@ebookfarm.com', role: 'User' },
-    { username: 'tranvanc', fullname: 'Trần Văn C', email: 'vanc@ebookfarm.com', role: 'Farmer' }
+    { username: 'nguyenvana', fullname: 'Nguyễn Văn A', email: 'vana@ebookfarm.com', phone: '0987654321', address: 'Hà Nội', role: 'Farmer' },
+    { username: 'tranvanc', fullname: 'Trần Văn C', email: 'vanc@ebookfarm.com', phone: '0123456789', address: 'Hồ Chí Minh', role: 'Farmer' }
   ];
 
   // Create/Update mutation
@@ -189,7 +193,8 @@ const UserManagement = () => {
   ], [htxList, form, deleteMutation, navigate, location.pathname]);
 
   const filteredData = users?.filter(u =>
-    u.username.toLowerCase().includes(searchText.toLowerCase())
+    u.username.toLowerCase().includes(searchText.toLowerCase()) &&
+    u._id !== currentUser?._id
   );
 
   return (
@@ -333,7 +338,7 @@ const UserManagement = () => {
             noStyle
             shouldUpdate={(prevValues, currentValues) => prevValues.role !== currentValues.role}
           >
-            {({ getFieldValue }) => 
+            {({ getFieldValue }) =>
               getFieldValue('role') === 'Farmer' ? (
                 <Form.Item
                   name="htxId"

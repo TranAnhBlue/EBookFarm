@@ -5,7 +5,7 @@ const getLogs = async (req, res) => {
     const logs = await Log.find({})
       .populate('user', 'username fullname')
       .sort({ createdAt: -1 })
-      .limit(100);
+      .limit(5000);
       
     res.json({ success: true, data: logs });
   } catch (error) {

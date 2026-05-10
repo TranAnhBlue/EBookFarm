@@ -155,8 +155,7 @@ const MainLayout = () => {
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Cấu hình hệ thống</span>,
       children: [
-        { key: '/admin/config/setup', label: 'Thiết lập hệ thống' },
-        { key: '/admin/config/backup', label: 'Backup dữ liệu' },
+        { key: '/admin/backup', label: 'Sao lưu & Phục hồi dữ liệu' },
       ],
     },
   ];
