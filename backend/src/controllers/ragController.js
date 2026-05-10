@@ -127,7 +127,25 @@ const buildRAGSystemPrompt = (context, chatLevel) => {
 
 `;
 
-    // Thêm thông tin thực tế từ RAG
+    // Luôn luôn cung cấp System Stats & Technical Info cho AI
+    const systemStats = searchEngine.getByType('system_stats');
+    const technicalInfo = searchEngine.getByType('technical_info');
+
+    if (systemStats && systemStats.length > 0) {
+        basePrompt += `📈 THÔNG TIN HỆ THỐNG TRỰC TIẾP (Theo thời gian thực):\n`;
+        basePrompt += `• ${systemStats[0].metadata.data.description}\n\n`;
+    }
+
+    if (technicalInfo && technicalInfo.length > 0) {
+        basePrompt += `🛠️ TỔNG QUAN TÍNH NĂNG DỰ ÁN:\n`;
+        const features = technicalInfo[0].metadata.data.features;
+        for (const [key, value] of Object.entries(features)) {
+            basePrompt += `• ${key}: ${value}\n`;
+        }
+        basePrompt += `\n`;
+    }
+
+    // Thêm thông tin thực tế từ RAG (theo query cụ thể)
     if (context.specificContext) {
         basePrompt += `📊 THÔNG TIN THỰC TẾ HIỆN TẠI:\n\n`;
         

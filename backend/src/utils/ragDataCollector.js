@@ -3,6 +3,11 @@ const News = require('../models/News');
 const User = require('../models/User');
 const Group = require('../models/Group');
 const TCVN = require('../models/TCVN');
+const FarmJournal = require('../models/FarmJournal');
+const HtxJournal = require('../models/HtxJournal');
+const AgriModel = require('../models/AgriModel');
+const Inventory = require('../models/Inventory');
+const Consultation = require('../models/Consultation');
 
 /**
  * Thu thập dữ liệu thực từ database để cung cấp cho RAG
@@ -238,15 +243,65 @@ class RAGDataCollector {
                         uptime: '99.9%'
                     },
                     features: {
-                        qrGeneration: 'Unlimited QR codes',
-                        mobileApp: 'iOS & Android native apps',
-                        reporting: 'Real-time analytics & reports',
-                        traceability: 'Full supply chain tracking'
+                        qrGeneration: 'Tạo mã QR truy xuất nguồn gốc không giới hạn',
+                        mobileApp: 'Hỗ trợ Responsive Web App',
+                        reporting: 'Báo cáo thống kê thời gian thực',
+                        traceability: 'Truy xuất nguồn gốc toàn chuỗi cung ứng',
+                        dynamicForms: 'Quản lý form nhật ký động (FormSchema) cho Chăn nuôi, Thủy sản, Cây trồng',
+                        aiAssistant: 'Trợ lý ảo AI (RAG) tư vấn trực tuyến',
+                        voiceInput: 'Nhập liệu bằng giọng nói (Voice Input)',
+                        excelExport: 'Xuất/Nhập dữ liệu Excel nhanh chóng',
+                        htxManagement: 'Quản lý thành viên và nhật ký Hợp tác xã (HTX)',
+                        inventory: 'Quản lý kho vật tư nông nghiệp',
+                        agriModels: 'Quản lý các mô hình nông nghiệp chuẩn',
+                        tcvn: 'Tích hợp 35+ tiêu chuẩn TCVN'
                     }
                 }
             };
         } catch (error) {
             console.error('Error collecting technical info:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Lấy thống kê chi tiết toàn bộ hệ thống
+     */
+    static async getSystemStats() {
+        try {
+            const [
+                userCount, groupCount, farmJournalCount, htxJournalCount,
+                agriModelCount, inventoryCount, newsCount, consultationCount
+            ] = await Promise.all([
+                User.countDocuments(),
+                Group.countDocuments(),
+                FarmJournal.countDocuments(),
+                HtxJournal.countDocuments(),
+                AgriModel.countDocuments(),
+                Inventory.countDocuments(),
+                News.countDocuments(),
+                Consultation.countDocuments()
+            ]);
+
+            return {
+                type: 'system_stats',
+                lastUpdated: new Date(),
+                data: {
+                    stats: {
+                        users: userCount,
+                        groups: groupCount,
+                        farmJournals: farmJournalCount,
+                        htxJournals: htxJournalCount,
+                        agriModels: agriModelCount,
+                        inventories: inventoryCount,
+                        news: newsCount,
+                        consultations: consultationCount
+                    },
+                    description: `Hệ thống EBookFarm hiện đang quản lý ${userCount} người dùng, ${groupCount} hợp tác xã, ${farmJournalCount + htxJournalCount} nhật ký sản xuất, ${agriModelCount} mô hình nông nghiệp và ${inventoryCount} mặt hàng trong kho.`
+                }
+            };
+        } catch (error) {
+            console.error('Error collecting system stats:', error);
             return null;
         }
     }
@@ -258,15 +313,16 @@ class RAGDataCollector {
         try {
             console.log('🔄 Collecting RAG data from database...');
             
-            const [productInfo, pricingInfo, newsUpdates, contactInfo, technicalInfo] = await Promise.all([
+            const [productInfo, pricingInfo, newsUpdates, contactInfo, technicalInfo, systemStats] = await Promise.all([
                 this.getProductInfo(),
                 this.getPricingInfo(),
                 this.getNewsAndUpdates(),
                 this.getContactInfo(),
-                this.getTechnicalInfo()
+                this.getTechnicalInfo(),
+                this.getSystemStats()
             ]);
 
-            const allData = [productInfo, pricingInfo, newsUpdates, contactInfo, technicalInfo]
+            const allData = [productInfo, pricingInfo, newsUpdates, contactInfo, technicalInfo, systemStats]
                 .filter(data => data !== null);
 
             console.log(`✅ Collected ${allData.length} data sources for RAG`);

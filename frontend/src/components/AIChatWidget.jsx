@@ -133,7 +133,7 @@ const AIChatWidget = () => {
         }
         // Default
         else {
-            return botResponses['default'];
+            return null;
         }
     };
 
@@ -152,6 +152,23 @@ const AIChatWidget = () => {
         setIsTyping(true);
         setShowUpgradeAlert(false);
 
+        // 1. Check local predefined responses first for instant reply
+        const localResponse = getBotResponse(inputValue);
+        if (localResponse) {
+            setTimeout(() => {
+                const botMessage = {
+                    id: messages.length + 2,
+                    type: 'bot',
+                    text: localResponse,
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, botMessage]);
+                setIsTyping(false);
+            }, 500); // Short realistic typing delay
+            return;
+        }
+
+        // 2. Call AI API for complex queries
         try {
             const headers = {
                 'Content-Type': 'application/json'
@@ -217,7 +234,7 @@ const AIChatWidget = () => {
             const botMessage = {
                 id: messages.length + 2,
                 type: 'bot',
-                text: getBotResponse(inputValue),
+                text: getBotResponse(inputValue) || botResponses['default'],
                 timestamp: new Date()
             };
             
