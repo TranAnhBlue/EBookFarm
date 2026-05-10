@@ -8,7 +8,9 @@ import {
   HistoryOutlined,
   SyncOutlined,
   UnlockOutlined,
-  HomeOutlined
+  HomeOutlined,
+  UserOutlined,
+  GlobalOutlined
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
