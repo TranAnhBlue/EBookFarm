@@ -12,9 +12,13 @@ import {
   CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  ExclamationCircleOutlined,
+  CloseCircleOutlined
 } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -35,6 +39,8 @@ const AdminJournalMgmt = () => {
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isQRModalVisible, setIsQRModalVisible] = useState(false);
+  const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,6 +50,102 @@ const AdminJournalMgmt = () => {
     queryKey: ['admin-journals'],
     queryFn: () => api.get('/journals').then(res => res.data.data)
   });
+
+  const queryClient = useQueryClient();
+
+  // Lock Journal Mutation
+  const lockJournalMutation = useMutation({
+    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Locked' }),
+    onSuccess: () => {
+      message.success('Đã khóa sổ nhật ký thành công! Dữ liệu hiện tại là bất biến.');
+      queryClient.invalidateQueries({ queryKey: ['admin-journals'] });
+    },
+    onError: (error) => {
+      message.error(error.response?.data?.message || 'Lỗi khi khóa nhật ký.');
+    }
+  });
+
+  // Approve Journal Mutation (for independent farmers)
+  const approveJournalMutation = useMutation({
+    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Verified' }),
+    onSuccess: () => {
+      message.success('Đã duyệt nhật ký thành công! Sổ đã sẵn sàng xuất mã QR chuẩn.');
+      queryClient.invalidateQueries({ queryKey: ['admin-journals'] });
+    },
+    onError: (error) => {
+      message.error(error.response?.data?.message || 'Lỗi khi duyệt nhật ký.');
+    }
+  });
+
+  // Reject Journal Mutation (for independent farmers)
+  const rejectJournalMutation = useMutation({
+    mutationFn: ({ journalId, feedback }) => api.put(`/journals/${journalId}`, { status: 'Draft', feedback }),
+    onSuccess: () => {
+      message.success('Đã từ chối và gửi phản hồi yêu cầu chỉnh sửa!');
+      setIsRejectModalVisible(false);
+      setRejectReason('');
+      queryClient.invalidateQueries({ queryKey: ['admin-journals'] });
+    },
+    onError: (error) => {
+      message.error(error.response?.data?.message || 'Lỗi khi từ chối nhật ký.');
+    }
+  });
+
+  const handleLockJournal = (record) => {
+    Modal.confirm({
+      title: 'Xác nhận khóa dữ liệu nhật ký?',
+      icon: <ExclamationCircleOutlined className="text-red-500" />,
+      content: (
+        <div className="space-y-2 mt-2">
+          <Text>Bạn đang thực hiện thao tác <Text strong className="text-red-500">Khóa bất biến</Text> cho sổ <b>{record.schemaId?.name || record.qrCode}</b>.</Text>
+          <Text className="block text-gray-500">Sau khi khóa, người nông dân sẽ không thể chỉnh sửa thêm bất kỳ thông tin nào. Mã QR sẽ luôn trỏ về phiên bản dữ liệu này.</Text>
+        </div>
+      ),
+      okText: 'Khóa ngay',
+      okType: 'danger',
+      cancelText: 'Hủy bỏ',
+      onOk: () => {
+        lockJournalMutation.mutate(record._id);
+      }
+    });
+  };
+
+  const handleApproveJournal = (record) => {
+    Modal.confirm({
+      title: 'Phê duyệt nhật ký sản xuất?',
+      icon: <CheckCircleOutlined className="text-green-500" />,
+      content: (
+        <div className="space-y-2 mt-2">
+          <Text>Bạn (với tư cách Quản trị hệ thống) đang chuẩn bị duyệt sổ <Text strong className="text-green-600">{record.schemaId?.name || record.qrCode}</Text>.</Text>
+          {!record.htxJournalId && (
+            <Text className="block text-gray-500 italic">Lưu ý: Đây là nông hộ tự do (không thuộc HTX). Bạn đóng vai trò là đơn vị kiểm duyệt trung tâm.</Text>
+          )}
+        </div>
+      ),
+      okText: 'Duyệt sổ',
+      cancelText: 'Hủy bỏ',
+      onOk: () => {
+        approveJournalMutation.mutate(record._id);
+      }
+    });
+  };
+
+  const handleRejectJournal = (record) => {
+    setSelectedJournal(record);
+    setRejectReason(record.feedback || '');
+    setIsRejectModalVisible(true);
+  };
+
+  const submitReject = () => {
+    if (!rejectReason.trim()) {
+      message.warning('Vui lòng nhập lý do từ chối để nông dân có thể chỉnh sửa!');
+      return;
+    }
+    rejectJournalMutation.mutate({ 
+      journalId: selectedJournal._id, 
+      feedback: rejectReason 
+    });
+  };
 
   // Filter and Sort journals
   const filteredJournals = React.useMemo(() => {
@@ -120,6 +222,7 @@ const AdminJournalMgmt = () => {
 
   const getStatusDisplay = (record) => {
     const { status, htxStatus } = record;
+    if (status === 'Locked') return <Tag color="red" icon={<LockOutlined />} className="rounded-full px-3">Đã khóa (Bất biến)</Tag>;
     if (status === 'Verified') return <Tag color="green" icon={<CheckCircleOutlined />} className="rounded-full px-3">HTX Đã duyệt</Tag>;
     if (status === 'Submitted') return <Tag color="blue" icon={<ClockCircleOutlined />} className="rounded-full px-3">Chờ duyệt</Tag>;
     if (status === 'Draft') return <Tag color="orange" icon={<ClockCircleOutlined />} className="rounded-full px-3">Đang thực hiện</Tag>;
@@ -192,11 +295,40 @@ const AdminJournalMgmt = () => {
       align: 'right',
       render: (record) => (
         <Space size="middle">
+          {record.status === 'Submitted' && (
+            <>
+              <Button 
+                icon={<CheckCircleOutlined />} 
+                size="middle" 
+                onClick={() => handleApproveJournal(record)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm text-green-600 border-green-200 hover:bg-green-50"
+                title="Duyệt nhật ký"
+              />
+              <Button 
+                icon={<CloseCircleOutlined />} 
+                size="middle" 
+                onClick={() => handleRejectJournal(record)}
+                className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm text-orange-600 border-orange-200 hover:bg-orange-50"
+                title="Từ chối & Yêu cầu sửa"
+              />
+            </>
+          )}
+          {record.status !== 'Locked' && (
+            <Button 
+              icon={<LockOutlined />} 
+              size="middle" 
+              danger
+              onClick={() => handleLockJournal(record)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm border-red-100 hover:bg-red-50"
+              title="Khóa dữ liệu bất biến"
+            />
+          )}
           <Button 
             icon={<EyeOutlined />} 
             size="middle" 
             onClick={() => handleViewDetail(record)}
             className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm border-gray-100 hover:text-green-600"
+            title="Xem chi tiết"
           />
           <Button 
             icon={<QrcodeOutlined />} 
@@ -204,6 +336,7 @@ const AdminJournalMgmt = () => {
             type="primary" 
             onClick={() => handleViewQR(record)}
             className="flex items-center justify-center w-10 h-10 rounded-xl shadow-sm bg-green-600 border-0"
+            title="Xem mã QR"
           />
         </Space>
       )
@@ -522,6 +655,39 @@ const AdminJournalMgmt = () => {
           </div>
         )}
       </Modal>
+      {/* Reject Modal */}
+      <Modal
+        title={<div className="flex items-center gap-2"><CloseCircleOutlined className="text-orange-500" /><Text strong className="text-lg">Từ chối & Yêu cầu chỉnh sửa</Text></div>}
+        open={isRejectModalVisible}
+        onCancel={() => setIsRejectModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsRejectModalVisible(false)}>Hủy</Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            danger 
+            loading={rejectJournalMutation.isLoading}
+            onClick={submitReject}
+            className="bg-orange-500 hover:bg-orange-600 border-0"
+          >
+            Gửi yêu cầu sửa
+          </Button>
+        ]}
+      >
+        <div className="space-y-4 py-4">
+          <Text className="block">
+            Vui lòng nhập lý do từ chối hoặc hướng dẫn để nông dân <Text strong>{selectedJournal?.userId?.fullname || selectedJournal?.userId?.username}</Text> biết cách chỉnh sửa nhật ký này:
+          </Text>
+          <Input.TextArea
+            rows={4}
+            placeholder="Ví dụ: Hình ảnh thu hoạch không rõ nét, thiếu thông tin về loại phân bón đã sử dụng ngày 15/05..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            className="rounded-xl border-orange-200 hover:border-orange-400 focus:border-orange-500"
+          />
+        </div>
+      </Modal>
+
     </div>
   );
 };

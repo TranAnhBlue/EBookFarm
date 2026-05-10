@@ -99,11 +99,32 @@ const updateJournal = async (req, res) => {
           if (!hasAccess) {
               return res.status(403).json({ success: false, message: 'Not authorized' });
           }
+
+          // DATA IMMUTABILITY ENFORCEMENT
+          // Nếu sổ đã bị khóa, ngăn chặn mọi nỗ lực chỉnh sửa (trừ Admin)
+          if (journal.status === 'Locked' && req.user.role?.toUpperCase() !== 'ADMIN') {
+              return res.status(403).json({ 
+                  success: false, 
+                  message: 'Sổ nhật ký này đã bị khóa (Khóa bất biến). Không thể chỉnh sửa dữ liệu để đảm bảo tính minh bạch của mã QR.' 
+              });
+          }
+
           journal.entries = req.body.entries || journal.entries;
           journal.status = req.body.status || journal.status;
-          if (req.body.images) {
-            journal.images = req.body.images;
+
+          // Set lockedAt timestamp if transitioning to Locked
+          if (journal.status === 'Locked' && !journal.lockedAt) {
+              journal.lockedAt = new Date();
           }
+
+          if (req.body.images) {
+              journal.images = req.body.images;
+          }
+          
+          journal.editCount = (journal.editCount || 0) + 1;
+          journal.lastEditedAt = new Date();
+          journal.lastEditedBy = req.user._id;
+
           const updated = await journal.save();
           
           // Đồng bộ trạng thái lên HtxJournal nếu có
