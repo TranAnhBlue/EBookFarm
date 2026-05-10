@@ -470,7 +470,13 @@ const JournalTrace = () => {
             <Row gutter={[24, 24]} align="middle">
               <Col xs={24} sm={6} className="text-center">
                 <div className="bg-white p-2 rounded-full inline-block shadow-lg">
-                   <Avatar size={100} src={journal.htxJournalId.htxId.avatar} icon={<HomeOutlined />} className="bg-gold-50 text-gold-600" />
+                   <Avatar 
+                     size={100} 
+                     src={getAvatarUrl(journal.htxJournalId.htxId.avatar)} 
+                     className="bg-gold-50 text-gold-600 flex items-center justify-center font-bold text-4xl"
+                   >
+                     {!getAvatarUrl(journal.htxJournalId.htxId.avatar) && getInitialAvatar(journal.htxJournalId.htxId.fullname || journal.htxJournalId.htxId.username)}
+                   </Avatar>
                 </div>
               </Col>
               <Col xs={24} sm={18}>

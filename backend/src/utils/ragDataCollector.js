@@ -283,8 +283,8 @@ class RAGDataCollector {
                 Consultation.countDocuments()
             ]);
 
-            const demoJournal = await FarmJournal.findOne({ qrCode: { $exists: true, $ne: null } }).select('qrCode');
-            const demoQrCode = demoJournal ? demoJournal.qrCode : 'demo-qr-123';
+            // Cố định mã QR này vì lô hàng này có dữ liệu đẹp để demo truy xuất
+            const demoQrCode = '49e21a1e-0584-4fbd-99b2-9a71c2fd22d4';
 
             return {
                 type: 'system_stats',
