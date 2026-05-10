@@ -11,6 +11,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
 import { getAvatarUrl } from 'src/utils/helpers';
+import NewsService from 'src/services/NewsService'
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -46,7 +47,7 @@ const NewsManagement = () => {
 
     const { data: newsList, isLoading } = useQuery({
         queryKey: ['news'],
-        queryFn: () => api.get('/news').then(res => res.data.data)
+        queryFn: () => NewsService.getNews().then(res => res.data.data)
     });
 
     const filteredAndSortedNews = React.useMemo(() => {
@@ -82,7 +83,7 @@ const NewsManagement = () => {
     };
 
     const createMutation = useMutation({
-        mutationFn: (values) => api.post('/news', values),
+        mutationFn: (values) => NewsService.createNews(values),
         onSuccess: (res) => {
             const newItem = res.data.data;
             // Cập nhật cache trực tiếp — không cần reload

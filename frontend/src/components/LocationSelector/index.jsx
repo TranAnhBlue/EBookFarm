@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select, Spin, Input, Typography } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import { getProvinces, getWardsByProvince } from 'src/services/LocationService';
@@ -7,8 +7,8 @@ const { Option } = Select;
 const { Text } = Typography;
 
 /**
- * Component chá»n Ä‘á»‹a phÆ°Æ¡ng Viá»‡t Nam (sau sÃ¡p nháº­p 07/2025)
- * Cáº¥u trÃºc má»›i: Tá»‰nh/ThÃ nh phá»‘ â†’ PhÆ°á»ng/XÃ£ (bá» cáº¥p Quáº­n/Huyá»‡n)
+ * Component chọn địa phương Việt Nam (sau sáp nhập 07/2025)
+ * Cấu trúc mới: Tỉnh/Thành phố → Phường/Xã (bỏ cấp Quận/Huyện)
  *
  * @param {Object} props
  * @param {Object} props.value  - { province, ward, detailAddress }
@@ -24,7 +24,7 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
 
-  // Load danh sÃ¡ch tá»‰nh/thÃ nh
+  // Load danh sách tỉnh/thành
   useEffect(() => {
     const fetch = async () => {
       setLoadingProvinces(true);
@@ -35,7 +35,7 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
     fetch();
   }, []);
 
-  // Load phÆ°á»ng/xÃ£ khi chá»n tá»‰nh
+  // Load phường/xã khi chọn tỉnh
   useEffect(() => {
     const fetch = async () => {
       if (selectedProvinceCode) {
@@ -77,17 +77,17 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Tá»‰nh / ThÃ nh phá»‘ */}
+        {/* Tỉnh / Thành phố */}
         <div className="flex flex-col gap-2">
-          <Text className="text-gray-600 font-medium">Tá»‰nh/ThÃ nh phá»‘</Text>
+          <Text className="text-gray-600 font-medium">Tỉnh/Thành phố</Text>
           <Select
-            placeholder="Chá»n tá»‰nh/thÃ nh phá»‘"
+            placeholder="Chọn tỉnh/thành phố"
             value={value.province || undefined}
             onChange={handleProvinceChange}
             showSearch
             disabled={disabled}
             loading={loadingProvinces}
-            notFoundContent={loadingProvinces ? <Spin size="small" /> : 'KhÃ´ng tÃ¬m tháº¥y'}
+            notFoundContent={loadingProvinces ? <Spin size="small" /> : 'Không tìm thấy'}
             filterOption={(input, option) =>
               (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
             }
@@ -101,22 +101,22 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
           </Select>
         </div>
 
-        {/* PhÆ°á»ng / XÃ£ (trá»±c tiáº¿p tá»« tá»‰nh, khÃ´ng qua huyá»‡n) */}
+        {/* Phường / Xã (trực tiếp từ tỉnh, không qua huyện) */}
         <div className="flex flex-col gap-2">
           <Text className="text-gray-600 font-medium">
-            PhÆ°á»ng/XÃ£
+            Phường/Xã
             {!selectedProvinceCode && (
-              <span className="text-gray-400 text-xs font-normal ml-1">(chá»n tá»‰nh trÆ°á»›c)</span>
+              <span className="text-gray-400 text-xs font-normal ml-1">(chọn tỉnh trước)</span>
             )}
           </Text>
           <Select
-            placeholder="Chá»n phÆ°á»ng/xÃ£"
+            placeholder="Chọn phường/xã"
             value={value.ward || undefined}
             onChange={handleWardChange}
             showSearch
             disabled={disabled || !selectedProvinceCode}
             loading={loadingWards}
-            notFoundContent={loadingWards ? <Spin size="small" /> : 'KhÃ´ng tÃ¬m tháº¥y'}
+            notFoundContent={loadingWards ? <Spin size="small" /> : 'Không tìm thấy'}
             filterOption={(input, option) =>
               (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
             }
@@ -131,12 +131,12 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
         </div>
       </div>
 
-      {/* Äá»‹a chá»‰ chi tiáº¿t */}
+      {/* Địa chỉ chi tiết */}
       <div className="flex flex-col gap-2">
-        <Text className="text-gray-600 font-medium">Äá»‹a chá»‰ chi tiáº¿t</Text>
+        <Text className="text-gray-600 font-medium">Địa chỉ chi tiết</Text>
         <Input
           prefix={<EnvironmentOutlined className="text-gray-400" />}
-          placeholder="Sá»‘ nhÃ , tÃªn Ä‘Æ°á»ng, thÃ´n/xÃ³m..."
+          placeholder="Số nhà, tên đường, thôn/xóm..."
           value={value.detailAddress}
           onChange={handleDetailChange}
           disabled={disabled}
@@ -148,4 +148,3 @@ const LocationSelector = ({ value = {}, onChange, disabled = false }) => {
 };
 
 export default LocationSelector;
-

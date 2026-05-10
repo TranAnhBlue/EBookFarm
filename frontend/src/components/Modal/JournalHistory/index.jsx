@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Timeline, Tag, Empty, Spin, Descriptions, Alert, Tabs } from 'antd';
 import { ClockCircleOutlined, UserOutlined, EditOutlined, FileAddOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import api from 'src/services/01_axios';
@@ -23,7 +23,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await http.get(`/journals/${journalId}/history`);
+      const response = await api.get(`/journals/${journalId}/history`);
       setHistory(response.data.data.history);
     } catch (error) {
       console.error('Error fetching history:', error);
@@ -34,7 +34,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
 
   const fetchSummary = async () => {
     try {
-      const response = await http.get(`/journals/${journalId}/history/summary`);
+      const response = await api.get(`/journals/${journalId}/history/summary`);
       setSummary(response.data.data);
     } catch (error) {
       console.error('Error fetching summary:', error);
@@ -79,7 +79,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <UserOutlined />
                   <span className="font-medium">{item.user.name}</span>
-                  <span className="text-gray-400">â€¢</span>
+                  <span className="text-gray-400">•</span>
                   <ClockCircleOutlined />
                   <span>{dayjs(item.timestamp).format('DD/MM/YYYY HH:mm')}</span>
                 </div>
@@ -95,11 +95,11 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
                     <div className="font-medium text-gray-800 mb-2">{change.field}</div>
                     <div className="flex items-center gap-2 text-sm">
                       <span className="px-2 py-1 bg-red-50 text-red-700 rounded border border-red-200 line-through">
-                        {change.oldValue || '(Trá»‘ng)'}
+                        {change.oldValue || '(Trống)'}
                       </span>
-                      <span className="text-gray-400">â†’</span>
+                      <span className="text-gray-400">→</span>
                       <span className="px-2 py-1 bg-green-50 text-green-700 rounded border border-green-200 font-medium">
-                        {change.newValue || '(Trá»‘ng)'}
+                        {change.newValue || '(Trống)'}
                       </span>
                     </div>
                   </div>
@@ -110,7 +110,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
             {/* Reason */}
             {item.reason && (
               <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-                <div className="text-xs text-blue-600 font-medium mb-1">LÃ½ do:</div>
+                <div className="text-xs text-blue-600 font-medium mb-1">Lý do:</div>
                 <div className="text-sm text-blue-800">{item.reason}</div>
               </div>
             )}
@@ -135,30 +135,30 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
           <div className="text-2xl font-bold text-blue-600">{summary?.totalEdits || 0}</div>
-          <div className="text-sm text-blue-800">Láº§n chá»‰nh sá»­a</div>
+          <div className="text-sm text-blue-800">Lần chỉnh sửa</div>
         </div>
         <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
           <div className="text-2xl font-bold text-orange-600">{summary?.statusChanges || 0}</div>
-          <div className="text-sm text-orange-800">Thay Ä‘á»•i tráº¡ng thÃ¡i</div>
+          <div className="text-sm text-orange-800">Thay đổi trạng thái</div>
         </div>
         <div className="bg-green-50 p-4 rounded-lg border border-green-200">
           <div className="text-2xl font-bold text-green-600">{summary?.uniqueEditors || 0}</div>
-          <div className="text-sm text-green-800">NgÆ°á»i chá»‰nh sá»­a</div>
+          <div className="text-sm text-green-800">Người chỉnh sửa</div>
         </div>
       </div>
 
       {/* Journal Info */}
       {summary?.journal && (
         <Descriptions bordered size="small" column={1}>
-          <Descriptions.Item label="Tráº¡ng thÃ¡i hiá»‡n táº¡i">
+          <Descriptions.Item label="Trạng thái hiện tại">
             <Tag color={getStatusColor(summary.journal.status)}>
               {getStatusLabel(summary.journal.status)}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="NgÃ y táº¡o">
+          <Descriptions.Item label="Ngày tạo">
             {dayjs(summary.journal.createdAt).format('DD/MM/YYYY HH:mm')}
           </Descriptions.Item>
-          <Descriptions.Item label="Tá»•ng sá»‘ láº§n sá»­a">
+          <Descriptions.Item label="Tổng số lần sửa">
             {summary.journal.editCount || 0}
           </Descriptions.Item>
         </Descriptions>
@@ -167,7 +167,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
       {/* Last Edit */}
       {summary?.lastEdit && (
         <Alert
-          message="Chá»‰nh sá»­a gáº§n nháº¥t"
+          message="Chỉnh sửa gần nhất"
           description={
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-1">
@@ -203,11 +203,11 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
 
   const getStatusLabel = (status) => {
     const labels = {
-      'Draft': 'ðŸ“ NhÃ¡p',
-      'Submitted': 'ðŸ“¤ ÄÃ£ gá»­i',
-      'Verified': 'âœ… ÄÃ£ xÃ¡c minh',
-      'Locked': 'ðŸ”’ ÄÃ£ khÃ³a',
-      'Archived': 'ðŸ“¦ LÆ°u trá»¯'
+      'Draft': '📝 Nháp',
+      'Submitted': '📤 Đã gửi',
+      'Verified': '✅ Đã xác minh',
+      'Locked': '🔒 Đã khóa',
+      'Archived': '📦 Lưu trữ'
     };
     return labels[status] || status;
   };
@@ -217,7 +217,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
       title={
         <div className="flex items-center gap-2">
           <ClockCircleOutlined className="text-blue-600" />
-          <span className="text-lg font-bold">Lá»‹ch sá»­ chá»‰nh sá»­a</span>
+          <span className="text-lg font-bold">Lịch sử chỉnh sửa</span>
         </div>
       }
       open={visible}
@@ -232,7 +232,7 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
         items={[
           {
             key: 'timeline',
-            label: 'DÃ²ng thá»i gian',
+            label: 'Dòng thời gian',
             children: loading ? (
               <div className="flex justify-center items-center py-20">
                 <Spin size="large" />
@@ -240,12 +240,12 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
             ) : history.length > 0 ? (
               renderTimeline()
             ) : (
-              <Empty description="ChÆ°a cÃ³ lá»‹ch sá»­ chá»‰nh sá»­a" />
+              <Empty description="Chưa có lịch sử chỉnh sửa" />
             )
           },
           {
             key: 'summary',
-            label: 'TÃ³m táº¯t',
+            label: 'Tóm tắt',
             children: summary ? renderSummary() : (
               <div className="flex justify-center items-center py-20">
                 <Spin size="large" />
@@ -259,4 +259,3 @@ const JournalHistoryModal = ({ visible, onClose, journalId }) => {
 };
 
 export default JournalHistoryModal;
-

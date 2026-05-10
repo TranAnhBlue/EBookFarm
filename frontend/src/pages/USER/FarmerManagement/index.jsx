@@ -23,6 +23,7 @@ import { Modal, List, Divider, Empty } from 'antd';
 import api from 'src/services/01_axios';
 import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
 import dayjs from 'dayjs';
+import JournalService from 'src/services/JournalService'
 
 const { Title, Text } = Typography;
 
@@ -45,7 +46,7 @@ const HtxFarmerMgmt = () => {
   const fetchFarmers = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/htx/journals/farmers');
+      const res = await JournalService.getHtxFarmers();
       if (res.data.success) {
         setFarmers(res.data.data);
       }

@@ -15,6 +15,7 @@ import {
 import { Tractor } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
+import InventoryService from 'src/services/InventoryService'
 
 const { Title, Text } = Typography;
 
@@ -31,7 +32,7 @@ const AdminInventory = () => {
   // Fetch Items
   const { data: items, isLoading } = useQuery({
     queryKey: ['inventory'],
-    queryFn: () => api.get('/inventory').then(res => res.data.data)
+    queryFn: () => InventoryService.getInventory().then(res => res.data.data)
   });
 
   // Create/Update Mutation
@@ -40,7 +41,7 @@ const AdminInventory = () => {
       if (editingItem) {
         return api.put(`/inventory/${editingItem._id}`, values);
       }
-      return api.post('/inventory', values);
+      return InventoryService.createInventory(values);
     },
     onSuccess: () => {
       message.success(`${editingItem ? 'Cập nhật' : 'Thêm mới'} vật tư thành công!`);
@@ -63,7 +64,7 @@ const AdminInventory = () => {
 
   // Stock Transaction Mutation
   const stockMutation = useMutation({
-    mutationFn: (values) => api.post('/inventory/transaction', { ...values, itemId: selectedItem._id }),
+    mutationFn: (values) => InventoryService.createTransaction({ ...values, itemId: selectedItem._id }),
     onSuccess: () => {
       message.success('Cập nhật tồn kho thành công!');
       setIsStockModalOpen(false);
@@ -76,7 +77,7 @@ const AdminInventory = () => {
   // Fetch Dynamic Categories
   const { data: catList } = useQuery({
     queryKey: ['inventory-categories'],
-    queryFn: () => api.get('/inventory-categories').then(res => res.data.data)
+    queryFn: () => InventoryService.getCategories().then(res => res.data.data)
   });
 
   const [selectedCategory, setSelectedCategory] = useState('All');

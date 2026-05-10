@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button, Input, Avatar, Badge, Tooltip, Alert, Progress, QRCode } from 'antd';
 import {
     MessageOutlined,
@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { API_URL } from 'src/lib/utils';
+import { API_URL } from 'src/utils/helpers';
 import './index.css';
 
 const { TextArea } = Input;
@@ -23,7 +23,7 @@ const AIChatWidget = () => {
         {
             id: 1,
             type: 'bot',
-            text: 'Xin chÃ o! ðŸ‘‹ TÃ´i lÃ  trá»£ lÃ½ áº£o cá»§a EBookFarm. TÃ´i cÃ³ thá»ƒ giÃºp gÃ¬ cho báº¡n?',
+            text: 'Xin chào! 👋 Tôi là trợ lý ảo của EBookFarm. Tôi có thể giúp gì cho bạn?',
             timestamp: new Date()
         }
     ]);
@@ -35,12 +35,12 @@ const AIChatWidget = () => {
     const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // Láº¥y thÃ´ng tin user tá»« localStorage
+    // Lấy thông tin user từ localStorage
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
 
-    // Láº¥y thÃ´ng tin chat khi má»Ÿ widget
+    // Lấy thông tin chat khi mở widget
     useEffect(() => {
         if (isOpen && !chatInfo) {
             fetchChatInfo();
@@ -79,57 +79,57 @@ const AIChatWidget = () => {
     }, [messages]);
 
     const quickReplies = [
-        'ðŸ“‹ TÃ­nh nÄƒng cá»§a há»‡ thá»‘ng',
-        'ðŸ’° Báº£ng giÃ¡ dá»‹ch vá»¥',
-        'ðŸ“ž LiÃªn há»‡ tÆ° váº¥n',
-        'ðŸŽ“ HÆ°á»›ng dáº«n sá»­ dá»¥ng'
+        '📋 Tính năng của hệ thống',
+        '💰 Bảng giá dịch vụ',
+        '📞 Liên hệ tư vấn',
+        '🎓 Hướng dẫn sử dụng'
     ];
 
     const botResponses = {
-        'greeting': 'Xin chÃ o! ðŸ˜Š Ráº¥t vui Ä‘Æ°á»£c há»— trá»£ báº¡n. TÃ´i cÃ³ thá»ƒ giÃºp báº¡n tÃ¬m hiá»ƒu vá»:\n\nâœ… TÃ­nh nÄƒng há»‡ thá»‘ng\nðŸ’° Báº£ng giÃ¡ dá»‹ch vá»¥\nðŸ“ž ThÃ´ng tin liÃªn há»‡\nðŸŽ“ HÆ°á»›ng dáº«n sá»­ dá»¥ng\n\nBáº¡n quan tÃ¢m Ä‘áº¿n váº¥n Ä‘á» nÃ o?',
-        'tÃ­nh nÄƒng': 'EBookFarm cung cáº¥p giáº£i phÃ¡p toÃ n diá»‡n:\n\nðŸ“ **Nháº­t kÃ½ sáº£n xuáº¥t Ä‘iá»‡n tá»­**\nâ€¢ Ghi chÃ©p trÃªn mobile/web\nâ€¢ LÆ°u trá»¯ Ä‘Ã¡m mÃ¢y an toÃ n\nâ€¢ BÃ¡o cÃ¡o tá»± Ä‘á»™ng\n\nðŸ” **Truy xuáº¥t nguá»“n gá»‘c QR**\nâ€¢ Táº¡o mÃ£ QR cho tá»«ng lÃ´ hÃ ng\nâ€¢ NgÆ°á»i tiÃªu dÃ¹ng quÃ©t Ä‘á»ƒ xem thÃ´ng tin\nâ€¢ TuÃ¢n thá»§ TCVN 35+ tiÃªu chuáº©n\n\nâ›“ï¸ **Quáº£n lÃ½ chuá»—i cung á»©ng**\nâ€¢ Káº¿t ná»‘i nhÃ  cung cáº¥p - nÃ´ng tráº¡i - HTX\nâ€¢ Kiá»ƒm soÃ¡t cháº¥t lÆ°á»£ng toÃ n chuá»—i\nâ€¢ BÃ¡o cÃ¡o & phÃ¢n tÃ­ch\n\nBáº¡n muá»‘n demo thá»­ khÃ´ng?',
-        'giÃ¡': 'ðŸ’° **Báº£ng giÃ¡ linh hoáº¡t theo nhu cáº§u:**\n\nðŸŒ± **GÃ³i CÆ¡ báº£n** - Tá»« 500k/thÃ¡ng\nâ€¢ PhÃ¹ há»£p nÃ´ng há»™ nhá» (< 5ha)\nâ€¢ Nháº­t kÃ½ Ä‘iá»‡n tá»­ cÆ¡ báº£n\nâ€¢ 100 mÃ£ QR/thÃ¡ng\n\nðŸŒ¿ **GÃ³i ChuyÃªn nghiá»‡p** - Tá»« 2tr/thÃ¡ng\nâ€¢ Cho HTX vÃ  trang tráº¡i (5-50ha)\nâ€¢ Äáº§y Ä‘á»§ tÃ­nh nÄƒng\nâ€¢ 1000 mÃ£ QR/thÃ¡ng\nâ€¢ Há»— trá»£ Æ°u tiÃªn\n\nðŸŒ³ **GÃ³i Doanh nghiá»‡p** - BÃ¡o giÃ¡ riÃªng\nâ€¢ Giáº£i phÃ¡p toÃ n diá»‡n\nâ€¢ TÃ¹y chá»‰nh theo yÃªu cáº§u\nâ€¢ KhÃ´ng giá»›i háº¡n\nâ€¢ ÄÃ o táº¡o & há»— trá»£ 24/7\n\nðŸ“ž Gá»i 1900 xxxx Ä‘á»ƒ nháº­n Æ°u Ä‘Ã£i!',
-        'liÃªn há»‡': 'ðŸ“ž **LiÃªn há»‡ vá»›i chÃºng tÃ´i:**\n\nâ˜Žï¸ **Hotline:** 1900 xxxx\nðŸ“§ **Email:** contact@ebookfarm.vn\nðŸŒ **Website:** ebookfarm.vn\nðŸ¢ **VÄƒn phÃ²ng:** [Äá»‹a chá»‰]\n\nâ° **Giá» lÃ m viá»‡c:**\nT2-T6: 8:00 - 17:30\nT7: 8:00 - 12:00\n\nðŸ’¬ Hoáº·c Ä‘á»ƒ láº¡i thÃ´ng tin, chÃºng tÃ´i sáº½ gá»i láº¡i trong 30 phÃºt!',
-        'hÆ°á»›ng dáº«n': 'ðŸ“š **TÃ i liá»‡u & Há»— trá»£:**\n\nðŸŽ¥ **Video hÆ°á»›ng dáº«n**\nâ€¢ CÃ i Ä‘áº·t & thiáº¿t láº­p ban Ä‘áº§u\nâ€¢ Ghi nháº­t kÃ½ sáº£n xuáº¥t\nâ€¢ Táº¡o mÃ£ QR truy xuáº¥t\nâ€¢ Quáº£n lÃ½ chuá»—i cung á»©ng\n\nðŸ“– **TÃ i liá»‡u PDF**\nâ€¢ HÆ°á»›ng dáº«n chi tiáº¿t tá»«ng tÃ­nh nÄƒng\nâ€¢ FAQ - CÃ¢u há»i thÆ°á»ng gáº·p\nâ€¢ Best practices\n\nðŸ‘¨â€ðŸ« **ÄÃ o táº¡o trá»±c tiáº¿p**\nâ€¢ ÄÃ o táº¡o táº¡i vÄƒn phÃ²ng\nâ€¢ ÄÃ o táº¡o táº¡i nÃ´ng tráº¡i\nâ€¢ Webinar online\n\nðŸ†˜ **Há»— trá»£ 24/7**\nâ€¢ Hotline: 1900 xxxx\nâ€¢ Live chat\nâ€¢ Email support\n\nBáº¡n muá»‘n nháº­n tÃ i liá»‡u nÃ o?',
-        'tcvn': 'ðŸ“‹ **TiÃªu chuáº©n TCVN:**\n\nHá»‡ thá»‘ng tuÃ¢n thá»§ 35+ tiÃªu chuáº©n TCVN vá» truy xuáº¥t nguá»“n gá»‘c:\n\nðŸ¥¬ Rau quáº£: TCVN 12827:2023\nðŸ· Thá»‹t lá»£n: TCVN 13166-4:2020\nâ˜• CÃ  phÃª: TCVN 13840:2023\nðŸŸ Thá»§y sáº£n: TCVN 13841:2023\nðŸŒ¾ Gáº¡o: TCVN 13842:2023\n\nVÃ  nhiá»u tiÃªu chuáº©n khÃ¡c...\n\nâœ… Äáº£m báº£o xuáº¥t kháº©u quá»‘c táº¿\nâœ… Minh báº¡ch 100%\nâœ… TÃ­ch há»£p Cá»•ng TXNG Quá»‘c gia',
-        'demo': 'ðŸŽ¯ **ÄÄƒng kÃ½ Demo miá»…n phÃ­:**\n\nChÃºng tÃ´i sáº½:\nâœ… Giá»›i thiá»‡u chi tiáº¿t há»‡ thá»‘ng\nâœ… Demo trá»±c tiáº¿p cÃ¡c tÃ­nh nÄƒng\nâœ… TÆ° váº¥n giáº£i phÃ¡p phÃ¹ há»£p\nâœ… BÃ¡o giÃ¡ chi tiáº¿t\n\nâ±ï¸ Thá»i gian: 30-45 phÃºt\nðŸ“ HÃ¬nh thá»©c: Online hoáº·c táº¡i vÄƒn phÃ²ng\n\nðŸ“ž Gá»i ngay 1900 xxxx hoáº·c Ä‘á»ƒ láº¡i SÄT, chÃºng tÃ´i sáº½ liÃªn há»‡!',
-        'thanks': 'Cáº£m Æ¡n báº¡n Ä‘Ã£ quan tÃ¢m Ä‘áº¿n EBookFarm! ðŸ™\n\nNáº¿u cáº§n há»— trá»£ thÃªm, Ä‘á»«ng ngáº¡i liÃªn há»‡:\nðŸ“ž Hotline: 1900 xxxx\nðŸ“§ Email: contact@ebookfarm.vn\n\nChÃºc báº¡n má»™t ngÃ y tá»‘t lÃ nh! ðŸŒŸ',
-        'default': 'Cáº£m Æ¡n báº¡n Ä‘Ã£ liÃªn há»‡! ðŸ˜Š\n\nTÃ´i chÆ°a hiá»ƒu rÃµ cÃ¢u há»i cá»§a báº¡n. Báº¡n cÃ³ thá»ƒ:\n\n1ï¸âƒ£ Chá»n cÃ¢u há»i gá»£i Ã½ bÃªn dÆ°á»›i\n2ï¸âƒ£ Gá»i hotline: 1900 xxxx\n3ï¸âƒ£ Email: contact@ebookfarm.vn\n\nHoáº·c há»i tÃ´i vá»:\nâ€¢ TÃ­nh nÄƒng há»‡ thá»‘ng\nâ€¢ Báº£ng giÃ¡\nâ€¢ HÆ°á»›ng dáº«n sá»­ dá»¥ng\nâ€¢ TiÃªu chuáº©n TCVN\nâ€¢ ÄÄƒng kÃ½ demo'
+        'greeting': 'Xin chào! 😊 Rất vui được hỗ trợ bạn. Tôi có thể giúp bạn tìm hiểu về:\n\n✅ Tính năng hệ thống\n💰 Bảng giá dịch vụ\n📞 Thông tin liên hệ\n🎓 Hướng dẫn sử dụng\n\nBạn quan tâm đến vấn đề nào?',
+        'tính năng': 'EBookFarm cung cấp giải pháp toàn diện:\n\n📝 **Nhật ký sản xuất điện tử**\n• Ghi chép trên mobile/web\n• Lưu trữ đám mây an toàn\n• Báo cáo tự động\n\n🔍 **Truy xuất nguồn gốc QR**\n• Tạo mã QR cho từng lô hàng\n• Người tiêu dùng quét để xem thông tin\n• Tuân thủ TCVN 35+ tiêu chuẩn\n\n⛓️ **Quản lý chuỗi cung ứng**\n• Kết nối nhà cung cấp - nông trại - HTX\n• Kiểm soát chất lượng toàn chuỗi\n• Báo cáo & phân tích\n\nBạn muốn demo thử không?',
+        'giá': '💰 **Bảng giá linh hoạt theo nhu cầu:**\n\n🌱 **Gói Cơ bản** - Từ 500k/tháng\n• Phù hợp nông hộ nhỏ (< 5ha)\n• Nhật ký điện tử cơ bản\n• 100 mã QR/tháng\n\n🌿 **Gói Chuyên nghiệp** - Từ 2tr/tháng\n• Cho HTX và trang trại (5-50ha)\n• Đầy đủ tính năng\n• 1000 mã QR/tháng\n• Hỗ trợ ưu tiên\n\n🌳 **Gói Doanh nghiệp** - Báo giá riêng\n• Giải pháp toàn diện\n• Tùy chỉnh theo yêu cầu\n• Không giới hạn\n• Đào tạo & hỗ trợ 24/7\n\n📞 Gọi 1900 xxxx để nhận ưu đãi!',
+        'liên hệ': '📞 **Liên hệ với chúng tôi:**\n\n☎️ **Hotline:** 1900 xxxx\n📧 **Email:** contact@ebookfarm.vn\n🌐 **Website:** ebookfarm.vn\n🏢 **Văn phòng:** [Địa chỉ]\n\n⏰ **Giờ làm việc:**\nT2-T6: 8:00 - 17:30\nT7: 8:00 - 12:00\n\n💬 Hoặc để lại thông tin, chúng tôi sẽ gọi lại trong 30 phút!',
+        'hướng dẫn': '📚 **Tài liệu & Hỗ trợ:**\n\n🎥 **Video hướng dẫn**\n• Cài đặt & thiết lập ban đầu\n• Ghi nhật ký sản xuất\n• Tạo mã QR truy xuất\n• Quản lý chuỗi cung ứng\n\n📖 **Tài liệu PDF**\n• Hướng dẫn chi tiết từng tính năng\n• FAQ - Câu hỏi thường gặp\n• Best practices\n\n👨‍🏫 **Đào tạo trực tiếp**\n• Đào tạo tại văn phòng\n• Đào tạo tại nông trại\n• Webinar online\n\n🆘 **Hỗ trợ 24/7**\n• Hotline: 1900 xxxx\n• Live chat\n• Email support\n\nBạn muốn nhận tài liệu nào?',
+        'tcvn': '📋 **Tiêu chuẩn TCVN:**\n\nHệ thống tuân thủ 35+ tiêu chuẩn TCVN về truy xuất nguồn gốc:\n\n🥬 Rau quả: TCVN 12827:2023\n🐷 Thịt lợn: TCVN 13166-4:2020\n☕ Cà phê: TCVN 13840:2023\n🐟 Thủy sản: TCVN 13841:2023\n🌾 Gạo: TCVN 13842:2023\n\nVà nhiều tiêu chuẩn khác...\n\n✅ Đảm bảo xuất khẩu quốc tế\n✅ Minh bạch 100%\n✅ Tích hợp Cổng TXNG Quốc gia',
+        'demo': '🎯 **Đăng ký Demo miễn phí:**\n\nChúng tôi sẽ:\n✅ Giới thiệu chi tiết hệ thống\n✅ Demo trực tiếp các tính năng\n✅ Tư vấn giải pháp phù hợp\n✅ Báo giá chi tiết\n\n⏱️ Thời gian: 30-45 phút\n📍 Hình thức: Online hoặc tại văn phòng\n\n📞 Gọi ngay 1900 xxxx hoặc để lại SĐT, chúng tôi sẽ liên hệ!',
+        'thanks': 'Cảm ơn bạn đã quan tâm đến EBookFarm! 🙏\n\nNếu cần hỗ trợ thêm, đừng ngại liên hệ:\n📞 Hotline: 1900 xxxx\n📧 Email: contact@ebookfarm.vn\n\nChúc bạn một ngày tốt lành! 🌟',
+        'default': 'Cảm ơn bạn đã liên hệ! 😊\n\nTôi chưa hiểu rõ câu hỏi của bạn. Bạn có thể:\n\n1️⃣ Chọn câu hỏi gợi ý bên dưới\n2️⃣ Gọi hotline: 1900 xxxx\n3️⃣ Email: contact@ebookfarm.vn\n\nHoặc hỏi tôi về:\n• Tính năng hệ thống\n• Bảng giá\n• Hướng dẫn sử dụng\n• Tiêu chuẩn TCVN\n• Đăng ký demo'
     };
 
     const getBotResponse = (userMessage) => {
         const message = userMessage.toLowerCase();
 
         // Greetings
-        if (message.match(/^(xin chÃ o|chÃ o|hello|hi|hey)/)) {
+        if (message.match(/^(xin chào|chào|hello|hi|hey)/)) {
             return botResponses['greeting'];
         }
         // Features
-        else if (message.includes('tÃ­nh nÄƒng') || message.includes('chá»©c nÄƒng') || message.includes('lÃ m Ä‘Æ°á»£c gÃ¬') || message.includes('cÃ³ gÃ¬')) {
-            return botResponses['tÃ­nh nÄƒng'];
+        else if (message.includes('tính năng') || message.includes('chức năng') || message.includes('làm được gì') || message.includes('có gì')) {
+            return botResponses['tính năng'];
         }
         // Pricing
-        else if (message.includes('giÃ¡') || message.includes('chi phÃ­') || message.includes('bao nhiÃªu') || message.includes('phÃ­')) {
-            return botResponses['giÃ¡'];
+        else if (message.includes('giá') || message.includes('chi phí') || message.includes('bao nhiêu') || message.includes('phí')) {
+            return botResponses['giá'];
         }
         // Contact
-        else if (message.includes('liÃªn há»‡') || message.includes('gá»i') || message.includes('sá»‘ Ä‘iá»‡n thoáº¡i') || message.includes('email')) {
-            return botResponses['liÃªn há»‡'];
+        else if (message.includes('liên hệ') || message.includes('gọi') || message.includes('số điện thoại') || message.includes('email')) {
+            return botResponses['liên hệ'];
         }
         // Guide
-        else if (message.includes('hÆ°á»›ng dáº«n') || message.includes('cÃ¡ch dÃ¹ng') || message.includes('sá»­ dá»¥ng') || message.includes('tÃ i liá»‡u')) {
-            return botResponses['hÆ°á»›ng dáº«n'];
+        else if (message.includes('hướng dẫn') || message.includes('cách dùng') || message.includes('sử dụng') || message.includes('tài liệu')) {
+            return botResponses['hướng dẫn'];
         }
         // TCVN
-        else if (message.includes('tcvn') || message.includes('tiÃªu chuáº©n') || message.includes('chá»©ng nháº­n')) {
+        else if (message.includes('tcvn') || message.includes('tiêu chuẩn') || message.includes('chứng nhận')) {
             return botResponses['tcvn'];
         }
         // Demo
-        else if (message.includes('demo') || message.includes('dÃ¹ng thá»­') || message.includes('tráº£i nghiá»‡m')) {
+        else if (message.includes('demo') || message.includes('dùng thử') || message.includes('trải nghiệm')) {
             return botResponses['demo'];
         }
         // Thanks
-        else if (message.includes('cáº£m Æ¡n') || message.includes('thanks') || message.includes('thank')) {
+        else if (message.includes('cảm ơn') || message.includes('thanks') || message.includes('thank')) {
             return botResponses['thanks'];
         }
         // Default
@@ -195,7 +195,7 @@ const AIChatWidget = () => {
             if (data.success && data.data && data.data.response) {
                 botResponseText = data.data.response;
 
-                // Cáº­p nháº­t thÃ´ng tin chat
+                // Cập nhật thông tin chat
                 if (data.data.chatLevel && data.data.remainingChats !== undefined) {
                     setChatInfo(prev => ({
                         ...prev,
@@ -205,7 +205,7 @@ const AIChatWidget = () => {
                     }));
                 }
             } else if (data.requireUpgrade) {
-                // Háº¿t lÆ°á»£t chat
+                // Hết lượt chat
                 botResponseText = data.message;
                 setShowUpgradeAlert(true);
                 setChatInfo(prev => ({
@@ -215,7 +215,7 @@ const AIChatWidget = () => {
             } else if (data.fallbackResponse) {
                 botResponseText = data.fallbackResponse;
             } else {
-                botResponseText = 'Xin lá»—i, tÃ´i Ä‘ang gáº·p sá»± cá»‘. Vui lÃ²ng thá»­ láº¡i sau hoáº·c liÃªn há»‡ hotline: 1900 xxxx';
+                botResponseText = 'Xin lỗi, tôi đang gặp sự cố. Vui lòng thử lại sau hoặc liên hệ hotline: 1900 xxxx';
             }
 
             const botMessage = {
@@ -304,8 +304,8 @@ const AIChatWidget = () => {
             {!isOpen && hasNewMessage && (
                 <div className="ai-chat-welcome-tooltip">
                     <div className="ai-chat-welcome-content">
-                        <div className="font-bold mb-1">ðŸ‘‹ Xin chÃ o!</div>
-                        <div className="text-sm">TÃ´i cÃ³ thá»ƒ giÃºp gÃ¬ cho báº¡n?</div>
+                        <div className="font-bold mb-1">👋 Xin chào!</div>
+                        <div className="text-sm">Tôi có thể giúp gì cho bạn?</div>
                     </div>
                     <Button
                         type="text"
@@ -320,7 +320,7 @@ const AIChatWidget = () => {
             {/* Chat Widget Button */}
             <div className="ai-chat-widget-container">
                 {!isOpen && (
-                    <Tooltip title="Chat vá»›i AI Assistant" placement="left">
+                    <Tooltip title="Chat với AI Assistant" placement="left">
                         <Badge dot={hasNewMessage} offset={[-5, 5]}>
                             <Button
                                 type="primary"
@@ -351,7 +351,7 @@ const AIChatWidget = () => {
                                     </div>
                                     <div className="text-xs text-green-100 flex items-center gap-1">
                                         <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-                                        Äang hoáº¡t Ä‘á»™ng
+                                        Đang hoạt động
 
                                     </div>
                                 </div>
@@ -392,7 +392,7 @@ const AIChatWidget = () => {
                                                                 return (
                                                                     <div className="flex flex-col items-center justify-center bg-white p-4 my-4 rounded-xl border border-gray-200 shadow-sm">
                                                                         <QRCode value={qrUrl} size={150} />
-                                                                        <div className="text-[11px] font-bold text-gray-400 mt-3 uppercase tracking-wider">QuÃ©t mÃ£ QR Demo</div>
+                                                                        <div className="text-[11px] font-bold text-gray-400 mt-3 uppercase tracking-wider">Quét mã QR Demo</div>
                                                                     </div>
                                                                 );
                                                             }
@@ -467,7 +467,7 @@ const AIChatWidget = () => {
                                         handleSendMessage();
                                     }
                                 }}
-                                placeholder="Nháº­p tin nháº¯n..."
+                                placeholder="Nhập tin nhắn..."
                                 autoSize={{ minRows: 1, maxRows: 3 }}
                                 className="ai-chat-textarea"
                             />
@@ -487,4 +487,3 @@ const AIChatWidget = () => {
 };
 
 export default AIChatWidget;
-

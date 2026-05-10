@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Input, DatePicker, Select, Badge } from 'antd';
 import { HomeOutlined, LoginOutlined, LogoutOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import dayjs from 'dayjs';
+import SystemService from 'src/services/SystemService'
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -15,7 +16,7 @@ const AccessLogs = () => {
 
   const { data: logs, isLoading } = useQuery({
     queryKey: ['logs'],
-    queryFn: () => api.get('/logs').then(res => res.data.data)
+    queryFn: () => SystemService.getLogs().then(res => res.data.data)
   });
 
   // Filter for access-related actions only

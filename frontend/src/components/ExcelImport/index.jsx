@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Upload, Button, message, Modal, Table, Space, Tag } from 'antd';
 import { FileExcelOutlined, UploadOutlined, CheckCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
@@ -20,7 +20,7 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
         const parsedData = XLSX.utils.sheet_to_json(sheet);
         
         if (parsedData.length === 0) {
-          message.warning('Tá»‡p Excel trá»‘ng hoáº·c khÃ´ng Ä‘Ãºng Ä‘á»‹nh dáº¡ng.');
+          message.warning('Tệp Excel trống hoặc không đúng định dạng.');
           return;
         }
 
@@ -40,7 +40,7 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
         setData(mappedData);
         setIsVisible(true);
       } catch (error) {
-        message.error('Lá»—i khi Ä‘á»c tá»‡p Excel: ' + error.message);
+        message.error('Lỗi khi đọc tệp Excel: ' + error.message);
       }
     };
     reader.readAsBinaryString(file);
@@ -86,11 +86,11 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
           beforeUpload={handleFileUpload}
         >
           <Button icon={<FileExcelOutlined />} className="rounded-xl border-green-200 text-green-600 hover:bg-green-50">
-            Nháº­p tá»« Excel
+            Nhập từ Excel
           </Button>
         </Upload>
         <Button size="small" type="link" onClick={downloadTemplate} className="text-[10px] text-gray-400">
-          Táº£i file máº«u
+          Tải file mẫu
         </Button>
       </Space>
 
@@ -98,7 +98,7 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
         title={
           <Space>
             <FileExcelOutlined className="text-green-500" />
-            <span>Xem trÆ°á»›c dá»¯ liá»‡u nháº­p: {title}</span>
+            <span>Xem trước dữ liệu nhập: {title}</span>
           </Space>
         }
         open={isVisible}
@@ -106,12 +106,12 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
         onCancel={() => setIsVisible(false)}
         width={1000}
         confirmLoading={loading}
-        okText="XÃ¡c nháº­n nháº­p"
-        cancelText="Há»§y bá»"
+        okText="Xác nhận nhập"
+        cancelText="Hủy bỏ"
         className="premium-modal"
       >
         <div className="mb-4">
-           <Tag color="blue" icon={<InfoCircleOutlined />}>PhÃ¡t hiá»‡n {data.length} hÃ ng dá»¯ liá»‡u</Tag>
+           <Tag color="blue" icon={<InfoCircleOutlined />}>Phát hiện {data.length} hàng dữ liệu</Tag>
         </div>
         <Table 
           dataSource={data} 
@@ -127,4 +127,3 @@ const ExcelImport = ({ onImport, columns, title, templateData }) => {
 };
 
 export default ExcelImport;
-

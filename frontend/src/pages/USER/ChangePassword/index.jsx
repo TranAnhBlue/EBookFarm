@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, Typography, Form, Input, Button, message, Divider, Space, Breadcrumb } from 'antd';
 import { LockOutlined, SaveOutlined, HomeOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
+import UserService from 'src/services/UserService'
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -14,7 +15,7 @@ const ChangePassword = () => {
             if (values.newPassword !== values.confirmPassword) {
                 return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
             }
-            return api.put('/users/profile', { 
+            return UserService.updateProfile({ 
                 currentPassword: values.currentPassword, 
                 password: values.newPassword 
             });

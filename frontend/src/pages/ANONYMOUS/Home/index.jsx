@@ -41,6 +41,7 @@ import AIChatWidget from 'src/components/AIChatWidget';
 import api from 'src/services/01_axios';
 import './LandingStyles.css';
 import './LandingAnimations.css';
+import ConsultationService from 'src/services/ConsultationService'
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -69,7 +70,7 @@ const LandingPage = () => {
     const handleConsultationSubmit = async (values) => {
         setLoading(true);
         try {
-            const response = await api.post('/consultations', values);
+            const response = await ConsultationService.createConsultation(values);
 
             if (response.data.success) {
                 // If there's an AI response, show a more informative message

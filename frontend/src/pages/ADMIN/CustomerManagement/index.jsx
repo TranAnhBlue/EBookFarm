@@ -12,6 +12,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
 import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
+import UserService from 'src/services/UserService'
 
 const { Title, Text } = Typography;
 
@@ -22,7 +23,7 @@ const CustomerManagement = () => {
   // Fetch users
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => api.get('/users').then(res => res.data.data)
+    queryFn: () => UserService.getUsers().then(res => res.data.data)
   });
 
   // Filter only 'User' role (Farmers/Customers)

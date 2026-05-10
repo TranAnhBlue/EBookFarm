@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, message, Typography, Alert, Space } from 'antd';
 import { MailOutlined, ArrowLeftOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import api from 'src/services/01_axios';
+
 import logo from 'src/assets/logo-ebookfarm.jpg';
+import AuthService from 'src/services/AuthService'
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -15,7 +16,7 @@ const ForgotPassword = () => {
     try {
       setLoading(true);
       // Backend expects { email }
-      await api.post('/auth/forgot-password', { email: values.email });
+      await AuthService.forgotPassword({ email: values.email });
       message.success('Yêu cầu đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
       setIsSent(true);
     } catch (error) {

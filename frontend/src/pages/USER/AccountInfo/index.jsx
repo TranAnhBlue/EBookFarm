@@ -1,12 +1,12 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert, Empty, Modal, Tooltip } from 'antd';
 import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import authSession from 'src/services/core/authSession';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import http from 'src/services/01_axios';
 import dayjs from 'dayjs';
 import { getProvinces, getWardsByProvince } from 'src/services/LocationService';
-import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from 'src/lib/utils';
+import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
+import UserService from 'src/services/UserService'
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -35,15 +35,15 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
     const handleFileUpload = (info) => {
         if (info.file.status === 'done') {
             setFileUrl(info.file.response.data.url || info.file.response.data.fileUrl);
-            message.success('Táº£i tá»‡p lÃªn thÃ nh cÃ´ng');
+            message.success('Tải tệp lên thành công');
         } else if (info.file.status === 'error') {
-            message.error('Táº£i tá»‡p tháº¥t báº¡i');
+            message.error('Tải tệp thất bại');
         }
     };
 
     return (
         <Modal
-            title={initialValues ? "Chá»‰nh sá»­a chá»©ng nháº­n" : "ThÃªm chá»©ng nháº­n má»›i"}
+            title={initialValues ? "Chỉnh sửa chứng nhận" : "Thêm chứng nhận mới"}
             open={visible}
             onCancel={onCancel}
             onOk={() => {
@@ -58,11 +58,11 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
             <Form form={form} layout="vertical">
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item name="name" label="TÃªn chá»©ng nháº­n" rules={[{ required: true, message: 'Vui lÃ²ng nháº­p tÃªn chá»©ng nháº­n!' }]}>
-                            <Select placeholder="Chá»n loáº¡i chá»©ng nháº­n" showSearch>
+                        <Form.Item name="name" label="Tên chứng nhận" rules={[{ required: true, message: 'Vui lòng nhập tên chứng nhận!' }]}>
+                            <Select placeholder="Chọn loại chứng nhận" showSearch>
                                 <Option value="VietGAP">VietGAP</Option>
                                 <Option value="GlobalGAP">GlobalGAP</Option>
-                                <Option value="Organic">Há»¯u cÆ¡ (Organic)</Option>
+                                <Option value="Organic">Hữu cơ (Organic)</Option>
                                 <Option value="HACCP">HACCP</Option>
                                 <Option value="ISO 22000">ISO 22000</Option>
                                 <Option value="OCOP">OCOP</Option>
@@ -70,27 +70,27 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="code" label="Sá»‘ hiá»‡u chá»©ng chá»‰">
-                            <Input placeholder="VÃ­ dá»¥: VG-2024-001" />
+                        <Form.Item name="code" label="Số hiệu chứng chỉ">
+                            <Input placeholder="Ví dụ: VG-2024-001" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="issuer" label="Tá»• chá»©c cáº¥p">
-                            <Input placeholder="VÃ­ dá»¥: Trung tÃ¢m Kiá»ƒm Ä‘á»‹nh..." />
+                        <Form.Item name="issuer" label="Tổ chức cấp">
+                            <Input placeholder="Ví dụ: Trung tâm Kiểm định..." />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="issueDate" label="NgÃ y cáº¥p">
+                        <Form.Item name="issueDate" label="Ngày cấp">
                             <DatePicker className="w-full" format="DD/MM/YYYY" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="expiryDate" label="NgÃ y háº¿t háº¡n">
+                        <Form.Item name="expiryDate" label="Ngày hết hạn">
                             <DatePicker className="w-full" format="DD/MM/YYYY" />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
-                        <Form.Item label="Báº£n scan chá»©ng chá»‰ (áº¢nh/PDF)">
+                        <Form.Item label="Bản scan chứng chỉ (Ảnh/PDF)">
                             <Upload
                                 name="file"
                                 action={`${API_URL}/upload/document`}
@@ -99,9 +99,9 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
                                 maxCount={1}
                                 showUploadList={true}
                             >
-                                <Button icon={<CameraOutlined />}>Táº£i tá»‡p lÃªn</Button>
+                                <Button icon={<CameraOutlined />}>Tải tệp lên</Button>
                             </Upload>
-                            {fileUrl && <Text type="success" className="text-[10px] mt-1 block">ÄÃ£ Ä‘Ã­nh kÃ¨m tá»‡p</Text>}
+                            {fileUrl && <Text type="success" className="text-[10px] mt-1 block">Đã đính kèm tệp</Text>}
                         </Form.Item>
                     </Col>
                 </Row>
@@ -112,12 +112,11 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
 
 const AccountInfo = () => {
     const user = authSession.getUser();
-  const setUser = (user) => authSession.updateUser(user);;
     const queryClient = useQueryClient();
     const [form] = Form.useForm();
     const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
 
-    // State cho Ä‘á»‹a phÆ°Æ¡ng (sau sÃ¡p nháº­p: chá»‰ cÃ²n Tá»‰nh â†’ PhÆ°á»ng/XÃ£)
+    // State cho địa phương (sau sáp nhập: chỉ còn Tỉnh → Phường/Xã)
     const [provinces, setProvinces] = useState([]);
     const [wards, setWards] = useState([]);
     const [selectedProvinceCode, setSelectedProvinceCode] = useState(null);
@@ -129,7 +128,7 @@ const AccountInfo = () => {
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
 
-    // Load danh sÃ¡ch tá»‰nh/thÃ nh khi component mount
+    // Load danh sách tỉnh/thành khi component mount
     useEffect(() => {
         const fetchProvinces = async () => {
             setLoadingProvinces(true);
@@ -152,7 +151,7 @@ const AccountInfo = () => {
         }
     }, [user, form]);
 
-    // Load phÆ°á»ng/xÃ£ khi chá»n tá»‰nh
+    // Load phường/xã khi chọn tỉnh
     useEffect(() => {
         const fetch = async () => {
             if (selectedProvinceCode) {
@@ -167,14 +166,14 @@ const AccountInfo = () => {
         fetch();
     }, [selectedProvinceCode]);
 
-    // Xá»­ lÃ½ khi chá»n province
+    // Xử lý khi chọn province
     const handleProvinceChange = (value, option) => {
         setSelectedProvinceCode(option.code);
         setWards([]);
         form.setFieldsValue({ province: option.name, ward: undefined });
     };
 
-    // Xá»­ lÃ½ khi chá»n ward
+    // Xử lý khi chọn ward
     const handleWardChange = (value, option) => {
         form.setFieldsValue({ ward: option.name });
     };
@@ -199,45 +198,45 @@ const AccountInfo = () => {
                 certifications: values.certifications || localCerts
             };
 
-            // Chuyá»ƒn dateOfBirth sang ISO string
+            // Chuyển dateOfBirth sang ISO string
             if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
                 updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
             }
 
-            return http.put('/users/profile', updateData);
+            return UserService.updateProfile(updateData);
         },
         onSuccess: (res) => {
-            setUser(res.data.data);
-            message.success('Cáº­p nháº­t há»“ sÆ¡ thÃ nh cÃ´ng!');
+            authSession.updateUser(res.data.data);
+            message.success('Cập nhật hồ sơ thành công!');
             queryClient.invalidateQueries(['users']);
         },
-        onError: (err) => message.error(err.message || err.response?.data?.message || 'CÃ³ lá»—i xáº£y ra!')
+        onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')
     });
 
     const handleAvatarChange = (info) => {
         if (info.file.status === 'uploading') {
-            message.loading({ content: 'Äang táº£i áº£nh lÃªn...', key: 'avatar' });
+            message.loading({ content: 'Đang tải ảnh lên...', key: 'avatar' });
         }
         if (info.file.status === 'done') {
             const avatarUrl = info.file.response.data.avatar;
             setAvatarUrl(avatarUrl);
-            setUser({ ...user, avatar: avatarUrl });
-            message.success({ content: 'Táº£i áº£nh Ä‘áº¡i diá»‡n thÃ nh cÃ´ng!', key: 'avatar' });
+            authSession.updateUser({ ...user, avatar: avatarUrl });
+            message.success({ content: 'Tải ảnh đại diện thành công!', key: 'avatar' });
         } else if (info.file.status === 'error') {
             console.error('Upload error:', info.file.error, info.file.response);
-            message.error({ content: info.file.response?.message || info.file.error?.message || 'Táº£i áº£nh tháº¥t báº¡i!', key: 'avatar' });
+            message.error({ content: info.file.response?.message || info.file.error?.message || 'Tải ảnh thất bại!', key: 'avatar' });
         }
     };
 
     const beforeUpload = (file) => {
         const isImage = file.type.startsWith('image/');
         if (!isImage) {
-            message.error('Chá»‰ cháº¥p nháº­n file áº£nh!');
+            message.error('Chỉ chấp nhận file ảnh!');
             return Upload.LIST_IGNORE;
         }
         const isLt5M = file.size / 1024 / 1024 < 5;
         if (!isLt5M) {
-            message.error('áº¢nh pháº£i nhá» hÆ¡n 5MB!');
+            message.error('Ảnh phải nhỏ hơn 5MB!');
             return Upload.LIST_IGNORE;
         }
         return true;
@@ -246,7 +245,7 @@ const AccountInfo = () => {
     const uploadButton = (
         <div className="text-center">
             <CameraOutlined className="text-2xl text-gray-400 mb-2" />
-            <div className="text-xs text-gray-500">Thay Ä‘á»•i</div>
+            <div className="text-xs text-gray-500">Thay đổi</div>
         </div>
     );
 
@@ -255,11 +254,11 @@ const AccountInfo = () => {
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
                     <HomeOutlined />
-                    <span>Tá»•ng quan</span>
+                    <span>Tổng quan</span>
                     <span className="text-gray-200">/</span>
-                    <span className="text-green-600">ThÃ´ng tin tÃ i khoáº£n</span>
+                    <span className="text-green-600">Thông tin tài khoản</span>
                 </div>
-                <Title level={4} className="!mb-0">Há»“ sÆ¡ cÃ¡ nhÃ¢n</Title>
+                <Title level={4} className="!mb-0">Hồ sơ cá nhân</Title>
             </div>
 
             <Row gutter={[24, 24]}>
@@ -331,7 +330,7 @@ const AccountInfo = () => {
                                         <PhoneOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Äiá»‡n thoáº¡i</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Điện thoại</Text>
                                         <Text strong className="block truncate">{user.phone}</Text>
                                     </div>
                                 </div>
@@ -343,7 +342,7 @@ const AccountInfo = () => {
                                         <IdcardOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">NgÃ y sinh</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Ngày sinh</Text>
                                         <Text strong className="block truncate">{dayjs(user.dateOfBirth).format('DD/MM/YYYY')}</Text>
                                     </div>
                                 </div>
@@ -355,7 +354,7 @@ const AccountInfo = () => {
                                         <UserOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Giá»›i tÃ­nh</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Giới tính</Text>
                                         <Text strong className="block truncate">{user.gender}</Text>
                                     </div>
                                 </div>
@@ -367,7 +366,7 @@ const AccountInfo = () => {
                                         <ShopOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Tá»• chá»©c</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Tổ chức</Text>
                                         <Text strong className="block truncate">{user.organization}</Text>
                                     </div>
                                 </div>
@@ -379,7 +378,7 @@ const AccountInfo = () => {
                                         <EnvironmentOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Äá»‹a chá»‰</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Địa chỉ</Text>
                                         <Text strong className="text-xs block">
                                             {[user?.address, user?.ward, user?.province]
                                                 .filter(Boolean)
@@ -395,7 +394,7 @@ const AccountInfo = () => {
                                         <ShopOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">NÃ´ng tráº¡i</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Nông trại</Text>
                                         <Text strong className="block truncate">{user.farmName}</Text>
                                     </div>
                                 </div>
@@ -407,7 +406,7 @@ const AccountInfo = () => {
                                         <IdcardOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">MÃ£ nÃ´ng tráº¡i</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Mã nông trại</Text>
                                         <Text strong className="block truncate">{user.farmCode}</Text>
                                     </div>
                                 </div>
@@ -419,8 +418,8 @@ const AccountInfo = () => {
                                         <EnvironmentOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Diá»‡n tÃ­ch</Text>
-                                        <Text strong className="block truncate">{user.farmArea.toLocaleString()} mÂ²</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Diện tích</Text>
+                                        <Text strong className="block truncate">{user.farmArea.toLocaleString()} m²</Text>
                                     </div>
                                 </div>
                             )}
@@ -431,7 +430,7 @@ const AccountInfo = () => {
                                         <ShopOutlined />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Loáº¡i hÃ¬nh</Text>
+                                        <Text type="secondary" className="text-[10px] uppercase font-bold block">Loại hình</Text>
                                         <Text strong className="block truncate">{user.farmType}</Text>
                                     </div>
                                 </div>
@@ -439,7 +438,7 @@ const AccountInfo = () => {
 
                             {localCerts && localCerts.length > 0 && (
                                 <div className="mt-4">
-                                    <Text type="secondary" className="text-[10px] uppercase font-bold block mb-2">Chá»©ng nháº­n hiá»‡n cÃ³</Text>
+                                    <Text type="secondary" className="text-[10px] uppercase font-bold block mb-2">Chứng nhận hiện có</Text>
                                     <div className="flex flex-wrap gap-1">
                                         {localCerts.map((cert, idx) => {
                                             let color = 'default';
@@ -447,9 +446,9 @@ const AccountInfo = () => {
                                             if (cert.status === 'Pending') color = 'warning';
                                             if (cert.status === 'Rejected') color = 'error';
                                             return (
-                                                <Tooltip title={`${cert.status === 'Approved' ? 'ÄÃ£ duyá»‡t' : cert.status === 'Pending' ? 'Chá» duyá»‡t' : 'Tá»« chá»‘i'}`} key={idx}>
+                                                <Tooltip title={`${cert.status === 'Approved' ? 'Đã duyệt' : cert.status === 'Pending' ? 'Chờ duyệt' : 'Từ chối'}`} key={idx}>
                                                     <Tag color={color} className="text-[10px] rounded-full border-0 font-bold">
-                                                        {cert.name} {cert.status === 'Approved' && 'âœ“'}
+                                                        {cert.name} {cert.status === 'Approved' && '✓'}
                                                     </Tag>
                                                 </Tooltip>
                                             );
@@ -466,7 +465,7 @@ const AccountInfo = () => {
                     <Card bordered={false} className="shadow-sm rounded-[24px] p-4">
                         <Title level={5} className="mb-6 flex items-center gap-2">
                             <EditOutlined className="text-green-500" />
-                            Thay Ä‘á»•i thÃ´ng tin
+                            Thay đổi thông tin
                         </Title>
 
                         <Form
@@ -481,40 +480,40 @@ const AccountInfo = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Form.Item
                                     name="fullname"
-                                    label="Há» vÃ  tÃªn"
-                                    rules={[{ required: true, message: 'Nháº­p há» tÃªn!' }]}
+                                    label="Họ và tên"
+                                    rules={[{ required: true, message: 'Nhập họ tên!' }]}
                                 >
-                                    <Input className="h-11 rounded-lg" prefix={<UserOutlined className="text-gray-300" />} placeholder="Nguyá»…n VÄƒn A" />
+                                    <Input className="h-11 rounded-lg" prefix={<UserOutlined className="text-gray-300" />} placeholder="Nguyễn Văn A" />
                                 </Form.Item>
 
                                 <Form.Item
                                     name="email"
-                                    label="Äá»‹a chá»‰ Email"
+                                    label="Địa chỉ Email"
                                 >
                                     <Input disabled className="h-11 rounded-lg bg-gray-50" prefix={<MailOutlined className="text-gray-300" />} />
                                 </Form.Item>
 
                                 <Form.Item
                                     name="phone"
-                                    label="Sá»‘ Ä‘iá»‡n thoáº¡i"
-                                    rules={[{ pattern: /^[0-9]{10}$/, message: 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡!' }]}
+                                    label="Số điện thoại"
+                                    rules={[{ pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }]}
                                 >
                                     <Input className="h-11 rounded-lg" prefix={<PhoneOutlined className="text-gray-300" />} placeholder="0912345678" />
                                 </Form.Item>
 
                                 <Form.Item
                                     name="dateOfBirth"
-                                    label="NgÃ y sinh"
+                                    label="Ngày sinh"
                                     rules={[
                                         {
                                             validator: (_, value) => {
                                                 if (!value) return Promise.resolve();
                                                 const age = dayjs().diff(value, 'year');
                                                 if (age < 16) {
-                                                    return Promise.reject(new Error('Pháº£i tá»« 16 tuá»•i trá»Ÿ lÃªn!'));
+                                                    return Promise.reject(new Error('Phải từ 16 tuổi trở lên!'));
                                                 }
                                                 if (age > 100) {
-                                                    return Promise.reject(new Error('NgÃ y sinh khÃ´ng há»£p lá»‡!'));
+                                                    return Promise.reject(new Error('Ngày sinh không hợp lệ!'));
                                                 }
                                                 return Promise.resolve();
                                             }
@@ -524,45 +523,45 @@ const AccountInfo = () => {
                                     <DatePicker
                                         className="w-full h-11 rounded-lg"
                                         format="DD/MM/YYYY"
-                                        placeholder="Chá»n ngÃ y sinh"
+                                        placeholder="Chọn ngày sinh"
                                         disabledDate={(current) => {
-                                            // KhÃ´ng cho chá»n ngÃ y trong tÆ°Æ¡ng lai
+                                            // Không cho chọn ngày trong tương lai
                                             return current && current > dayjs().endOf('day');
                                         }}
                                     />
                                 </Form.Item>
 
-                                <Form.Item name="gender" label="Giá»›i tÃ­nh">
-                                    <Select className="h-11" placeholder="Chá»n giá»›i tÃ­nh">
+                                <Form.Item name="gender" label="Giới tính">
+                                    <Select className="h-11" placeholder="Chọn giới tính">
                                         <Option value="Nam">Nam</Option>
-                                        <Option value="Ná»¯">Ná»¯</Option>
-                                        <Option value="KhÃ¡c">KhÃ¡c</Option>
+                                        <Option value="Nữ">Nữ</Option>
+                                        <Option value="Khác">Khác</Option>
                                     </Select>
                                 </Form.Item>
 
-                                <Form.Item name="organization" label="Tá»• chá»©c/CÃ´ng ty">
-                                    <Input className="h-11 rounded-lg" prefix={<ShopOutlined className="text-gray-300" />} placeholder="HTX NÃ´ng nghiá»‡p..." />
+                                <Form.Item name="organization" label="Tổ chức/Công ty">
+                                    <Input className="h-11 rounded-lg" prefix={<ShopOutlined className="text-gray-300" />} placeholder="HTX Nông nghiệp..." />
                                 </Form.Item>
                             </div>
 
-                            <Form.Item name="bio" label="Giá»›i thiá»‡u ngáº¯n">
-                                <TextArea rows={3} className="rounded-lg" placeholder="MÃ´ táº£ ngáº¯n vá» báº£n thÃ¢n..." />
+                            <Form.Item name="bio" label="Giới thiệu ngắn">
+                                <TextArea rows={3} className="rounded-lg" placeholder="Mô tả ngắn về bản thân..." />
                             </Form.Item>
 
-                            {/* Äá»‹a chá»‰ */}
+                            {/* Địa chỉ */}
                             <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-6">
                                 <EnvironmentOutlined className="mr-2" />
-                                Äá»‹a chá»‰
+                                Địa chỉ
                             </Divider>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Form.Item name="province" label="Tá»‰nh/ThÃ nh phá»‘">
+                                <Form.Item name="province" label="Tỉnh/Thành phố">
                                     <Select
                                         className="h-11"
-                                        placeholder="Chá»n tá»‰nh/thÃ nh phá»‘"
+                                        placeholder="Chọn tỉnh/thành phố"
                                         showSearch
                                         loading={loadingProvinces}
-                                        notFoundContent={loadingProvinces ? <Spin size="small" /> : 'KhÃ´ng tÃ¬m tháº¥y'}
+                                        notFoundContent={loadingProvinces ? <Spin size="small" /> : 'Không tìm thấy'}
                                         filterOption={(input, option) =>
                                             (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
                                         }
@@ -581,14 +580,14 @@ const AccountInfo = () => {
                                     </Select>
                                 </Form.Item>
 
-                                <Form.Item name="ward" label="PhÆ°á»ng/XÃ£">
+                                <Form.Item name="ward" label="Phường/Xã">
                                     <Select
                                         className="h-11"
-                                        placeholder="Chá»n phÆ°á»ng/xÃ£"
+                                        placeholder="Chọn phường/xã"
                                         disabled={!selectedProvinceCode}
                                         showSearch
                                         loading={loadingWards}
-                                        notFoundContent={loadingWards ? <Spin size="small" /> : 'KhÃ´ng tÃ¬m tháº¥y'}
+                                        notFoundContent={loadingWards ? <Spin size="small" /> : 'Không tìm thấy'}
                                         filterOption={(input, option) =>
                                             (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
                                         }
@@ -608,23 +607,23 @@ const AccountInfo = () => {
                                 </Form.Item>
                             </div>
 
-                            <Form.Item name="address" label="Äá»‹a chá»‰ chi tiáº¿t">
-                                <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} placeholder="Sá»‘ nhÃ , tÃªn Ä‘Æ°á»ng..." />
+                            <Form.Item name="address" label="Địa chỉ chi tiết">
+                                <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} placeholder="Số nhà, tên đường..." />
                             </Form.Item>
 
-                            {/* ThÃ´ng tin nÃ´ng tráº¡i (chá»‰ hiá»‡n vá»›i Farmer/User role) */}
+                            {/* Thông tin nông trại (chỉ hiện với Farmer/User role) */}
                             {['Farmer', 'User'].includes(user?.role) && (
                                 <>
                                     <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-8">
                                         <SafetyCertificateOutlined className="mr-2" />
-                                        Quáº£n lÃ½ chá»©ng nháº­n
+                                        Quản lý chứng nhận
                                     </Divider>
 
                                     <div className="bg-gray-50/50 p-4 rounded-2xl border border-dashed border-gray-200 mb-6">
                                         <div className="flex justify-between items-center mb-4">
                                             <div>
-                                                <Text strong>Danh sÃ¡ch chá»©ng chá»‰</Text>
-                                                <Paragraph className="text-[11px] text-gray-500 m-0">Táº£i lÃªn VietGAP, Organic hoáº·c cÃ¡c chá»©ng chá»‰ khÃ¡c Ä‘á»ƒ HTX phÃª duyá»‡t</Paragraph>
+                                                <Text strong>Danh sách chứng chỉ</Text>
+                                                <Paragraph className="text-[11px] text-gray-500 m-0">Tải lên VietGAP, Organic hoặc các chứng chỉ khác để HTX phê duyệt</Paragraph>
                                             </div>
                                             <Button 
                                                 type="primary" 
@@ -636,14 +635,14 @@ const AccountInfo = () => {
                                                 }}
                                                 className="bg-green-600 border-0 rounded-lg"
                                             >
-                                                ThÃªm má»›i
+                                                Thêm mới
                                             </Button>
                                         </div>
 
                                         <div className="space-y-3">
                                             {localCerts.length === 0 ? (
                                                 <div className="text-center py-4 bg-white rounded-xl border border-gray-100">
-                                                    <Text className="text-gray-300 italic text-xs">ChÆ°a cÃ³ chá»©ng nháº­n nÃ o Ä‘Æ°á»£c táº£i lÃªn</Text>
+                                                    <Text className="text-gray-300 italic text-xs">Chưa có chứng nhận nào được tải lên</Text>
                                                 </div>
                                             ) : (
                                                 localCerts.map((cert, index) => (
@@ -659,10 +658,10 @@ const AccountInfo = () => {
                                                                         color={cert.status === 'Approved' ? 'success' : cert.status === 'Pending' ? 'warning' : 'error'} 
                                                                         className="m-0 text-[9px] border-0 rounded-full font-bold uppercase"
                                                                     >
-                                                                        {cert.status === 'Approved' ? 'ÄÃ£ duyá»‡t' : cert.status === 'Pending' ? 'Chá» HTX duyá»‡t' : 'Tá»« chá»‘i'}
+                                                                        {cert.status === 'Approved' ? 'Đã duyệt' : cert.status === 'Pending' ? 'Chờ HTX duyệt' : 'Từ chối'}
                                                                     </Tag>
                                                                 </div>
-                                                                <Text className="text-[10px] text-gray-400 block">Sá»‘ hiá»‡u: {cert.code || '---'} | Háº¡n: {cert.expiryDate ? dayjs(cert.expiryDate).format('DD/MM/YYYY') : 'VÃ´ thá»i háº¡n'}</Text>
+                                                                <Text className="text-[10px] text-gray-400 block">Số hiệu: {cert.code || '---'} | Hạn: {cert.expiryDate ? dayjs(cert.expiryDate).format('DD/MM/YYYY') : 'Vô thời hạn'}</Text>
                                                             </div>
                                                         </div>
                                                         <Space>
@@ -695,27 +694,27 @@ const AccountInfo = () => {
 
                                     <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-6">
                                         <ShopOutlined className="mr-2" />
-                                        ThÃ´ng tin nÃ´ng tráº¡i
+                                        Thông tin nông trại
                                     </Divider>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Form.Item name="farmName" label="TÃªn nÃ´ng tráº¡i">
-                                            <Input className="h-11 rounded-lg" placeholder="NÃ´ng tráº¡i ABC" />
+                                        <Form.Item name="farmName" label="Tên nông trại">
+                                            <Input className="h-11 rounded-lg" placeholder="Nông trại ABC" />
                                         </Form.Item>
 
-                                        <Form.Item name="farmCode" label="MÃ£ sá»‘ nÃ´ng tráº¡i">
+                                        <Form.Item name="farmCode" label="Mã số nông trại">
                                             <Input className="h-11 rounded-lg" placeholder="NT-001" />
                                         </Form.Item>
 
-                                        <Form.Item name="farmArea" label="Diá»‡n tÃ­ch (mÂ²)">
+                                        <Form.Item name="farmArea" label="Diện tích (m²)">
                                             <Input type="number" className="h-11 rounded-lg" placeholder="5000" />
                                         </Form.Item>
 
-                                        <Form.Item name="farmType" label="Loáº¡i hÃ¬nh">
-                                            <Select className="h-11" placeholder="Chá»n loáº¡i hÃ¬nh">
-                                                <Option value="Trá»“ng trá»t">Trá»“ng trá»t</Option>
-                                                <Option value="ChÄƒn nuÃ´i">ChÄƒn nuÃ´i</Option>
-                                                <Option value="Thá»§y sáº£n">Thá»§y sáº£n</Option>
-                                                <Option value="Há»—n há»£p">Há»—n há»£p</Option>
+                                        <Form.Item name="farmType" label="Loại hình">
+                                            <Select className="h-11" placeholder="Chọn loại hình">
+                                                <Option value="Trồng trọt">Trồng trọt</Option>
+                                                <Option value="Chăn nuôi">Chăn nuôi</Option>
+                                                <Option value="Thủy sản">Thủy sản</Option>
+                                                <Option value="Hỗn hợp">Hỗn hợp</Option>
                                             </Select>
                                         </Form.Item>
                                     </div>
@@ -730,7 +729,7 @@ const AccountInfo = () => {
                                     loading={updateMutation.isLoading}
                                     className="h-11 px-8 rounded-xl bg-green-600 border-0 font-bold shadow-lg shadow-green-100"
                                 >
-                                    LÆ°u thÃ´ng tin há»“ sÆ¡
+                                    Lưu thông tin hồ sơ
                                 </Button>
                             </div>
                         </Form>
@@ -755,7 +754,7 @@ const AccountInfo = () => {
                     setLocalCerts(updatedCerts);
                     setIsCertModalVisible(false);
 
-                    // Tá»± Ä‘á»™ng lÆ°u luÃ´n lÃªn server Ä‘á»ƒ HTX tháº¥y ngay
+                    // Tự động lưu luôn lên server để HTX thấy ngay
                     const currentValues = form.getFieldsValue();
                     updateMutation.mutate({ 
                         ...currentValues, 
@@ -768,4 +767,3 @@ const AccountInfo = () => {
 };
 
 export default AccountInfo;
-

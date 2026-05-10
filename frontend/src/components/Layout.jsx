@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer, Grid } from 'antd';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { getAvatarUrl, getInitialAvatar } from '../utils/helpers';
-import api from '../services/api';
-import NotificationBell from './NotificationBell';
+import authSession from 'src/services/core/authSession';
+import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
+import api from 'src/services/01_axios';
+import NotificationBell from 'src/components/NotificationBell';
 import {
   MenuOutlined,
   LogoutOutlined,
@@ -27,7 +27,7 @@ import {
   TeamOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
-import logoImg from '../assets/logo-ebookfarm.jpg';
+import logoImg from 'src/assets/images/logo/logo-ebookfarm.jpg';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -36,7 +36,7 @@ const { useBreakpoint } = Grid;
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuthStore();
+  const user = authSession.getUser();
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
@@ -51,7 +51,7 @@ const MainLayout = () => {
       console.error('Logout error:', error);
     } finally {
       // Always logout from frontend
-      logout();
+      authSession.clearSession();
       navigate('/login');
     }
   };

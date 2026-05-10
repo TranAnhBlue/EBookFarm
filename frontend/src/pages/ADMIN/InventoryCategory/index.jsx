@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
+import InventoryService from 'src/services/InventoryService'
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -24,7 +25,7 @@ const InventoryCategory = () => {
   // Fetch Categories
   const { data: categories, isLoading } = useQuery({
     queryKey: ['inventory-categories'],
-    queryFn: () => api.get('/inventory-categories').then(res => res.data.data)
+    queryFn: () => InventoryService.getCategories().then(res => res.data.data)
   });
 
   // Create/Update Mutation
@@ -33,7 +34,7 @@ const InventoryCategory = () => {
       if (editingItem) {
         return api.put(`/inventory-categories/${editingItem._id}`, values);
       }
-      return api.post('/inventory-categories', values);
+      return InventoryService.createCategory(values);
     },
     onSuccess: () => {
       message.success(`${editingItem ? 'Cập nhật' : 'Thêm mới'} danh mục thành công!`);

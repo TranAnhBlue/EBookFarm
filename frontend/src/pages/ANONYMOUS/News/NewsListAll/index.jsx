@@ -14,11 +14,12 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import NewsService from 'src/services/NewsService'
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -32,7 +33,7 @@ const NewsListAll = () => {
     const { data: newsItems = [], isLoading } = useQuery({
         queryKey: ['news-all'],
         queryFn: async () => {
-            const { data } = await api.get('/news');
+            const { data } = await NewsService.getNews();
             return data.data;
         }
     });

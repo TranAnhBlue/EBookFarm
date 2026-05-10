@@ -13,8 +13,10 @@ import {
   FilterOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import api from 'src/services/01_axios';
+
 import moment from 'moment';
+import JournalService from 'src/services/JournalService'
+import InventoryService from 'src/services/InventoryService'
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -39,8 +41,8 @@ const HtxInventoryMgmt = () => {
     setLoading(true);
     try {
       const [invRes, transRes] = await Promise.all([
-        api.get('/inventory'),
-        api.get('/inventory/transactions')
+        InventoryService.getInventory(),
+        InventoryService.getTransactions()
       ]);
       setItems(invRes.data.data);
       setTransactions(transRes.data.data);
@@ -52,7 +54,7 @@ const HtxInventoryMgmt = () => {
 
   const fetchFarmers = async () => {
     try {
-      const res = await api.get('/htx/journals/farmers');
+      const res = await JournalService.getHtxFarmers();
       setFarmers(res.data.data);
     } catch (error) {
       console.error('Error fetching farmers:', error);
@@ -61,7 +63,7 @@ const HtxInventoryMgmt = () => {
 
   const handleAddItem = async (values) => {
     try {
-      await api.post('/inventory/add', values);
+      await InventoryService.addStock(values);
       message.success('Nhập kho thành công!');
       setIsAddModalVisible(false);
       form.resetFields();
@@ -73,7 +75,7 @@ const HtxInventoryMgmt = () => {
 
   const handleDistribute = async (values) => {
     try {
-      await api.post('/inventory/distribute', {
+      await InventoryService.distributeStock({
         ...values,
         itemId: selectedItem._id
       });

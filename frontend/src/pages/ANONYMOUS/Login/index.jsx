@@ -3,15 +3,16 @@ import { Form, Input, Button, Card, message, Typography, Space, Divider, Checkbo
 import { LockOutlined, ArrowRightOutlined, GoogleOutlined, MailOutlined } from '@ant-design/icons';
 import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate } from 'react-router-dom';
-import api from 'src/services/01_axios';
+
 import authSession from 'src/services/core/authSession';
 import logo from 'src/assets/logo-ebookfarm.jpg';
+import AuthService from 'src/services/AuthService'
 
 const { Title, Text, Paragraph } = Typography;
 
 const Login = () => {
   const navigate = useNavigate();
-  const setCredentials = useAuthStore((state) => state.setCredentials);
+  const setCredentials = (user, token) => authSession.setSessionTokens({ user, token });
   const [loading, setLoading] = React.useState(false);
   const [form] = Form.useForm();
 
@@ -29,7 +30,7 @@ const Login = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/login', {
+      const { data } = await AuthService.login({
           identifier: values.email, 
           password: values.password
       });
@@ -54,7 +55,7 @@ const Login = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
       try {
           setLoading(true);
-          const { data } = await api.post('/auth/google', { 
+          const { data } = await AuthService.googleLogin({ 
               tokenId: credentialResponse.credential // Pass the ID Token (JWT)
           });
           setCredentials(data.data, data.data.token);

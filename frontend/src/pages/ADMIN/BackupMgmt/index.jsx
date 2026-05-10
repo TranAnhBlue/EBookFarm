@@ -11,7 +11,8 @@ import {
   HomeOutlined
 } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
+import SystemService from 'src/services/SystemService'
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -19,7 +20,7 @@ const BackupMgmt = () => {
   // Fetch system stats
   const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ['system-stats'],
-    queryFn: () => api.get('/system/stats').then(res => res.data.data)
+    queryFn: () => SystemService.getSystemStats().then(res => res.data.data)
   });
 
   const handleDownloadBackup = async () => {

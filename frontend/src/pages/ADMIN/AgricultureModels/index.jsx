@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
+import SchemaService from 'src/services/SchemaService'
+import SystemService from 'src/services/SystemService'
 
 const { Title, Text } = Typography;
 
@@ -24,20 +26,20 @@ const AgricultureModels = () => {
   // Fetch Tree Data
   const { data: nodes, isLoading } = useQuery({
     queryKey: ['agri-models'],
-    queryFn: () => api.get('/agri-models').then(res => res.data.data)
+    queryFn: () => SystemService.getAgriModels().then(res => res.data.data)
   });
 
   // Fetch Schemas (for Level 2 nodes)
   const { data: schemas } = useQuery({
     queryKey: ['schemas'],
-    queryFn: () => api.get('/schemas').then(res => res.data.data)
+    queryFn: () => SchemaService.getSchemas().then(res => res.data.data)
   });
 
   // Mutations
   const mutation = useMutation({
     mutationFn: (values) => {
       if (modalMode === 'edit') return api.put(`/agri-models/${activeNode._id}`, values);
-      return api.post('/agri-models', values);
+      return SystemService.createAgriModel(values);
     },
     onSuccess: () => {
       message.success(`${modalMode === 'add' ? 'Thêm' : 'Cập nhật'} thành công!`);

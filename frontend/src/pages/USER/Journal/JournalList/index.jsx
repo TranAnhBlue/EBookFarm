@@ -7,6 +7,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import api from 'src/services/01_axios';
 import JournalHistoryModal from 'src/components/Modal/JournalHistory';
 import authSession from 'src/services/core/authSession';
+import JournalService from 'src/services/JournalService'
+import InventoryService from 'src/services/InventoryService'
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -120,7 +122,7 @@ const JournalList = () => {
   // Fetch inventory for mapping supply IDs to names
   const { data: inventory } = useQuery({
     queryKey: ['farmer-inventory-mapping'],
-    queryFn: () => api.get('/inventory').then(res => res.data.data),
+    queryFn: () => InventoryService.getInventory().then(res => res.data.data),
     enabled: !!user && user.role?.toUpperCase() === 'FARMER'
   });
 
@@ -212,7 +214,7 @@ const JournalList = () => {
     }
 
     try {
-      const response = await api.post('/journals/export-multiple', {
+      const response = await JournalService.exportMultiple({
         journalIds: selectedJournals
       }, {
         responseType: 'blob'
@@ -276,7 +278,7 @@ const JournalList = () => {
     formData.append('schemaId', importSchemaId);
 
     try {
-      const response = await api.post('/journals/import', formData, {
+      const response = await JournalService.importJournals(formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

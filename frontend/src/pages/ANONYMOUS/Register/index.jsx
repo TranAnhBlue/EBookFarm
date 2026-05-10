@@ -2,21 +2,22 @@ import React from 'react';
 import { Form, Input, Button, message, Typography, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, RocketFilled, SafetyCertificateFilled } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import api from 'src/services/01_axios';
+
 import authSession from 'src/services/core/authSession';
 import logo from 'src/assets/logo-ebookfarm.jpg';
+import AuthService from 'src/services/AuthService'
 
 const { Title, Text, Paragraph } = Typography;
 
 const Register = () => {
   const navigate = useNavigate();
-  const setCredentials = useAuthStore((state) => state.setCredentials);
+  const setCredentials = (user, token) => authSession.setSessionTokens({ user, token });
   const [loading, setLoading] = React.useState(false);
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const { data } = await api.post('/auth/register', {
+      const { data } = await AuthService.register({
           ...values,
           role: 'Farmer' // Default role for public registration
       });

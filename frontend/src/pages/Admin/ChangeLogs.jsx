@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Input, DatePicker, Select, Badge, Tooltip } from 'antd';
 import { HomeOutlined, EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import dayjs from 'dayjs';
+import SystemService from 'src/services/SystemService'
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -16,7 +17,7 @@ const ChangeLogs = () => {
 
   const { data: logs, isLoading } = useQuery({
     queryKey: ['logs'],
-    queryFn: () => api.get('/logs').then(res => res.data.data)
+    queryFn: () => SystemService.getLogs().then(res => res.data.data)
   });
 
   // Filter for change-related actions (exclude login/logout)

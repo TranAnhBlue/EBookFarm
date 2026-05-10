@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Tooltip, message } from 'antd';
 import { AudioOutlined, AudioMutedOutlined, LoadingOutlined } from '@ant-design/icons';
 
@@ -24,9 +24,9 @@ const VoiceInput = ({ onSpeechEnd, targetField }) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         if (event.error === 'not-allowed') {
-          message.error('Vui lÃ²ng cáº¥p quyá»n truy cáº­p Micro Ä‘á»ƒ sá»­ dá»¥ng tÃ­nh nÄƒng nÃ y.');
+          message.error('Vui lòng cấp quyền truy cập Micro để sử dụng tính năng này.');
         } else {
-          message.error('Lá»—i nháº­n diá»‡n giá»ng nÃ³i: ' + event.error);
+          message.error('Lỗi nhận diện giọng nói: ' + event.error);
         }
       };
 
@@ -40,7 +40,7 @@ const VoiceInput = ({ onSpeechEnd, targetField }) => {
 
   const toggleListening = () => {
     if (!recognition) {
-      message.error('TrÃ¬nh duyá»‡t cá»§a báº¡n khÃ´ng há»— trá»£ nháº­n diá»‡n giá»ng nÃ³i (Web Speech API).');
+      message.error('Trình duyệt của bạn không hỗ trợ nhận diện giọng nói (Web Speech API).');
       return;
     }
 
@@ -49,12 +49,12 @@ const VoiceInput = ({ onSpeechEnd, targetField }) => {
     } else {
       recognition.start();
       setIsListening(true);
-      message.info(`Äang láº¯ng nghe giá»ng nÃ³i cho trÆ°á»ng "${targetField}"...`);
+      message.info(`Đang lắng nghe giọng nói cho trường "${targetField}"...`);
     }
   };
 
   return (
-    <Tooltip title={isListening ? 'Dá»«ng láº¯ng nghe' : 'Nháº­p liá»‡u báº±ng giá»ng nÃ³i (Tiáº¿ng Viá»‡t)'}>
+    <Tooltip title={isListening ? 'Dừng lắng nghe' : 'Nhập liệu bằng giọng nói (Tiếng Việt)'}>
       <Button 
         type={isListening ? 'primary' : 'default'}
         shape="circle" 
@@ -69,4 +69,3 @@ const VoiceInput = ({ onSpeechEnd, targetField }) => {
 };
 
 export default VoiceInput;
-

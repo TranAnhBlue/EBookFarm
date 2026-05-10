@@ -7,6 +7,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
 import VoiceInput from 'src/components/VoiceInput';
 import authSession from 'src/services/core/authSession';
+import JournalService from 'src/services/JournalService'
+import InventoryService from 'src/services/InventoryService'
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -2256,7 +2258,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
                 if (quantityToDeduct !== 0) {
                   consumePromises.push(
-                    api.post('/inventory/consume', {
+                    InventoryService.consumeStock({
                       itemId: invItem._id,
                       quantity: quantityToDeduct,
                       note: noteText,
@@ -2279,7 +2281,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         await api.put(`/journals/${id}`, { entries: formData });
         message.success('Cập nhật nhật ký thành công!');
       } else {
-        await api.post('/journals', { schemaId, entries: formData });
+        await JournalService.createJournal({ schemaId, entries: formData });
         message.success('Tạo nhật ký mới thành công!');
       }
 
@@ -2299,7 +2301,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   // Fetch farmer inventory
   const { data: inventory } = useQuery({
     queryKey: ['farmer-inventory'],
-    queryFn: () => api.get('/inventory').then(res => res.data.data),
+    queryFn: () => InventoryService.getInventory().then(res => res.data.data),
     enabled: !!user && user.role?.toUpperCase() === 'FARMER'
   });
 
@@ -2535,7 +2537,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                     const usageQty = tableData[quantityField];
 
                     if (usageQty && Number(usageQty) > 0) {
-                      await api.post('/inventory/consume', {
+                      await InventoryService.consumeStock({
                         itemId: inventoryItem._id,
                         quantity: Number(usageQty),
                         note: `Sử dụng cho nhật ký: ${schema.name} - Bảng: ${tableName}`,

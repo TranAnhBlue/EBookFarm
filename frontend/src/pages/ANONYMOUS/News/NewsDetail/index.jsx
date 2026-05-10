@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
 import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
 import dayjs from 'dayjs';
+import NewsService from 'src/services/NewsService'
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -38,7 +39,7 @@ const NewsDetail = () => {
         queryKey: ['related-news', news?.category],
         enabled: !!news?.category,
         queryFn: async () => {
-            const { data } = await api.get('/news');
+            const { data } = await NewsService.getNews();
             return data.data.filter(n => n.category === news.category && n._id !== id).slice(0, 3);
         }
     });

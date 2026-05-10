@@ -18,6 +18,7 @@ import api from 'src/services/01_axios';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import ConsultationService from 'src/services/ConsultationService'
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -40,7 +41,7 @@ const ConsultationManagement = () => {
         queryKey: ['consultations', selectedStatus],
         queryFn: async () => {
             const params = selectedStatus !== 'all' ? { status: selectedStatus } : {};
-            const response = await api.get('/consultations', { params });
+            const response = await ConsultationService.getConsultations({ params });
             return response.data;
         }
     });

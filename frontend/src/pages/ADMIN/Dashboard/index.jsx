@@ -8,8 +8,9 @@ import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import 'moment/locale/vi';
 import authSession from 'src/services/core/authSession';
-import api from 'src/services/01_axios';
+
 import { CalendarOutlined } from '@ant-design/icons';
+import NewsService from 'src/services/NewsService'
 
 moment.locale('vi');
 
@@ -153,7 +154,7 @@ const Dashboard = () => {
   const { data: newsItems = [], isLoading: newsLoading } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      const { data } = await api.get('/news');
+      const { data } = await NewsService.getNews();
       return data.data;
     }
   });

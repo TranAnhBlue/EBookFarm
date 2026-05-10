@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     Button,
@@ -38,21 +38,21 @@ const JournalAIAssistant = ({
     const [isVisible, setIsVisible] = useState(true);
     const [activeTab, setActiveTab] = useState('suggestions');
 
-    // Láº¥y gá»£i Ã½ khi cÃ³ trÆ°á»ng active
+    // Lấy gợi ý khi có trường active
     useEffect(() => {
         if (activeField && schemaId) {
             getSuggestions();
         }
     }, [activeField, schemaId]);
 
-    // Láº¥y gá»£i Ã½ nhanh khi component mount
+    // Lấy gợi ý nhanh khi component mount
     useEffect(() => {
         if (schemaId) {
             getQuickSuggestions();
         }
     }, [schemaId]);
 
-    // PhÃ¢n tÃ­ch rá»§i ro khi dá»¯ liá»‡u thay Ä‘á»•i
+    // Phân tích rủi ro khi dữ liệu thay đổi
     useEffect(() => {
         if (Object.keys(currentData).length > 0 && schemaId) {
             analyzeRisks();
@@ -84,11 +84,11 @@ const JournalAIAssistant = ({
                 setSuggestions(data.data);
                 setActiveTab('suggestions');
             } else {
-                message.error('KhÃ´ng thá»ƒ láº¥y gá»£i Ã½ AI');
+                message.error('Không thể lấy gợi ý AI');
             }
         } catch (error) {
             console.error('AI Suggestions error:', error);
-            message.error('Lá»—i káº¿t ná»‘i AI Assistant');
+            message.error('Lỗi kết nối AI Assistant');
         }
         setLoading(false);
     };
@@ -153,11 +153,11 @@ const JournalAIAssistant = ({
 
     const getRiskIcon = (type) => {
         switch (type) {
-            case 'disease': return 'ðŸ¦ ';
-            case 'environment': return 'ðŸŒ¡ï¸';
-            case 'food_safety': return 'ðŸ½ï¸';
-            case 'compliance': return 'ðŸ“‹';
-            default: return 'âš ï¸';
+            case 'disease': return '🦠';
+            case 'environment': return '🌡️';
+            case 'food_safety': return '🍽️';
+            case 'compliance': return '📋';
+            default: return '⚠️';
         }
     };
 
@@ -211,7 +211,7 @@ const JournalAIAssistant = ({
                         icon={<BulbOutlined />}
                         onClick={() => setActiveTab('suggestions')}
                     >
-                        Gá»£i Ã½
+                        Gợi ý
                     </Button>
                     <Button
                         size="small"
@@ -219,7 +219,7 @@ const JournalAIAssistant = ({
                         icon={<WarningOutlined />}
                         onClick={() => setActiveTab('risks')}
                     >
-                        Rá»§i ro
+                        Rủi ro
                         {riskAnalysis?.risks?.length > 0 && (
                             <Badge count={riskAnalysis.risks.length} size="small" />
                         )}
@@ -238,7 +238,7 @@ const JournalAIAssistant = ({
                 {loading && (
                     <div className="text-center py-4">
                         <Spin size="small" />
-                        <div className="text-xs text-gray-500 mt-2">AI Ä‘ang phÃ¢n tÃ­ch...</div>
+                        <div className="text-xs text-gray-500 mt-2">AI đang phân tích...</div>
                     </div>
                 )}
 
@@ -247,7 +247,7 @@ const JournalAIAssistant = ({
                     <div className="space-y-3">
                         {activeField && (
                             <Alert
-                                message={`Gá»£i Ã½ cho: ${activeField.name}`}
+                                message={`Gợi ý cho: ${activeField.name}`}
                                 type="info"
                                 size="small"
                                 showIcon
@@ -258,7 +258,7 @@ const JournalAIAssistant = ({
                             <div>
                                 <div className="text-xs font-semibold text-gray-600 mb-2 flex items-center">
                                     <BulbOutlined className="mr-1" />
-                                    Gá»£i Ã½ thÃ´ng minh
+                                    Gợi ý thông minh
                                 </div>
                                 <div className="space-y-2">
                                     {suggestions.suggestions.map((suggestion, index) => (
@@ -288,7 +288,7 @@ const JournalAIAssistant = ({
                             <div>
                                 <div className="text-xs font-semibold text-orange-600 mb-2 flex items-center">
                                     <WarningOutlined className="mr-1" />
-                                    Cáº£nh bÃ¡o
+                                    Cảnh báo
                                 </div>
                                 <div className="space-y-2">
                                     {suggestions.warnings.map((warning, index) => (
@@ -308,12 +308,12 @@ const JournalAIAssistant = ({
                             <div>
                                 <div className="text-xs font-semibold text-green-600 mb-2 flex items-center">
                                     <CheckCircleOutlined className="mr-1" />
-                                    Nháº¯c nhá»Ÿ
+                                    Nhắc nhở
                                 </div>
                                 <div className="space-y-1">
                                     {suggestions.reminders.map((reminder, index) => (
                                         <div key={index} className="text-xs text-green-700 bg-green-50 p-2 rounded">
-                                            â€¢ {reminder}
+                                            • {reminder}
                                         </div>
                                     ))}
                                 </div>
@@ -324,7 +324,7 @@ const JournalAIAssistant = ({
                             <div>
                                 <div className="text-xs font-semibold text-purple-600 mb-2 flex items-center">
                                     <ArrowRightOutlined className="mr-1" />
-                                    HÃ nh Ä‘á»™ng tiáº¿p theo
+                                    Hành động tiếp theo
                                 </div>
                                 <div className="space-y-1">
                                     {suggestions.nextActions.map((action, index) => (
@@ -342,7 +342,7 @@ const JournalAIAssistant = ({
                 {activeTab === 'risks' && riskAnalysis && (
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-gray-600">Má»©c Ä‘á»™ rá»§i ro tá»•ng thá»ƒ:</span>
+                            <span className="text-xs font-semibold text-gray-600">Mức độ rủi ro tổng thể:</span>
                             <Tag color={getRiskColor(riskAnalysis.riskLevel)}>
                                 {riskAnalysis.riskLevel.toUpperCase()}
                             </Tag>
@@ -365,14 +365,14 @@ const JournalAIAssistant = ({
                                         key={index}
                                     >
                                         <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                                            <strong>Khuyáº¿n nghá»‹:</strong> {risk.recommendation}
+                                            <strong>Khuyến nghị:</strong> {risk.recommendation}
                                         </div>
                                     </Panel>
                                 ))}
                             </Collapse>
                         ) : (
                             <Alert
-                                message="KhÃ´ng phÃ¡t hiá»‡n rá»§i ro Ä‘áº·c biá»‡t"
+                                message="Không phát hiện rủi ro đặc biệt"
                                 type="success"
                                 size="small"
                                 showIcon
@@ -386,14 +386,14 @@ const JournalAIAssistant = ({
                     <div className="space-y-2">
                         <div className="text-xs font-semibold text-gray-600 mb-2 flex items-center">
                             <ThunderboltOutlined className="mr-1" />
-                            Gá»£i Ã½ nhanh
+                            Gợi ý nhanh
                         </div>
                         {quickSuggestions.map((suggestion, index) => (
                             <div
                                 key={index}
                                 className="p-2 bg-gray-50 rounded text-xs border-l-4 border-gray-300"
                             >
-                                â€¢ {suggestion}
+                                • {suggestion}
                             </div>
                         ))}
 
@@ -404,7 +404,7 @@ const JournalAIAssistant = ({
                             icon={<EyeOutlined />}
                             onClick={analyzeRisks}
                         >
-                            PhÃ¢n tÃ­ch rá»§i ro
+                            Phân tích rủi ro
                         </Button>
                     </div>
                 )}
@@ -414,7 +414,7 @@ const JournalAIAssistant = ({
                     <div className="text-center py-4 text-gray-500">
                         <RobotOutlined className="text-2xl mb-2" />
                         <div className="text-xs">
-                            Nháº¥p vÃ o trÆ°á»ng nháº­p liá»‡u Ä‘á»ƒ nháº­n gá»£i Ã½ AI
+                            Nhấp vào trường nhập liệu để nhận gợi ý AI
                         </div>
                     </div>
                 )}

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Card, Table, Typography, Space, Tag, Input, Statistic, Row, Col, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, AlertOutlined, SafetyCertificateOutlined, HistoryOutlined, ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import { Tractor, Droplet } from 'lucide-react';
 import dayjs from 'dayjs';
+import InventoryService from 'src/services/InventoryService'
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -15,13 +16,13 @@ const FarmerInventory = () => {
   // Fetch inventory
   const { data: inventory, isLoading: isInvLoading } = useQuery({
     queryKey: ['farmer-inventory'],
-    queryFn: () => api.get('/inventory').then(res => res.data.data)
+    queryFn: () => InventoryService.getInventory().then(res => res.data.data)
   });
 
   // Fetch transactions
   const { data: transactions, isLoading: isTransLoading } = useQuery({
     queryKey: ['farmer-transactions'],
-    queryFn: () => api.get('/inventory/transactions').then(res => res.data.data)
+    queryFn: () => InventoryService.getTransactions().then(res => res.data.data)
   });
 
   const getStockStatus = (qty, threshold = 10) => {

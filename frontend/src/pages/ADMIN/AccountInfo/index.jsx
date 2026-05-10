@@ -3,10 +3,11 @@ import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider,
 import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import authSession from 'src/services/core/authSession';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import dayjs from 'dayjs';
 import { getProvinces, getWardsByProvince } from 'src/services/LocationService';
 import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
+import UserService from 'src/services/UserService'
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -111,7 +112,7 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
 };
 
 const AccountInfo = () => {
-    const { user, setUser } = useAuthStore();
+    const user = authSession.getUser();
     const queryClient = useQueryClient();
     const [form] = Form.useForm();
     const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
@@ -203,10 +204,10 @@ const AccountInfo = () => {
                 updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
             }
 
-            return api.put('/users/profile', updateData);
+            return UserService.updateProfile(updateData);
         },
         onSuccess: (res) => {
-            setUser(res.data.data);
+            authSession.updateUser(res.data.data);
             message.success('Cập nhật hồ sơ thành công!');
             queryClient.invalidateQueries(['users']);
         },
@@ -220,7 +221,7 @@ const AccountInfo = () => {
         if (info.file.status === 'done') {
             const avatarUrl = info.file.response.data.avatar;
             setAvatarUrl(avatarUrl);
-            setUser({ ...user, avatar: avatarUrl });
+            authSession.updateUser({ ...user, avatar: avatarUrl });
             message.success({ content: 'Tải ảnh đại diện thành công!', key: 'avatar' });
         } else if (info.file.status === 'error') {
             console.error('Upload error:', info.file.error, info.file.response);

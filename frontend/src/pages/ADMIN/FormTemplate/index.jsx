@@ -3,6 +3,7 @@ import { Card, Button, Form, Input, Select, Space, Typography, Table, Drawer, me
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, CopyOutlined, DownOutlined, LayoutOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
+import SchemaService from 'src/services/SchemaService'
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -20,7 +21,7 @@ const FormBuilder = () => {
 
   const { data: schemas, isLoading } = useQuery({
     queryKey: ['schemas'],
-    queryFn: () => api.get('/schemas').then(res => res.data.data)
+    queryFn: () => SchemaService.getSchemas().then(res => res.data.data)
   });
 
   const createMutation = useMutation({
@@ -28,7 +29,7 @@ const FormBuilder = () => {
       if (editingSchema) {
         return api.put(`/schemas/${editingSchema._id}`, newSchema);
       }
-      return api.post('/schemas', newSchema);
+      return SchemaService.createSchema(newSchema);
     },
     onSuccess: (response) => {
       const savedData = response.data.data;

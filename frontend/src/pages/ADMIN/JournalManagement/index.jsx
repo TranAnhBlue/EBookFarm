@@ -24,6 +24,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
 import { API_BASE_URL, getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
+import JournalService from 'src/services/JournalService'
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -48,7 +49,7 @@ const AdminJournalMgmt = () => {
   // Fetch All Journals
   const { data: journals, isLoading } = useQuery({
     queryKey: ['admin-journals'],
-    queryFn: () => api.get('/journals').then(res => res.data.data)
+    queryFn: () => JournalService.getJournals().then(res => res.data.data)
   });
 
   const queryClient = useQueryClient();

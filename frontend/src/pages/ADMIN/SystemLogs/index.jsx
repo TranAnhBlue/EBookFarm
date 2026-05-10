@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Input, DatePicker, Select, Badge, Tabs, Tooltip } from 'antd';
 import { HomeOutlined, HistoryOutlined, LoginOutlined, LogoutOutlined, EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from 'src/services/01_axios';
+
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import SystemService from 'src/services/SystemService'
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -22,7 +23,7 @@ const SystemLogs = () => {
 
   const { data: logs, isLoading } = useQuery({
     queryKey: ['logs'],
-    queryFn: () => api.get('/logs').then(res => res.data.data)
+    queryFn: () => SystemService.getLogs().then(res => res.data.data)
   });
 
   // Categorize logs

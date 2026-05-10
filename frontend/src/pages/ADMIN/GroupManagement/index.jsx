@@ -12,6 +12,8 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
+import UserService from 'src/services/UserService'
+import GroupService from 'src/services/GroupService'
 
 const { Title, Text } = Typography;
 
@@ -25,13 +27,13 @@ const GroupManagement = () => {
   // Fetch groups
   const { data: groups, isLoading } = useQuery({
     queryKey: ['groups'],
-    queryFn: () => api.get('/groups').then(res => res.data.data)
+    queryFn: () => GroupService.getGroups().then(res => res.data.data)
   });
 
   // Fetch all users for member selection
   const { data: users } = useQuery({
     queryKey: ['users'],
-    queryFn: () => api.get('/users').then(res => res.data.data)
+    queryFn: () => UserService.getUsers().then(res => res.data.data)
   });
 
   // Create/Update mutation
@@ -40,7 +42,7 @@ const GroupManagement = () => {
       if (editingGroup) {
         return api.put(`/groups/${editingGroup._id}`, values);
       }
-      return api.post('/groups', values);
+      return GroupService.createGroup(values);
     },
     onSuccess: () => {
       message.success(`${editingGroup ? 'Cập nhật' : 'Tạo mới'} HTX thành công!`);

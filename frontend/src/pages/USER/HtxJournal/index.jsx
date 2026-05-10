@@ -29,6 +29,8 @@ import { getAvatarUrl, getInitialAvatar } from 'src/utils/helpers';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import logoEBookFarm from 'src/assets/logo-ebookfarm.jpg';
+import JournalService from 'src/services/JournalService'
+import SchemaService from 'src/services/SchemaService'
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -91,7 +93,7 @@ const HtxJournalMgmt = () => {
   const fetchJournals = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/htx/journals');
+      const res = await JournalService.getHtxJournals();
       if (res.data.success) {
         setJournals(res.data.data);
       }
@@ -104,7 +106,7 @@ const HtxJournalMgmt = () => {
 
   const fetchSchemas = async () => {
     try {
-      const res = await api.get('/schemas');
+      const res = await SchemaService.getSchemas();
       if (res.data.success) {
         setSchemas(res.data.data);
       }
@@ -115,7 +117,7 @@ const HtxJournalMgmt = () => {
 
   const fetchFarmers = async () => {
     try {
-      const res = await api.get('/htx/journals/farmers');
+      const res = await JournalService.getHtxFarmers();
       if (res.data.success) {
         setFarmersList(res.data.data);
       }
@@ -127,7 +129,7 @@ const HtxJournalMgmt = () => {
   const handleCreateJournal = async (values) => {
     try {
       setLoading(true);
-      const res = await api.post('/htx/journals', values);
+      const res = await JournalService.createHtxJournal(values);
       if (res.data.success) {
         message.success('Tạo sổ nhật ký thành công');
         setIsModalVisible(false);

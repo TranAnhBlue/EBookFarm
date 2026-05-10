@@ -30,6 +30,7 @@ import * as XLSX from 'xlsx';
 import api from 'src/services/01_axios';
 import authSession from 'src/services/core/authSession';
 import logoEBookFarm from 'src/assets/logo-ebookfarm.jpg';
+import ReportService from 'src/services/ReportService'
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -44,7 +45,7 @@ const Reports = () => {
   // Fetch stats data
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats'],
-    queryFn: () => api.get('/reports/dashboard-stats').then(res => res.data.data)
+    queryFn: () => ReportService.getDashboardStats().then(res => res.data.data)
   });
 
   const [aiAnalysis, setAiAnalysis] = useState(null);
@@ -73,13 +74,13 @@ const Reports = () => {
   // Fetch chart data (Pie)
   const { data: pieData, isLoading: pieLoading } = useQuery({
     queryKey: ['journal-status'],
-    queryFn: () => api.get('/reports/journal-status').then(res => res.data.data)
+    queryFn: () => ReportService.getJournalStatus().then(res => res.data.data)
   });
 
   // Fetch timeline data (Area)
   const { data: rawTimelineData, isLoading: timelineLoading } = useQuery({
     queryKey: ['activity-timeline'],
-    queryFn: () => api.get('/reports/activity-timeline').then(res => res.data.data)
+    queryFn: () => ReportService.getActivityTimeline().then(res => res.data.data)
   });
 
   // Fill empty months with 0

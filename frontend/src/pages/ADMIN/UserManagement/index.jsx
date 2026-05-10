@@ -13,6 +13,8 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from 'src/services/01_axios';
 import ExcelImport from 'src/components/ExcelImport';
+import UserService from 'src/services/UserService'
+import GroupService from 'src/services/GroupService'
 
 const { Title, Text } = Typography;
 
@@ -29,13 +31,13 @@ const UserManagement = () => {
   // Fetch users
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => api.get('/users').then(res => res.data.data)
+    queryFn: () => UserService.getUsers().then(res => res.data.data)
   });
 
   // Fetch groups for selection
   const { data: groups } = useQuery({
     queryKey: ['groups'],
-    queryFn: () => api.get('/groups').then(res => res.data.data)
+    queryFn: () => GroupService.getGroups().then(res => res.data.data)
   });
 
   // Fetch HTX list for selection
@@ -44,7 +46,7 @@ const UserManagement = () => {
   }, [users]);
 
   const importMutation = useMutation({
-    mutationFn: (dataToImport) => api.post('/users/bulk', { users: dataToImport }),
+    mutationFn: (dataToImport) => UserService.bulkImportUsers({ users: dataToImport }),
     onSuccess: () => {
       message.success('Đã nhập dữ liệu thành công!');
       queryClient.invalidateQueries(['users']);
@@ -70,7 +72,7 @@ const UserManagement = () => {
       if (editingUser) {
         return api.put(`/users/${editingUser._id}`, values);
       }
-      return api.post('/users', values);
+      return UserService.createUser(values);
     },
     onSuccess: () => {
       message.success(`${editingUser ? 'Cập nhật' : 'Thêm mới'} người dùng thành công!`);

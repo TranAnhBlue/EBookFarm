@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Row, Col, Typography, Space, Divider } from 'antd';
 import { GlobalOutlined, ThunderboltFilled, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,6 @@ const { Title, Text, Paragraph } = Typography;
 const PublicFooter = () => {
     const navigate = useNavigate();
     const user = authSession.getUser();
-  const logout = () => { authSession.clearSession(); window.location.href = '/login'; };;
     const isLoggedIn = !!user;
 
     return (
@@ -24,47 +23,47 @@ const PublicFooter = () => {
                                 <img src={logo} alt="EBookFarm Logo" className="w-[140%] h-[140%] object-contain mix-blend-multiply" />
                             </div>
                             <div className="flex flex-col justify-center">
-                                <span className="text-green-400 font-extrabold text-[14px] leading-[1.1] uppercase tracking-tight">Nháº­t kÃ½ sáº£n xuáº¥t</span>
-                                <span className="text-green-400 font-bold text-[14px] leading-[1.1] uppercase tracking-tight">Äiá»‡n tá»­</span>
+                                <span className="text-green-400 font-extrabold text-[14px] leading-[1.1] uppercase tracking-tight">Nhật ký sản xuất</span>
+                                <span className="text-green-400 font-bold text-[14px] leading-[1.1] uppercase tracking-tight">Điện tử</span>
                             </div>
                         </div>
                         <Paragraph className="text-gray-400 max-w-sm leading-relaxed">
-                            Ná»n táº£ng truy xuáº¥t nguá»“n gá»‘c chuáº©n quá»‘c gia. Minh báº¡ch - Äá»“ng bá»™ - Tin cáº­y - PhÃ¹ há»£p tiÃªu chuáº©n Viá»‡t Nam & Quá»‘c táº¿.
+                            Nền tảng truy xuất nguồn gốc chuẩn quốc gia. Minh bạch - Đồng bộ - Tin cậy - Phù hợp tiêu chuẩn Việt Nam & Quốc tế.
                         </Paragraph>
                         
                         <div className="space-y-3 pt-4">
                             <div className="flex items-center gap-3 text-gray-400 hover:text-green-400 transition-colors">
                                 <SafetyCertificateOutlined className="text-lg" />
-                                <Text className="text-gray-400">Giáº¥y phÃ©p ÄKKD: 0123456789</Text>
+                                <Text className="text-gray-400">Giấy phép ĐKKD: 0123456789</Text>
                             </div>
                             <div className="flex items-center gap-3 text-gray-400 hover:text-green-400 transition-colors">
                                 <SafetyCertificateOutlined className="text-lg" />
-                                <Text className="text-gray-400">NgÃ y cáº¥p: 01/01/2020</Text>
+                                <Text className="text-gray-400">Ngày cấp: 01/01/2020</Text>
                             </div>
                         </div>
                     </Col>
 
                     {/* Office Locations */}
                     <Col xs={24} md={8} className="space-y-6">
-                        <Text strong className="text-white block uppercase tracking-widest text-xs mb-4">VÄƒn phÃ²ng</Text>
+                        <Text strong className="text-white block uppercase tracking-widest text-xs mb-4">Văn phòng</Text>
                         
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Text strong className="text-green-400 block text-sm">Äá»‹a chá»‰ Ä‘Äƒng kÃ½</Text>
+                                <Text strong className="text-green-400 block text-sm">Địa chỉ đăng ký</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
                                     <Text className="text-gray-200 text-sm leading-relaxed">
-                                        CÄƒn sá»‘ 13 tá»• 49 trÆ°á»ng NT Nguyá»…n Viáº¿t XuÃ¢n, phÆ°á»ng YÃªn HÃ²a, quáº­n Cáº§u Giáº¥y, TP HÃ  Ná»™i
+                                        Căn số 13 tổ 49 trường NT Nguyễn Viết Xuân, phường Yên Hòa, quận Cầu Giấy, TP Hà Nội
                                     </Text>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Text strong className="text-green-400 block text-sm">VÄƒn phÃ²ng giao dá»‹ch</Text>
+                                <Text strong className="text-green-400 block text-sm">Văn phòng giao dịch</Text>
                                 <div className="flex items-start gap-2 text-gray-400">
                                     <EnvironmentOutlined className="text-base mt-1 shrink-0" />
                                     <Text className="text-gray-200 text-sm leading-relaxed">
-                                        Sá»‘ 19 phá»‘ Liá»…u Giai, phÆ°á»ng Liá»…u Giai, quáº­n Ba ÄÃ¬nh, thÃ nh phá»‘ HÃ  Ná»™i
+                                        Số 19 phố Liễu Giai, phường Liễu Giai, quận Ba Đình, thành phố Hà Nội
                                     </Text>
                                 </div>
                             </div>
@@ -75,37 +74,37 @@ const PublicFooter = () => {
                     <Col xs={24} md={8}>
                         <div className="grid grid-cols-1 gap-8">
                             <div className="space-y-4">
-                                <Text strong className="text-white block uppercase tracking-widest text-xs">LiÃªn káº¿t nhanh</Text>
+                                <Text strong className="text-white block uppercase tracking-widest text-xs">Liên kết nhanh</Text>
                                 <Space direction="vertical" className="text-gray-200">
                                     <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/reference/tcvn')}>
-                                        Tra cá»©u TCVN
+                                        Tra cứu TCVN
                                     </Text>
                                     {isLoggedIn ? (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/dashboard')}>
-                                            VÃ o báº£ng Ä‘iá»u khiá»ƒn
+                                            Vào bảng điều khiển
                                         </Text>
                                     ) : (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/login')}>
-                                            ÄÄƒng nháº­p
+                                            Đăng nhập
                                         </Text>
                                     )}
                                     {isLoggedIn ? (
                                         <Text className="text-red-400 hover:text-red-300 cursor-pointer transition-colors" onClick={() => { logout(); navigate('/'); }}>
-                                            ÄÄƒng xuáº¥t
+                                            Đăng xuất
                                         </Text>
                                     ) : (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/register')}>
-                                            ÄÄƒng kÃ½
+                                            Đăng ký
                                         </Text>
                                     )}
                                     <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors">
-                                        HÆ°á»›ng dáº«n sá»­ dá»¥ng
+                                        Hướng dẫn sử dụng
                                     </Text>
                                 </Space>
                             </div>
 
                             <div className="space-y-4">
-                                <Text strong className="text-white block uppercase tracking-widest text-xs">LiÃªn há»‡</Text>
+                                <Text strong className="text-white block uppercase tracking-widest text-xs">Liên hệ</Text>
                                 <Space direction="vertical" className="text-gray-200">
                                     <div className="flex items-center gap-2 text-gray-200 hover:text-green-400 transition-colors">
                                         <PhoneOutlined />
@@ -126,10 +125,10 @@ const PublicFooter = () => {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="space-y-2 text-center md:text-left">
                         <Text className="text-gray-400 text-xs block">
-                            Â© 2026 EBookFarm. Táº¥t cáº£ quyá»n Ä‘Æ°á»£c báº£o lÆ°u.
+                            © 2026 EBookFarm. Tất cả quyền được bảo lưu.
                         </Text>
                         <Text className="text-gray-500 text-xs block">
-                            Minh báº¡ch - Äá»“ng bá»™ - Tin cáº­y - PhÃ¹ há»£p tiÃªu chuáº©n Viá»‡t Nam & Quá»‘c táº¿
+                            Minh bạch - Đồng bộ - Tin cậy - Phù hợp tiêu chuẩn Việt Nam & Quốc tế
                         </Text>
                     </div>
                     <Space className="text-gray-400 text-xl" size="large">
@@ -143,4 +142,3 @@ const PublicFooter = () => {
 };
 
 export default PublicFooter;
-

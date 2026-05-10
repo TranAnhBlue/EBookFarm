@@ -1,12 +1,12 @@
-import { BellOutlined, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Empty, List, message, Popover, Spin, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
-import 'dayjs/locale/vi';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Badge, Popover, List, Typography, Button, Empty, Spin, message, Tag } from 'antd';
+import { BellOutlined, CheckOutlined, LoadingOutlined, EyeOutlined } from '@ant-design/icons';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from 'src/services/NotificationService/index';
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from 'src/services/NotificationService';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/vi';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -35,7 +35,7 @@ const NotificationBell = () => {
         mutationFn: markAllNotificationsAsRead,
         onSuccess: () => {
             queryClient.invalidateQueries(['notifications']);
-            message.success('ÄÃ£ Ä‘Ã¡nh dáº¥u táº¥t cáº£ lÃ  Ä‘Ã£ Ä‘á»c');
+            message.success('Đã đánh dấu tất cả là đã đọc');
         }
     });
 
@@ -58,16 +58,16 @@ const NotificationBell = () => {
                     navigate(`/journals/view/${item.relatedId}`);
                     break;
                 case 'InventoryItem':
-                    navigate('/inventory/farmer'); // NÃ´ng dÃ¢n nháº­n Ä‘Æ°á»£c thÃ¬ bay vÃ o kho
+                    navigate('/inventory/farmer'); // Nông dân nhận được thì bay vào kho
                     break;
                 case 'Consultation':
-                    navigate('/admin/consultations'); // Admin xá»­ lÃ½ tÆ° váº¥n
+                    navigate('/admin/consultations'); // Admin xử lý tư vấn
                     break;
                 case 'User':
-                    navigate('/admin/users'); // Admin duyá»‡t user má»›i
+                    navigate('/admin/users'); // Admin duyệt user mới
                     break;
                 case 'News':
-                    navigate('/dashboard'); // Má»i ngÆ°á»i vá» trang chá»§ xem tin
+                    navigate('/dashboard'); // Mọi người về trang chủ xem tin
                     break;
                 default:
                     if (item.type === 'Journal_Assigned') {
@@ -85,12 +85,12 @@ const NotificationBell = () => {
 
     const getTypeTag = (type) => {
         switch (type) {
-            case 'Journal_Submitted': return <Tag color="blue" className="mr-0">Gá»­i duyá»‡t</Tag>;
-            case 'Journal_Verified': return <Tag color="green" className="mr-0">ÄÃ£ duyá»‡t</Tag>;
-            case 'Journal_Revision_Requested': return <Tag color="orange" className="mr-0">Cáº§n sá»­a</Tag>;
-            case 'Journal_Assigned': return <Tag color="purple" className="mr-0">PhÃ¢n cÃ´ng</Tag>;
-            case 'System': return <Tag color="cyan" className="mr-0">Há»‡ thá»‘ng</Tag>;
-            case 'Announcement': return <Tag color="magenta" className="mr-0">Tin tá»©c</Tag>;
+            case 'Journal_Submitted': return <Tag color="blue" className="mr-0">Gửi duyệt</Tag>;
+            case 'Journal_Verified': return <Tag color="green" className="mr-0">Đã duyệt</Tag>;
+            case 'Journal_Revision_Requested': return <Tag color="orange" className="mr-0">Cần sửa</Tag>;
+            case 'Journal_Assigned': return <Tag color="purple" className="mr-0">Phân công</Tag>;
+            case 'System': return <Tag color="cyan" className="mr-0">Hệ thống</Tag>;
+            case 'Announcement': return <Tag color="magenta" className="mr-0">Tin tức</Tag>;
             default: return null;
         }
     };
@@ -99,7 +99,7 @@ const NotificationBell = () => {
         <div className="w-80 md:w-[400px] max-h-[500px] overflow-hidden flex flex-col">
             <div className="px-4 py-3 border-b flex justify-between items-center bg-white">
                 <div className="flex items-center gap-2">
-                    <Text strong className="text-base">ThÃ´ng bÃ¡o</Text>
+                    <Text strong className="text-base">Thông báo</Text>
                     {data?.unreadCount > 0 && <Badge count={data.unreadCount} className="notification-badge-small" />}
                 </div>
                 {data?.unreadCount > 0 && (
@@ -110,7 +110,7 @@ const NotificationBell = () => {
                         onClick={() => markAllReadMutation.mutate()}
                         loading={markAllReadMutation.isPending}
                     >
-                        Äá»c táº¥t cáº£
+                        Đọc tất cả
                     </Button>
                 )}
             </div>
@@ -167,7 +167,7 @@ const NotificationBell = () => {
                 ) : (
                     <Empty 
                         image={Empty.PRESENTED_IMAGE_SIMPLE} 
-                        description={<span className="text-gray-400 text-xs">KhÃ´ng cÃ³ thÃ´ng bÃ¡o má»›i</span>} 
+                        description={<span className="text-gray-400 text-xs">Không có thông báo mới</span>} 
                         className="py-12"
                     />
                 )}
@@ -175,7 +175,7 @@ const NotificationBell = () => {
             
             <div className="p-2 border-t text-center bg-white">
                 <Button type="text" block size="small" className="text-gray-400 text-xs font-medium hover:text-green-600">
-                    XEM Táº¤T Cáº¢ THÃ”NG BÃO
+                    XEM TẤT CẢ THÔNG BÁO
                 </Button>
             </div>
         </div>
@@ -206,4 +206,3 @@ const NotificationBell = () => {
 };
 
 export default NotificationBell;
-
