@@ -55,7 +55,7 @@ const AdminJournalMgmt = () => {
 
   // Lock Journal Mutation
   const lockJournalMutation = useMutation({
-    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Locked' }),
+    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Locked', reason: 'Admin khóa dữ liệu bất biến' }),
     onSuccess: () => {
       message.success('Đã khóa sổ nhật ký thành công! Dữ liệu hiện tại là bất biến.');
       queryClient.invalidateQueries({ queryKey: ['admin-journals'] });
@@ -67,7 +67,7 @@ const AdminJournalMgmt = () => {
 
   // Approve Journal Mutation (for independent farmers)
   const approveJournalMutation = useMutation({
-    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Verified' }),
+    mutationFn: (journalId) => api.put(`/journals/${journalId}`, { status: 'Verified', reason: 'Admin duyệt sổ tự do' }),
     onSuccess: () => {
       message.success('Đã duyệt nhật ký thành công! Sổ đã sẵn sàng xuất mã QR chuẩn.');
       queryClient.invalidateQueries({ queryKey: ['admin-journals'] });
@@ -79,7 +79,7 @@ const AdminJournalMgmt = () => {
 
   // Reject Journal Mutation (for independent farmers)
   const rejectJournalMutation = useMutation({
-    mutationFn: ({ journalId, feedback }) => api.put(`/journals/${journalId}`, { status: 'Draft', feedback }),
+    mutationFn: ({ journalId, feedback }) => api.put(`/journals/${journalId}`, { status: 'Draft', feedback, reason: feedback }),
     onSuccess: () => {
       message.success('Đã từ chối và gửi phản hồi yêu cầu chỉnh sửa!');
       setIsRejectModalVisible(false);
