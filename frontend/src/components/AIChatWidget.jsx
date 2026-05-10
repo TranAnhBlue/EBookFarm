@@ -10,6 +10,7 @@ import {
     LoginOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/helpers';
 import './AIChatWidget.css';
 
@@ -379,7 +380,13 @@ const AIChatWidget = () => {
                                     )}
                                     <div className="ai-chat-message-content">
                                         <div className="ai-chat-message-bubble">
-                                            {message.text}
+                                            {message.type === 'bot' ? (
+                                                <ReactMarkdown className="markdown-body">
+                                                    {message.text}
+                                                </ReactMarkdown>
+                                            ) : (
+                                                message.text
+                                            )}
                                         </div>
                                         <div className="ai-chat-message-time">
                                             {formatTime(message.timestamp)}
