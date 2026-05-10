@@ -424,7 +424,7 @@ const LandingPage = () => {
 
                     <div className="scroll-reveal w-full max-w-5xl mx-auto rounded-[40px] overflow-hidden shadow-2xl border-[8px] border-white/50 bg-white hover-lift relative group">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <img src="/images/dashboard_mockup.png" alt="EBookFarm Dashboard" className="w-full h-auto" />
+                        <img src="/images/smart_farming.png" alt="EBookFarm Dashboard" className="w-full h-auto" />
                     </div>
 
                     <Row gutter={[20, 20]} className="mt-12">
@@ -646,7 +646,7 @@ const LandingPage = () => {
                         </Col>
                         <Col xs={24} md={12} className="relative">
                             <div className="absolute -inset-4 bg-gradient-to-br from-green-500/20 to-blue-500/20 blur-3xl rounded-[50px] -z-10"></div>
-                            <img src="/images/smart_farm.png" alt="Smart Farm Agriculture" className="w-full rounded-[40px] shadow-2xl scroll-reveal hover-lift object-cover h-[450px]" />
+                            <img src="/images/tcvn_cert.png" alt="Chứng nhận tiêu chuẩn TCVN" className="w-full rounded-[40px] shadow-2xl scroll-reveal hover-lift object-cover h-[450px]" />
                             <div className="absolute bottom-8 right-8 glass-card p-4 rounded-2xl shadow-xl border-white animate-bounce-slow">
                                 <div className="flex items-center gap-3">
                                     <CheckCircleFilled className="text-green-500 text-2xl" />
@@ -682,7 +682,7 @@ const LandingPage = () => {
 
                     {/* Supply Chain Visual */}
                     <div className="scroll-reveal max-w-4xl mx-auto mb-16 rounded-[40px] overflow-hidden shadow-2xl hover-lift border-[8px] border-white/50 relative">
-                        <img src="/images/supply_chain.png" alt="Agricultural Supply Chain from Farm to Table" className="w-full h-auto" />
+                        <img src="/images/supply.png" alt="Agricultural Supply Chain from Farm to Table" className="w-full h-auto bg-white" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                         <div className="absolute bottom-6 left-8">
                             <Tag color="green" className="rounded-full px-4 py-1 text-xs font-bold shadow-lg">Từ nông trại đến bàn ăn</Tag>
