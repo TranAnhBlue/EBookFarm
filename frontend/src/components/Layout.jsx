@@ -93,21 +93,6 @@ const MainLayout = () => {
       label: <span className="font-medium">Yêu cầu tư vấn</span>,
     },
     {
-      key: '/admin/groq-test',
-      icon: <ThunderboltOutlined className="text-lg" />,
-      label: <span className="font-medium">Test Groq AI</span>,
-    },
-    {
-      key: '/admin/rag-test',
-      icon: <DatabaseOutlined className="text-lg" />,
-      label: <span className="font-medium">Test RAG System</span>,
-    },
-    {
-      key: '/admin/chat-stats',
-      icon: <BarChartOutlined className="text-lg" />,
-      label: <span className="font-medium">Thống kê Chat AI</span>,
-    },
-    {
       key: '/agriculture-models',
       icon: <GlobalOutlined className="text-lg" />,
       label: <span className="font-medium">Mô hình nông nghiệp</span>,
@@ -149,6 +134,16 @@ const MainLayout = () => {
       key: '/admin/logs',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Nhật ký hệ thống</span>,
+    },
+    {
+      key: 'ai-developer-tools',
+      icon: <ThunderboltOutlined className="text-lg" />,
+      label: <span className="font-medium">Công cụ AI (Dev)</span>,
+      children: [
+        { key: '/admin/groq-test', label: 'Test Groq AI' },
+        { key: '/admin/rag-test', label: 'Test RAG System' },
+        { key: '/admin/chat-stats', label: 'Thống kê Chat AI' },
+      ],
     },
     {
       key: 'system-config',
