@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Input, Avatar, Badge, Tooltip, Alert, Progress } from 'antd';
+import { Button, Input, Avatar, Badge, Tooltip, Alert, Progress, QRCode } from 'antd';
 import {
     MessageOutlined,
     SendOutlined,
@@ -52,7 +52,7 @@ const AIChatWidget = () => {
             const headers = {
                 'Content-Type': 'application/json'
             };
-            
+
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
@@ -60,7 +60,7 @@ const AIChatWidget = () => {
             const response = await fetch(`${API_URL}/chat/my-info`, {
                 headers
             });
-            
+
             const data = await response.json();
             if (data.success) {
                 setChatInfo(data.data);
@@ -99,7 +99,7 @@ const AIChatWidget = () => {
 
     const getBotResponse = (userMessage) => {
         const message = userMessage.toLowerCase();
-        
+
         // Greetings
         if (message.match(/^(xin chào|chào|hello|hi|hey)/)) {
             return botResponses['greeting'];
@@ -174,7 +174,7 @@ const AIChatWidget = () => {
             const headers = {
                 'Content-Type': 'application/json'
             };
-            
+
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
@@ -194,7 +194,7 @@ const AIChatWidget = () => {
             let botResponseText;
             if (data.success && data.data && data.data.response) {
                 botResponseText = data.data.response;
-                
+
                 // Cập nhật thông tin chat
                 if (data.data.chatLevel && data.data.remainingChats !== undefined) {
                     setChatInfo(prev => ({
@@ -230,7 +230,7 @@ const AIChatWidget = () => {
 
         } catch (error) {
             console.error('Chat error:', error);
-            
+
             // Fallback to local response if API fails
             const botMessage = {
                 id: messages.length + 2,
@@ -238,7 +238,7 @@ const AIChatWidget = () => {
                 text: getBotResponse(inputValue) || botResponses['default'],
                 timestamp: new Date()
             };
-            
+
             setMessages(prev => [...prev, botMessage]);
             setIsTyping(false);
         }
@@ -352,7 +352,7 @@ const AIChatWidget = () => {
                                     <div className="text-xs text-green-100 flex items-center gap-1">
                                         <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
                                         Đang hoạt động
-                                       
+
                                     </div>
                                 </div>
                             </div>
@@ -381,7 +381,22 @@ const AIChatWidget = () => {
                                     <div className="ai-chat-message-content">
                                         <div className="ai-chat-message-bubble">
                                             {message.type === 'bot' ? (
-                                                <ReactMarkdown className="markdown-body">
+                                                <ReactMarkdown
+                                                    className="markdown-body"
+                                                    components={{
+                                                        img: ({ node, alt, src, ...props }) => {
+                                                            if (alt === 'QR') {
+                                                                return (
+                                                                    <div className="flex flex-col items-center justify-center bg-white p-4 my-4 rounded-xl border border-gray-200 shadow-sm">
+                                                                        <QRCode value={src || 'https://ebookfarm.vn'} size={150} />
+                                                                        <div className="text-[11px] font-bold text-gray-400 mt-3 uppercase tracking-wider">Quét mã QR Demo</div>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return <img src={src} alt={alt} {...props} className="max-w-full rounded-lg my-2" />;
+                                                        }
+                                                    }}
+                                                >
                                                     {message.text}
                                                 </ReactMarkdown>
                                             ) : (
