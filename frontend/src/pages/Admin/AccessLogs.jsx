@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Input, DatePicker, Select, Badge } from 'antd';
 import { HomeOutlined, LoginOutlined, LogoutOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import api from '../../services/api';
+import api from 'src/services/01_axios';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
