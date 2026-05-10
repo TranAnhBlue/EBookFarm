@@ -246,7 +246,7 @@ const JournalTrace = () => {
         <Row gutter={16} className="mb-6">
           {thongTinChung.dienTich && (
             <Col xs={12} sm={6}>
-              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-blue-50 to-blue-100 h-full flex flex-col justify-center">
                 <Statistic
                   title={<Text strong className="text-blue-800">Diện tích</Text>}
                   value={thongTinChung.dienTich}
@@ -258,7 +258,7 @@ const JournalTrace = () => {
           )}
           {thongTinChung.namSanXuat && (
             <Col xs={12} sm={6}>
-              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-green-50 to-green-100">
+              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-green-50 to-green-100 h-full flex flex-col justify-center">
                 <Statistic
                   title={<Text strong className="text-green-800">Năm sản xuất</Text>}
                   value={thongTinChung.namSanXuat}
@@ -269,7 +269,7 @@ const JournalTrace = () => {
             </Col>
           )}
           <Col xs={12} sm={6}>
-            <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+            <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-purple-50 to-purple-100 h-full flex flex-col justify-center">
               <Statistic
                 title={<Text strong className="text-purple-800">Lượt xem</Text>}
                 value={journal.viewCount || 0}
@@ -280,7 +280,7 @@ const JournalTrace = () => {
           </Col>
           <Col xs={12} sm={6}>
             <Card
-              className="shadow-md rounded-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100 cursor-pointer hover:shadow-lg transition-shadow"
+              className="shadow-md rounded-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100 cursor-pointer hover:shadow-lg transition-shadow h-full flex flex-col justify-center"
               onClick={() => setShareModalVisible(true)}
             >
               <div className="text-center">
