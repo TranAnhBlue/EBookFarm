@@ -91,6 +91,29 @@ const JournalTrace = () => {
   const schema = journal.schemaId;
   const thongTinChung = journal.entries?.['Thông tin chung'] || {};
 
+  // Hàm hỗ trợ tìm data động vì các form schema có thể đặt tên trường (field.name) khác nhau
+  const getDynamicField = (data, possibleKeywords) => {
+    if (!data || Object.keys(data).length === 0) return null;
+    
+    // 1. Tìm chính xác
+    for (const key of Object.keys(data)) {
+      if (possibleKeywords.some(kw => key.toLowerCase() === kw.toLowerCase())) {
+        return data[key];
+      }
+    }
+    
+    // 2. Tìm gần đúng (chứa từ khóa)
+    for (const key of Object.keys(data)) {
+      if (possibleKeywords.some(kw => key.toLowerCase().includes(kw.toLowerCase()))) {
+        return data[key];
+      }
+    }
+    return null;
+  };
+
+  const tenCoSo = getDynamicField(thongTinChung, ['tên cơ sở', 'tenCoSo', 'tên nông trại', 'họ tên', 'chủ hộ', 'hoTenChuHo']);
+  const diaChi = getDynamicField(thongTinChung, ['địa chỉ', 'diaChi', 'diaChiSanXuat', 'diaChiCoSo', 'vị trí']);
+
   // Get status info
   const getStatusInfo = (status) => {
     const statusMap = {
@@ -161,7 +184,7 @@ const JournalTrace = () => {
                     <HomeOutlined className="text-green-600" />
                     <Text strong>Tên cơ sở:</Text>
                   </div>
-                  <Text className="text-base">{thongTinChung.tenCoSo || 'Chưa cập nhật'}</Text>
+                  <Text className="text-base">{tenCoSo || 'Chưa cập nhật'}</Text>
                 </Col>
                 <Col span={12}>
                   <div className="flex items-center gap-2 mb-3">
@@ -175,7 +198,7 @@ const JournalTrace = () => {
                     <EnvironmentOutlined className="text-green-600" />
                     <Text strong>Địa chỉ sản xuất:</Text>
                   </div>
-                  <Text className="text-base">{thongTinChung.diaChiSanXuat || thongTinChung.diaChiCoSo || 'Chưa cập nhật'}</Text>
+                  <Text className="text-base">{diaChi || 'Chưa cập nhật'}</Text>
                 </Col>
                 <Col span={12}>
                   <div className="flex items-center gap-2 mb-3">
