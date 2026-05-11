@@ -503,12 +503,14 @@ const HtxJournalMgmt = () => {
     },
   ];
 
-  const filteredJournals = journals.filter(j => {
-    const matchesSearch = j.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesSchema = filterSchema ? j.schemaId?._id === filterSchema : true;
-    const matchesStatus = filterStatus ? j.status === filterStatus : true;
-    return matchesSearch && matchesSchema && matchesStatus;
-  });
+  const filteredJournals = journals
+    .filter(j => {
+      const matchesSearch = j.name.toLowerCase().includes(searchText.toLowerCase());
+      const matchesSchema = filterSchema ? j.schemaId?._id === filterSchema : true;
+      const matchesStatus = filterStatus ? j.status === filterStatus : true;
+      return matchesSearch && matchesSchema && matchesStatus;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const filteredFarmersInDrawer = selectedJournal?.farmers?.filter(f => {
     const name = f.farmerId?.fullname || f.farmerId?.username || '';
@@ -593,6 +595,11 @@ const HtxJournalMgmt = () => {
           <Select
             placeholder="Bộ biểu mẫu"
             allowClear
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+            }
             style={{ width: 220 }}
             onChange={setFilterSchema}
             className="h-10"
@@ -666,7 +673,15 @@ const HtxJournalMgmt = () => {
             label={<Text strong>Bộ Biểu Mẫu</Text>}
             rules={[{ required: true, message: 'Vui lòng chọn bộ biểu mẫu' }]}
           >
-            <Select className="h-11" placeholder="Chọn bộ biểu mẫu chuẩn">
+            <Select 
+              className="h-11" 
+              placeholder="Gõ để tìm bộ biểu mẫu chuẩn..."
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children?.[0] ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            >
               {schemas.map(s => (
                 <Option key={s._id} value={s._id}>{s.name} ({s.category})</Option>
               ))}
@@ -699,22 +714,26 @@ const HtxJournalMgmt = () => {
           <Select
             mode="multiple"
             style={{ width: '100%' }}
-            placeholder="Chọn nông dân để phân công"
+            placeholder="Gõ tên nông dân để tìm..."
             value={selectedFarmerIds}
             onChange={setSelectedFarmerIds}
             className="rounded-lg"
             size="large"
             maxTagCount="responsive"
+            filterOption={(input, option) =>
+              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }
           >
             {farmersList.map(f => {
               const isAlreadyAdded = selectedJournal?.farmers?.some(jf => jf.farmerId?._id === f._id);
+              const displayName = f.fullname || f.username;
               return (
-                <Option key={f._id} value={f._id} disabled={isAlreadyAdded}>
+                <Option key={f._id} value={f._id} disabled={isAlreadyAdded} label={displayName}>
                   <div className="flex items-center gap-2">
                     <Avatar size="small" src={getAvatarUrl(f.avatar)} icon={<UserOutlined />}>
-                      {!f.avatar && getInitialAvatar(f.fullname || f.username)}
+                      {!f.avatar && getInitialAvatar(displayName)}
                     </Avatar>
-                    <Text>{f.fullname || f.username}</Text>
+                    <Text>{displayName}</Text>
                     {isAlreadyAdded && <Tag color="gray" className="ml-auto">Đã thêm</Tag>}
                   </div>
                 </Option>
