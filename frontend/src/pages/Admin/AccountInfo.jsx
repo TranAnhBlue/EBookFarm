@@ -81,12 +81,12 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
                     </Col>
                     <Col span={12}>
                         <Form.Item name="issueDate" label="Ngày cấp">
-                            <DatePicker className="w-full" format="DD/MM/YYYY" />
+                            <DatePicker className="w-full" format="DD/MM/YYYY" placeholder="Chọn ngày" />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
                         <Form.Item name="expiryDate" label="Ngày hết hạn">
-                            <DatePicker className="w-full" format="DD/MM/YYYY" />
+                            <DatePicker className="w-full" format="DD/MM/YYYY" placeholder="Chọn ngày" />
                         </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -126,6 +126,9 @@ const AccountInfo = () => {
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
 
+    // Kiểm tra quyền sửa số điện thoại (Admin và HTX được sửa, Farmer thì không)
+    const canEditPhone = ['Admin', 'HTX'].includes(user?.role);
+
     useEffect(() => {
         const fetchProvinces = async () => {
             setLoadingProvinces(true);
@@ -144,8 +147,14 @@ const AccountInfo = () => {
             });
             setAvatarUrl(user.avatar || '');
             setLocalCerts(user.certifications || []);
+            
+            // Tìm mã tỉnh tương ứng nếu có để load xã
+            if (provinces.length > 0 && user.province) {
+                const found = provinces.find(p => p.name === user.province);
+                if (found) setSelectedProvinceCode(found.code);
+            }
         }
-    }, [user, form]);
+    }, [user, form, provinces]);
 
     useEffect(() => {
         const fetch = async () => {
@@ -173,8 +182,11 @@ const AccountInfo = () => {
 
     const updateMutation = useMutation({
         mutationFn: (values) => {
+            // Lấy toàn bộ dữ liệu từ form, kể cả các trường bị disabled
+            const formData = form.getFieldsValue();
+            
             const updateData = {
-                ...values,
+                ...formData,
                 avatar: avatarUrl,
                 certifications: localCerts
             };
@@ -269,13 +281,17 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="phone" label="Số điện thoại (Cố định)">
-                                        <Input disabled className="h-11 rounded-lg bg-gray-50" prefix={<PhoneOutlined className="text-gray-300" />} />
+                                    <Form.Item name="phone" label={canEditPhone ? "Số điện thoại" : "Số điện thoại (Cố định)"}>
+                                        <Input 
+                                            disabled={!canEditPhone} 
+                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`} 
+                                            prefix={<PhoneOutlined className="text-gray-300" />} 
+                                        />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item name="dateOfBirth" label="Ngày sinh">
-                                        <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" />
+                                        <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" placeholder="Chọn ngày" />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -385,7 +401,6 @@ const AccountInfo = () => {
                     if (editingCert) updatedCerts[editingCert.index] = { ...newCert, status: 'Pending' };
                     setLocalCerts(updatedCerts);
                     setIsCertModalVisible(false);
-                    updateMutation.mutate({ ...form.getFieldsValue(), certifications: updatedCerts });
                 }}
             />
         </div>

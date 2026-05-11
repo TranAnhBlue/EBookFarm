@@ -2,7 +2,12 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, App as AntdApp } from 'antd';
+import vi_VN from 'antd/locale/vi_VN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+dayjs.locale('vi');
 
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
@@ -98,6 +103,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "147676468818-86oa6l06us45c8as6272v1mbc6egenf5.apps.googleusercontent.com"}>
         <ConfigProvider
+          locale={vi_VN}
           theme={{
             token: {
               colorPrimary: '#22c55e',
