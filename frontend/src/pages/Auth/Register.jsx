@@ -57,9 +57,19 @@ const Register = () => {
       message.success('Mã OTP đã được gửi qua SMS!');
       setCountdown(60);
     } catch (error) {
-      console.error('Firebase Auth Error:', error);
-      message.error('Lỗi khi gửi SMS. Hãy đảm bảo số điện thoại chính xác.');
-      // Reset recaptcha nếu lỗi
+      console.warn('Firebase SMS failed, using internal fallback:', error.code);
+      
+      try {
+        message.info('Đang sử dụng hệ thống xác thực nội bộ...');
+        const phone = form.getFieldValue('phone');
+        await api.post('/auth/send-otp', { phone, type: 'REGISTER' });
+        message.success('Mã OTP đã được gửi! Hãy kiểm tra Console của Server.');
+        setCountdown(60);
+        setConfirmationResult('INTERNAL_OTP');
+      } catch (innerError) {
+        message.error('Không thể gửi mã OTP qua cả hai hệ thống.');
+      }
+
       if (window.recaptchaVerifier) {
           window.recaptchaVerifier.render().then(widgetId => {
               window.grecaptcha.reset(widgetId);

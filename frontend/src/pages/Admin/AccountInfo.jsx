@@ -149,21 +149,17 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
             message.success('Mã OTP đã được gửi qua SMS!');
             setCountdown(60);
         } catch (error) {
-            console.error('Firebase Auth Error:', error);
-
-            // FALLBACK: Nếu Firebase lỗi, dùng OTP nội bộ
-            if (error.code === 'auth/billing-not-enabled' || error.code === 'auth/operation-not-allowed') {
-                try {
-                    message.info('Sử dụng hệ thống xác thực nội bộ...');
-                    await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' });
-                    message.success('Mã OTP đã được gửi! Hãy kiểm tra Console Server.');
-                    setCountdown(60);
-                    setConfirmationResult('INTERNAL_OTP');
-                } catch (innerError) {
-                    message.error('Lỗi gửi OTP nội bộ.');
-                }
-            } else {
-                message.error('Lỗi khi gửi SMS. Hãy kiểm tra lại số điện thoại.');
+            console.warn('Firebase SMS failed, using internal fallback:', error.code);
+            
+            try {
+                message.info('Sử dụng hệ thống xác thực nội bộ...');
+                const phone = form.getFieldValue('phone');
+                await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' });
+                message.success('Mã OTP đã được gửi! Kiểm tra Console Server.');
+                setCountdown(60);
+                setConfirmationResult('INTERNAL_OTP');
+            } catch (innerError) {
+                message.error('Lỗi gửi OTP nội bộ.');
             }
 
             if (window.recaptchaVerifierProfile) {
