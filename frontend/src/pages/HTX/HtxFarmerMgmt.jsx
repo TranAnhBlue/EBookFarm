@@ -16,9 +16,9 @@ import {
   SafetyCertificateOutlined,
   EyeOutlined,
   CloseCircleOutlined,
-  ExclamationCircleOutlined,
   ClockCircleOutlined,
-  HistoryOutlined
+  HistoryOutlined,
+  BoxPlotOutlined
 } from '@ant-design/icons';
 import { Modal, List, Divider, Empty, Descriptions } from 'antd';
 import api from '../../services/api';
