@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert, Empty, Modal, Tooltip } from 'antd';
-import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined, BankOutlined, CalendarOutlined, WomanOutlined, ManOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined, BankOutlined, CalendarOutlined, WomanOutlined, ManOutlined, AreaChartOutlined, BarcodeOutlined, FieldTimeOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -220,7 +220,6 @@ const AccountInfo = () => {
     });
 
     const disabledDate = (current) => {
-        // Không cho phép chọn ngày tương lai
         return current && current > dayjs().endOf('day');
     };
 
@@ -291,7 +290,8 @@ const AccountInfo = () => {
                         {user?.bio && <Text className="text-sm text-gray-400 block mt-4 px-4 italic leading-relaxed">"{user.bio}"</Text>}
                         
                         <Divider className="my-6" />
-                        <div className="space-y-5 text-left px-4 text-sm">
+                        <div className="space-y-4 text-left px-4 text-sm">
+                            {/* Thông tin định danh */}
                             <div className="flex items-center gap-4">
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><UserOutlined /></div>
                                 <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Username</Text><Text strong className="text-sm">@{user?.username}</Text></div>
@@ -304,17 +304,37 @@ const AccountInfo = () => {
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><PhoneOutlined /></div>
                                 <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Điện thoại</Text><Text strong className="text-sm">{user?.phone || 'Chưa cập nhật'}</Text></div>
                             </div>
-                            {(user?.province || user?.ward) && (
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><EnvironmentOutlined /></div>
-                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Địa chỉ</Text><Text strong className="text-sm">{user.ward ? `${user.ward}, ` : ''}{user.province}</Text></div>
-                                </div>
-                            )}
-                            {user?.dateOfBirth && (
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><CalendarOutlined /></div>
-                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Ngày sinh</Text><Text strong className="text-sm">{dayjs(user.dateOfBirth).format('DD/MM/YYYY')}</Text></div>
-                                </div>
+
+                            {/* Địa chỉ & Cá nhân */}
+                            <Divider className="!my-2 border-gray-100" />
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><EnvironmentOutlined /></div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Địa chỉ</Text><Text strong className="text-sm block leading-tight">{user?.address ? `${user.address}, ` : ''}{user?.ward ? `${user.ward}, ` : ''}{user?.province || 'Chưa cập nhật'}</Text></div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><CalendarOutlined /></div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Ngày sinh</Text><Text strong className="text-sm">{user?.dateOfBirth ? dayjs(user.dateOfBirth).format('DD/MM/YYYY') : 'Chưa cập nhật'}</Text></div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">{user?.gender === 'Nam' ? <ManOutlined /> : <WomanOutlined />}</div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Giới tính</Text><Text strong className="text-sm">{user?.gender || 'Chưa cập nhật'}</Text></div>
+                            </div>
+
+                            {/* Thông tin nông trại (Cho Farmer/User) */}
+                            {['Farmer', 'User'].includes(user?.role) && (user?.farmName || user?.farmCode || user?.farmArea) && (
+                                <>
+                                    <Divider className="!my-2 border-gray-100" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-400"><HomeOutlined /></div>
+                                        <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Nông trại</Text><Text strong className="text-sm block">{user.farmName || 'Tên chưa đặt'}</Text><Text className="text-[10px] text-gray-400">Mã: {user.farmCode || 'N/A'}</Text></div>
+                                    </div>
+                                    {user?.farmArea && (
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-400"><AreaChartOutlined /></div>
+                                            <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Diện tích</Text><Text strong className="text-sm">{user.farmArea} m²</Text></div>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </Card>
