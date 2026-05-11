@@ -242,7 +242,7 @@ const MainLayout = () => {
     {
       key: '/htx/approvals',
       icon: <CheckCircleOutlined className="text-lg text-orange-500" />,
-      label: <span className="font-medium">Quản lý nhật ký</span>,
+      label: <span className="font-medium">Phê duyệt nhật ký</span>,
     },
     {
       key: 'htx-traceability',

@@ -15,7 +15,8 @@ import {
   BoxPlotOutlined,
   ThunderboltOutlined,
   RobotOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import { Modal } from 'antd';
 import ReactMarkdown from 'react-markdown';
@@ -431,18 +432,17 @@ const Reports = () => {
             <Col xs={24} sm={12} lg={6}>
               <Card bordered={false} className="premium-card bg-white shadow-xl shadow-gray-100/50 rounded-3xl hover:-translate-y-1 transition-all overflow-hidden relative h-full">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <BoxPlotOutlined className="text-6xl text-purple-500" />
+                  <CheckCircleOutlined className="text-6xl text-orange-500" />
                 </div>
                 <Statistic
-                  title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Diện tích canh tác</Text>}
-                  value={stats?.totalArea || 0}
+                  title={<Text className="text-gray-400 uppercase text-[10px] font-bold tracking-widest">Chờ phê duyệt</Text>}
+                  value={stats?.pendingApprovalsCount || 0}
                   loading={statsLoading}
-                  prefix={<BoxPlotOutlined className="text-purple-500" />}
-                  suffix={<span className="text-xs font-medium text-gray-400">m²</span>}
+                  prefix={<CheckCircleOutlined className="text-orange-500" />}
                 />
                 <div className="mt-4 flex items-center gap-2">
-                  <Tag color="purple" className="rounded-full border-0 text-[10px] font-bold">Tổng quy mô</Tag>
-                  <Text className="text-[10px] text-gray-400">sản xuất</Text>
+                  <Tag color="orange" className="rounded-full border-0 text-[10px] font-bold">Cần xử lý</Tag>
+                  <Text className="text-[10px] text-gray-400">hộ nông dân</Text>
                 </div>
               </Card>
             </Col>

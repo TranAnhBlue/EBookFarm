@@ -31,11 +31,12 @@ const getDashboardStats = async (req, res) => {
       filter = { userId };
     }
 
-    const [totalUsers, totalGroups, totalJournals, completedJournals, inventoryCount] = await Promise.all([
+    const [totalUsers, totalGroups, totalJournals, completedJournals, pendingApprovalsCount, inventoryCount] = await Promise.all([
       isAdmin ? User.countDocuments() : (isHtx ? User.countDocuments({ role: { $regex: /^farmer$/i } }) : 0),
       isAdmin ? Group.countDocuments() : 0,
       FarmJournal.countDocuments(filter),
       FarmJournal.countDocuments({ ...filter, status: { $in: ['Verified', 'Locked'] } }),
+      FarmJournal.countDocuments({ ...filter, status: 'Submitted' }),
       (isAdmin && InventoryItem) ? InventoryItem.countDocuments() : 0
     ]);
 
@@ -96,6 +97,7 @@ const getDashboardStats = async (req, res) => {
         totalGroups,
         totalJournals,
         completedJournals,
+        pendingApprovalsCount,
         inventoryCount,
         ...extraStats
       }
