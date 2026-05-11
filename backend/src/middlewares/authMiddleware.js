@@ -14,6 +14,18 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ success: false, message: 'Tài khoản không tồn tại hoặc đã bị xóa. Vui lòng đăng nhập lại.' });
       }
 
+      // Kiểm tra nếu mật khẩu đã bị đổi sau khi token được cấp
+      if (req.user.lastPasswordChange) {
+        const passwordChangedTimestamp = parseInt(req.user.lastPasswordChange.getTime() / 1000, 10);
+        if (decoded.iat < passwordChangedTimestamp) {
+          console.log('⚠️ Token invalidated due to password change');
+          return res.status(401).json({ 
+            success: false, 
+            message: 'Mật khẩu đã được thay đổi. Vui lòng đăng nhập lại để tiếp tục.' 
+          });
+        }
+      }
+
       console.log('🔐 Protect middleware - User loaded:', {
         id: req.user._id,
         username: req.user.username,
@@ -23,7 +35,7 @@ const protect = async (req, res, next) => {
       return next();
     } catch (error) {
       console.error('❌ Token verification failed:', error.message);
-      return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+      return res.status(401).json({ success: false, message: 'Phiên đăng nhập hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.' });
     }
   }
 

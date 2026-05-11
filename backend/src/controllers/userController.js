@@ -25,7 +25,10 @@ const updateUserRoleStatus = async (req, res) => {
       user.email = email !== undefined ? email : user.email;
       user.groupId = groupId !== undefined ? groupId : user.groupId;
       user.htxId = htxId !== undefined ? htxId : user.htxId;
-      if (password) user.password = password;
+      if (password) {
+        user.password = password;
+        user.lastPasswordChange = new Date();
+      }
 
       const updatedUser = await user.save();
 
@@ -86,6 +89,7 @@ const updateProfile = async (req, res) => {
         }
         
         user.password = password;
+        user.lastPasswordChange = new Date();
         user.mustChangePassword = false;
       }
 

@@ -249,6 +249,7 @@ const resetPassword = async (req, res) => {
     }
 
     user.password = req.body.password;
+    user.lastPasswordChange = new Date();
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
