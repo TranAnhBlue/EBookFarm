@@ -133,7 +133,11 @@ const SystemLogs = () => {
           </div>
           <div className="flex flex-col">
             <Text strong className="text-gray-800">{user?.fullname || user?.username || 'System'}</Text>
-            <Text type="secondary" className="text-[10px] uppercase font-bold tracking-wider">{user?.role || 'SYSTEM'}</Text>
+            <Text type="secondary" className="text-[10px] uppercase font-bold tracking-wider">
+              {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' : 
+               user?.role?.toUpperCase() === 'FARMER' ? 'Nông dân' : 
+               user?.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' : (user?.role || 'Hệ thống')}
+            </Text>
           </div>
         </Space>
       )

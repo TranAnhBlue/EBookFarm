@@ -121,11 +121,16 @@ const UserManagement = () => {
       title: 'Quyền hạn',
       dataIndex: 'role',
       key: 'role',
-      render: (role) => (
-        <Tag color={role === 'Admin' ? 'purple' : 'cyan'} className="rounded-md font-bold px-3">
-          {role}
-        </Tag>
-      )
+      render: (role) => {
+        const roleMap = {
+          'Admin': { label: 'Quản trị viên', color: 'purple' },
+          'Farmer': { label: 'Nông dân', color: 'cyan' },
+          'HTX': { label: 'Hợp tác xã', color: 'gold' },
+          'User': { label: 'Người dùng', color: 'blue' }
+        };
+        const mapped = roleMap[role] || { label: role, color: 'default' };
+        return <Tag color={mapped.color} className="rounded-md font-bold px-3">{mapped.label}</Tag>;
+      }
     },
     {
       title: 'Đơn vị / HTX',
@@ -316,9 +321,10 @@ const UserManagement = () => {
               initialValue="Farmer"
             >
               <Select className="h-11 w-full" dropdownClassName="rounded-xl">
-                <Select.Option value="Admin">Admin</Select.Option>
-                <Select.Option value="Htx">Hợp tác xã</Select.Option>
+                <Select.Option value="Admin">Quản trị viên</Select.Option>
+                <Select.Option value="HTX">Hợp tác xã</Select.Option>
                 <Select.Option value="Farmer">Nông dân</Select.Option>
+                <Select.Option value="User">Người dùng</Select.Option>
               </Select>
             </Form.Item>
 

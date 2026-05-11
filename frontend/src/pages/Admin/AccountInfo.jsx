@@ -279,7 +279,12 @@ const AccountInfo = () => {
                             </Upload>
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
-                        <Text type="secondary" className="text-[10px] uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
+                        <Text type="secondary" className="text-[10px] uppercase font-bold text-green-600 tracking-widest">
+                            {user?.role === 'Admin' ? 'Quản trị viên' : 
+                             user?.role === 'Farmer' ? 'Nông dân' : 
+                             user?.role === 'HTX' ? 'Hợp tác xã' : 
+                             user?.role === 'User' ? 'Người dùng' : user?.role}
+                        </Text>
                         
                         {user?.organization && (
                             <div className="mt-3">

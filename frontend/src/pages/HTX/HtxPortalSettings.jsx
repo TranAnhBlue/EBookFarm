@@ -291,7 +291,7 @@ const HtxPortalSettings = () => {
                 <div className="text-blue-700 text-xs">
                   <Paragraph className="mb-1">• Hệ thống EBookFarm hiện hỗ trợ tích hợp với chuẩn <b>EPCIS 2.0</b> của GS1.</Paragraph>
                   <Paragraph className="mb-1">• Dữ liệu nhật ký sản xuất được đồng bộ tự động sau khi HTX phê duyệt lô hàng.</Paragraph>
-                  <Paragraph className="mb-0">• Mọi sự cố kết nối vui lòng liên hệ Admin EBookFarm hoặc hotline Cổng TXNG Quốc Gia.</Paragraph>
+                  <Paragraph className="mb-0">• Mọi sự cố kết nối vui lòng liên hệ Quản trị viên EBookFarm hoặc hotline Cổng TXNG Quốc Gia.</Paragraph>
                 </div>
               }
               type="info"

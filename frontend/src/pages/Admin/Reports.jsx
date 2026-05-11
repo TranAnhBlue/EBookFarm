@@ -248,7 +248,7 @@ const Reports = () => {
 
         doc.setFontSize(10);
         doc.setTextColor(40, 40, 40);
-        doc.text("Xác nhận của Admin", pageWidth - 40, finalY, { align: 'center' });
+        doc.text("Xác nhận của Quản trị viên", pageWidth - 40, finalY, { align: 'center' });
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text("(Ký tên, đóng dấu)", pageWidth - 40, finalY + 5, { align: 'center' });

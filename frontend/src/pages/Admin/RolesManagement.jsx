@@ -81,7 +81,7 @@ const RolesManagement = () => {
       render: (text) => <Text strong className="text-gray-700">{text}</Text>
     },
     {
-      title: 'ADMIN',
+      title: 'QUẢN TRỊ VIÊN',
       dataIndex: 'admin',
       key: 'admin',
       align: 'center',

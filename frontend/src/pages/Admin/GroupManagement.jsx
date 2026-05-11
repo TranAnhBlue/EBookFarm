@@ -280,7 +280,11 @@ const GroupManagement = () => {
             >
               {users?.map(u => (
                 <Select.Option key={u._id} value={u._id}>
-                  {u.fullname || u.username} ({u.role})
+                  {u.fullname || u.username} ({
+                    u.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' : 
+                    u.role?.toUpperCase() === 'FARMER' ? 'Nông dân' : 
+                    u.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' : u.role
+                  })
                 </Select.Option>
               ))}
             </Select>
