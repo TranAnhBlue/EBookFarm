@@ -84,6 +84,13 @@ const HtxJournalApproval = () => {
 
   const columns = [
     {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <span className="text-gray-400 font-mono">{index + 1}</span>
+    },
+    {
       title: 'NÔNG DÂN',
       key: 'farmer',
       render: (_, record) => (
@@ -163,7 +170,12 @@ const HtxJournalApproval = () => {
   const filteredData = pendingFarmers.filter(item => {
     const name = item.farmerId?.fullname || item.farmerId?.username || '';
     const journal = item.journalName || '';
-    return name.toLowerCase().includes(searchText.toLowerCase()) || journal.toLowerCase().includes(searchText.toLowerCase());
+    const phone = item.farmerId?.phone || '';
+    return (
+      name.toLowerCase().includes(searchText.toLowerCase()) || 
+      journal.toLowerCase().includes(searchText.toLowerCase()) ||
+      phone.includes(searchText)
+    );
   });
 
   return (
@@ -199,7 +211,12 @@ const HtxJournalApproval = () => {
           dataSource={filteredData}
           rowKey={record => `${record.journalId}-${record.farmerId?._id}`}
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ 
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            locale: { items_per_page: '/ trang' }
+          }}
           className="premium-table-refined"
           locale={{
             emptyText: <div className="py-12"><CheckCircleOutlined className="text-5xl text-green-100 mb-4" /><p className="text-gray-400">Tuyệt vời! Hiện không còn nhật ký nào đang chờ duyệt.</p></div>
@@ -233,7 +250,7 @@ const HtxJournalApproval = () => {
                 </div>
              </div>
              <JournalEntry 
-                standaloneJournalId={previewData.farmJournalId?._id || previewData.farmJournalId} 
+                id={previewData.farmJournalId?._id || previewData.farmJournalId} 
                 viewOnly={true} 
              />
           </div>
