@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined, MailOutlined, RocketFilled, SafetyCertifica
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase';
 import logo from '../../assets/logo-ebookfarm.jpg';
 
 const { Title, Text, Paragraph } = Typography;
@@ -14,7 +15,20 @@ const Register = () => {
   const [loading, setLoading] = React.useState(false);
   const [otpLoading, setOtpLoading] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
+  const [confirmationResult, setConfirmationResult] = React.useState(null);
   const [form] = Form.useForm();
+
+  React.useEffect(() => {
+    // Khởi tạo Recaptcha ẩn
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    }
+  }, []);
 
   React.useEffect(() => {
     let timer;
@@ -28,15 +42,29 @@ const Register = () => {
     try {
       const phone = form.getFieldValue('phone');
       if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
-        return message.error('Vui lòng nhập số điện thoại hợp lệ để nhận mã OTP!');
+        return message.error('Vui lòng nhập số điện thoại hợp lệ!');
       }
 
       setOtpLoading(true);
-      await api.post('/auth/send-otp', { phone, type: 'REGISTER' });
-      message.success('Mã OTP đã được gửi đến số điện thoại của bạn!');
+      
+      // Chuẩn hóa số điện thoại sang định dạng quốc tế (+84)
+      const formattedPhone = phone.startsWith('0') ? '+84' + phone.substring(1) : phone;
+      
+      const appVerifier = window.recaptchaVerifier;
+      const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      
+      setConfirmationResult(result);
+      message.success('Mã OTP đã được gửi qua SMS!');
       setCountdown(60);
     } catch (error) {
-      message.error(error.response?.data?.message || 'Không thể gửi mã OTP. Vui lòng thử lại.');
+      console.error('Firebase Auth Error:', error);
+      message.error('Lỗi khi gửi SMS. Hãy đảm bảo số điện thoại chính xác.');
+      // Reset recaptcha nếu lỗi
+      if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.render().then(widgetId => {
+              window.grecaptcha.reset(widgetId);
+          });
+      }
     } finally {
       setOtpLoading(false);
     }
@@ -45,15 +73,30 @@ const Register = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
+
+      // 1. Xác thực OTP với Firebase
+      if (!confirmationResult) {
+        return message.error('Vui lòng nhận mã OTP trước!');
+      }
+
+      try {
+        await confirmationResult.confirm(values.otp);
+      } catch (otpError) {
+        return message.error('Mã OTP không chính xác hoặc đã hết hạn.');
+      }
+
+      // 2. Nếu OTP đúng, tiến hành đăng ký ở Backend
       const { data } = await api.post('/auth/register', {
           ...values,
-          role: 'Farmer' // Default role for public registration
+          role: 'Farmer',
+          isPhoneVerified: true // Báo cho backend biết là đã xác thực xong
       });
+      
       setCredentials(data.data, data.data.token);
-      message.success('Tài khoản đã được tạo thành công! Chào mừng bạn đến với EBookFarm.');
+      message.success('Tài khoản đã được tạo thành công!');
       navigate('/dashboard');
     } catch (error) {
-      message.error(error.response?.data?.message || 'Đăng ký thất bại. Email hoặc tên tài khoản có thể đã tồn tại.');
+      message.error(error.response?.data?.message || 'Đăng ký thất bại.');
     } finally {
       setLoading(false);
     }
@@ -253,6 +296,9 @@ const Register = () => {
       <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-bold tracking-[3px] text-gray-400/50 pointer-events-none">
         Digital Agriculture Transformation Initiative
       </div>
+      
+      {/* Container cho Recaptcha của Firebase */}
+      <div id="recaptcha-container"></div>
     </div>
   );
 };

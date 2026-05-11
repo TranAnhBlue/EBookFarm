@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import dayjs from 'dayjs';
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase';
 import { getProvinces, getWardsByProvince } from '../../services/locationService';
 import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
@@ -114,6 +115,15 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
     const [form] = Form.useForm();
     const [countdown, setCountdown] = useState(0);
     const [otpLoading, setOtpLoading] = useState(false);
+    const [confirmationResult, setConfirmationResult] = useState(null);
+
+    useEffect(() => {
+        if (visible && !window.recaptchaVerifierProfile) {
+            window.recaptchaVerifierProfile = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
+                'size': 'invisible'
+            });
+        }
+    }, [visible]);
 
     useEffect(() => {
         let timer;
@@ -131,56 +141,82 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
             }
 
             setOtpLoading(true);
-            await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' });
-            message.success('Mã OTP đã được gửi!');
+            const formattedPhone = phone.startsWith('0') ? '+84' + phone.substring(1) : phone;
+            const appVerifier = window.recaptchaVerifierProfile;
+            const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+            
+            setConfirmationResult(result);
+            message.success('Mã OTP đã được gửi qua SMS!');
             setCountdown(60);
         } catch (error) {
-            message.error(error.response?.data?.message || 'Lỗi gửi OTP');
+            console.error('Firebase Auth Error:', error);
+            message.error('Lỗi khi gửi SMS. Hãy kiểm tra lại số điện thoại.');
+            if (window.recaptchaVerifierProfile) {
+                window.recaptchaVerifierProfile.render().then(widgetId => {
+                    window.grecaptcha.reset(widgetId);
+                });
+            }
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    const handleOk = async () => {
+        try {
+            const values = await form.validateFields();
+            if (!confirmationResult) {
+                return message.error('Vui lòng nhận mã OTP trước!');
+            }
+
+            setOtpLoading(true);
+            await confirmationResult.confirm(values.otp);
+            onVerify({ ...values, isFirebaseVerified: true });
+        } catch (error) {
+            message.error('Mã OTP không chính xác hoặc đã hết hạn.');
         } finally {
             setOtpLoading(false);
         }
     };
 
     return (
-        <Modal
-            title="Thay đổi số điện thoại"
-            open={visible}
-            onCancel={onCancel}
-            onOk={() => {
-                form.validateFields().then(values => {
-                    onVerify(values);
-                });
-            }}
-            confirmLoading={loading}
-            centered
-        >
-            <Form form={form} layout="vertical">
-                <Form.Item 
-                    name="phone" 
-                    label="Số điện thoại mới" 
-                    rules={[{ required: true }, { pattern: /^[0-9]{10,11}$/, message: 'SĐT không hợp lệ' }]}
-                >
-                    <Space.Compact className="w-full">
-                        <Input placeholder="Nhập số điện thoại mới" />
-                        <Button 
-                            type="primary" 
-                            onClick={sendOtp} 
-                            disabled={countdown > 0} 
-                            loading={otpLoading}
-                        >
-                            {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
-                        </Button>
-                    </Space.Compact>
-                </Form.Item>
-                <Form.Item 
-                    name="otp" 
-                    label="Mã OTP" 
-                    rules={[{ required: true, len: 6, message: 'Mã OTP gồm 6 chữ số' }]}
-                >
-                    <Input placeholder="Nhập mã 6 chữ số" maxLength={6} />
-                </Form.Item>
-            </Form>
-        </Modal>
+        <>
+            <Modal
+                title="Thay đổi số điện thoại"
+                open={visible}
+                onCancel={onCancel}
+                onOk={handleOk}
+                confirmLoading={loading || otpLoading}
+                centered
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item 
+                        name="phone" 
+                        label="Số điện thoại mới" 
+                        rules={[{ required: true }, { pattern: /^[0-9]{10,11}$/, message: 'SĐT không hợp lệ' }]}
+                    >
+                        <Space.Compact className="w-full">
+                            <Input placeholder="Nhập số điện thoại mới" />
+                            <Button 
+                                type="primary" 
+                                onClick={sendOtp} 
+                                disabled={countdown > 0} 
+                                loading={otpLoading}
+                            >
+                                {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
+                            </Button>
+                        </Space.Compact>
+                    </Form.Item>
+                    <Form.Item 
+                        name="otp" 
+                        label="Mã OTP" 
+                        rules={[{ required: true, len: 6, message: 'Mã OTP gồm 6 chữ số' }]}
+                    >
+                        <Input placeholder="Nhập mã 6 chữ số" maxLength={6} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <div id="recaptcha-container-profile"></div>
+        </>
     );
 };
 
@@ -199,7 +235,6 @@ const AccountInfo = () => {
     const [isCertModalVisible, setIsCertModalVisible] = useState(false);
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
-    
     const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
 
     useEffect(() => {
@@ -250,28 +285,11 @@ const AccountInfo = () => {
     const updateMutation = useMutation({
         mutationFn: (values) => {
             const updateData = {
-                fullname: values.fullname,
-                phone: values.phone,
-                dateOfBirth: values.dateOfBirth,
-                gender: values.gender,
-                address: values.address,
-                province: values.province,
-                ward: values.ward,
-                farmName: values.farmName,
-                farmCode: values.farmCode,
-                farmArea: values.farmArea,
-                farmType: values.farmType,
-                bio: values.bio,
-                organization: values.organization,
+                ...values,
                 avatar: avatarUrl,
                 certifications: values.certifications || localCerts,
-                otp: values.otp
+                dateOfBirth: values.dateOfBirth ? values.dateOfBirth.toISOString() : null
             };
-
-            if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
-                updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
-            }
-
             return api.put('/users/profile', updateData);
         },
         onSuccess: (res) => {
@@ -284,35 +302,18 @@ const AccountInfo = () => {
     });
 
     const handleAvatarChange = (info) => {
-        if (info.file.status === 'uploading') {
-            message.loading({ content: 'Đang tải ảnh lên...', key: 'avatar' });
-        }
         if (info.file.status === 'done') {
-            const avatarUrl = info.file.response.data.avatar;
-            setAvatarUrl(avatarUrl);
-            setUser({ ...user, avatar: avatarUrl });
-            message.success({ content: 'Tải ảnh đại diện thành công!', key: 'avatar' });
+            const url = info.file.response.data.avatar;
+            setAvatarUrl(url);
+            setUser({ ...user, avatar: url });
+            message.success('Tải ảnh đại diện thành công!');
         } else if (info.file.status === 'error') {
-            message.error({ content: 'Tải ảnh thất bại!', key: 'avatar' });
+            message.error('Tải ảnh thất bại!');
         }
-    };
-
-    const beforeUpload = (file) => {
-        const isImage = file.type.startsWith('image/');
-        if (!isImage) {
-            message.error('Chỉ chấp nhận file ảnh!');
-            return Upload.LIST_IGNORE;
-        }
-        const isLt5M = file.size / 1024 / 1024 < 5;
-        if (!isLt5M) {
-            message.error('Ảnh phải nhỏ hơn 5MB!');
-            return Upload.LIST_IGNORE;
-        }
-        return true;
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-4xl mx-auto space-y-6 p-4">
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
                     <HomeOutlined />
@@ -340,107 +341,50 @@ const AccountInfo = () => {
                                 showUploadList={false}
                                 action={`${API_URL}/upload/avatar`}
                                 headers={{ Authorization: `Bearer ${localStorage.getItem('token')}` }}
-                                beforeUpload={beforeUpload}
                                 onChange={handleAvatarChange}
                                 className="absolute bottom-0 right-0"
                             >
-                                <Button
-                                    shape="circle"
-                                    size="small"
-                                    icon={<CameraOutlined />}
-                                    className="bg-green-500 text-white border-0 shadow-lg hover:bg-green-600"
-                                />
+                                <Button shape="circle" size="small" icon={<CameraOutlined />} className="bg-green-500 text-white border-0 shadow-lg" />
                             </Upload>
                         </div>
-
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
-                        <Text type="secondary" className="text-xs uppercase font-bold tracking-widest text-green-600">{user?.role}</Text>
-
-                        {user?.bio && (
-                            <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>
-                        )}
-
+                        <Text type="secondary" className="text-xs uppercase font-bold text-green-600">{user?.role}</Text>
                         <Divider className="my-6" />
-
-                        <div className="space-y-4 text-left px-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><UserOutlined /></div>
-                                <div className="flex-1 min-w-0">
-                                    <Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text>
-                                    <Text strong className="block truncate">@{user?.username}</Text>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><MailOutlined /></div>
-                                <div className="flex-1 min-w-0">
-                                    <Text type="secondary" className="text-[10px] uppercase font-bold block">Email</Text>
-                                    <Text strong className="text-xs block truncate">{user?.email}</Text>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><PhoneOutlined /></div>
-                                <div className="flex-1 min-w-0">
-                                    <Text type="secondary" className="text-[10px] uppercase font-bold block">Điện thoại</Text>
-                                    <Text strong className="block truncate">{user?.phone}</Text>
-                                </div>
-                            </div>
+                        <div className="space-y-4 text-left px-2 text-sm">
+                            <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <Text strong>@{user?.username}</Text></div>
+                            <div className="flex items-center gap-3"><MailOutlined className="text-gray-400" /> <Text className="truncate">{user?.email}</Text></div>
+                            <div className="flex items-center gap-3"><PhoneOutlined className="text-gray-400" /> <Text>{user?.phone}</Text></div>
                         </div>
                     </Card>
                 </Col>
 
                 <Col span={24} lg={16}>
                     <Card bordered={false} className="shadow-sm rounded-[24px] p-4">
-                        <Title level={5} className="mb-6 flex items-center gap-2">
-                            <EditOutlined className="text-green-500" /> Thay đổi thông tin
-                        </Title>
-
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            onFinish={(values) => updateMutation.mutate(values)}
-                        >
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true, message: 'Nhập họ tên!' }]}>
-                                    <Input className="h-11 rounded-lg" prefix={<UserOutlined className="text-gray-300" />} />
-                                </Form.Item>
-                                <Form.Item name="email" label="Địa chỉ Email">
-                                    <Input disabled className="h-11 rounded-lg bg-gray-50" prefix={<MailOutlined className="text-gray-300" />} />
-                                </Form.Item>
-                                <Form.Item name="phone" label="Số điện thoại">
-                                    <Space.Compact className="w-full">
-                                        <Input disabled className="h-11 rounded-l-lg bg-gray-50" prefix={<PhoneOutlined className="text-gray-300" />} />
-                                        <Button icon={<EditOutlined />} onClick={() => setIsPhoneModalVisible(true)} className="h-11 rounded-r-lg">Thay đổi</Button>
-                                    </Space.Compact>
-                                </Form.Item>
-                                <Form.Item name="dateOfBirth" label="Ngày sinh">
-                                    <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" />
-                                </Form.Item>
-                            </div>
-
-                            <Form.Item name="bio" label="Giới thiệu ngắn">
-                                <TextArea rows={3} className="rounded-lg" />
-                            </Form.Item>
-
-                            <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-6"><EnvironmentOutlined className="mr-2" /> Địa chỉ</Divider>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Form.Item name="province" label="Tỉnh/Thành phố">
-                                    <Select showSearch onChange={handleProvinceChange} className="h-11">
-                                        {provinces.map(p => <Option key={p.code} value={p.name} code={p.code}>{p.name}</Option>)}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item name="ward" label="Phường/Xã">
-                                    <Select showSearch disabled={!selectedProvinceCode} onChange={handleWardChange} className="h-11">
-                                        {wards.map(w => <Option key={w.code} value={w.name}>{w.name}</Option>)}
-                                    </Select>
-                                </Form.Item>
-                            </div>
-                            <Form.Item name="address" label="Địa chỉ chi tiết">
-                                <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} />
-                            </Form.Item>
-
-                            <div className="flex justify-end mt-6">
-                                <Button type="primary" onClick={() => form.submit()} loading={updateMutation.isLoading} className="h-11 px-8 rounded-xl bg-green-600 border-0 font-bold">
-                                    Lưu thông tin hồ sơ
+                        <Title level={5} className="mb-6"><EditOutlined className="text-green-500 mr-2" /> Thay đổi thông tin</Title>
+                        <Form form={form} layout="vertical" onFinish={(v) => updateMutation.mutate(v)}>
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true }]}>
+                                        <Input className="h-11 rounded-lg" />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name="phone" label="Số điện thoại">
+                                        <Space.Compact className="w-full">
+                                            <Input disabled className="h-11 bg-gray-50" />
+                                            <Button icon={<EditOutlined />} onClick={() => setIsPhoneModalVisible(true)} className="h-11">Sửa</Button>
+                                        </Space.Compact>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item name="address" label="Địa chỉ">
+                                        <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <div className="flex justify-end mt-4">
+                                <Button type="primary" htmlType="submit" loading={updateMutation.isLoading} className="h-11 px-8 rounded-xl bg-green-600 border-0">
+                                    Lưu hồ sơ
                                 </Button>
                             </div>
                         </Form>
@@ -466,9 +410,7 @@ const AccountInfo = () => {
                 visible={isPhoneModalVisible}
                 onCancel={() => setIsPhoneModalVisible(false)}
                 loading={updateMutation.isLoading}
-                onVerify={(values) => {
-                    updateMutation.mutate({ ...form.getFieldsValue(), phone: values.phone, otp: values.otp });
-                }}
+                onVerify={(v) => updateMutation.mutate({ ...form.getFieldsValue(), phone: v.phone, isPhoneVerified: true })}
             />
         </div>
     );
