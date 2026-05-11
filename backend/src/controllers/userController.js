@@ -143,7 +143,7 @@ const createUser = async (req, res) => {
     }
 
     const userExists = await User.findOne({ 
-      $or: [{ username: finalUsername }, { email }]
+      $or: [{ username: finalUsername }, { email }, { phone }]
     });
 
     if (userExists) {

@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   lastPasswordChange: { type: Date }, // Lần đổi mật khẩu cuối
   
   // Thông tin cá nhân
-  phone: { type: String },
+  phone: { type: String, unique: true, sparse: true },
   dateOfBirth: { type: Date },
   gender: { type: String, enum: ['Nam', 'Nữ', 'Khác'] },
   avatar: { type: String }, // URL ảnh đại diện

@@ -24,7 +24,8 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ 
       $or: [
         { email },
-        { username: phone || username }
+        { username: phone || username },
+        { phone: phone }
       ]
     });
 
