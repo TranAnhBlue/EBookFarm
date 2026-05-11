@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination } from 'antd';
+import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination, Progress } from 'antd';
 import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -73,7 +73,7 @@ const JournalList = () => {
 
   // Lọc dự phòng phía client: nếu backend chưa có field category thì filter theo tên
   const channuoiNames = useMemo(() => new Set(['Gia cầm', 'Bò thịt', 'Bò sữa', 'Ong', 'Dê thịt', 'Dê sữa', 'Lợn thịt', 'Lúa hữu cơ']), []);
-  
+
   const schemas = useMemo(() => schemasRaw?.filter(s => {
     if (!category.key) return true;
     if (s.category && s.category === category.key) return true;
@@ -107,7 +107,7 @@ const JournalList = () => {
     // Filter by type (Personal vs HTX)
     if (typeFilter === 'personal') return !j.htxJournalId;
     if (typeFilter === 'htx') return !!j.htxJournalId;
-    
+
     return true;
   }), [journalsRaw, category.key, typeFilter, channuoiNames]);
 
@@ -146,7 +146,7 @@ const JournalList = () => {
       'Locked': { icon: '🔒', text: 'Đã khóa', color: 'error' },
       'Archived': { icon: '📦', text: 'Lưu trữ', color: 'default' }
     };
-    
+
     // Nếu có trạng thái từ HTX thì ưu tiên hiển thị
     if (htxStatus) {
       let color = 'default';
@@ -154,7 +154,7 @@ const JournalList = () => {
       if (htxStatus === 'Chờ duyệt') color = 'processing';
       if (htxStatus === 'Cần chỉnh sửa') color = 'warning';
       if (htxStatus === 'Không đạt') color = 'error';
-      
+
       return (
         <Tooltip title={`Trạng thái từ HTX: ${htxStatus}`}>
           <Tag color={color} className="rounded-md font-bold px-3">
@@ -183,7 +183,7 @@ const JournalList = () => {
       const response = await api.get(`/journals/export/${journalId}`, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -217,7 +217,7 @@ const JournalList = () => {
       }, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -226,7 +226,7 @@ const JournalList = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       setSelectedJournals([]);
     } catch (error) {
       console.error('Export error:', error);
@@ -243,7 +243,7 @@ const JournalList = () => {
       const response = await api.get(`/journals/template/${schemaId}`, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -330,8 +330,8 @@ const JournalList = () => {
           table.fields.forEach(field => {
             const lowerLabel = field.label.toLowerCase().trim();
             const lowerName = field.name.toLowerCase().trim();
-            
-            if (normalizedSearchLabels.some(sn => 
+
+            if (normalizedSearchLabels.some(sn =>
               lowerLabel.includes(sn) || sn.includes(lowerLabel) ||
               lowerName.includes(sn) || sn.includes(lowerName)
             )) {
@@ -388,8 +388,8 @@ const JournalList = () => {
       title: 'Loại hình',
       key: 'type',
       render: (_, record) => (
-        record.htxJournalId ? 
-          <Tag color="purple" icon={<TeamOutlined />} className="rounded-md font-bold px-3">HTX Liên kết</Tag> : 
+        record.htxJournalId ?
+          <Tag color="purple" icon={<TeamOutlined />} className="rounded-md font-bold px-3">HTX Liên kết</Tag> :
           <Tag color="cyan" icon={<UserOutlined />} className="rounded-md font-bold px-3">Cá nhân</Tag>
       )
     },
@@ -397,6 +397,41 @@ const JournalList = () => {
       title: 'Trạng thái',
       key: 'status',
       render: (_, record) => getStatusBadge(record)
+    },
+    {
+      title: 'Tiến độ',
+      key: 'progress',
+      width: 180,
+      render: (_, record) => {
+        // Tìm bước cuối cùng đã thực hiện
+        const schema = record.schemaId;
+        const entries = record.entries || {};
+        let lastStep = 'Chưa bắt đầu';
+        if (schema?.tables) {
+          const completedSteps = schema.tables.filter(t => entries[t.tableName] && Array.isArray(entries[t.tableName]) && entries[t.tableName].length > 0);
+          if (completedSteps.length > 0) {
+            lastStep = completedSteps[completedSteps.length - 1].tableName;
+          }
+        }
+
+        return (
+          <Space direction="vertical" size={0} className="w-full">
+            <Tooltip title={`Đã xong bước: ${lastStep}`}>
+              <Progress 
+                percent={record.progress || 0} 
+                size="small" 
+                strokeColor={{
+                  '0%': '#10b981',
+                  '100%': '#059669',
+                }}
+              />
+            </Tooltip>
+            <Text className="text-[10px] text-gray-400 block truncate" style={{ maxWidth: 150 }}>
+              Giai đoạn: {lastStep}
+            </Text>
+          </Space>
+        );
+      }
     },
     {
       title: 'Nhận xét HTX',
@@ -538,25 +573,25 @@ const JournalList = () => {
             )}
           </Space>
           <Space>
-              <>
-                {user?.role?.toUpperCase() !== 'FARMER' && (
-                  <Button
-                    icon={<UploadOutlined />}
-                    onClick={() => setImportModalVisible(true)}
-                    className="text-green-600 border-green-300 hover:bg-green-50"
-                  >
-                    Import
-                  </Button>
-                )}
+            <>
+              {user?.role?.toUpperCase() !== 'FARMER' && (
                 <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => setSchemaModalVisible(true)}
-                  className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
+                  icon={<UploadOutlined />}
+                  onClick={() => setImportModalVisible(true)}
+                  className="text-green-600 border-green-300 hover:bg-green-50"
                 >
-                  Tạo sổ nhật ký
+                  Import
                 </Button>
-              </>
+              )}
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setSchemaModalVisible(true)}
+                className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
+              >
+                Tạo sổ nhật ký
+              </Button>
+            </>
           </Space>
         </div>
 
@@ -567,110 +602,145 @@ const JournalList = () => {
               <>
                 <Row gutter={[24, 24]}>
                   {journals?.slice((currentPage - 1) * pageSize, currentPage * pageSize).map(journal => (
-                  <Col xs={24} sm={12} lg={8} key={journal._id}>
-                    <Card
-                      hoverable
-                      className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
-                      styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
-                    >
-                      <div className="p-5 flex-1 relative flex">
-                        <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
-                          <Leaf className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1 space-y-3">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex flex-col gap-1">
-                              <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
-                              {journal.htxJournalId ? (
-                                <Tag color="purple" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-purple-50 text-purple-600">
-                                  <TeamOutlined className="mr-1" /> HTX LIÊN KẾT
-                                </Tag>
-                              ) : (
-                                <Tag color="cyan" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-cyan-50 text-cyan-600">
-                                  <UserOutlined className="mr-1" /> CÁ NHÂN TỰ DO
-                                </Tag>
-                              )}
-                            </div>
+                    <Col xs={24} sm={12} lg={8} key={journal._id}>
+                      <Card
+                        hoverable
+                        className="h-full rounded-xl border border-gray-200 overflow-hidden flex flex-col shadow-sm"
+                        styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
+                      >
+                        <div className="p-5 flex-1 relative flex">
+                          <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
+                            <Leaf className="w-6 h-6" />
                           </div>
-                          <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
-                            
-                             {/* Lô sản xuất */}
-                             <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
-                             <div className="text-right">
-                               <Text strong>
-                                 {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'block_id']))}
-                               </Text>
-                             </div>
-
-                            {/* Diện tích */}
-                            <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
-                            <div className="text-right">
-                              <Text strong>
-                                {(() => {
-                                  const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'area']);
-                                  return value ? `${Number(value).toLocaleString('vi-VN')} m²` : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
-                                })()}
-                              </Text>
+                          <div className="flex-1 space-y-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex flex-col gap-1">
+                                <Text strong className="text-gray-700 text-sm">{journal.qrCode?.substring(0, 6).toUpperCase()} - {journal.userId?.fullname || journal.userId?.username}</Text>
+                                {journal.htxJournalId ? (
+                                  <Tag color="purple" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-purple-50 text-purple-600">
+                                    <TeamOutlined className="mr-1" /> HTX LIÊN KẾT
+                                  </Tag>
+                                ) : (
+                                  <Tag color="cyan" className="m-0 w-fit text-[10px] font-bold rounded-full border-0 bg-cyan-50 text-cyan-600">
+                                    <UserOutlined className="mr-1" /> CÁ NHÂN TỰ DO
+                                  </Tag>
+                                )}
+                              </div>
                             </div>
+                            <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
 
-                            {/* Địa chỉ sản xuất */}
-                            <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
-                            <div className="text-right leading-tight">
-                              <Text strong>
-                                {displayMappedValue(getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'location', 'address']))}
-                              </Text>
-                            </div>
+                              {/* Lô sản xuất */}
+                              <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
+                              <div className="text-right">
+                                <Text strong>
+                                  {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'block_id']))}
+                                </Text>
+                              </div>
 
-                            {/* Giống */}
-                            <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
-                            <div className="text-right">
-                              <Text strong>
-                                {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'giống chè']))}
-                              </Text>
-                            </div>
+                              {/* Diện tích */}
+                              <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
+                              <div className="text-right">
+                                <Text strong>
+                                  {(() => {
+                                    const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'area']);
+                                    return value ? `${Number(value).toLocaleString('vi-VN')} m²` : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
+                                  })()}
+                                </Text>
+                              </div>
 
-                            {/* Loại sổ */}
-                            <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
-                            <div className="text-right mt-2"><Text strong className="text-green-600">{journal.schemaId?.name}</Text></div>
+                              {/* Địa chỉ sản xuất */}
+                              <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
+                              <div className="text-right leading-tight">
+                                <Text strong>
+                                  {displayMappedValue(getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'location', 'address']))}
+                                </Text>
+                              </div>
 
-                            {/* Ngày tạo */}
+                              {/* Giống */}
+                              <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
+                              <div className="text-right">
+                                <Text strong>
+                                  {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'giống chè']))}
+                                </Text>
+                              </div>
+
+                              {/* Loại sổ */}
+                              <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
+                              <div className="text-right mt-2"><Text strong className="text-green-600">{journal.schemaId?.name}</Text></div>
+
+                              {/* Ngày tạo */}
                             <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày tạo:</div>
                             <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
                           </div>
-                          
-                          {/* Feedback from HTX */}
-                          {journal.feedback && (
-                            <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
-                              <Text className="text-red-500 text-[11px] font-bold uppercase block mb-1">💬 Phản hồi từ HTX:</Text>
-                              <Text className="text-red-600 text-xs italic leading-tight">{journal.feedback}</Text>
-                            </div>
-                          )}
-                        </div>
-                      </div>
 
-                      <div className="flex border-t border-gray-100 mt-auto bg-white">
-                        <div
-                          className="flex-1 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer border-r border-gray-100"
-                          onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
-                        >
-                          <Text className="text-green-600 font-medium">Vào sổ <RightOutlined className="text-[10px] ml-1" /></Text>
+                          {/* Progress & Last Step tracking */}
+                          <div className="mt-4 p-3 bg-green-50/50 rounded-xl border border-green-100/50">
+                            <div className="flex justify-between items-center mb-1">
+                              <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tiến độ thực hiện:</Text>
+                              <Text className="text-[10px] font-bold text-green-600">{journal.progress || 0}%</Text>
+                            </div>
+                            <Progress 
+                              percent={journal.progress || 0} 
+                              size="small" 
+                              showInfo={false}
+                              strokeColor="#10b981"
+                              trailColor="#ffffff"
+                              className="m-0 mb-2"
+                            />
+                            {(() => {
+                                const schema = journal.schemaId;
+                                const entries = journal.entries || {};
+                                let lastStep = 'Chưa bắt đầu';
+                                if (schema?.tables) {
+                                  const completedSteps = schema.tables.filter(t => entries[t.tableName] && Array.isArray(entries[t.tableName]) && entries[t.tableName].length > 0);
+                                  if (completedSteps.length > 0) {
+                                    lastStep = completedSteps[completedSteps.length - 1].tableName;
+                                  }
+                                }
+                                return (
+                                  <div className="flex items-center gap-1">
+                                    <ClockCircleOutlined className="text-[10px] text-green-500" />
+                                    <Text className="text-[10px] text-gray-500 font-medium italic">
+                                      Đã xong: {lastStep}
+                                    </Text>
+                                  </div>
+                                );
+                            })()}
+                          </div>
+
+                            {/* Feedback from HTX */}
+                            {journal.feedback && (
+                              <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                                <Text className="text-red-500 text-[11px] font-bold uppercase block mb-1">💬 Phản hồi từ HTX:</Text>
+                                <Text className="text-red-600 text-xs italic leading-tight">{journal.feedback}</Text>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div
-                          className="w-12 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer flex items-center justify-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-                            setCurrentQr(`${baseUrl}/trace/${journal.qrCode}`);
-                            setQrModalVisible(true);
-                          }}
-                        >
-                          <QrcodeOutlined className="text-green-600 text-lg" />
+
+                        <div className="flex border-t border-gray-100 mt-auto bg-white">
+                          <div
+                            className="flex-1 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer border-r border-gray-100"
+                            onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
+                          >
+                            <Text className="text-green-600 font-medium">Vào sổ <RightOutlined className="text-[10px] ml-1" /></Text>
+                          </div>
+                          <div
+                            className="w-12 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer flex items-center justify-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+                              setCurrentQr(`${baseUrl}/trace/${journal.qrCode}`);
+                              setQrModalVisible(true);
+                            }}
+                          >
+                            <QrcodeOutlined className="text-green-600 text-lg" />
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
                 <div className="mt-8 flex justify-center pb-4">
                   <Pagination
                     current={currentPage}
@@ -689,21 +759,21 @@ const JournalList = () => {
             ) : !isLoading && (
               <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-gray-200">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                   <FileTextOutlined className="text-4xl text-gray-200" />
+                  <FileTextOutlined className="text-4xl text-gray-200" />
                 </div>
                 <Title level={4} className="!mb-1 text-gray-400">Chưa có sổ nhật ký nào</Title>
                 <Text className="text-gray-400 mb-8">
                   Bạn hãy bắt đầu bằng cách tạo một sổ nhật ký mới cho chuyên mục này.
                 </Text>
-                  <Button 
-                    type="primary" 
-                    size="large" 
-                    icon={<PlusOutlined />} 
-                    onClick={() => setSchemaModalVisible(true)}
-                    className="bg-green-600 hover:bg-green-700 rounded-xl px-8 h-12 shadow-lg shadow-green-200"
-                  >
-                    Tạo sổ ngay
-                  </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<PlusOutlined />}
+                  onClick={() => setSchemaModalVisible(true)}
+                  className="bg-green-600 hover:bg-green-700 rounded-xl px-8 h-12 shadow-lg shadow-green-200"
+                >
+                  Tạo sổ ngay
+                </Button>
               </div>
             )}
           </div>
@@ -942,80 +1012,80 @@ const JournalList = () => {
       >
         {isFetchingFull ? (
           <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl">
-             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
-             <Text className="text-gray-400">Đang tải thông tin chi tiết...</Text>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+            <Text className="text-gray-400">Đang tải thông tin chi tiết...</Text>
           </div>
         ) : fullJournal && (
           <div className="overflow-hidden rounded-2xl">
             {/* Header Banner - Like JournalTrace.jsx */}
             <div className="bg-green-600 text-white p-8 text-center relative">
               <div className="absolute top-4 right-4">
-                 <Button shape="circle" icon={<span>✕</span>} onClick={() => setViewModalVisible(false)} className="border-0 bg-white/20 text-white hover:bg-white/40" />
+                <Button shape="circle" icon={<span>✕</span>} onClick={() => setViewModalVisible(false)} className="border-0 bg-white/20 text-white hover:bg-white/40" />
               </div>
               <Title level={2} className="!text-white !mb-2">EBookFarm Traceability</Title>
               <p className="opacity-90">Transparent Agricultural Product Information</p>
               <div className="mt-4 inline-block bg-white text-green-700 px-4 py-1 rounded-full font-bold shadow-md">
-                  ID: {fullJournal.qrCode}
+                ID: {fullJournal.qrCode}
               </div>
             </div>
 
             <div className="p-8 max-h-[70vh] overflow-y-auto custom-sidebar-scroll bg-white">
-                <div className="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
-                    <div>
-                        <Title level={3} className="!mb-1">Product: {fullJournal.schemaId?.name}</Title>
-                        <p className="text-gray-500 font-medium">Producer: {fullJournal.userId?.fullname || fullJournal.userId?.username}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
-                        {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
-                      </Tag>
-                      <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`${location.pathname}/edit/${fullJournal._id}`)}>
-                        Chỉnh sửa nhật ký
-                      </Button>
-                    </div>
+              <div className="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
+                <div>
+                  <Title level={3} className="!mb-1">Product: {fullJournal.schemaId?.name}</Title>
+                  <p className="text-gray-500 font-medium">Producer: {fullJournal.userId?.fullname || fullJournal.userId?.username}</p>
                 </div>
+                <div className="flex flex-col items-end gap-2">
+                  <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
+                    {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
+                  </Tag>
+                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`${location.pathname}/edit/${fullJournal._id}`)}>
+                    Chỉnh sửa nhật ký
+                  </Button>
+                </div>
+              </div>
 
-                <div className="mb-10">
-                   <Title level={4} className="!mb-8 flex items-center gap-2">
-                     <div className="w-1.5 h-6 bg-green-500 rounded-full"></div>
-                     Production Timeline
-                   </Title>
-                   
-                   <Steps
-                      direction="vertical"
-                      current={fullJournal?.schemaId?.tables?.length || 0}
-                      items={(fullJournal?.schemaId?.tables || []).map((table) => {
-                          const entryData = fullJournal.entries?.[table.tableName] || {};
-                          const hasData = Object.keys(entryData).length > 0;
-                          
-                          return {
-                            title: <span className="text-lg font-bold text-gray-800">{table.tableName}</span>,
-                            status: hasData ? 'finish' : 'wait',
-                            description: (
-                                <div className={`bg-gray-50 p-6 rounded-2xl mt-3 mb-6 border shadow-sm ${hasData ? 'border-green-100' : 'border-gray-100 opacity-60'}`}>
-                                    {hasData ? (
-                                      <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
-                                          {table.fields.map((field) => (
-                                              <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
-                                                  <span className="text-gray-800 font-medium">
-                                                    {field.type === 'date' && entryData[field.name] 
-                                                      ? new Date(entryData[field.name]).toLocaleDateString('vi-VN')
-                                                      : field.type === 'boolean' 
-                                                        ? (entryData[field.name] ? 'Có' : 'Không')
-                                                        : (entryData[field.name]?.toString() || '---')}
-                                                  </span>
-                                              </Descriptions.Item>
-                                          ))}
-                                      </Descriptions>
-                                    ) : (
-                                      <div className="text-gray-400 italic text-sm py-2">Chưa cập nhật thông tin cho phần này</div>
-                                    )}
-                                </div>
-                            )
-                          };
-                      })}
-                   />
-                </div>
+              <div className="mb-10">
+                <Title level={4} className="!mb-8 flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-green-500 rounded-full"></div>
+                  Production Timeline
+                </Title>
+
+                <Steps
+                  direction="vertical"
+                  current={fullJournal?.schemaId?.tables?.length || 0}
+                  items={(fullJournal?.schemaId?.tables || []).map((table) => {
+                    const entryData = fullJournal.entries?.[table.tableName] || {};
+                    const hasData = Object.keys(entryData).length > 0;
+
+                    return {
+                      title: <span className="text-lg font-bold text-gray-800">{table.tableName}</span>,
+                      status: hasData ? 'finish' : 'wait',
+                      description: (
+                        <div className={`bg-gray-50 p-6 rounded-2xl mt-3 mb-6 border shadow-sm ${hasData ? 'border-green-100' : 'border-gray-100 opacity-60'}`}>
+                          {hasData ? (
+                            <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                              {table.fields.map((field) => (
+                                <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
+                                  <span className="text-gray-800 font-medium">
+                                    {field.type === 'date' && entryData[field.name]
+                                      ? new Date(entryData[field.name]).toLocaleDateString('vi-VN')
+                                      : field.type === 'boolean'
+                                        ? (entryData[field.name] ? 'Có' : 'Không')
+                                        : (entryData[field.name]?.toString() || '---')}
+                                  </span>
+                                </Descriptions.Item>
+                              ))}
+                            </Descriptions>
+                          ) : (
+                            <div className="text-gray-400 italic text-sm py-2">Chưa cập nhật thông tin cho phần này</div>
+                          )}
+                        </div>
+                      )
+                    };
+                  })}
+                />
+              </div>
             </div>
           </div>
         )}

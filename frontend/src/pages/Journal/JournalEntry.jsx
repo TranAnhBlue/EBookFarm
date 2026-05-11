@@ -36,6 +36,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     enabled: isEditing
   });
 
+  const [isFinalSubmit, setIsFinalSubmit] = useState(false);
+
   const isReadOnly = isEditing && journalData && (
     journalData.status === 'Verified' ||
     user?.role?.toUpperCase() !== 'FARMER' ||
@@ -184,14 +186,16 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       // Validation bổ sung trước khi gửi - Tăng cường cho chăn nuôi VietGAHP
       const errors = [];
 
-      // Kiểm tra ít nhất một tab phải có dữ liệu
-      const hasData = schema.tables.some(table => {
-        const tableData = values[table.tableName];
-        return tableData && Object.values(tableData).some(value => value !== undefined && value !== null && value !== '');
-      });
+      // Kiểm tra ít nhất một tab phải có dữ liệu (Chỉ bắt buộc khi Gửi duyệt)
+      if (isFinalSubmit) {
+        const hasData = schema.tables.some(table => {
+          const tableData = values[table.tableName];
+          return tableData && Object.values(tableData).some(value => value !== undefined && value !== null && value !== '');
+        });
 
-      if (!hasData) {
-        errors.push('Vui lòng nhập ít nhất một thông tin trong các tab!');
+        if (!hasData) {
+          errors.push('Vui lòng nhập ít nhất một thông tin trong các tab trước khi gửi duyệt!');
+        }
       }
 
       // === VALIDATION LOGIC NGHIỆP VỤ CHĂN NUÔI & THỦY SẢN ===
@@ -1263,22 +1267,29 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         }
       }
 
-      if (errors.length > 0) {
+      if (isFinalSubmit && errors.length > 0) {
         console.log('❌ Validation errors:', errors);
         throw new Error(errors.join('\n'));
       }
 
       console.log('✅ Validation passed, preparing payload...');
 
-      // Separate status from entries
-      const { status, ...entries } = values;
+      const { status: formStatus, ...entries } = values;
+      
+      // Tự động quyết định status nếu người dùng không chọn thủ công
+      let finalStatus = formStatus;
+      if (isFinalSubmit) {
+        finalStatus = 'Submitted';
+      } else if (!finalStatus || finalStatus === 'Draft') {
+        finalStatus = 'Draft';
+      }
 
       console.log('📦 Payload entries:', entries);
-      console.log('📦 Payload status:', status);
+      console.log('📦 Payload status:', finalStatus);
 
       const payload = {
         schemaId: activeSchemaId,
-        status: status || 'Draft',
+        status: finalStatus,
         entries: entries,
         images: fileList
           .filter(f => f.status === 'done')
@@ -1295,6 +1306,80 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             };
           })
       };
+
+      // === XỬ LÝ TRỪ KHO TỰ ĐỘNG (CHỈ CHO NÔNG DÂN) ===
+      if (user?.role?.toUpperCase() === 'FARMER' && inventory) {
+        try {
+          const consumePromises = [];
+          for (const tableName in entries) {
+            const tableData = entries[tableName];
+            if (!tableData || typeof tableData !== 'object') continue;
+
+            for (const fieldName in tableData) {
+              const value = tableData[fieldName];
+              if (!value) continue;
+
+              // Kiểm tra xem đây có phải là field số lượng không
+              const field = schema.tables.find(t => t.tableName === tableName)
+                ?.fields.find(f => f.name === fieldName);
+
+              if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón') || field.label.toLowerCase().includes('lượng dùng'))) {
+                // Tìm field vật tư tương ứng trong cùng bảng
+                const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
+                  ?.fields.find(f =>
+                    f.label.toLowerCase().includes('phân bón') ||
+                    f.label.toLowerCase().includes('thuốc') ||
+                    f.label.toLowerCase().includes('vật tư') ||
+                    f.label.toLowerCase().includes('giống') ||
+                    f.label.toLowerCase().includes('thức ăn')
+                  )?.name;
+
+                const selectedSupplyId = tableData[supplyFieldName];
+                if (selectedSupplyId) {
+                  const invItem = inventory?.find(item => item._id === selectedSupplyId);
+                  if (invItem) {
+                    // Tính toán độ lệch khi Sửa (Edit)
+                    let quantityToDeduct = Number(value);
+                    let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
+
+                    if (isEditing && journalData?.entries && journalData.entries[tableName]) {
+                      const oldTableData = journalData.entries[tableName];
+                      const oldSupplyId = oldTableData[supplyFieldName];
+                      const oldQuantity = Number(oldTableData[fieldName]) || 0;
+
+                      if (oldSupplyId === selectedSupplyId) {
+                        // Cùng 1 vật tư, chỉ trừ phần chênh lệch
+                        quantityToDeduct = Number(value) - oldQuantity;
+                        if (quantityToDeduct < 0) {
+                          noteText = `Hoàn trả kho tự động (do sửa giảm số lượng) từ sổ: ${schema.name}`;
+                        } else if (quantityToDeduct > 0) {
+                          noteText = `Trừ kho bổ sung (do sửa tăng số lượng) từ sổ: ${schema.name}`;
+                        }
+                      }
+                    }
+
+                    if (quantityToDeduct !== 0) {
+                      consumePromises.push(
+                        api.post('/inventory/consume', {
+                          itemId: invItem._id,
+                          quantity: quantityToDeduct,
+                          note: noteText,
+                          journalId: isEditing ? id : 'New'
+                        })
+                      );
+                    }
+                  }
+                }
+              }
+            }
+          }
+          await Promise.all(consumePromises);
+        } catch (invErr) {
+          console.error('Lỗi cập nhật kho:', invErr);
+          // Không throw lỗi ở đây để vẫn cho phép lưu nhật ký nếu lỗi kho
+          message.warning('Nhật ký đã lưu nhưng có lỗi khi cập nhật tồn kho vật tư.');
+        }
+      }
 
       if (isEditing) {
         return api.put(`/journals/${id}`, payload);
@@ -1339,7 +1424,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     if (field.type === 'email') antdType = 'email';
 
     // Required validation
-    if (field.required) {
+    // Required validation - CHỈ BẮT BUỘC KHI GỬI DUYỆT (isFinalSubmit = true)
+    if (field.required && isFinalSubmit) {
       rules.push({
         required: true,
         type: antdType,
@@ -2201,99 +2287,6 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     }
   }, [journalData, schema, form, user, isEditing]);
 
-  const onFinish = async (formData) => {
-    try {
-      setSubmitting(true);
-
-      // Xử lý trừ kho tự động
-      const consumePromises = [];
-      for (const tableName in formData) {
-        const tableData = formData[tableName];
-        if (!tableData || typeof tableData !== 'object') continue;
-
-        for (const fieldName in tableData) {
-          const value = tableData[fieldName];
-          if (!value) continue;
-
-          // Kiểm tra xem đây có phải là field số lượng không
-          const field = schema.tables.find(t => t.tableName === tableName)
-            ?.fields.find(f => f.name === fieldName);
-
-          if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón') || field.label.toLowerCase().includes('lượng dùng'))) {
-            // Tìm field vật tư tương ứng trong cùng bảng
-            const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
-              ?.fields.find(f =>
-                f.label.toLowerCase().includes('phân bón') ||
-                f.label.toLowerCase().includes('thuốc') ||
-                f.label.toLowerCase().includes('vật tư') ||
-                f.label.toLowerCase().includes('giống') ||
-                f.label.toLowerCase().includes('thức ăn')
-              )?.name;
-
-            const selectedSupplyId = tableData[supplyFieldName];
-            if (selectedSupplyId) {
-              const invItem = inventory?.find(item => item._id === selectedSupplyId);
-              if (invItem) {
-                // Tính toán độ lệch khi Sửa (Edit)
-                let quantityToDeduct = Number(value);
-                let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
-
-                if (isEditing && journalData?.entries && journalData.entries[tableName]) {
-                  const oldTableData = journalData.entries[tableName];
-                  const oldSupplyId = oldTableData[supplyFieldName];
-                  const oldQuantity = Number(oldTableData[fieldName]) || 0;
-
-                  if (oldSupplyId === selectedSupplyId) {
-                    // Cùng 1 vật tư, chỉ trừ phần chênh lệch (nếu số lượng tăng lên) hoặc cộng lại (nếu số lượng giảm xuống)
-                    quantityToDeduct = Number(value) - oldQuantity;
-                    if (quantityToDeduct < 0) {
-                      noteText = `Hoàn trả kho tự động (do sửa giảm số lượng) từ sổ: ${schema.name}`;
-                    } else if (quantityToDeduct > 0) {
-                      noteText = `Trừ kho bổ sung (do sửa tăng số lượng) từ sổ: ${schema.name}`;
-                    }
-                  }
-                }
-
-                if (quantityToDeduct !== 0) {
-                  consumePromises.push(
-                    api.post('/inventory/consume', {
-                      itemId: invItem._id,
-                      quantity: quantityToDeduct,
-                      note: noteText,
-                      journalId: id
-                    }).catch(err => {
-                      console.error('Lỗi trừ kho:', err);
-                      message.warning(`Không thể cập nhật kho cho ${invItem.name}: ${err.response?.data?.message || 'Lỗi chưa xác định'}`);
-                    })
-                  );
-                }
-              }
-            }
-          }
-        }
-      }
-
-      await Promise.all(consumePromises);
-
-      if (isEditing) {
-        await api.put(`/journals/${id}`, { entries: formData });
-        message.success('Cập nhật nhật ký thành công!');
-      } else {
-        await api.post('/journals', { schemaId, entries: formData });
-        message.success('Tạo nhật ký mới thành công!');
-      }
-
-      queryClient.invalidateQueries(['journals']);
-      queryClient.invalidateQueries(['farmer-inventory']); // Khớp đúng key để làm mới kho ngay lập tức
-      navigate(-1);
-    } catch (error) {
-      console.error('Save error:', error);
-      message.error(error.response?.data?.message || 'Có lỗi xảy ra khi lưu nhật ký');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const [activeTab, setActiveTab] = useState("0");
 
   // Fetch farmer inventory
@@ -2483,9 +2476,31 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             navigate(listPath);
           }} className="rounded-xl">← Quay lại</Button>
           {!isReadOnly && (
-            <Button type="primary" size="large" onClick={() => form.submit()} loading={saveMutation.isPending} className="rounded-xl bg-green-600 font-bold px-8">
-              Lưu nhật ký
-            </Button>
+            <Space>
+              <Button 
+                size="large" 
+                onClick={() => {
+                  setIsFinalSubmit(false);
+                  form.submit();
+                }} 
+                loading={saveMutation.isPending && !isFinalSubmit} 
+                className="rounded-xl border-green-600 text-green-600 font-medium px-6"
+              >
+                Lưu tạm
+              </Button>
+              <Button 
+                type="primary" 
+                size="large" 
+                onClick={() => {
+                  setIsFinalSubmit(true);
+                  form.submit();
+                }} 
+                loading={saveMutation.isPending && isFinalSubmit} 
+                className="rounded-xl bg-green-600 font-bold px-8 shadow-lg shadow-green-200"
+              >
+                Gửi duyệt
+              </Button>
+            </Space>
           )}
         </div>
       </div>
@@ -2511,46 +2526,6 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         disabled={isReadOnly}
         onFinish={async (values) => {
           console.log('📝 Form onFinish triggered with values:', values);
-
-          // Xử lý trừ tồn kho nếu có sử dụng vật tư
-          if (user?.role?.toUpperCase() === 'FARMER' && inventory) {
-            try {
-              for (const tableName in values) {
-                if (tableName === 'status') continue;
-                const tableData = values[tableName];
-
-                // Tìm các trường vật tư và số lượng trong bảng này
-                for (const fieldName in tableData) {
-                  const fieldValue = tableData[fieldName];
-                  if (!fieldValue) continue;
-
-                  // Tìm vật tư trong kho khớp với tên đã chọn
-                  const inventoryItem = inventory.find(item => item.name === fieldValue);
-
-                  if (inventoryItem) {
-                    // Tìm trường số lượng tương ứng trong bảng này
-                    const quantityField = schema.tables.find(t => t.tableName === tableName)
-                      ?.fields.find(f => f.label.toLowerCase().includes('số lượng') || f.name.toLowerCase().includes('soluong'))?.name;
-
-                    const usageQty = tableData[quantityField];
-
-                    if (usageQty && Number(usageQty) > 0) {
-                      await api.post('/inventory/consume', {
-                        itemId: inventoryItem._id,
-                        quantity: Number(usageQty),
-                        note: `Sử dụng cho nhật ký: ${schema.name} - Bảng: ${tableName}`,
-                        journalId: isEditing ? id : 'Mới'
-                      });
-                    }
-                  }
-                }
-              }
-            } catch (error) {
-              console.error('Lỗi khi trừ tồn kho:', error);
-              message.warning('Nhật ký đã lưu nhưng có lỗi khi cập nhật tồn kho vật tư.');
-            }
-          }
-
           saveMutation.mutate(values);
         }}
         preserve={true}

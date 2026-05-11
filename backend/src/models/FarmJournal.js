@@ -41,6 +41,7 @@ const farmJournalSchema = new mongoose.Schema({
   lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   feedback: { type: String }, // Nhận xét từ HTX
   htxStatus: { type: String }, // Trạng thái đồng bộ từ HTX (Đã duyệt, Cần chỉnh sửa...)
+  progress: { type: Number, default: 0 }, // % tiến độ thực hiện
   
   // Quản lý thương hiệu HTX
   brandAuthorized: { type: Boolean, default: false }, // Đã được HTX cấp quyền thương hiệu chưa

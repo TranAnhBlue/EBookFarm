@@ -242,6 +242,16 @@ const verifyCertification = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
     }
 
+    // Kiểm tra quyền hạn: Nếu là HTX thì chỉ được duyệt cho thành viên của mình
+    if (req.user.role?.toUpperCase() === 'HTX') {
+      if (!user.htxId || user.htxId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Bạn không có quyền duyệt chứng chỉ cho người dùng không thuộc HTX của mình.' 
+        });
+      }
+    }
+
     const cert = user.certifications.id(certId);
     if (!cert) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy chứng chỉ' });

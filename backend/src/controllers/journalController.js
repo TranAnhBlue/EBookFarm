@@ -8,6 +8,23 @@ const createJournal = async (req, res) => {
       ...req.body,
       userId: req.user._id,
     });
+
+    // Calculate initial progress
+    const FormSchema = require('../models/FormSchema');
+    const schema = await FormSchema.findById(journal.schemaId);
+    if (schema && schema.tables && schema.tables.length > 0) {
+        const totalSteps = schema.tables.length;
+        const entries = journal.entries || {};
+        const completedSteps = schema.tables.filter(t => {
+            const tableData = entries[t.tableName];
+            return tableData && (
+                (Array.isArray(tableData) && tableData.length > 0) || 
+                (!Array.isArray(tableData) && typeof tableData === 'object' && Object.values(tableData).some(v => v !== undefined && v !== null && v !== ''))
+            );
+        }).length;
+        journal.progress = Math.round((completedSteps / totalSteps) * 100);
+    }
+
     const createdJournal = await journal.save();
     
     // Log action
@@ -124,6 +141,22 @@ const updateJournal = async (req, res) => {
           journal.editCount = (journal.editCount || 0) + 1;
           journal.lastEditedAt = new Date();
           journal.lastEditedBy = req.user._id;
+
+          // Calculate progress
+          const FormSchema = require('../models/FormSchema');
+          const schema = await FormSchema.findById(journal.schemaId);
+          if (schema && schema.tables && schema.tables.length > 0) {
+              const totalSteps = schema.tables.length;
+              const entries = journal.entries || {};
+              const completedSteps = schema.tables.filter(t => {
+                  const tableData = entries[t.tableName];
+                  return tableData && (
+                      (Array.isArray(tableData) && tableData.length > 0) || 
+                      (!Array.isArray(tableData) && typeof tableData === 'object' && Object.values(tableData).some(v => v !== undefined && v !== null && v !== ''))
+                  );
+              }).length;
+              journal.progress = Math.round((completedSteps / totalSteps) * 100);
+          }
 
           const updated = await journal.save();
           
