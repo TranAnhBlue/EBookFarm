@@ -125,20 +125,20 @@ const HtxFarmerMgmt = () => {
       key: 'stt',
       width: 50,
       align: 'center',
-      render: (_, __, index) => <Text className="text-gray-400 text-[11px]">{(currentPage - 1) * pageSize + index + 1}</Text>
+      render: (_, __, index) => <Text className="text-gray-400 text-xs">{(currentPage - 1) * pageSize + index + 1}</Text>
     },
     {
       title: 'NÔNG DÂN',
       key: 'farmer_info',
-      width: 180,
+      width: 200,
       render: (record) => (
-        <div className="flex items-center gap-2 py-1">
-          <Avatar size={32} src={getAvatarUrl(record.avatar)} className="border shadow-sm shrink-0">
+        <div className="flex items-center gap-3 py-1">
+          <Avatar size={36} src={getAvatarUrl(record.avatar)} className="border shadow-sm shrink-0">
             {!record.avatar && getInitialAvatar(record.fullname || record.username)}
           </Avatar>
           <div className="flex flex-col min-w-0">
-            <Text strong className="text-gray-800 text-[12px] truncate">{record.fullname || record.username}</Text>
-            <Text className="text-[10px] text-gray-400 truncate">{record.email}</Text>
+            <Text strong className="text-gray-800 text-sm truncate">{record.fullname || record.username}</Text>
+            <Text className="text-xs text-gray-400 truncate">{record.email}</Text>
           </div>
         </div>
       )
@@ -146,16 +146,16 @@ const HtxFarmerMgmt = () => {
     {
       title: 'LIÊN HỆ',
       key: 'contact',
-      width: 150,
+      width: 170,
       render: (record) => (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2 text-gray-600">
-            <PhoneOutlined style={{ fontSize: '10px' }} className="text-green-500" />
-            <Text className="text-[11px]">{record.phone || '---'}</Text>
+            <PhoneOutlined style={{ fontSize: '12px' }} className="text-green-500" />
+            <Text className="text-xs">{record.phone || '---'}</Text>
           </div>
           <div className="flex items-center gap-2 text-gray-400">
-            <EnvironmentOutlined style={{ fontSize: '10px' }} />
-            <Text className="text-[10px] w-28 truncate" title={record.address}>{record.address || '---'}</Text>
+            <EnvironmentOutlined style={{ fontSize: '12px' }} />
+            <Text className="text-[11px] w-32 truncate" title={record.address}>{record.address || '---'}</Text>
           </div>
         </div>
       )
@@ -163,15 +163,15 @@ const HtxFarmerMgmt = () => {
     {
       title: 'NÔNG TRẠI',
       key: 'farm_info',
-      width: 160,
+      width: 180,
       render: (record) => (
         <div className="flex flex-col">
-          <Text strong className="text-[11px] text-green-700 truncate w-28">{record.farmName || 'Chưa đặt tên'}</Text>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <Tag color={record.farmType ? "cyan" : "default"} className="rounded-md border-0 text-[9px] uppercase font-bold m-0 px-1">
-              {record.farmType || 'N/A'}
+          <Text strong className="text-xs text-green-700 truncate w-36">{record.farmName || 'Chưa đặt tên'}</Text>
+          <div className="flex items-center gap-2 mt-0.5">
+            <Tag color={record.farmType ? "cyan" : "default"} className="rounded-md border-0 text-[10px] uppercase font-bold m-0 px-2">
+              {record.farmType || 'Khác'}
             </Tag>
-            <span className="text-[9px] text-gray-400 whitespace-nowrap">
+            <span className="text-[11px] text-gray-400 whitespace-nowrap">
               {record.farmArea?.toLocaleString() || 0} m²
             </span>
           </div>
@@ -182,14 +182,14 @@ const HtxFarmerMgmt = () => {
       title: 'CHỨNG NHẬN',
       dataIndex: 'certifications',
       key: 'certs',
-      width: 80,
+      width: 100,
       align: 'center',
       render: (certs, record) => (
         <Button type="text" size="small" className="p-0 h-auto flex items-center justify-center w-full"
           onClick={() => { setSelectedFarmer(record); setIsCertModalVisible(true); }}
         >
           <Badge count={certs?.length || 0} size="small" className="premium-badge">
-            <SafetyCertificateOutlined className="text-blue-500 text-lg" />
+             <SafetyCertificateOutlined className="text-blue-500 text-xl" />
           </Badge>
         </Button>
       )
@@ -198,11 +198,11 @@ const HtxFarmerMgmt = () => {
       title: 'THAM GIA',
       dataIndex: 'createdAt',
       key: 'join_date',
-      width: 100,
+      width: 110,
       render: (date) => (
         <div className="flex flex-col">
-          <Text className="text-[10px] text-gray-600">{dayjs(date).format('DD/MM/YY')}</Text>
-          <Text className="text-[9px] text-gray-400 italic">{dayjs(date).fromNow()}</Text>
+          <Text className="text-xs text-gray-600">{dayjs(date).format('DD/MM/YYYY')}</Text>
+          <Text className="text-[11px] text-gray-400 italic">{dayjs(date).fromNow()}</Text>
         </div>
       )
     },
@@ -210,35 +210,35 @@ const HtxFarmerMgmt = () => {
       title: 'TRẠNG THÁI',
       key: 'status',
       align: 'center',
-      width: 100,
-      render: () => <Tag color="green" className="rounded-full border-0 text-[9px] px-2 m-0">Hoạt động</Tag>
+      width: 110,
+      render: () => <Tag color="green" className="rounded-full border-0 text-xs px-3 m-0">Hoạt động</Tag>
     },
     {
       title: 'THAO TÁC',
       key: 'actions',
       align: 'center',
       fixed: 'right',
-      width: 140,
+      width: 160,
       render: (_, record) => (
-        <Space size={4}>
+        <Space size={6}>
           <Tooltip title="Hồ sơ">
-            <Button size="small" icon={<UserOutlined style={{ fontSize: '11px' }} />} onClick={() => { setSelectedFarmer(record); setIsProfileModalVisible(true); }}
-              className="rounded-lg text-green-600 border-green-100 bg-green-50 hover:bg-green-100 w-7 h-7 flex items-center justify-center"
+            <Button size="small" icon={<UserOutlined />} onClick={() => { setSelectedFarmer(record); setIsProfileModalVisible(true); }}
+              className="rounded-lg text-green-600 border-green-100 bg-green-50 hover:bg-green-100 w-8 h-8 flex items-center justify-center"
             />
           </Tooltip>
           <Tooltip title="Lịch sử">
-            <Button size="small" icon={<HistoryOutlined style={{ fontSize: '11px' }} />} onClick={() => { setSelectedFarmer(record); setIsHistoryModalVisible(true); }}
-              className="rounded-lg text-blue-600 border-blue-100 bg-blue-50 hover:bg-blue-100 w-7 h-7 flex items-center justify-center"
+            <Button size="small" icon={<HistoryOutlined />} onClick={() => { setSelectedFarmer(record); setIsHistoryModalVisible(true); }}
+              className="rounded-lg text-blue-600 border-blue-100 bg-blue-50 hover:bg-blue-100 w-8 h-8 flex items-center justify-center"
             />
           </Tooltip>
           <Tooltip title="Gán sổ">
-            <Button size="small" type="primary" icon={<DeploymentUnitOutlined style={{ fontSize: '11px' }} />} onClick={() => message.info('Tính năng gán nhanh đang phát triển...')}
-              className="rounded-lg bg-orange-500 border-0 shadow-sm w-7 h-7 flex items-center justify-center"
+            <Button size="small" type="primary" icon={<DeploymentUnitOutlined />} onClick={() => message.info('Tính năng gán nhanh đang phát triển...')}
+              className="rounded-lg bg-orange-500 border-0 shadow-sm w-8 h-8 flex items-center justify-center"
             />
           </Tooltip>
           <Tooltip title="Gỡ">
-            <Button size="small" danger icon={<CloseCircleOutlined style={{ fontSize: '11px' }} />} onClick={() => handleDeleteFarmer(record)}
-              className="rounded-lg w-7 h-7 flex items-center justify-center"
+            <Button size="small" danger icon={<CloseCircleOutlined />} onClick={() => handleDeleteFarmer(record)}
+              className="rounded-lg w-8 h-8 flex items-center justify-center"
             />
           </Tooltip>
         </Space>
