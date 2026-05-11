@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Card, Typography, Row, Col, Input, Button, Tag, Space, Avatar, Statistic, Tooltip, message, Badge, Select, Modal, List, Divider, Empty, Descriptions } from 'antd';
-import { 
-  UserOutlined, 
-  SearchOutlined, 
-  PhoneOutlined, 
-  HomeOutlined, 
+import {
+  UserOutlined,
+  SearchOutlined,
+  PhoneOutlined,
+  HomeOutlined,
   EnvironmentOutlined,
   AreaChartOutlined,
   DeploymentUnitOutlined,
@@ -112,7 +112,7 @@ const HtxFarmerMgmt = () => {
     const nameMatch = (f.fullname || f.username || '').toLowerCase().includes(searchVal);
     const emailMatch = (f.email || '').toLowerCase().includes(searchVal);
     const phoneMatch = (f.phone || '').includes(searchVal);
-    const farmTypeMatch = farmTypeFilter 
+    const farmTypeMatch = farmTypeFilter
       ? (farmTypeFilter === 'none' ? !f.farmType : f.farmType === farmTypeFilter)
       : true;
     const statusMatch = statusFilter ? f.status === statusFilter : true;
@@ -179,17 +179,17 @@ const HtxFarmerMgmt = () => {
       )
     },
     {
-      title: 'CC',
+      title: 'CHỨNG NHẬN',
       dataIndex: 'certifications',
       key: 'certs',
-      width: 60,
+      width: 80,
       align: 'center',
       render: (certs, record) => (
         <Button type="text" size="small" className="p-0 h-auto flex items-center justify-center w-full"
           onClick={() => { setSelectedFarmer(record); setIsCertModalVisible(true); }}
         >
           <Badge count={certs?.length || 0} size="small" className="premium-badge">
-             <SafetyCertificateOutlined className="text-blue-500 text-lg" />
+            <SafetyCertificateOutlined className="text-blue-500 text-lg" />
           </Badge>
         </Button>
       )
@@ -198,7 +198,7 @@ const HtxFarmerMgmt = () => {
       title: 'THAM GIA',
       dataIndex: 'createdAt',
       key: 'join_date',
-      width: 90,
+      width: 100,
       render: (date) => (
         <div className="flex flex-col">
           <Text className="text-[10px] text-gray-600">{dayjs(date).format('DD/MM/YY')}</Text>
@@ -207,14 +207,14 @@ const HtxFarmerMgmt = () => {
       )
     },
     {
-      title: 'T.THÁI',
+      title: 'TRẠNG THÁI',
       key: 'status',
       align: 'center',
-      width: 80,
-      render: () => <Tag color="green" className="rounded-full border-0 text-[9px] px-2 m-0">Active</Tag>
+      width: 100,
+      render: () => <Tag color="green" className="rounded-full border-0 text-[9px] px-2 m-0">Hoạt động</Tag>
     },
     {
-      title: 'HÀNH ĐỘNG',
+      title: 'THAO TÁC',
       key: 'actions',
       align: 'center',
       fixed: 'right',
