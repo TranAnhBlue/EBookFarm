@@ -119,14 +119,17 @@ const Register = () => {
                     </Col>
                     <Col xs={24} sm={12}>
                         <Form.Item
-                            name="username"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Tên tài khoản</span>}
-                            rules={[{ required: true, message: 'Vui lòng nhập tên tài khoản!' }]}
+                            name="phone"
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Số điện thoại (Tên tài khoản)</span>}
+                            rules={[
+                                { required: true, message: 'Số điện thoại là bắt buộc!' },
+                                { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
+                            ]}
                             className="mb-3 md:mb-6"
                         >
                             <Input 
                                 prefix={<UserOutlined className="text-gray-300" />} 
-                                placeholder="nva_farm" 
+                                placeholder="09xxxxxxxx" 
                                 className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
                             />
                         </Form.Item>

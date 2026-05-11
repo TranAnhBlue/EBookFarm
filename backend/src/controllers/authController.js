@@ -11,23 +11,33 @@ const generateToken = (id, role) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, role, fullname } = req.body;
+    const { username, email, password, role, fullname, phone } = req.body;
     
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email là bắt buộc' });
     }
 
-    const userExists = await User.findOne({ email });
+    if (phone && !/^[0-9]{10,11}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ. Vui lòng nhập từ 10-11 chữ số.' });
+    }
+
+    const userExists = await User.findOne({ 
+      $or: [
+        { email },
+        { username: phone || username }
+      ]
+    });
 
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'Email đã được sử dụng' });
+      return res.status(400).json({ success: false, message: 'Email hoặc Số điện thoại (Tên tài khoản) đã tồn tại' });
     }
 
     const user = await User.create({
-      username: username || email.split('@')[0], // Fallback username
+      username: phone || username || email.split('@')[0], 
       email,
       password,
       fullname,
+      phone,
       role: role || 'Farmer'
     });
 

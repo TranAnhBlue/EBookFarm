@@ -135,23 +135,32 @@ const updateProfile = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { username, password, role, status, fullname, email, groupId, htxId } = req.body;
-    const userExists = await User.findOne({ username });
+    const { username, password, role, status, fullname, email, phone, groupId, htxId } = req.body;
+    const finalUsername = phone || username;
+
+    if (phone && !/^[0-9]{10,11}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ. Vui lòng nhập từ 10-11 chữ số.' });
+    }
+
+    const userExists = await User.findOne({ 
+      $or: [{ username: finalUsername }, { email }]
+    });
 
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
+      return res.status(400).json({ success: false, message: 'Người dùng đã tồn tại (Email hoặc Số điện thoại trùng lặp)' });
     }
 
     const user = await User.create({
-      username,
+      username: finalUsername,
       password,
       role: role || 'User',
       status: status || 'Active',
       fullname,
       email,
+      phone,
       groupId,
       htxId,
-      mustChangePassword: true, // Bắt buộc đổi mật khẩu lần đầu
+      mustChangePassword: true, 
     });
 
     // Log action
@@ -206,7 +215,8 @@ const bulkCreateUsers = async (req, res) => {
 
         await User.create({
           ...userData,
-          password: userData.password || '123456', // Mật khẩu mặc định
+          username: userData.phone || userData.username, // Ưu tiên SDT làm username
+          password: userData.password || '123456', 
           status: 'Active',
           mustChangePassword: true
         });

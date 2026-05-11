@@ -133,13 +133,13 @@ const Login = () => {
             >
                 <Form.Item
                     name="email"
-                    label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Email hoặc Tên tài khoản</span>}
+                    label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Email hoặc Số điện thoại</span>}
                     rules={[{ required: true, message: 'Thông tin này là bắt buộc!' }]}
                     className="mb-3 md:mb-6"
                 >
                     <Input 
                         prefix={<MailOutlined className="text-gray-300" />} 
-                        placeholder="example@farm.com" 
+                        placeholder="09xxxxxxxx" 
                         className="rounded-xl h-12 md:h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium text-sm md:text-base"
                     />
                 </Form.Item>
