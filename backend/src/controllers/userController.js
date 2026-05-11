@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const { createLog } = require('./logController');
 const Otp = require('../models/Otp');
 
