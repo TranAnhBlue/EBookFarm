@@ -1,5 +1,5 @@
-const User = require('../models/User');
 const { createLog } = require('./logController');
+const Otp = require('../models/Otp');
 
 const getUsers = async (req, res) => {
   try {
@@ -71,7 +71,8 @@ const updateProfile = async (req, res) => {
       bio,
       avatar,
       currentPassword, // Thêm currentPassword
-      password
+      password,
+      otp // Thêm otp
     } = req.body;
     
     const user = await User.findById(req.user._id);
@@ -94,7 +95,29 @@ const updateProfile = async (req, res) => {
       }
 
       user.fullname = fullname !== undefined ? fullname : user.fullname;
-      user.phone = phone !== undefined ? phone : user.phone;
+      
+      // Xử lý đổi số điện thoại (Yêu cầu OTP)
+      if (phone && phone !== user.phone) {
+        if (!otp) {
+          return res.status(400).json({ success: false, message: 'Vui lòng nhập mã OTP để xác thực số điện thoại mới.' });
+        }
+        
+        const otpRecord = await Otp.findOne({ phone, otp, type: 'CHANGE_PHONE' });
+        if (!otpRecord) {
+          return res.status(400).json({ success: false, message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
+        }
+
+        // Kiểm tra xem số mới có bị trùng không
+        const phoneExists = await User.findOne({ phone, _id: { $ne: user._id } });
+        if (phoneExists) {
+          return res.status(400).json({ success: false, message: 'Số điện thoại này đã được sử dụng bởi một tài khoản khác.' });
+        }
+
+        user.phone = phone;
+        user.username = phone; // Đồng bộ username nếu username là số điện thoại
+        await Otp.deleteOne({ _id: otpRecord._id });
+      }
+
       user.dateOfBirth = dateOfBirth !== undefined ? dateOfBirth : user.dateOfBirth;
       user.gender = gender !== undefined ? gender : user.gender;
       user.address = address !== undefined ? address : user.address;

@@ -12,6 +12,35 @@ const Register = () => {
   const navigate = useNavigate();
   const setCredentials = useAuthStore((state) => state.setCredentials);
   const [loading, setLoading] = React.useState(false);
+  const [otpLoading, setOtpLoading] = React.useState(false);
+  const [countdown, setCountdown] = React.useState(0);
+  const [form] = Form.useForm();
+
+  React.useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const sendOtp = async () => {
+    try {
+      const phone = form.getFieldValue('phone');
+      if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
+        return message.error('Vui lòng nhập số điện thoại hợp lệ để nhận mã OTP!');
+      }
+
+      setOtpLoading(true);
+      await api.post('/auth/send-otp', { phone, type: 'REGISTER' });
+      message.success('Mã OTP đã được gửi đến số điện thoại của bạn!');
+      setCountdown(60);
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể gửi mã OTP. Vui lòng thử lại.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
   const onFinish = async (values) => {
     try {
@@ -97,6 +126,7 @@ const Register = () => {
             </div>
 
             <Form
+                form={form}
                 name="register"
                 layout="vertical"
                 size="large"
@@ -127,9 +157,38 @@ const Register = () => {
                             ]}
                             className="mb-3 md:mb-6"
                         >
+                            <Space.Compact className="w-full">
+                                <Input 
+                                    prefix={<UserOutlined className="text-gray-300" />} 
+                                    placeholder="09xxxxxxxx" 
+                                    className="rounded-l-xl h-11 md:h-14 border-gray-100 text-sm md:text-base flex-1"
+                                />
+                                <Button 
+                                    type="primary"
+                                    onClick={sendOtp}
+                                    disabled={countdown > 0}
+                                    loading={otpLoading}
+                                    className="h-11 md:h-14 rounded-r-xl bg-emerald-600 hover:bg-emerald-700 font-bold px-4"
+                                >
+                                    {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
+                                </Button>
+                            </Space.Compact>
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                        <Form.Item
+                            name="otp"
+                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Mã xác thực OTP</span>}
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập mã OTP!' },
+                                { len: 6, message: 'Mã OTP gồm 6 chữ số' }
+                            ]}
+                            className="mb-3 md:mb-6"
+                        >
                             <Input 
-                                prefix={<UserOutlined className="text-gray-300" />} 
-                                placeholder="09xxxxxxxx" 
+                                prefix={<SafetyCertificateFilled className="text-gray-300" />} 
+                                placeholder="123456" 
+                                maxLength={6}
                                 className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
                             />
                         </Form.Item>

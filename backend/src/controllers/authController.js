@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const Otp = require('../models/Otp');
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET || 'secret', {
@@ -11,7 +12,7 @@ const generateToken = (id, role) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, role, fullname, phone } = req.body;
+    const { username, email, password, role, fullname, phone, otp } = req.body;
     
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email là bắt buộc' });
@@ -32,6 +33,19 @@ const registerUser = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ success: false, message: 'Email hoặc Số điện thoại (Tên tài khoản) đã tồn tại' });
     }
+
+    // Verify OTP
+    if (!otp) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập mã OTP xác thực số điện thoại' });
+    }
+
+    const otpRecord = await Otp.findOne({ phone, otp, type: 'REGISTER' });
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: 'Mã OTP không chính xác hoặc đã hết hạn' });
+    }
+
+    // Delete OTP after verification
+    await Otp.deleteOne({ _id: otpRecord._id });
 
     const user = await User.create({
       username: phone || username || email.split('@')[0], 
@@ -345,4 +359,38 @@ const logoutUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin, forceChangePassword, logoutUser };
+const sendOtp = async (req, res) => {
+  try {
+    const { phone, type } = req.body;
+    
+    if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Save to DB (expires automatically via TTL index)
+    await Otp.findOneAndUpdate(
+      { phone, type: type || 'REGISTER' },
+      { otp, createdAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    // MOCK SMS SENDING
+    console.log(`-----------------------------------------`);
+    console.log(`[SMS SERVICE] Sending OTP to ${phone}`);
+    console.log(`[SMS SERVICE] Code: ${otp}`);
+    console.log(`[SMS SERVICE] Type: ${type || 'REGISTER'}`);
+    console.log(`-----------------------------------------`);
+
+    res.json({ 
+      success: true, 
+      message: 'Mã xác thực đã được gửi. Vui lòng kiểm tra điện thoại của bạn.' 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword, googleLogin, forceChangePassword, logoutUser, sendOtp };
