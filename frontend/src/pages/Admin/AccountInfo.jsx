@@ -126,7 +126,6 @@ const AccountInfo = () => {
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
 
-    // Kiểm tra quyền sửa số điện thoại (Admin và HTX được sửa, Farmer thì không)
     const canEditPhone = ['Admin', 'HTX'].includes(user?.role);
 
     useEffect(() => {
@@ -147,14 +146,13 @@ const AccountInfo = () => {
             });
             setAvatarUrl(user.avatar || '');
             setLocalCerts(user.certifications || []);
-
-            // Tìm mã tỉnh tương ứng nếu có để load xã
+            
             if (provinces.length > 0 && user.province) {
                 const found = provinces.find(p => p.name === user.province);
                 if (found) setSelectedProvinceCode(found.code);
             }
         }
-    }, [user, form, provinces]);
+    }, [user, provinces]);
 
     useEffect(() => {
         const fetch = async () => {
@@ -182,27 +180,46 @@ const AccountInfo = () => {
 
     const updateMutation = useMutation({
         mutationFn: (values) => {
-            // Lấy toàn bộ dữ liệu từ form, kể cả các trường bị disabled
-            const formData = form.getFieldsValue();
-
+            // Log dữ liệu để debug
+            console.log('🚀 Final form values for update:', values);
+            
             const updateData = {
-                ...formData,
+                ...values,
                 avatar: avatarUrl,
                 certifications: localCerts
             };
 
+            // Chuyển đổi tất cả các đối tượng DayJS sang ISO string trước khi gửi
             if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
                 updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
+            }
+
+            if (updateData.certifications) {
+                updateData.certifications = updateData.certifications.map(c => ({
+                    ...c,
+                    issueDate: c.issueDate && dayjs.isDayjs(c.issueDate) ? c.issueDate.toISOString() : c.issueDate,
+                    expiryDate: c.expiryDate && dayjs.isDayjs(c.expiryDate) ? c.expiryDate.toISOString() : c.expiryDate
+                }));
             }
 
             return api.put('/users/profile', updateData);
         },
         onSuccess: (res) => {
-            setUser(res.data.data);
+            const updatedUser = res.data.data;
+            setUser(updatedUser);
             message.success('Cập nhật hồ sơ thành công!');
             queryClient.invalidateQueries(['users']);
+            
+            // Cập nhật lại form với dữ liệu mới từ server
+            form.setFieldsValue({
+                ...updatedUser,
+                dateOfBirth: updatedUser.dateOfBirth ? dayjs(updatedUser.dateOfBirth) : null
+            });
         },
-        onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')
+        onError: (err) => {
+            console.error('❌ Update Mutation Error:', err);
+            message.error(err.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ!');
+        }
     });
 
     const handleAvatarChange = (info) => {
@@ -253,9 +270,9 @@ const AccountInfo = () => {
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
                         <Text type="secondary" className="text-xs uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
-
+                        
                         {user?.bio && <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>}
-
+                        
                         <Divider className="my-6" />
                         <div className="space-y-4 text-left px-2 text-sm">
                             <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text><Text strong>@{user?.username}</Text></div></div>
@@ -268,7 +285,15 @@ const AccountInfo = () => {
                 <Col span={24} lg={16}>
                     <Card bordered={false} className="shadow-sm rounded-[24px] p-6">
                         <Title level={5} className="mb-6 flex items-center gap-2"><EditOutlined className="text-green-500" /> Thay đổi thông tin</Title>
-                        <Form form={form} layout="vertical" onFinish={(v) => updateMutation.mutate(v)}>
+                        <Form 
+                            form={form} 
+                            layout="vertical" 
+                            onFinish={(v) => {
+                                // Sử dụng form.getFieldsValue(true) để lấy cả các trường disabled
+                                const allValues = form.getFieldsValue(true);
+                                updateMutation.mutate(allValues);
+                            }}
+                        >
                             <Row gutter={16}>
                                 <Col span={12}>
                                     <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true }]}>
@@ -281,11 +306,11 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="phone" label={canEditPhone ? "Số điện thoại" : "Số điện thoại"}>
-                                        <Input
-                                            disabled={!canEditPhone}
-                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`}
-                                            prefix={<PhoneOutlined className="text-gray-300" />}
+                                    <Form.Item name="phone" label="Số điện thoại">
+                                        <Input 
+                                            disabled={!canEditPhone} 
+                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`} 
+                                            prefix={<PhoneOutlined className="text-gray-300" />} 
                                         />
                                     </Form.Item>
                                 </Col>
@@ -391,7 +416,7 @@ const AccountInfo = () => {
                 </Col>
             </Row>
 
-            <CertificationModal
+            <CertificationModal 
                 visible={isCertModalVisible}
                 onCancel={() => setIsCertModalVisible(false)}
                 initialValues={editingCert}

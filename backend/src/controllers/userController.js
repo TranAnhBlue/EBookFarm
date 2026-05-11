@@ -130,7 +130,7 @@ const updateProfile = async (req, res) => {
       user.avatar = avatar !== undefined ? avatar : user.avatar;
 
       const updatedUser = await user.save();
-      console.log('✅ Profile updated successfully:', updatedUser._id);
+      console.log('✅ User saved to DB:', updatedUser.username);
       
       // Log action
       await createLog(req.user._id, 'Cập nhật hồ sơ cá nhân', user._id, 'User', { 
@@ -139,10 +139,11 @@ const updateProfile = async (req, res) => {
       
       res.json({ success: true, data: updatedUser });
     } else {
+      console.warn('⚠️ Update failed: User not found for ID', req.user._id);
       res.status(404).json({ success: false, message: 'User not found' });
     }
   } catch (error) {
-    console.error('❌ Error updating profile:', error);
+    console.error('❌ CRITICAL ERROR in updateProfile:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
