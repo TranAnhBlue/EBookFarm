@@ -144,13 +144,28 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
             const formattedPhone = phone.startsWith('0') ? '+84' + phone.substring(1) : phone;
             const appVerifier = window.recaptchaVerifierProfile;
             const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-            
+
             setConfirmationResult(result);
             message.success('Mã OTP đã được gửi qua SMS!');
             setCountdown(60);
         } catch (error) {
             console.error('Firebase Auth Error:', error);
-            message.error('Lỗi khi gửi SMS. Hãy kiểm tra lại số điện thoại.');
+
+            // FALLBACK: Nếu Firebase lỗi, dùng OTP nội bộ
+            if (error.code === 'auth/billing-not-enabled' || error.code === 'auth/operation-not-allowed') {
+                try {
+                    message.info('Sử dụng hệ thống xác thực nội bộ...');
+                    await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' });
+                    message.success('Mã OTP đã được gửi! Hãy kiểm tra Console Server.');
+                    setCountdown(60);
+                    setConfirmationResult('INTERNAL_OTP');
+                } catch (innerError) {
+                    message.error('Lỗi gửi OTP nội bộ.');
+                }
+            } else {
+                message.error('Lỗi khi gửi SMS. Hãy kiểm tra lại số điện thoại.');
+            }
+
             if (window.recaptchaVerifierProfile) {
                 window.recaptchaVerifierProfile.render().then(widgetId => {
                     window.grecaptcha.reset(widgetId);
@@ -169,8 +184,14 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
             }
 
             setOtpLoading(true);
-            await confirmationResult.confirm(values.otp);
-            onVerify({ ...values, isFirebaseVerified: true });
+
+            if (confirmationResult === 'INTERNAL_OTP') {
+                // Backend sẽ check OTP
+                onVerify({ ...values, isFirebaseVerified: false });
+            } else {
+                await confirmationResult.confirm(values.otp);
+                onVerify({ ...values, isFirebaseVerified: true });
+            }
         } catch (error) {
             message.error('Mã OTP không chính xác hoặc đã hết hạn.');
         } finally {
@@ -189,26 +210,26 @@ const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
                 centered
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item 
-                        name="phone" 
-                        label="Số điện thoại mới" 
+                    <Form.Item
+                        name="phone"
+                        label="Số điện thoại mới"
                         rules={[{ required: true }, { pattern: /^[0-9]{10,11}$/, message: 'SĐT không hợp lệ' }]}
                     >
                         <Space.Compact className="w-full">
                             <Input placeholder="Nhập số điện thoại mới" />
-                            <Button 
-                                type="primary" 
-                                onClick={sendOtp} 
-                                disabled={countdown > 0} 
+                            <Button
+                                type="primary"
+                                onClick={sendOtp}
+                                disabled={countdown > 0}
                                 loading={otpLoading}
                             >
                                 {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
                             </Button>
                         </Space.Compact>
                     </Form.Item>
-                    <Form.Item 
-                        name="otp" 
-                        label="Mã OTP" 
+                    <Form.Item
+                        name="otp"
+                        label="Mã OTP"
                         rules={[{ required: true, len: 6, message: 'Mã OTP gồm 6 chữ số' }]}
                     >
                         <Input placeholder="Nhập mã 6 chữ số" maxLength={6} />
@@ -287,9 +308,13 @@ const AccountInfo = () => {
             const updateData = {
                 ...values,
                 avatar: avatarUrl,
-                certifications: values.certifications || localCerts,
-                dateOfBirth: values.dateOfBirth ? values.dateOfBirth.toISOString() : null
+                certifications: localCerts
             };
+
+            if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
+                updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
+            }
+
             return api.put('/users/profile', updateData);
         },
         onSuccess: (res) => {
@@ -313,7 +338,7 @@ const AccountInfo = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 p-4">
+        <div className="max-w-4xl mx-auto space-y-6 p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-wider">
                     <HomeOutlined />
@@ -348,42 +373,136 @@ const AccountInfo = () => {
                             </Upload>
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
-                        <Text type="secondary" className="text-xs uppercase font-bold text-green-600">{user?.role}</Text>
+                        <Text type="secondary" className="text-xs uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
+
+                        {user?.bio && <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>}
+
                         <Divider className="my-6" />
                         <div className="space-y-4 text-left px-2 text-sm">
-                            <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <Text strong>@{user?.username}</Text></div>
-                            <div className="flex items-center gap-3"><MailOutlined className="text-gray-400" /> <Text className="truncate">{user?.email}</Text></div>
-                            <div className="flex items-center gap-3"><PhoneOutlined className="text-gray-400" /> <Text>{user?.phone}</Text></div>
+                            <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text><Text strong>@{user?.username}</Text></div></div>
+                            <div className="flex items-center gap-3"><MailOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Email</Text><Text strong className="truncate block">{user?.email}</Text></div></div>
+                            <div className="flex items-center gap-3"><PhoneOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Điện thoại</Text><Text strong>{user?.phone}</Text></div></div>
                         </div>
                     </Card>
                 </Col>
 
                 <Col span={24} lg={16}>
-                    <Card bordered={false} className="shadow-sm rounded-[24px] p-4">
-                        <Title level={5} className="mb-6"><EditOutlined className="text-green-500 mr-2" /> Thay đổi thông tin</Title>
+                    <Card bordered={false} className="shadow-sm rounded-[24px] p-6">
+                        <Title level={5} className="mb-6 flex items-center gap-2"><EditOutlined className="text-green-500" /> Thay đổi thông tin</Title>
                         <Form form={form} layout="vertical" onFinish={(v) => updateMutation.mutate(v)}>
                             <Row gutter={16}>
                                 <Col span={12}>
                                     <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true }]}>
-                                        <Input className="h-11 rounded-lg" />
+                                        <Input className="h-11 rounded-lg" prefix={<UserOutlined className="text-gray-300" />} />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name="email" label="Địa chỉ Email">
+                                        <Input disabled className="h-11 rounded-lg bg-gray-50" prefix={<MailOutlined className="text-gray-300" />} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item name="phone" label="Số điện thoại">
                                         <Space.Compact className="w-full">
-                                            <Input disabled className="h-11 bg-gray-50" />
+                                            <Input disabled className="h-11 bg-gray-50" prefix={<PhoneOutlined className="text-gray-300" />} />
                                             <Button icon={<EditOutlined />} onClick={() => setIsPhoneModalVisible(true)} className="h-11">Sửa</Button>
                                         </Space.Compact>
                                     </Form.Item>
                                 </Col>
+                                <Col span={12}>
+                                    <Form.Item name="dateOfBirth" label="Ngày sinh">
+                                        <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name="gender" label="Giới tính">
+                                        <Select className="h-11" placeholder="Chọn giới tính">
+                                            <Option value="Nam">Nam</Option>
+                                            <Option value="Nữ">Nữ</Option>
+                                            <Option value="Khác">Khác</Option>
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name="organization" label="Tổ chức/Công ty">
+                                        <Input className="h-11 rounded-lg" prefix={<ShopOutlined className="text-gray-300" />} />
+                                    </Form.Item>
+                                </Col>
                                 <Col span={24}>
-                                    <Form.Item name="address" label="Địa chỉ">
+                                    <Form.Item name="bio" label="Giới thiệu ngắn">
+                                        <TextArea rows={2} className="rounded-lg" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-6"><EnvironmentOutlined className="mr-2" /> Địa chỉ</Divider>
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item name="province" label="Tỉnh/Thành phố">
+                                        <Select showSearch onChange={handleProvinceChange} className="h-11">
+                                            {provinces.map(p => <Option key={p.code} value={p.name} code={p.code}>{p.name}</Option>)}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item name="ward" label="Phường/Xã">
+                                        <Select showSearch disabled={!selectedProvinceCode} onChange={handleWardChange} className="h-11">
+                                            {wards.map(w => <Option key={w.code} value={w.name}>{w.name}</Option>)}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item name="address" label="Địa chỉ chi tiết">
                                         <Input className="h-11 rounded-lg" prefix={<EnvironmentOutlined className="text-gray-300" />} />
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <div className="flex justify-end mt-4">
-                                <Button type="primary" htmlType="submit" loading={updateMutation.isLoading} className="h-11 px-8 rounded-xl bg-green-600 border-0">
+
+                            {['Farmer', 'User'].includes(user?.role) && (
+                                <>
+                                    <Divider orientation="left" className="!text-gray-600 !text-sm font-bold mt-8"><SafetyCertificateOutlined className="mr-2" /> Chứng nhận & Nông trại</Divider>
+                                    <div className="bg-gray-50/50 p-4 rounded-2xl border border-dashed border-gray-200 mb-6">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <Text strong>Danh sách chứng chỉ</Text>
+                                            <Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => { setEditingCert(null); setIsCertModalVisible(true); }} className="bg-green-600 border-0">Thêm mới</Button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {localCerts.map((cert, index) => (
+                                                <div key={index} className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                                    <div className="flex items-center gap-3">
+                                                        <SafetyCertificateOutlined className="text-green-600" />
+                                                        <div>
+                                                            <Text strong className="text-sm">{cert.name}</Text>
+                                                            <Tag color={cert.status === 'Approved' ? 'success' : 'warning'} className="ml-2 text-[9px]">{cert.status}</Tag>
+                                                        </div>
+                                                    </div>
+                                                    <Space>
+                                                        <Button size="small" type="text" icon={<EditOutlined className="text-blue-500" />} onClick={() => { setEditingCert({ ...cert, index }); setIsCertModalVisible(true); }} />
+                                                        <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => { const n = [...localCerts]; n.splice(index, 1); setLocalCerts(n); }} />
+                                                    </Space>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Row gutter={16}>
+                                        <Col span={12}><Form.Item name="farmName" label="Tên nông trại"><Input className="h-11 rounded-lg" /></Form.Item></Col>
+                                        <Col span={12}><Form.Item name="farmCode" label="Mã nông trại"><Input className="h-11 rounded-lg" /></Form.Item></Col>
+                                        <Col span={12}><Form.Item name="farmArea" label="Diện tích (m²)"><Input type="number" className="h-11 rounded-lg" /></Form.Item></Col>
+                                        <Col span={12}>
+                                            <Form.Item name="farmType" label="Loại hình">
+                                                <Select className="h-11">
+                                                    <Option value="Trồng trọt">Trồng trọt</Option>
+                                                    <Option value="Chăn nuôi">Chăn nuôi</Option>
+                                                    <Option value="Hỗn hợp">Hỗn hợp</Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </>
+                            )}
+
+                            <div className="flex justify-end mt-6">
+                                <Button type="primary" htmlType="submit" loading={updateMutation.isLoading} className="h-11 px-8 rounded-xl bg-green-600 border-0 font-bold shadow-lg">
                                     Lưu hồ sơ
                                 </Button>
                             </div>
@@ -392,7 +511,7 @@ const AccountInfo = () => {
                 </Col>
             </Row>
 
-            <CertificationModal 
+            <CertificationModal
                 visible={isCertModalVisible}
                 onCancel={() => setIsCertModalVisible(false)}
                 initialValues={editingCert}
@@ -406,7 +525,7 @@ const AccountInfo = () => {
                 }}
             />
 
-            <ChangePhoneModal 
+            <ChangePhoneModal
                 visible={isPhoneModalVisible}
                 onCancel={() => setIsPhoneModalVisible(false)}
                 loading={updateMutation.isLoading}
