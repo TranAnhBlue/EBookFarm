@@ -408,7 +408,12 @@ const JournalList = () => {
         const entries = record.entries || {};
         let lastStep = 'Chưa bắt đầu';
         if (schema?.tables) {
-          const completedSteps = schema.tables.filter(t => entries[t.tableName] && Array.isArray(entries[t.tableName]) && entries[t.tableName].length > 0);
+          const completedSteps = schema.tables.filter(t => {
+            const tableData = entries[t.tableName];
+            if (!tableData) return false;
+            if (Array.isArray(tableData)) return tableData.length > 0;
+            return typeof tableData === 'object' && Object.values(tableData).some(v => v !== undefined && v !== null && v !== '');
+          });
           if (completedSteps.length > 0) {
             lastStep = completedSteps[completedSteps.length - 1].tableName;
           }
@@ -692,7 +697,12 @@ const JournalList = () => {
                                 const entries = journal.entries || {};
                                 let lastStep = 'Chưa bắt đầu';
                                 if (schema?.tables) {
-                                  const completedSteps = schema.tables.filter(t => entries[t.tableName] && Array.isArray(entries[t.tableName]) && entries[t.tableName].length > 0);
+                                  const completedSteps = schema.tables.filter(t => {
+                                    const tableData = entries[t.tableName];
+                                    if (!tableData) return false;
+                                    if (Array.isArray(tableData)) return tableData.length > 0;
+                                    return typeof tableData === 'object' && Object.values(tableData).some(v => v !== undefined && v !== null && v !== '');
+                                  });
                                   if (completedSteps.length > 0) {
                                     lastStep = completedSteps[completedSteps.length - 1].tableName;
                                   }
