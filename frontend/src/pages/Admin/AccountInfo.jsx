@@ -131,8 +131,12 @@ const AccountInfo = () => {
     useEffect(() => {
         const fetchProvinces = async () => {
             setLoadingProvinces(true);
-            const data = await getProvinces();
-            setProvinces(data);
+            try {
+                const data = await getProvinces();
+                setProvinces(data);
+            } catch (err) {
+                console.error('Failed to fetch provinces', err);
+            }
             setLoadingProvinces(false);
         };
         fetchProvinces();
@@ -158,8 +162,12 @@ const AccountInfo = () => {
         const fetch = async () => {
             if (selectedProvinceCode) {
                 setLoadingWards(true);
-                const data = await getWardsByProvince(selectedProvinceCode);
-                setWards(data);
+                try {
+                    const data = await getWardsByProvince(selectedProvinceCode);
+                    setWards(data);
+                } catch (err) {
+                    console.error('Failed to fetch wards', err);
+                }
                 setLoadingWards(false);
             } else {
                 setWards([]);
@@ -171,11 +179,11 @@ const AccountInfo = () => {
     const handleProvinceChange = (value, option) => {
         setSelectedProvinceCode(option.code);
         setWards([]);
-        form.setFieldsValue({ province: option.name, ward: undefined });
+        form.setFieldsValue({ province: value, ward: undefined });
     };
 
-    const handleWardChange = (value, option) => {
-        form.setFieldsValue({ ward: option.name });
+    const handleWardChange = (value) => {
+        form.setFieldsValue({ ward: value });
     };
 
     const updateMutation = useMutation({
@@ -205,16 +213,25 @@ const AccountInfo = () => {
             setUser(updatedUser);
             message.success('Cập nhật hồ sơ thành công!');
             queryClient.invalidateQueries(['users']);
-            
-            form.setFieldsValue({
-                ...updatedUser,
-                dateOfBirth: updatedUser.dateOfBirth ? dayjs(updatedUser.dateOfBirth) : null
-            });
         },
         onError: (err) => {
             message.error(err.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ!');
         }
     });
+
+    const disabledDate = (current) => {
+        // Không cho phép chọn ngày tương lai
+        return current && current > dayjs().endOf('day');
+    };
+
+    const validateAge = (_, value) => {
+        if (!value) return Promise.resolve();
+        const age = dayjs().diff(value, 'year');
+        if (age < 18) {
+            return Promise.reject(new Error('Bạn phải từ 18 tuổi trở lên'));
+        }
+        return Promise.resolve();
+    };
 
     const handleAvatarChange = (info) => {
         if (info.file.status === 'done') {
@@ -299,12 +316,6 @@ const AccountInfo = () => {
                                     <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Ngày sinh</Text><Text strong className="text-sm">{dayjs(user.dateOfBirth).format('DD/MM/YYYY')}</Text></div>
                                 </div>
                             )}
-                            {user?.gender && (
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">{user.gender === 'Nam' ? <ManOutlined /> : <WomanOutlined />}</div>
-                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Giới tính</Text><Text strong className="text-sm">{user.gender}</Text></div>
-                                </div>
-                            )}
                         </div>
                     </Card>
                 </Col>
@@ -341,8 +352,20 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="dateOfBirth" label="Ngày sinh" rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}>
-                                        <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" placeholder="Chọn ngày" />
+                                    <Form.Item 
+                                        name="dateOfBirth" 
+                                        label="Ngày sinh" 
+                                        rules={[
+                                            { required: true, message: 'Vui lòng chọn ngày sinh' },
+                                            { validator: validateAge }
+                                        ]}
+                                    >
+                                        <DatePicker 
+                                            className="w-full h-11 rounded-lg" 
+                                            format="DD/MM/YYYY" 
+                                            placeholder="Chọn ngày"
+                                            disabledDate={disabledDate}
+                                        />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -370,14 +393,25 @@ const AccountInfo = () => {
                             <Row gutter={16}>
                                 <Col span={12}>
                                     <Form.Item name="province" label="Tỉnh/Thành phố">
-                                        <Select showSearch onChange={handleProvinceChange} className="h-11">
+                                        <Select 
+                                            showSearch 
+                                            onChange={handleProvinceChange} 
+                                            className="h-11"
+                                            placeholder="Chọn tỉnh/thành phố"
+                                        >
                                             {provinces.map(p => <Option key={p.code} value={p.name} code={p.code}>{p.name}</Option>)}
                                         </Select>
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item name="ward" label="Phường/Xã">
-                                        <Select showSearch disabled={!selectedProvinceCode} onChange={handleWardChange} className="h-11">
+                                        <Select 
+                                            showSearch 
+                                            disabled={!selectedProvinceCode} 
+                                            onChange={handleWardChange} 
+                                            className="h-11"
+                                            placeholder="Chọn phường/xã"
+                                        >
                                             {wards.map(w => <Option key={w.code} value={w.name}>{w.name}</Option>)}
                                         </Select>
                                     </Form.Item>
@@ -424,6 +458,7 @@ const AccountInfo = () => {
                                                 <Select className="h-11">
                                                     <Option value="Trồng trọt">Trồng trọt</Option>
                                                     <Option value="Chăn nuôi">Chăn nuôi</Option>
+                                                    <Option value="Thủy sản">Thủy sản</Option>
                                                     <Option value="Hỗn hợp">Hỗn hợp</Option>
                                                 </Select>
                                             </Form.Item>
