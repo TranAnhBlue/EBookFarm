@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+// Cấu hình ngôn ngữ cho dayjs
 dayjs.locale('vi');
 
 import Login from './pages/Auth/Login';

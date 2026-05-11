@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert, Empty, Modal, Tooltip } from 'antd';
-import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined, BankOutlined, CalendarOutlined, WomanOutlined, ManOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -58,7 +58,7 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
             <Form form={form} layout="vertical">
                 <Row gutter={16}>
                     <Col span={24}>
-                        <Form.Item name="name" label="Tên chứng nhận" rules={[{ required: true, message: 'Vui lòng nhập tên chứng nhận!' }]}>
+                        <Form.Item name="name" label="Tên chứng nhận" rules={[{ required: true, message: 'Vui lòng chọn loại chứng nhận!' }]}>
                             <Select placeholder="Chọn loại chứng nhận" showSearch>
                                 <Option value="VietGAP">VietGAP</Option>
                                 <Option value="GlobalGAP">GlobalGAP</Option>
@@ -152,7 +152,7 @@ const AccountInfo = () => {
                 if (found) setSelectedProvinceCode(found.code);
             }
         }
-    }, [user, provinces]);
+    }, [user, provinces, form]);
 
     useEffect(() => {
         const fetch = async () => {
@@ -180,16 +180,12 @@ const AccountInfo = () => {
 
     const updateMutation = useMutation({
         mutationFn: (values) => {
-            // Log dữ liệu để debug
-            console.log('🚀 Final form values for update:', values);
-            
             const updateData = {
                 ...values,
                 avatar: avatarUrl,
                 certifications: localCerts
             };
 
-            // Chuyển đổi tất cả các đối tượng DayJS sang ISO string trước khi gửi
             if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
                 updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
             }
@@ -210,14 +206,12 @@ const AccountInfo = () => {
             message.success('Cập nhật hồ sơ thành công!');
             queryClient.invalidateQueries(['users']);
             
-            // Cập nhật lại form với dữ liệu mới từ server
             form.setFieldsValue({
                 ...updatedUser,
                 dateOfBirth: updatedUser.dateOfBirth ? dayjs(updatedUser.dateOfBirth) : null
             });
         },
         onError: (err) => {
-            console.error('❌ Update Mutation Error:', err);
             message.error(err.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ!');
         }
     });
@@ -247,13 +241,13 @@ const AccountInfo = () => {
 
             <Row gutter={[24, 24]}>
                 <Col span={24} lg={8}>
-                    <Card bordered={false} className="shadow-sm rounded-[24px] text-center p-4 h-full">
+                    <Card bordered={false} className="shadow-sm rounded-[24px] text-center p-4 h-full sticky top-24">
                         <div className="relative inline-block mb-4">
                             <Avatar
-                                size={100}
+                                size={120}
                                 src={getAvatarUrl(avatarUrl)}
                                 icon={!avatarUrl && <UserOutlined />}
-                                className="bg-green-50 text-green-600 border-4 border-white shadow-lg"
+                                className="bg-green-50 text-green-600 border-4 border-white shadow-xl"
                             >
                                 {!avatarUrl && getInitialAvatar(user?.fullname || user?.username)}
                             </Avatar>
@@ -263,21 +257,54 @@ const AccountInfo = () => {
                                 action={`${API_URL}/upload/avatar`}
                                 headers={{ Authorization: `Bearer ${localStorage.getItem('token')}` }}
                                 onChange={handleAvatarChange}
-                                className="absolute bottom-0 right-0"
+                                className="absolute bottom-1 right-1"
                             >
-                                <Button shape="circle" size="small" icon={<CameraOutlined />} className="bg-green-500 text-white border-0 shadow-lg" />
+                                <Button shape="circle" size="small" icon={<CameraOutlined />} className="bg-green-500 text-white border-2 border-white shadow-lg" />
                             </Upload>
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
-                        <Text type="secondary" className="text-xs uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
+                        <Text type="secondary" className="text-[10px] uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
                         
-                        {user?.bio && <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>}
+                        {user?.organization && (
+                            <div className="mt-3">
+                                <Tag icon={<BankOutlined />} color="success" className="px-3 py-1 rounded-full border-0 shadow-sm text-[11px]">{user.organization}</Tag>
+                            </div>
+                        )}
+                        
+                        {user?.bio && <Text className="text-sm text-gray-400 block mt-4 px-4 italic leading-relaxed">"{user.bio}"</Text>}
                         
                         <Divider className="my-6" />
-                        <div className="space-y-4 text-left px-2 text-sm">
-                            <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text><Text strong>@{user?.username}</Text></div></div>
-                            <div className="flex items-center gap-3"><MailOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Email</Text><Text strong className="truncate block">{user?.email}</Text></div></div>
-                            <div className="flex items-center gap-3"><PhoneOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Điện thoại</Text><Text strong>{user?.phone}</Text></div></div>
+                        <div className="space-y-5 text-left px-4 text-sm">
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><UserOutlined /></div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Username</Text><Text strong className="text-sm">@{user?.username}</Text></div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><MailOutlined /></div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Email</Text><Text strong className="text-sm truncate block">{user?.email}</Text></div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><PhoneOutlined /></div>
+                                <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Điện thoại</Text><Text strong className="text-sm">{user?.phone || 'Chưa cập nhật'}</Text></div>
+                            </div>
+                            {(user?.province || user?.ward) && (
+                                <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><EnvironmentOutlined /></div>
+                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Địa chỉ</Text><Text strong className="text-sm">{user.ward ? `${user.ward}, ` : ''}{user.province}</Text></div>
+                                </div>
+                            )}
+                            {user?.dateOfBirth && (
+                                <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><CalendarOutlined /></div>
+                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Ngày sinh</Text><Text strong className="text-sm">{dayjs(user.dateOfBirth).format('DD/MM/YYYY')}</Text></div>
+                                </div>
+                            )}
+                            {user?.gender && (
+                                <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">{user.gender === 'Nam' ? <ManOutlined /> : <WomanOutlined />}</div>
+                                    <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Giới tính</Text><Text strong className="text-sm">{user.gender}</Text></div>
+                                </div>
+                            )}
                         </div>
                     </Card>
                 </Col>
@@ -289,14 +316,13 @@ const AccountInfo = () => {
                             form={form} 
                             layout="vertical" 
                             onFinish={(v) => {
-                                // Sử dụng form.getFieldsValue(true) để lấy cả các trường disabled
                                 const allValues = form.getFieldsValue(true);
                                 updateMutation.mutate(allValues);
                             }}
                         >
                             <Row gutter={16}>
                                 <Col span={12}>
-                                    <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true }]}>
+                                    <Form.Item name="fullname" label="Họ và tên" rules={[{ required: true, message: 'Họ và tên là bắt buộc' }]}>
                                         <Input className="h-11 rounded-lg" prefix={<UserOutlined className="text-gray-300" />} />
                                     </Form.Item>
                                 </Col>
@@ -315,7 +341,7 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="dateOfBirth" label="Ngày sinh">
+                                    <Form.Item name="dateOfBirth" label="Ngày sinh" rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}>
                                         <DatePicker className="w-full h-11 rounded-lg" format="DD/MM/YYYY" placeholder="Chọn ngày" />
                                     </Form.Item>
                                 </Col>
