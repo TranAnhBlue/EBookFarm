@@ -147,7 +147,7 @@ const AccountInfo = () => {
             });
             setAvatarUrl(user.avatar || '');
             setLocalCerts(user.certifications || []);
-            
+
             // Tìm mã tỉnh tương ứng nếu có để load xã
             if (provinces.length > 0 && user.province) {
                 const found = provinces.find(p => p.name === user.province);
@@ -184,7 +184,7 @@ const AccountInfo = () => {
         mutationFn: (values) => {
             // Lấy toàn bộ dữ liệu từ form, kể cả các trường bị disabled
             const formData = form.getFieldsValue();
-            
+
             const updateData = {
                 ...formData,
                 avatar: avatarUrl,
@@ -253,9 +253,9 @@ const AccountInfo = () => {
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
                         <Text type="secondary" className="text-xs uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
-                        
+
                         {user?.bio && <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>}
-                        
+
                         <Divider className="my-6" />
                         <div className="space-y-4 text-left px-2 text-sm">
                             <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text><Text strong>@{user?.username}</Text></div></div>
@@ -281,11 +281,11 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="phone" label={canEditPhone ? "Số điện thoại" : "Số điện thoại (Cố định)"}>
-                                        <Input 
-                                            disabled={!canEditPhone} 
-                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`} 
-                                            prefix={<PhoneOutlined className="text-gray-300" />} 
+                                    <Form.Item name="phone" label={canEditPhone ? "Số điện thoại" : "Số điện thoại"}>
+                                        <Input
+                                            disabled={!canEditPhone}
+                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`}
+                                            prefix={<PhoneOutlined className="text-gray-300" />}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -391,7 +391,7 @@ const AccountInfo = () => {
                 </Col>
             </Row>
 
-            <CertificationModal 
+            <CertificationModal
                 visible={isCertModalVisible}
                 onCancel={() => setIsCertModalVisible(false)}
                 initialValues={editingCert}
