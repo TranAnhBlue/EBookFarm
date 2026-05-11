@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Tag, Space, message, Card, Typography, Avatar, Input, Tooltip, Badge, Modal } from 'antd';
+import { Table, Button, Tag, Space, message, Card, Typography, Avatar, Input, Tooltip, Badge, Modal, Select } from 'antd';
 import { 
   CheckCircleOutlined, 
   CloseCircleOutlined, 
@@ -16,11 +16,13 @@ import dayjs from 'dayjs';
 import JournalEntry from '../Journal/JournalEntry';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const HtxJournalApproval = () => {
   const [pendingFarmers, setPendingFarmers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [filterJournal, setFilterJournal] = useState(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [isFeedbackModalVisible, setIsFeedbackModalVisible] = useState(false);
@@ -36,7 +38,6 @@ const HtxJournalApproval = () => {
       setLoading(true);
       const res = await api.get('/htx/journals');
       if (res.data.success) {
-        // Gom tất cả nông dân đang chờ duyệt từ mọi sổ
         const allPending = [];
         res.data.data.forEach(journal => {
           journal.farmers.forEach(f => {
@@ -50,9 +51,6 @@ const HtxJournalApproval = () => {
             }
           });
         });
-        
-        // Sắp xếp theo thời gian nộp (giả định dùng updatedAt của farmer entry nếu có, hoặc tạo một field mới)
-        // Hiện tại sắp xếp theo tên nông dân
         setPendingFarmers(allPending);
       }
     } catch (error) {
@@ -171,11 +169,16 @@ const HtxJournalApproval = () => {
     const name = item.farmerId?.fullname || item.farmerId?.username || '';
     const journal = item.journalName || '';
     const phone = item.farmerId?.phone || '';
-    return (
+    
+    const matchesSearch = (
       name.toLowerCase().includes(searchText.toLowerCase()) || 
       journal.toLowerCase().includes(searchText.toLowerCase()) ||
       phone.includes(searchText)
     );
+    
+    const matchesJournal = filterJournal ? journal === filterJournal : true;
+    
+    return matchesSearch && matchesJournal;
   });
 
   return (
@@ -194,18 +197,35 @@ const HtxJournalApproval = () => {
         </div>
       </div>
 
-      <Card className="rounded-2xl border-0 shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
-        <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+      <Card className="rounded-2xl border-gray-100 shadow-sm mb-4" bodyStyle={{ padding: '16px' }}>
+        <Space size="middle" wrap className="w-full">
           <Input 
-            placeholder="Tìm theo tên nông dân hoặc tên sổ..."
+            placeholder="Tìm theo tên nông dân, SĐT..."
             prefix={<SearchOutlined className="text-gray-400" />}
             onChange={e => setSearchText(e.target.value)}
             className="w-80 h-10 rounded-xl"
             allowClear
           />
-          <Text className="text-xs text-gray-400 italic">Có <Text strong className="text-orange-500">{filteredData.length}</Text> yêu cầu đang chờ xử lý</Text>
-        </div>
-        
+          <Select
+            placeholder="Lọc theo sổ nhật ký"
+            allowClear
+            showSearch
+            optionFilterProp="children"
+            style={{ width: 280 }}
+            onChange={setFilterJournal}
+            className="h-10"
+          >
+            {[...new Set(pendingFarmers.map(f => f.journalName))].map(name => (
+              <Option key={name} value={name}>{name}</Option>
+            ))}
+          </Select>
+          <Text className="text-gray-400 text-xs italic ml-auto">
+            Tìm thấy <Text strong className="text-orange-500">{filteredData.length}</Text> kết quả
+          </Text>
+        </Space>
+      </Card>
+
+      <Card className="rounded-2xl border-0 shadow-sm overflow-hidden" bodyStyle={{ padding: 0 }}>
         <Table 
           columns={columns}
           dataSource={filteredData}
@@ -224,7 +244,7 @@ const HtxJournalApproval = () => {
         />
       </Card>
 
-      {/* Preview Drawer / Modal */}
+      {/* Preview Modal */}
       <Modal
         title={<div className="flex items-center gap-2"><FileTextOutlined className="text-green-600" /><Text strong className="text-lg">Nội Dung Nhật Ký Chi Tiết</Text></div>}
         open={isPreviewVisible}
