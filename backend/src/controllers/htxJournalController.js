@@ -348,6 +348,34 @@ const authorizeBrand = async (req, res) => {
   }
 };
 
+const removeFarmerFromHtx = async (req, res) => {
+  try {
+    const { farmerId } = req.params;
+    const htxId = req.user._id;
+
+    // 1. Cập nhật User để bỏ htxId
+    const user = await User.findById(farmerId);
+    if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy nông dân.' });
+
+    if (user.htxId?.toString() !== htxId.toString() && req.user.role !== 'Admin') {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền gỡ nông dân này.' });
+    }
+
+    user.htxId = null;
+    await user.save();
+
+    // 2. Gỡ khỏi các HtxJournal của HTX này
+    await HtxJournal.updateMany(
+      { htxId: htxId },
+      { $pull: { farmers: { farmerId: farmerId } } }
+    );
+
+    res.json({ success: true, message: 'Đã gỡ nông dân khỏi HTX thành công.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createHtxJournal,
   getHtxJournals,
@@ -356,5 +384,6 @@ module.exports = {
   getMyHtxJournals,
   getFarmersForHtx,
   getHtxJournalSummary,
-  authorizeBrand
+  authorizeBrand,
+  removeFarmerFromHtx
 };

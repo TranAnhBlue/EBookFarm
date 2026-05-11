@@ -8,7 +8,8 @@ const {
   getMyHtxJournals,
   getFarmersForHtx,
   getHtxJournalSummary,
-  authorizeBrand
+  authorizeBrand,
+  removeFarmerFromHtx
 } = require('../controllers/htxJournalController');
 const { protect, admin, htx } = require('../middlewares/authMiddleware');
 
@@ -27,6 +28,9 @@ router.route('/')
 
 router.route('/farmers')
   .get(protect, htxOrAdmin, getFarmersForHtx);
+
+router.route('/farmers/:farmerId')
+  .delete(protect, htxOrAdmin, removeFarmerFromHtx);
 
 router.route('/my-journals')
   .get(protect, getMyHtxJournals); // Any authenticated user (Farmers) can call this

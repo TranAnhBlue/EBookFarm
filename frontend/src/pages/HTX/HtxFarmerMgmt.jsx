@@ -17,9 +17,10 @@ import {
   EyeOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  HistoryOutlined
 } from '@ant-design/icons';
-import { Modal, List, Divider, Empty } from 'antd';
+import { Modal, List, Divider, Empty, Descriptions } from 'antd';
 import api from '../../services/api';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import dayjs from 'dayjs';
@@ -35,6 +36,8 @@ const HtxFarmerMgmt = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isCertModalVisible, setIsCertModalVisible] = useState(false);
+  const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
+  const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [certLoading, setCertLoading] = useState(false);
 
@@ -201,8 +204,86 @@ const HtxFarmerMgmt = () => {
       key: 'status',
       align: 'center',
       render: () => <Tag color="green" icon={<CheckCircleOutlined />} className="rounded-full px-3">Đang hoạt động</Tag>
+    },
+    {
+      title: 'HÀNH ĐỘNG',
+      key: 'actions',
+      align: 'center',
+      fixed: 'right',
+      width: 120,
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip title="Xem chi tiết hồ sơ">
+            <Button 
+              size="small" 
+              icon={<UserOutlined />} 
+              onClick={() => {
+                setSelectedFarmer(record);
+                setIsProfileModalVisible(true);
+              }}
+              className="rounded-lg text-green-600 border-green-100 bg-green-50 hover:bg-green-100"
+            />
+          </Tooltip>
+          <Tooltip title="Lịch sử nhật ký">
+            <Button 
+              size="small" 
+              icon={<HistoryOutlined />} 
+              onClick={() => {
+                setSelectedFarmer(record);
+                setIsHistoryModalVisible(true);
+              }}
+              className="rounded-lg text-blue-600 border-blue-100 bg-blue-50 hover:bg-blue-100"
+            />
+          </Tooltip>
+          <Tooltip title="Gán vào sổ mới">
+            <Button 
+              size="small" 
+              type="primary"
+              icon={<DeploymentUnitOutlined />} 
+              onClick={() => {
+                // Điều hướng sang trang quản lý sổ với ID nông dân được chọn
+                message.info('Tính năng gán nhanh đang được phát triển...');
+              }}
+              className="rounded-lg bg-orange-500 border-0 shadow-sm"
+            />
+          </Tooltip>
+          <Tooltip title="Gỡ khỏi HTX">
+            <Button 
+              size="small" 
+              danger
+              icon={<CloseCircleOutlined />} 
+              onClick={() => handleDeleteFarmer(record)}
+              className="rounded-lg"
+            />
+          </Tooltip>
+        </Space>
+      )
     }
   ];
+
+  const handleDeleteFarmer = (farmer) => {
+    Modal.confirm({
+      title: 'Xác nhận gỡ nông dân',
+      icon: <ExclamationCircleOutlined className="text-red-500" />,
+      content: `Bạn có chắc muốn gỡ nông dân "${farmer.fullname || farmer.username}" khỏi HTX? Họ sẽ không còn xuất hiện trong các sổ nhật ký của HTX này.`,
+      okText: 'Gỡ ngay',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      centered: true,
+      maskClosable: true,
+      onOk: async () => {
+        try {
+          const res = await api.delete(`/htx/journals/farmers/${farmer._id}`);
+          if (res.data.success) {
+            message.success('Đã gỡ nông dân khỏi HTX');
+            fetchFarmers(); // Load lại danh sách
+          }
+        } catch (error) {
+          message.error(error.response?.data?.message || 'Lỗi khi gỡ nông dân');
+        }
+      }
+    });
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
@@ -415,8 +496,95 @@ const HtxFarmerMgmt = () => {
           />
         </div>
       </Modal>
+      {/* Profile Detail Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <UserOutlined className="text-green-600" />
+            <Text strong>Hồ Sơ Chi Tiết Nông Dân</Text>
+          </div>
+        }
+        open={isProfileModalVisible}
+        onCancel={() => setIsProfileModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsProfileModalVisible(false)} className="rounded-lg">Đóng</Button>
+        ]}
+        width={800}
+        centered
+        className="premium-modal"
+      >
+        {selectedFarmer && (
+          <div className="py-4">
+            <div className="flex items-center gap-6 mb-8 bg-green-50/50 p-6 rounded-3xl border border-green-100">
+              <Avatar size={100} src={getAvatarUrl(selectedFarmer.avatar)} className="border-4 border-white shadow-md">
+                {!selectedFarmer.avatar && getInitialAvatar(selectedFarmer.fullname || selectedFarmer.username)}
+              </Avatar>
+              <div className="flex flex-col gap-1">
+                <Title level={3} className="!mb-0">{selectedFarmer.fullname || selectedFarmer.username}</Title>
+                <Space>
+                   <Tag color="green" className="rounded-full border-0 font-bold">NÔNG DÂN HTX</Tag>
+                   <Text type="secondary" className="text-xs">ID: {selectedFarmer._id}</Text>
+                </Space>
+                <div className="flex items-center gap-4 mt-2">
+                   <div className="flex items-center gap-1 text-gray-500 text-xs">
+                      <ClockCircleOutlined /> Tham gia từ: {dayjs(selectedFarmer.createdAt).format('DD/MM/YYYY')}
+                   </div>
+                   <div className="flex items-center gap-1 text-gray-500 text-xs">
+                      <DeploymentUnitOutlined /> Loại hình: {selectedFarmer.farmType || 'Chưa cập nhật'}
+                   </div>
+                </div>
+              </div>
+            </div>
+
+            <Descriptions bordered column={2} className="premium-descriptions" size="middle">
+              <Descriptions.Item label={<Space><PhoneOutlined className="text-green-500"/>Số điện thoại</Space>} span={1}>
+                <Text strong>{selectedFarmer.phone || 'Chưa cập nhật'}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={<Space><EnvironmentOutlined className="text-blue-500"/>Email</Space>} span={1}>
+                {selectedFarmer.email}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Space><HomeOutlined className="text-orange-500"/>Địa chỉ</Space>} span={2}>
+                {selectedFarmer.address || 'Chưa có địa chỉ'}
+              </Descriptions.Item>
+              
+              <Descriptions.Item label={<Space><BoxPlotOutlined className="text-purple-500"/>Tên nông trại</Space>} span={1}>
+                <Text strong className="text-green-700">{selectedFarmer.farmName || 'Chưa đặt tên'}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={<Space><AreaChartOutlined className="text-pink-500"/>Diện tích</Space>} span={1}>
+                <Text strong>{selectedFarmer.farmArea?.toLocaleString() || 0} m²</Text>
+              </Descriptions.Item>
+              
+              <Descriptions.Item label={<Space><SafetyCertificateOutlined className="text-gold-500"/>Số chứng nhận</Space>} span={2}>
+                <Space wrap>
+                   {selectedFarmer.certifications?.length > 0 ? selectedFarmer.certifications.map((c, i) => (
+                     <Tag key={i} color={c.status === 'Approved' ? 'success' : 'default'} className="rounded-full border-0 px-3">
+                        {c.name} {c.code && `(${c.code})`}
+                     </Tag>
+                   )) : <Text italic type="secondary" className="text-xs">Chưa có chứng nhận nào</Text>}
+                </Space>
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
+      </Modal>
+
+      {/* History Modal (Placeholder) */}
+      <Modal
+        title="Lịch Sử Sản Xuất"
+        open={isHistoryModalVisible}
+        onCancel={() => setIsHistoryModalVisible(false)}
+        footer={null}
+        width={600}
+        centered
+      >
+        <div className="py-8 flex flex-col items-center justify-center text-center">
+           <HistoryOutlined className="text-5xl text-gray-200 mb-4" />
+           <Text className="text-gray-400">Tính năng đang được tổng hợp dữ liệu từ các sổ nhật ký...</Text>
+        </div>
+      </Modal>
     </div>
   );
 };
 
 export default HtxFarmerMgmt;
+
