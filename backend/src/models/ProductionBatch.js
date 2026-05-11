@@ -86,7 +86,6 @@ const productionBatchSchema = new mongoose.Schema({
 
 productionBatchSchema.index({ batchCode: 1 });
 productionBatchSchema.index({ productId: 1 });
-productionBatchSchema.index({ traceId: 1 });
 productionBatchSchema.index({ portalSyncStatus: 1 });
 
 const ProductionBatch = mongoose.model('ProductionBatch', productionBatchSchema);

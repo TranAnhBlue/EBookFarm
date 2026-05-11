@@ -55,7 +55,6 @@ const productSchema = new mongoose.Schema({
   
 }, { timestamps: true });
 
-productSchema.index({ gtin: 1 });
 productSchema.index({ manufacturerId: 1 });
 
 const Product = mongoose.model('Product', productSchema);
