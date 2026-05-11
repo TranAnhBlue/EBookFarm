@@ -34,23 +34,8 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email hoặc Số điện thoại (Tên tài khoản) đã tồn tại' });
     }
 
-    // Kiểm tra OTP (Bỏ qua nếu đã xác thực qua Firebase ở Frontend)
-    if (!isPhoneVerified) {
-      if (!otp) {
-        return res.status(400).json({ success: false, message: 'Vui lòng nhập mã OTP xác thực.' });
-      }
-
-      const otpRecord = await Otp.findOne({ phone, otp, type: 'REGISTER' });
-      if (!otpRecord) {
-        return res.status(400).json({ success: false, message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
-      }
-      
-      // Xóa OTP sau khi dùng
-      await Otp.deleteOne({ _id: otpRecord._id });
-    } else {
-      // GHI CHÚ: Trong thực tế, nên gửi Firebase ID Token lên đây và dùng firebase-admin để verify
-      console.log(`[AUTH] User verified via Firebase: ${phone}`);
-    }
+    // Đăng ký trực tiếp, không check OTP
+    console.log(`[AUTH] Registering user with phone: ${phone}`);
 
     const user = await User.create({
       username: phone || username || email.split('@')[0], 

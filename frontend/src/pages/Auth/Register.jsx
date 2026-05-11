@@ -1,314 +1,142 @@
 import React from 'react';
-import { Form, Input, Button, message, Typography, Row, Col } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, RocketFilled, SafetyCertificateFilled } from '@ant-design/icons';
+import { Form, Input, Button, Card, Typography, message, Space, Divider } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase';
 import logo from '../../assets/logo-ebookfarm.jpg';
 
 const { Title, Text, Paragraph } = Typography;
 
 const Register = () => {
   const navigate = useNavigate();
-  const setCredentials = useAuthStore((state) => state.setCredentials);
+  const { setCredentials } = useAuthStore();
   const [loading, setLoading] = React.useState(false);
-  const [otpLoading, setOtpLoading] = React.useState(false);
-  const [countdown, setCountdown] = React.useState(0);
-  const [confirmationResult, setConfirmationResult] = React.useState(null);
   const [form] = Form.useForm();
-
-  React.useEffect(() => {
-    // Khởi tạo Recaptcha ẩn
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        }
-      });
-    }
-  }, []);
-
-  React.useEffect(() => {
-    let timer;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  const sendOtp = async () => {
-    try {
-      const phone = form.getFieldValue('phone');
-      if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
-        return message.error('Vui lòng nhập số điện thoại hợp lệ!');
-      }
-
-      setOtpLoading(true);
-      
-      // Chuẩn hóa số điện thoại sang định dạng quốc tế (+84)
-      const formattedPhone = phone.startsWith('0') ? '+84' + phone.substring(1) : phone;
-      
-      const appVerifier = window.recaptchaVerifier;
-      const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-      
-      setConfirmationResult(result);
-      message.success('Mã OTP đã được gửi qua SMS!');
-      setCountdown(60);
-    } catch (error) {
-      console.warn('Firebase SMS failed, using internal fallback:', error.code);
-      
-      try {
-        message.info('Đang sử dụng hệ thống xác thực nội bộ...');
-        const phone = form.getFieldValue('phone');
-        await api.post('/auth/send-otp', { phone, type: 'REGISTER' });
-        message.success('Mã OTP đã được gửi! Hãy kiểm tra Console của Server.');
-        setCountdown(60);
-        setConfirmationResult('INTERNAL_OTP');
-      } catch (innerError) {
-        message.error('Không thể gửi mã OTP qua cả hai hệ thống.');
-      }
-
-      if (window.recaptchaVerifier) {
-          window.recaptchaVerifier.render().then(widgetId => {
-              window.grecaptcha.reset(widgetId);
-          });
-      }
-    } finally {
-      setOtpLoading(false);
-    }
-  };
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
-
-      // 1. Xác thực OTP với Firebase
-      if (!confirmationResult) {
-        return message.error('Vui lòng nhận mã OTP trước!');
-      }
-
-      try {
-        await confirmationResult.confirm(values.otp);
-      } catch (otpError) {
-        return message.error('Mã OTP không chính xác hoặc đã hết hạn.');
-      }
-
-      // 2. Nếu OTP đúng, tiến hành đăng ký ở Backend
       const { data } = await api.post('/auth/register', {
           ...values,
-          role: 'Farmer',
-          isPhoneVerified: true // Báo cho backend biết là đã xác thực xong
+          role: 'Farmer' // Vai trò mặc định cho đăng ký công khai
       });
       
       setCredentials(data.data, data.data.token);
       message.success('Tài khoản đã được tạo thành công!');
       navigate('/dashboard');
     } catch (error) {
-      message.error(error.response?.data?.message || 'Đăng ký thất bại.');
+      message.error(error.response?.data?.message || 'Đăng ký thất bại. Email hoặc Số điện thoại có thể đã tồn tại.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-6 bg-slate-50">
-      {/* Dynamic Background */}
-      <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-emerald-100/50 rounded-full blur-[120px] animate-pulse"></div>
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-green-100/40 rounded-full blur-[100px]"></div>
-      
-      <div className="w-full max-w-[1000px] flex flex-col md:flex-row-reverse bg-white/70 backdrop-blur-2xl rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden border border-white relative z-10 animate-in fade-in zoom-in duration-700">
-        
-        {/* Side Banner: Benefits */}
-        <div className="hidden md:flex md:w-5/12 bg-emerald-600 p-12 flex-col justify-between relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-green-800"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-20 -mb-20 blur-3xl"></div>
-            
-            <div className="relative z-10">
-                <Title level={1} className="!text-white !font-black !text-4xl !mb-8 leading-tight">
-                    Bắt đầu hành trình nông nghiệp số
-                </Title>
-                
-                <div className="space-y-8">
-                    <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                            <RocketFilled className="text-white text-lg" />
-                        </div>
-                        <div>
-                            <Text className="text-white font-bold block mb-1">Thiết lập nhanh</Text>
-                            <Text className="text-emerald-50/60 text-xs">Chỉ mất 2 phút để bắt đầu quản lý nông trại đầu tiên của bạn.</Text>
-                        </div>
-                    </div>
-                    <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                            <SafetyCertificateFilled className="text-white text-lg" />
-                        </div>
-                        <div>
-                            <Text className="text-white font-bold block mb-1">Chuẩn TCVN/VietGAP</Text>
-                            <Text className="text-emerald-50/60 text-xs">Phần mềm tuân thủ nghiêm ngặt các tiêu chuẩn nông nghiệp sạch.</Text>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-green-200/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-green-300/10 rounded-full blur-[120px] pointer-events-none" />
 
-            <div className="relative z-10 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
-                <Text className="text-white/80 text-xs font-medium italic">
-                    "EBookFarm giúp chúng tôi chuyên nghiệp hóa quy trình sản xuất và nâng cao giá trị thương phẩm."
-                </Text>
+      <Card className="w-full max-w-[480px] border-0 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden relative z-10">
+        <div className="p-8 sm:p-12">
+          <div className="text-center mb-10">
+            <div className="inline-block p-4 bg-green-50 rounded-[24px] mb-6 animate-bounce-subtle">
+              <img src={logo} alt="EBookFarm" className="h-12 w-12 object-contain" />
             </div>
-        </div>
+            <Title level={2} className="!mb-2 !font-bold text-gray-800">Đăng ký Farmer</Title>
+            <Paragraph className="text-gray-400 mb-0">Hợp tác cùng EBookFarm - Chuyển đổi số nông nghiệp</Paragraph>
+          </div>
 
-        {/* Form Content */}
-        <div className="w-full md:w-7/12 p-5 sm:p-10 md:p-16 flex flex-col justify-center bg-white/40">
-            <div className="mb-4 md:mb-8">
-                <Link to="/" className="hidden md:flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity cursor-pointer">
-                    <div className="w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-gray-100 p-2">
-                        <img src={logo} alt="Logo" className="w-full h-full object-contain" />
-                    </div>
-                    <Text className="font-black text-2xl text-gray-800 tracking-tighter uppercase">EBookFarm</Text>
-                </Link>
-                {/* Mobile Logo */}
-                <div className="block md:hidden mb-4">
-                    <Link to="/">
-                        <img src={logo} alt="Logo" className="h-8 w-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" />
-                    </Link>
-                </div>
-                <Title level={3} className="!font-black !text-gray-800 !mb-1 md:!text-3xl">Tạo tài khoản</Title>
-                <Text className="text-gray-400 font-medium text-xs md:text-sm">Bắt đầu miễn phí ngay hôm nay</Text>
-            </div>
-
-            <Form
-                form={form}
-                name="register"
-                layout="vertical"
-                size="large"
-                onFinish={onFinish}
-                className="premium-form"
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            autoComplete="off"
+            requiredMark={false}
+          >
+            <Form.Item
+              name="fullname"
+              label={<Text className="text-xs font-bold uppercase tracking-wider text-gray-400">Họ và tên</Text>}
+              rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
             >
-                <Row gutter={[12, 0]}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="fullname"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Họ và tên chủ sở hữu</span>}
-                            rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
-                            className="mb-3 md:mb-6"
-                        >
-                            <Input 
-                                placeholder="Nguyễn Văn A" 
-                                className="rounded-xl h-11 md:h-14 border-gray-100 hover:border-emerald-400 focus:border-emerald-500 transition-all font-medium text-sm md:text-base"
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            name="phone"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Số điện thoại (Tên tài khoản)</span>}
-                            rules={[
-                                { required: true, message: 'Số điện thoại là bắt buộc!' },
-                                { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
-                            ]}
-                            className="mb-3 md:mb-6"
-                        >
-                            <Space.Compact className="w-full">
-                                <Input 
-                                    prefix={<UserOutlined className="text-gray-300" />} 
-                                    placeholder="09xxxxxxxx" 
-                                    className="rounded-l-xl h-11 md:h-14 border-gray-100 text-sm md:text-base flex-1"
-                                />
-                                <Button 
-                                    type="primary"
-                                    onClick={sendOtp}
-                                    disabled={countdown > 0}
-                                    loading={otpLoading}
-                                    className="h-11 md:h-14 rounded-r-xl bg-emerald-600 hover:bg-emerald-700 font-bold px-4"
-                                >
-                                    {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
-                                </Button>
-                            </Space.Compact>
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            name="otp"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Mã xác thực OTP</span>}
-                            rules={[
-                                { required: true, message: 'Vui lòng nhập mã OTP!' },
-                                { len: 6, message: 'Mã OTP gồm 6 chữ số' }
-                            ]}
-                            className="mb-3 md:mb-6"
-                        >
-                            <Input 
-                                prefix={<SafetyCertificateFilled className="text-gray-300" />} 
-                                placeholder="123456" 
-                                maxLength={6}
-                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item
-                            name="email"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Địa chỉ Email</span>}
-                            rules={[
-                                { required: true, message: 'Email là bắt buộc!' },
-                                { type: 'email', message: 'Email không hợp lệ!' }
-                            ]}
-                            className="mb-3 md:mb-6"
-                        >
-                            <Input 
-                                prefix={<MailOutlined className="text-gray-300" />} 
-                                placeholder="example@gmail.com" 
-                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                        <Form.Item
-                            name="password"
-                            label={<span className="text-[10px] md:text-[11px] uppercase font-black text-gray-400 tracking-wider">Thiết lập mật khẩu</span>}
-                            rules={[
-                                { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                                { min: 6, message: 'Mật khẩu phải từ 6 ký tự' }
-                            ]}
-                            className="mb-4 md:mb-8"
-                        >
-                            <Input.Password 
-                                prefix={<LockOutlined className="text-gray-300" />} 
-                                placeholder="••••••••" 
-                                className="rounded-xl h-11 md:h-14 border-gray-100 text-sm md:text-base"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
+              <Input 
+                prefix={<UserOutlined className="text-gray-300" />} 
+                placeholder="Nguyễn Văn A"
+                className="h-12 rounded-xl bg-gray-50 border-gray-100 hover:border-green-400 focus:border-green-500"
+              />
+            </Form.Item>
 
-                <Form.Item className="mt-2 mb-6 md:mb-8">
-                    <Button 
-                        type="primary" 
-                        htmlType="submit" 
-                        loading={loading}
-                        className="w-full h-11 md:h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-base md:text-lg border-0 shadow-xl shadow-emerald-200"
-                    >
-                        Tạo tài khoản ngay
-                    </Button>
-                </Form.Item>
-            </Form>
+            <Form.Item
+              name="phone"
+              label={<Text className="text-xs font-bold uppercase tracking-wider text-gray-400">Số điện thoại (Tài khoản)</Text>}
+              rules={[
+                { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
+              ]}
+            >
+              <Input 
+                prefix={<PhoneOutlined className="text-gray-300" />} 
+                placeholder="0912345678"
+                className="h-12 rounded-xl bg-gray-50 border-gray-100"
+              />
+            </Form.Item>
 
-            <div className="text-center">
-                <Text className="text-gray-400 font-medium text-xs sm:text-sm">Bạn đã có tài khoản? </Text>
-                <Link to="/login" className="text-emerald-600 font-black hover:underline px-1 text-xs sm:text-sm">
-                    Đăng nhập tại đây
-                </Link>
-            </div>
+            <Form.Item
+              name="email"
+              label={<Text className="text-xs font-bold uppercase tracking-wider text-gray-400">Địa chỉ Email</Text>}
+              rules={[
+                { type: 'email', message: 'Email không hợp lệ!' }
+              ]}
+            >
+              <Input 
+                prefix={<MailOutlined className="text-gray-300" />} 
+                placeholder="example@gmail.com"
+                className="h-12 rounded-xl bg-gray-50 border-gray-100"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label={<Text className="text-xs font-bold uppercase tracking-wider text-gray-400">Mật khẩu</Text>}
+              rules={[
+                { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                { min: 6, message: 'Mật khẩu phải từ 6 ký tự!' }
+              ]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined className="text-gray-300" />} 
+                placeholder="••••••••"
+                className="h-12 rounded-xl bg-gray-50 border-gray-100"
+              />
+            </Form.Item>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={loading}
+              className="h-14 mt-4 bg-green-600 hover:bg-green-700 border-0 rounded-2xl text-lg font-bold shadow-[0_10px_20px_rgba(22,163,74,0.2)]"
+            >
+              Tạo tài khoản Farmer
+            </Button>
+          </Form>
+
+          <Divider className="my-8"><Text className="text-gray-300 text-xs uppercase tracking-widest">Đã có tài khoản?</Text></Divider>
+
+          <div className="text-center">
+            <Link to="/login">
+              <Button type="link" icon={<ArrowLeftOutlined />} className="text-green-600 font-bold hover:text-green-700">
+                Quay lại Đăng nhập
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
+      </Card>
 
       <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-bold tracking-[3px] text-gray-400/50 pointer-events-none">
         Digital Agriculture Transformation Initiative
       </div>
-      
-      {/* Container cho Recaptcha của Firebase */}
-      <div id="recaptcha-container"></div>
     </div>
   );
 };

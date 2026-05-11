@@ -5,7 +5,6 @@ import { useAuthStore } from '../../store/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import dayjs from 'dayjs';
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase';
 import { getProvinces, getWardsByProvince } from '../../services/locationService';
 import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
@@ -111,132 +110,6 @@ const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading 
     );
 };
 
-const ChangePhoneModal = ({ visible, onCancel, onVerify, loading }) => {
-    const [form] = Form.useForm();
-    const [countdown, setCountdown] = useState(0);
-    const [otpLoading, setOtpLoading] = useState(false);
-    const [confirmationResult, setConfirmationResult] = useState(null);
-
-    useEffect(() => {
-        if (visible && !window.recaptchaVerifierProfile) {
-            window.recaptchaVerifierProfile = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
-                'size': 'invisible'
-            });
-        }
-    }, [visible]);
-
-    useEffect(() => {
-        let timer;
-        if (countdown > 0) {
-            timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-        }
-        return () => clearTimeout(timer);
-    }, [countdown]);
-
-    const sendOtp = async () => {
-        try {
-            const phone = form.getFieldValue('phone');
-            if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
-                return message.error('Vui lòng nhập số điện thoại hợp lệ!');
-            }
-
-            setOtpLoading(true);
-            const formattedPhone = phone.startsWith('0') ? '+84' + phone.substring(1) : phone;
-            const appVerifier = window.recaptchaVerifierProfile;
-            const result = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-
-            setConfirmationResult(result);
-            message.success('Mã OTP đã được gửi qua SMS!');
-            setCountdown(60);
-        } catch (error) {
-            console.warn('Firebase SMS failed, using internal fallback:', error.code);
-            
-            try {
-                message.info('Sử dụng hệ thống xác thực nội bộ...');
-                const phone = form.getFieldValue('phone');
-                await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' });
-                message.success('Mã OTP đã được gửi! Kiểm tra Console Server.');
-                setCountdown(60);
-                setConfirmationResult('INTERNAL_OTP');
-            } catch (innerError) {
-                message.error('Lỗi gửi OTP nội bộ.');
-            }
-
-            if (window.recaptchaVerifierProfile) {
-                window.recaptchaVerifierProfile.render().then(widgetId => {
-                    window.grecaptcha.reset(widgetId);
-                });
-            }
-        } finally {
-            setOtpLoading(false);
-        }
-    };
-
-    const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            if (!confirmationResult) {
-                return message.error('Vui lòng nhận mã OTP trước!');
-            }
-
-            setOtpLoading(true);
-
-            if (confirmationResult === 'INTERNAL_OTP') {
-                // Backend sẽ check OTP
-                onVerify({ ...values, isFirebaseVerified: false });
-            } else {
-                await confirmationResult.confirm(values.otp);
-                onVerify({ ...values, isFirebaseVerified: true });
-            }
-        } catch (error) {
-            message.error('Mã OTP không chính xác hoặc đã hết hạn.');
-        } finally {
-            setOtpLoading(false);
-        }
-    };
-
-    return (
-        <>
-            <Modal
-                title="Thay đổi số điện thoại"
-                open={visible}
-                onCancel={onCancel}
-                onOk={handleOk}
-                confirmLoading={loading || otpLoading}
-                centered
-            >
-                <Form form={form} layout="vertical">
-                    <Form.Item
-                        name="phone"
-                        label="Số điện thoại mới"
-                        rules={[{ required: true }, { pattern: /^[0-9]{10,11}$/, message: 'SĐT không hợp lệ' }]}
-                    >
-                        <Space.Compact className="w-full">
-                            <Input placeholder="Nhập số điện thoại mới" />
-                            <Button
-                                type="primary"
-                                onClick={sendOtp}
-                                disabled={countdown > 0}
-                                loading={otpLoading}
-                            >
-                                {countdown > 0 ? `${countdown}s` : 'Gửi mã'}
-                            </Button>
-                        </Space.Compact>
-                    </Form.Item>
-                    <Form.Item
-                        name="otp"
-                        label="Mã OTP"
-                        rules={[{ required: true, len: 6, message: 'Mã OTP gồm 6 chữ số' }]}
-                    >
-                        <Input placeholder="Nhập mã 6 chữ số" maxLength={6} />
-                    </Form.Item>
-                </Form>
-            </Modal>
-            <div id="recaptcha-container-profile"></div>
-        </>
-    );
-};
-
 const AccountInfo = () => {
     const { user, setUser } = useAuthStore();
     const queryClient = useQueryClient();
@@ -252,7 +125,6 @@ const AccountInfo = () => {
     const [isCertModalVisible, setIsCertModalVisible] = useState(false);
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
-    const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -316,7 +188,6 @@ const AccountInfo = () => {
         onSuccess: (res) => {
             setUser(res.data.data);
             message.success('Cập nhật hồ sơ thành công!');
-            setIsPhoneModalVisible(false);
             queryClient.invalidateQueries(['users']);
         },
         onError: (err) => message.error(err.message || err.response?.data?.message || 'Có lỗi xảy ra!')
@@ -370,9 +241,9 @@ const AccountInfo = () => {
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
                         <Text type="secondary" className="text-xs uppercase font-bold text-green-600 tracking-widest">{user?.role}</Text>
-
+                        
                         {user?.bio && <Text className="text-sm text-gray-500 block mt-3 px-4">{user.bio}</Text>}
-
+                        
                         <Divider className="my-6" />
                         <div className="space-y-4 text-left px-2 text-sm">
                             <div className="flex items-center gap-3"><UserOutlined className="text-gray-400" /> <div className="flex-1 min-w-0"><Text type="secondary" className="text-[10px] uppercase font-bold block">Username</Text><Text strong>@{user?.username}</Text></div></div>
@@ -398,11 +269,8 @@ const AccountInfo = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item name="phone" label="Số điện thoại">
-                                        <Space.Compact className="w-full">
-                                            <Input disabled className="h-11 bg-gray-50" prefix={<PhoneOutlined className="text-gray-300" />} />
-                                            <Button icon={<EditOutlined />} onClick={() => setIsPhoneModalVisible(true)} className="h-11">Sửa</Button>
-                                        </Space.Compact>
+                                    <Form.Item name="phone" label="Số điện thoại (Cố định)">
+                                        <Input disabled className="h-11 rounded-lg bg-gray-50" prefix={<PhoneOutlined className="text-gray-300" />} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -507,7 +375,7 @@ const AccountInfo = () => {
                 </Col>
             </Row>
 
-            <CertificationModal
+            <CertificationModal 
                 visible={isCertModalVisible}
                 onCancel={() => setIsCertModalVisible(false)}
                 initialValues={editingCert}
@@ -519,13 +387,6 @@ const AccountInfo = () => {
                     setIsCertModalVisible(false);
                     updateMutation.mutate({ ...form.getFieldsValue(), certifications: updatedCerts });
                 }}
-            />
-
-            <ChangePhoneModal
-                visible={isPhoneModalVisible}
-                onCancel={() => setIsPhoneModalVisible(false)}
-                loading={updateMutation.isLoading}
-                onVerify={(v) => updateMutation.mutate({ ...form.getFieldsValue(), phone: v.phone, isPhoneVerified: true })}
             />
         </div>
     );

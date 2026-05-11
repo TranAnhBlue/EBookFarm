@@ -99,21 +99,6 @@ const updateProfile = async (req, res) => {
       
       // Xử lý đổi số điện thoại
       if (phone && phone !== user.phone) {
-        // Kiểm tra xem đã xác thực qua Firebase chưa, nếu chưa mới check OTP nội bộ
-        const isPhoneVerified = req.body.isPhoneVerified;
-
-        if (!isPhoneVerified) {
-          if (!otp) {
-            return res.status(400).json({ success: false, message: 'Vui lòng nhập mã OTP để xác thực số điện thoại mới.' });
-          }
-          
-          const otpRecord = await Otp.findOne({ phone, otp, type: 'CHANGE_PHONE' });
-          if (!otpRecord) {
-            return res.status(400).json({ success: false, message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
-          }
-          await Otp.deleteOne({ _id: otpRecord._id });
-        }
-
         // Kiểm tra xem số mới có bị trùng không
         const phoneExists = await User.findOne({ phone, _id: { $ne: user._id } });
         if (phoneExists) {
