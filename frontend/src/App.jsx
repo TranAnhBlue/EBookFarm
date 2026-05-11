@@ -26,6 +26,9 @@ import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
 const HtxFarmerMgmt = lazy(() => import('./pages/HTX/HtxFarmerMgmt'));
 const HtxInventoryMgmt = lazy(() => import('./pages/HTX/HtxInventoryMgmt'));
+const HtxProductMgmt = lazy(() => import('./pages/HTX/HtxProductMgmt'));
+const HtxBatchMgmt = lazy(() => import('./pages/HTX/HtxBatchMgmt'));
+const HtxPortalSettings = lazy(() => import('./pages/HTX/HtxPortalSettings'));
 const Reports = lazy(() => import('./pages/Admin/Reports'));
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
@@ -138,6 +141,7 @@ const App = () => {
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password/:token" element={<ResetPassword />} />
                   <Route path="/trace/:qrCode" element={<JournalTrace />} />
+                  <Route path="/trace/batch/:traceId" element={<JournalTrace isBatch />} />
                   <Route path="/403" element={<Forbidden />} />
                   <Route path="/404" element={<NotFound />} />
 
@@ -177,6 +181,9 @@ const App = () => {
                     {/* HTX-only routes */}
                     <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
                     <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
+                    <Route path="htx/products" element={<ProtectedRoute><HtxProductMgmt /></ProtectedRoute>} />
+                    <Route path="htx/batches" element={<ProtectedRoute><HtxBatchMgmt /></ProtectedRoute>} />
+                    <Route path="htx/portal-settings" element={<ProtectedRoute><HtxPortalSettings /></ProtectedRoute>} />
                     <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
 
                     {/* Agriculture Models & Inventory */}

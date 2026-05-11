@@ -24,7 +24,10 @@ import {
   RobotOutlined,
   ThunderboltOutlined,
   DatabaseOutlined,
-  TeamOutlined
+  TeamOutlined,
+  BarcodeOutlined,
+  BoxPlotOutlined,
+  CloudSyncOutlined
 } from '@ant-design/icons';
 import { Leaf, BoxSelect, Droplet, Sprout, Tractor, Fish, ChevronDown, RefreshCcw } from 'lucide-react';
 import logoImg from '../assets/logo-ebookfarm.jpg';
@@ -235,6 +238,16 @@ const MainLayout = () => {
       key: '/htx/journals',
       icon: <SettingOutlined className="text-lg" />,
       label: <span className="font-medium">Quản lý sổ HTX</span>,
+    },
+    {
+      key: 'htx-traceability',
+      icon: <GlobalOutlined className="text-lg" />,
+      label: <span className="font-medium">Truy xuất nguồn gốc</span>,
+      children: [
+        { key: '/htx/products', icon: <BarcodeOutlined />, label: 'Danh mục sản phẩm' },
+        { key: '/htx/batches', icon: <BoxPlotOutlined />, label: 'Quản lý lô & TXNG' },
+        { key: '/htx/portal-settings', icon: <CloudSyncOutlined />, label: 'Cấu hình Cổng QG' },
+      ],
     },
     {
       key: '/inventory',

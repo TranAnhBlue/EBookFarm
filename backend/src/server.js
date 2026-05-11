@@ -137,6 +137,16 @@ try {
 const htxJournalRoutes = require('./routes/htxJournalRoutes.js');
 app.use('/api/htx/journals', htxJournalRoutes);
 
+// === TXNG Quốc Gia ===
+const productRoutes = require('./routes/productRoutes.js');
+app.use('/api/products', productRoutes);
+
+const batchRoutes = require('./routes/batchRoutes.js');
+app.use('/api/batches', batchRoutes);
+
+const portalRoutes = require('./routes/portalRoutes.js');
+app.use('/api/portal', portalRoutes);
+
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
 });

@@ -47,6 +47,17 @@ const userSchema = new mongoose.Schema({
   }],
   organization: { type: String }, // Tổ chức/HTX/Công ty
   
+  // === Thông tin Cổng TXNG Quốc Gia (dành cho role HTX) ===
+  portalCredentials: {
+    enterpriseCode: { type: String },    // Mã doanh nghiệp trên cổng quốc gia
+    apiKey: { type: String },            // API Key được cổng cấp
+    apiSecret: { type: String },         // API Secret (nếu có)
+    portalUsername: { type: String },    // Tài khoản đăng nhập cổng
+    registeredAt: { type: Date },        // Ngày đăng ký
+    isVerified: { type: Boolean, default: false }, // Đã xác thực với cổng chưa
+    lastSyncAt: { type: Date }           // Lần đồng bộ gần nhất
+  },
+  
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, { timestamps: true });

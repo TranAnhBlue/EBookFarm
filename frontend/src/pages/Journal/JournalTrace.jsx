@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Typography, Descriptions, Spin, Tag, Button, Image, Divider, Timeline, Row, Col, Statistic, Space, Modal, message, Tooltip, Avatar } from 'antd';
-import { CheckCircleOutlined, EnvironmentOutlined, CalendarOutlined, UserOutlined, SafetyOutlined, FileTextOutlined, HomeOutlined, QrcodeOutlined, EyeOutlined, ShareAltOutlined, SafetyCertificateOutlined, PictureOutlined, FacebookOutlined, LinkOutlined } from '@ant-design/icons';
+import { 
+  CheckCircleOutlined, EnvironmentOutlined, CalendarOutlined, 
+  UserOutlined, SafetyOutlined, FileTextOutlined, HomeOutlined, 
+  QrcodeOutlined, EyeOutlined, ShareAltOutlined, SafetyCertificateOutlined, 
+  PictureOutlined, FacebookOutlined, LinkOutlined, BoxPlotOutlined
+} from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -9,29 +14,34 @@ import { API_URL, getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 
 const { Title, Text, Paragraph } = Typography;
 
-const JournalTrace = () => {
-  const { qrCode } = useParams();
+const JournalTrace = ({ isBatch }) => {
+  const { qrCode, traceId } = useParams();
+  const id = isBatch ? traceId : qrCode;
+  
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
 
-  const { data: journal, isLoading, isError } = useQuery({
-    queryKey: ['trace', qrCode],
-    queryFn: () => axios.get(`${API_URL}/journals/qr/${qrCode}`).then(res => res.data.data),
+  const { data: traceData, isLoading, isError } = useQuery({
+    queryKey: ['trace', id, isBatch],
+    queryFn: () => {
+      const endpoint = isBatch 
+        ? `${API_URL}/batches/trace/${id}`
+        : `${API_URL}/journals/qr/${id}`;
+      return axios.get(endpoint).then(res => res.data.data);
+    },
   });
 
   // Share functions
   const handleShare = (platform) => {
     const url = window.location.href;
-    const text = `Xem nguồn gốc sản phẩm ${journal?.schemaId?.name} - EBookFarm`;
+    const itemName = isBatch ? traceData?.productId?.name : traceData?.schemaId?.name;
+    const text = `Xem nguồn gốc sản phẩm ${itemName} - EBookFarm`;
 
     let shareUrl = '';
     switch (platform) {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        break;
-      case 'zalo':
-        shareUrl = `https://zalo.me/share?url=${encodeURIComponent(url)}`;
         break;
       case 'copy':
         navigator.clipboard.writeText(url);
@@ -64,19 +74,19 @@ const JournalTrace = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
         <Spin size="large" />
-        <Text className="mt-4 text-gray-600">Đang tải thông tin sản phẩm...</Text>
+        <Text className="mt-4 text-gray-600">Đang tải dữ liệu truy xuất...</Text>
       </div>
     );
   }
 
-  if (isError || !journal) {
+  if (isError || !traceData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-4">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
           <Title level={2} className="text-red-600">Không tìm thấy thông tin</Title>
           <Paragraph className="text-gray-600 mb-6">
-            Mã QR không hợp lệ hoặc sản phẩm chưa được đăng ký trong hệ thống.
+            Mã truy xuất không hợp lệ hoặc sản phẩm chưa được đăng ký trong hệ thống.
           </Paragraph>
           <Link to="/">
             <Button type="primary" size="large" className="bg-green-600">
@@ -88,23 +98,20 @@ const JournalTrace = () => {
     );
   }
 
-  const schema = journal.schemaId;
-  const thongTinChung = journal.entries?.['Thông tin chung'] || {};
+  // Data mapping for Journal
+  const journal = isBatch ? null : traceData;
+  const batch = isBatch ? traceData : null;
 
-  // Lấy danh sách fields của bảng Thông tin chung từ schema
-  const thongTinChungTable = schema?.tables?.find(t => t.tableName === 'Thông tin chung');
-  const thongTinChungFields = thongTinChungTable?.fields || [];
+  const itemName = isBatch ? batch.productId?.name : journal.schemaId?.name;
+  const itemDesc = isBatch ? batch.productId?.description : journal.schemaId?.description;
+  const traceCode = isBatch ? batch.traceId : journal.qrCode;
 
-  // Hàm hỗ trợ tìm data động thông qua label của schema thay vì tên biến
+  // Helpers for Journal only
   const getDynamicFieldByLabel = (fields, data, possibleLabels) => {
     if (!fields || !data) return null;
-    
-    // Tìm field có label khớp với từ khóa
     for (const field of fields) {
       if (!field.label) continue;
-      
       const labelLower = field.label.toLowerCase();
-      // Khớp chính xác hoặc gần đúng
       if (possibleLabels.some(kw => labelLower === kw.toLowerCase() || labelLower.includes(kw.toLowerCase()))) {
         return data[field.name];
       }
@@ -112,22 +119,14 @@ const JournalTrace = () => {
     return null;
   };
 
-  const tenCoSo = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['tên cơ sở', 'họ tên chủ hộ', 'chủ hộ', 'tên nông trại', 'người đại diện']);
-  const diaChi = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['địa chỉ', 'vị trí', 'nơi sản xuất']);
-
-  // Get status info
-  const getStatusInfo = (status) => {
-    const statusMap = {
-      'Draft': { color: 'default', text: 'Đang cập nhật', icon: '📝' },
-      'Submitted': { color: 'processing', text: 'Đã gửi', icon: '📤' },
-      'Verified': { color: 'success', text: 'Đã xác minh', icon: '✅' },
-      'Completed': { color: 'success', text: 'Hoàn thành', icon: '✅' },
-      'Locked': { color: 'error', text: 'Đã khóa', icon: '🔒' },
-    };
-    return statusMap[status] || statusMap['Draft'];
-  };
-
-  const statusInfo = getStatusInfo(journal.status);
+  let tenCoSo = '';
+  let diaChi = '';
+  if (!isBatch) {
+    const thongTinChung = journal.entries?.['Thông tin chung'] || {};
+    const thongTinChungFields = journal.schemaId?.tables?.find(t => t.tableName === 'Thông tin chung')?.fields || [];
+    tenCoSo = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['tên cơ sở', 'họ tên chủ hộ', 'chủ hộ', 'tên nông trại', 'người đại diện']);
+    diaChi = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['địa chỉ', 'vị trí', 'nơi sản xuất']);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
@@ -135,490 +134,301 @@ const JournalTrace = () => {
       <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-12 px-4 shadow-xl">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-white p-3 rounded-full mr-4">
+            <div className="bg-white p-3 rounded-full mr-4 shadow-lg">
               <CheckCircleOutlined className="text-4xl text-green-600" />
             </div>
             <div>
-              <Title level={1} className="!text-white !mb-0">Truy xuất nguồn gốc</Title>
-              <Text className="text-green-100 text-lg">Sản phẩm nông nghiệp an toàn - Minh bạch - Uy tín</Text>
+              <Title level={1} className="!text-white !mb-0 text-3xl md:text-4xl">Truy xuất nguồn gốc</Title>
+              <Text className="text-green-100 text-lg">Sản phẩm nông nghiệp Minh bạch - Uy tín</Text>
             </div>
           </div>
 
           <div className="text-center mt-6">
-            <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border-2 border-white/30">
+            <div className="inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border-2 border-white/30 shadow-inner">
               <QrcodeOutlined className="mr-2" />
-              <Text className="text-white font-mono font-bold">ID: {journal.qrCode?.substring(0, 8).toUpperCase()}</Text>
+              <Text className="text-white font-mono font-bold tracking-widest uppercase">ID: {traceCode?.substring(0, 12)}</Text>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Product Info Card */}
-        <Card className="mb-6 shadow-lg rounded-2xl overflow-hidden border-0">
-          <Row gutter={[24, 24]}>
+        {/* Main Info Card */}
+        <Card className="mb-6 shadow-xl rounded-3xl overflow-hidden border-0 bg-white/80 backdrop-blur-sm">
+          <Row gutter={[32, 32]}>
             <Col xs={24} md={16}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="bg-green-100 p-4 rounded-xl">
-                  <FileTextOutlined className="text-3xl text-green-600" />
+              <div className="flex items-start gap-4 mb-6">
+                <div className="bg-green-50 p-5 rounded-2xl border border-green-100 shadow-sm">
+                  {isBatch ? <BoxPlotOutlined className="text-4xl text-green-600" /> : <FileTextOutlined className="text-4xl text-green-600" />}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Title level={2} className="!mb-0">{schema.name}</Title>
-                    {journal.brandAuthorized && (
-                      <Tooltip title={`Sản phẩm đã được ${journal.htxJournalId?.htxId?.fullname || 'HTX'} kiểm duyệt và bảo chứng thương hiệu`}>
-                        <Tag color="gold" icon={<SafetyCertificateOutlined />} className="rounded-full px-3 py-1 font-bold border-0 shadow-sm ml-2">
-                          Bảo chứng HTX
-                        </Tag>
-                      </Tooltip>
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <Title level={2} className="!mb-0 text-2xl md:text-3xl text-gray-800">{itemName}</Title>
+                    {isBatch ? (
+                      <Tag color="blue" className="rounded-full px-4 py-0.5 font-bold border-0 shadow-sm">Lô sản xuất</Tag>
+                    ) : (
+                      <Tag color="green" className="rounded-full px-4 py-0.5 font-bold border-0 shadow-sm">Sổ nhật ký</Tag>
                     )}
                   </div>
-                  <Text className="text-gray-500 text-base">{schema.description || 'Sản phẩm nông nghiệp chất lượng cao'}</Text>
+                  <Text className="text-gray-500 text-base italic">{itemDesc || 'Sản phẩm chất lượng cao từ EBookFarm'}</Text>
                 </div>
               </div>
 
-              <Divider />
+              <Divider className="my-4" />
 
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <HomeOutlined className="text-green-600" />
-                    <Text strong>Tên cơ sở:</Text>
-                  </div>
-                  <Text className="text-base">{tenCoSo || 'Chưa cập nhật'}</Text>
-                </Col>
-                <Col span={12}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <UserOutlined className="text-green-600" />
-                    <Text strong>Người sản xuất:</Text>
-                  </div>
-                  <Text className="text-base">{journal.userId?.fullname || journal.userId?.username || 'Chưa cập nhật'}</Text>
-                </Col>
-                <Col span={12}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <EnvironmentOutlined className="text-green-600" />
-                    <Text strong>Địa chỉ sản xuất:</Text>
-                  </div>
-                  <Text className="text-base">{diaChi || 'Chưa cập nhật'}</Text>
-                </Col>
-                <Col span={12}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <CalendarOutlined className="text-green-600" />
-                    <Text strong>Ngày tạo:</Text>
-                  </div>
-                  <Text className="text-base">{dayjs(journal.createdAt).format('DD/MM/YYYY')}</Text>
-                </Col>
+              <Row gutter={[16, 24]}>
+                {isBatch ? (
+                  <>
+                    <Col xs={12} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Mã GTIN (GS1)</Text>
+                      <Text strong className="text-base font-mono">{batch.productId?.gtin || 'Chưa cập nhật'}</Text>
+                    </Col>
+                    <Col xs={12} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Mã lô hàng</Text>
+                      <Text strong className="text-base">{batch.batchCode}</Text>
+                    </Col>
+                    <Col xs={12} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Trọng lượng</Text>
+                      <Text strong className="text-base">{batch.quantity} {batch.unit}</Text>
+                    </Col>
+                    <Col xs={12} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Ngày sản xuất</Text>
+                      <Text strong className="text-base">{dayjs(batch.productionDate).format('DD/MM/YYYY')}</Text>
+                    </Col>
+                    <Col xs={12} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Hạn sử dụng</Text>
+                      <Text strong className="text-base text-red-500">{dayjs(batch.expiryDate).format('DD/MM/YYYY')}</Text>
+                    </Col>
+                    <Col xs={24} sm={8}>
+                      <Text className="text-gray-400 text-xs block mb-1 uppercase font-bold">Đơn vị sản xuất</Text>
+                      <Text strong className="text-base">{batch.htxJournalId?.htxId?.fullname || 'Hợp Tác Xã'}</Text>
+                    </Col>
+                  </>
+                ) : (
+                  <>
+                    <Col xs={24} sm={12}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <HomeOutlined className="text-green-600" />
+                        <Text strong className="text-gray-600">Chủ nông hộ:</Text>
+                        <Text className="text-gray-800">{journal.userId?.fullname || journal.userId?.username}</Text>
+                      </div>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <EnvironmentOutlined className="text-green-600" />
+                        <Text strong className="text-gray-600">Khu vực:</Text>
+                        <Text className="text-gray-800">{journal.userId?.province || 'Chưa cập nhật'}</Text>
+                      </div>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <HomeOutlined className="text-green-600" />
+                        <Text strong className="text-gray-600">Tên cơ sở:</Text>
+                        <Text className="text-gray-800">{tenCoSo || 'Chưa cập nhật'}</Text>
+                      </div>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <CalendarOutlined className="text-green-600" />
+                        <Text strong className="text-gray-600">Ngày tạo:</Text>
+                        <Text className="text-gray-800">{dayjs(journal.createdAt).format('DD/MM/YYYY')}</Text>
+                      </div>
+                    </Col>
+                  </>
+                )}
               </Row>
             </Col>
 
             <Col xs={24} md={8}>
-              {journal.brandAuthorized ? (
-                <div className="bg-gradient-to-br from-yellow-50 to-amber-100 p-6 pt-10 rounded-2xl h-full flex flex-col justify-start items-center border-2 border-amber-400 relative overflow-hidden shadow-inner">
-                  <div className="absolute top-0 right-0 p-2 opacity-10">
-                    <SafetyCertificateOutlined style={{ fontSize: '100px' }} />
-                  </div>
-                  <SafetyCertificateOutlined className="text-6xl text-amber-500 mb-4" />
-                  <Title level={4} className="!mb-1 !text-amber-700 uppercase tracking-wider font-black text-center">Bảo chứng HTX</Title>
-                  <Tag className="text-lg px-4 py-1 rounded-full mb-3 border-0 font-bold bg-amber-500 text-white shadow-md">
-                    HTX VERIFIED
-                  </Tag>
-                  <Text className="text-center text-gray-700 font-medium">
-                    Sản phẩm mang thương hiệu chính thức của <br/>
-                    <Text strong className="text-amber-700 text-lg">{journal.htxJournalId?.htxId?.fullname || 'Hợp Tác Xã'}</Text>
-                  </Text>
+              <div className="bg-gradient-to-br from-green-600 to-blue-700 p-8 rounded-3xl h-full flex flex-col justify-center items-center text-white relative overflow-hidden shadow-xl">
+                <div className="absolute -right-4 -top-4 opacity-10">
+                  <SafetyCertificateOutlined style={{ fontSize: '120px' }} />
                 </div>
-              ) : (
-                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 pt-10 rounded-xl h-full flex flex-col justify-start items-center">
-                  <SafetyOutlined className="text-6xl text-green-600 mb-4" />
-                  <Tag color={statusInfo.color} className="text-lg px-4 py-2 rounded-full mb-3">
-                    {statusInfo.icon} {statusInfo.text}
-                  </Tag>
-                  <Text className="text-center text-gray-600">
-                    Sản phẩm đã được xác thực và đăng ký trong hệ thống truy xuất nguồn gốc
-                  </Text>
-                </div>
-              )}
+                <SafetyCertificateOutlined className="text-5xl mb-4 text-yellow-300" />
+                <Title level={4} className="!text-white !mb-1 uppercase tracking-widest text-center font-black">Chứng Thực</Title>
+                <Tag className="bg-white text-green-700 border-0 font-bold px-4 py-1 rounded-full mb-4 shadow-md">
+                  VERIFIED BY EBOOKFARM
+                </Tag>
+                <Paragraph className="text-center text-white/90 text-sm mb-0">
+                  Dữ liệu đã được kiểm chứng qua hệ thống nhật ký điện tử và được bảo lãnh bởi đơn vị sản xuất.
+                </Paragraph>
+              </div>
             </Col>
           </Row>
         </Card>
 
-        {/* Statistics */}
-        <Row gutter={16} className="mb-6">
-          {thongTinChung.dienTich && (
-            <Col xs={12} sm={6}>
-              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-blue-50 to-blue-100 h-full flex flex-col justify-center">
-                <Statistic
-                  title={<Text strong className="text-blue-800">Diện tích</Text>}
-                  value={thongTinChung.dienTich}
-                  suffix="m²"
-                  valueStyle={{ color: '#1890ff', fontSize: '24px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-          )}
-          {thongTinChung.namSanXuat && (
-            <Col xs={12} sm={6}>
-              <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-green-50 to-green-100 h-full flex flex-col justify-center">
-                <Statistic
-                  title={<Text strong className="text-green-800">Năm sản xuất</Text>}
-                  value={thongTinChung.namSanXuat}
-                  formatter={(value) => value.toString()}
-                  valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: 'bold' }}
-                />
-              </Card>
-            </Col>
-          )}
-          <Col xs={12} sm={6}>
-            <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-purple-50 to-purple-100 h-full flex flex-col justify-center">
-              <Statistic
-                title={<Text strong className="text-purple-800">Lượt xem</Text>}
-                value={journal.viewCount || 0}
-                prefix={<EyeOutlined />}
-                valueStyle={{ color: '#722ed1', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card
-              className="shadow-md rounded-xl border-0 bg-gradient-to-br from-orange-50 to-orange-100 cursor-pointer hover:shadow-lg transition-shadow h-full flex flex-col justify-center"
-              onClick={() => setShareModalVisible(true)}
-            >
-              <div className="text-center">
-                <ShareAltOutlined className="text-3xl text-orange-600 mb-2" />
-                <Text strong className="text-orange-800 block">Chia sẻ</Text>
-                <Text className="text-orange-600 text-xs">Nhấn để chia sẻ</Text>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Certifications */}
-        {journal.certifications && journal.certifications.length > 0 && (
-          <Card
-            className="mb-6 shadow-lg rounded-2xl border-0"
-            title={
-              <div className="flex items-center gap-3">
-                <div className="bg-yellow-100 p-2 rounded-lg">
-                  <SafetyCertificateOutlined className="text-xl text-yellow-600" />
+        {isBatch && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+             <Card className="rounded-2xl border-0 shadow-lg" title={<Text strong><EnvironmentOutlined className="mr-2 text-green-600" />Vùng nguyên liệu & Sản xuất</Text>}>
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Địa chỉ">{batch.productionLocation?.address || 'Chưa cập nhật'}</Descriptions.Item>
+                  <Descriptions.Item label="Quy trình áp dụng">{batch.productId?.schemaId?.name || 'Chuẩn VietGAP'}</Descriptions.Item>
+                  <Descriptions.Item label="Số hộ tham gia">{batch.farmJournalIds?.length || 1} nông hộ</Descriptions.Item>
+                </Descriptions>
+                <Divider className="my-3" />
+                <div className="flex -space-x-2 overflow-hidden">
+                   {batch.farmJournalIds?.map((fj, i) => (
+                     <Tooltip key={i} title={fj.userId?.fullname || fj.userId?.username}>
+                       <Avatar size="small" src={getAvatarUrl(fj.userId?.avatar)} className="border-2 border-white shadow-sm" />
+                     </Tooltip>
+                   ))}
                 </div>
-                <div>
-                  <Title level={3} className="!mb-0">Chứng nhận</Title>
-                  <Text className="text-gray-500">Các chứng nhận chất lượng và an toàn</Text>
+             </Card>
+             <Card 
+               className="rounded-2xl border-0 shadow-lg cursor-pointer hover:shadow-xl transition-shadow bg-gradient-to-br from-orange-500 to-red-500 text-white"
+               onClick={() => setShareModalVisible(true)}
+             >
+                <div className="h-full flex flex-col items-center justify-center py-4">
+                  <ShareAltOutlined className="text-4xl mb-2" />
+                  <Title level={4} className="!text-white !mb-0">Chia sẻ nguồn gốc</Title>
+                  <Text className="text-white/80">Lan tỏa giá trị nông sản sạch</Text>
                 </div>
-              </div>
-            }
-          >
-            <Row gutter={[16, 16]}>
-              {journal.certifications.map((cert, index) => {
-                const badge = getCertBadge(cert.name);
-                return (
-                  <Col xs={24} sm={12} md={8} key={index}>
-                    <Card className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 hover:border-green-400 transition-colors">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">{badge.icon}</div>
-                        <Tag color={badge.color} className="text-base px-4 py-1 rounded-full mb-3">
-                          {cert.name}
-                        </Tag>
-                        <Divider className="my-3" />
-                        <div className="text-left space-y-2">
-                          {cert.issuer && (
-                            <div>
-                              <Text className="text-gray-500 text-xs">Tổ chức cấp:</Text>
-                              <Text className="block font-medium">{cert.issuer}</Text>
-                            </div>
-                          )}
-                          {cert.number && (
-                            <div>
-                              <Text className="text-gray-500 text-xs">Số chứng nhận:</Text>
-                              <Text className="block font-medium font-mono">{cert.number}</Text>
-                            </div>
-                          )}
-                          {cert.issueDate && (
-                            <div>
-                              <Text className="text-gray-500 text-xs">Ngày cấp:</Text>
-                              <Text className="block font-medium">{dayjs(cert.issueDate).format('DD/MM/YYYY')}</Text>
-                            </div>
-                          )}
-                          {cert.expiryDate && (
-                            <div>
-                              <Text className="text-gray-500 text-xs">Hiệu lực đến:</Text>
-                              <Text className="block font-medium text-green-600">{dayjs(cert.expiryDate).format('DD/MM/YYYY')}</Text>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
-                );
-              })}
-            </Row>
-          </Card>
+             </Card>
+          </div>
         )}
 
-        {/* Product Images */}
-        {journal.images && journal.images.length > 0 && (
-          <Card
-            className="mb-6 shadow-lg rounded-2xl border-0"
-            title={
-              <div className="flex items-center gap-3">
-                <div className="bg-pink-100 p-2 rounded-lg">
-                  <PictureOutlined className="text-xl text-pink-600" />
-                </div>
-                <div>
-                  <Title level={3} className="!mb-0">Hình ảnh sản phẩm</Title>
-                  <Text className="text-gray-500">Ảnh thực tế từ quá trình sản xuất</Text>
-                </div>
-              </div>
-            }
-          >
-            <Row gutter={[16, 16]}>
-              {journal.images.map((img, index) => (
-                <Col xs={12} sm={8} md={6} key={index}>
-                  <div
-                    className="relative group cursor-pointer overflow-hidden rounded-xl"
-                    onClick={() => {
-                      setPreviewImage(img.url);
-                      setImagePreviewVisible(true);
-                    }}
-                  >
-                    <Image
-                      src={img.url}
-                      alt={img.caption || `Ảnh ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-xl"
-                      preview={false}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                      <EyeOutlined className="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    {img.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                        <Text className="text-white text-xs">{img.caption}</Text>
-                      </div>
-                    )}
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          </Card>
-        )}
-
-        {/* Production Timeline */}
+        {/* Timeline Section */}
         <Card
-          className="shadow-lg rounded-2xl border-0"
+          className="shadow-xl rounded-3xl border-0 mb-6"
           title={
             <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-2 rounded-lg">
-                <CalendarOutlined className="text-xl text-green-600" />
+              <div className="bg-green-100 p-3 rounded-2xl">
+                <CalendarOutlined className="text-2xl text-green-600" />
               </div>
               <div>
-                <Title level={3} className="!mb-0">Quy trình sản xuất</Title>
-                <Text className="text-gray-500">Chi tiết từng giai đoạn sản xuất</Text>
+                <Title level={3} className="!mb-0 text-xl">Hành trình nông sản</Title>
+                <Text className="text-gray-400">Minh bạch quá trình chăm sóc & thu hoạch</Text>
               </div>
             </div>
           }
         >
-          <Timeline
-            className="mt-6"
-            items={schema.tables.map((table, index) => {
-              const tableData = journal.entries?.[table.tableName];
-              const hasData = tableData && Object.keys(tableData).length > 0;
-
-              return {
-                dot: hasData ? (
-                  <CheckCircleOutlined className="text-xl text-green-600" />
-                ) : (
-                  <div className="w-4 h-4 rounded-full bg-gray-300" />
-                ),
-                color: hasData ? 'green' : 'gray',
-                children: (
-                  <div className="pb-6">
-                    <Title level={4} className="!mb-3 text-gray-800">
-                      {index + 1}. {table.tableName}
-                    </Title>
-                    {hasData ? (
-                      <Card className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm">
-                        <Descriptions
-                          size="small"
-                          column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
-                          bordered
-                          className="custom-descriptions"
-                        >
-                          {table.fields.map((field) => {
-                            const value = tableData[field.name];
-                            let displayValue = value;
-
-                            // Format date
-                            if (field.type === 'date' && value) {
-                              displayValue = dayjs(value).format('DD/MM/YYYY');
-                            }
-                            // Format number
-                            else if (field.type === 'number' && value) {
-                              displayValue = value.toLocaleString('vi-VN');
-                            }
-                            // Format boolean
-                            else if (field.type === 'boolean') {
-                              displayValue = value ? 'Có' : 'Không';
-                            }
-
-                            return (
-                              <Descriptions.Item
-                                label={<Text strong className="text-gray-700">{field.label}</Text>}
-                                key={field.name}
-                              >
-                                <Text className="text-gray-900">
-                                  {displayValue || <span className="text-gray-400 italic">Chưa cập nhật</span>}
-                                </Text>
-                              </Descriptions.Item>
-                            );
-                          })}
-                        </Descriptions>
-                      </Card>
-                    ) : (
-                      <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 text-center">
-                        <Text className="text-gray-400 italic">Chưa có thông tin cho giai đoạn này</Text>
-                      </div>
-                    )}
-                  </div>
-                ),
-              };
-            })}
-          />
+          {isBatch ? (
+            <Timeline className="mt-8 px-4" mode="alternate">
+              <Timeline.Item color="green" label="Gieo trồng">
+                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 inline-block text-left w-full max-w-sm">
+                   <Text strong className="block text-green-700">Khởi đầu chu kỳ</Text>
+                   <Text className="text-xs text-gray-400 block mb-2">{dayjs(batch.productionDate).subtract(3, 'month').format('DD/MM/YYYY')}</Text>
+                   <Text className="text-sm">Lựa chọn giống và chuẩn bị đất trồng theo tiêu chuẩn {batch.productId?.schemaId?.name || 'VietGAP'}.</Text>
+                 </div>
+              </Timeline.Item>
+              <Timeline.Item color="green" label="Chăm sóc">
+                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 inline-block text-left w-full max-w-sm">
+                   <Text strong className="block text-green-700">Giai đoạn phát triển</Text>
+                   <Text className="text-sm">Áp dụng kỹ thuật bón phân hữu cơ và quản lý dịch bệnh IPM.</Text>
+                 </div>
+              </Timeline.Item>
+              <Timeline.Item color="blue" label="Thu hoạch" dot={<CheckCircleOutlined className="text-xl" />}>
+                 <div className="bg-blue-50 p-4 rounded-2xl shadow-sm border border-blue-100 inline-block text-left w-full max-w-sm">
+                   <Text strong className="block text-blue-700">Thu hoạch & Đóng gói</Text>
+                   <Text className="text-xs text-gray-500 block mb-2">{dayjs(batch.productionDate).format('DD/MM/YYYY')}</Text>
+                   <Text className="text-sm">Thu hoạch đúng độ chín, đóng gói đạt chuẩn vệ sinh an toàn thực phẩm.</Text>
+                 </div>
+              </Timeline.Item>
+            </Timeline>
+          ) : (
+             <Timeline className="mt-8">
+                {journal.schemaId?.tables?.map((table, index) => {
+                  const data = journal.entries?.[table.tableName];
+                  const hasData = data && Object.keys(data).length > 0;
+                  return (
+                    <Timeline.Item key={index} color={hasData ? 'green' : 'gray'}>
+                      <Title level={5} className="!mb-2">{table.tableName}</Title>
+                      {hasData ? (
+                        <Card size="small" className="bg-gray-50/50 rounded-xl border-gray-100">
+                          <Descriptions column={1} size="small" bordered>
+                             {table.fields.map(f => (
+                               <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
+                                 {data[f.name] || <span className="text-gray-400 italic">Chưa cập nhật</span>}
+                               </Descriptions.Item>
+                             ))}
+                          </Descriptions>
+                        </Card>
+                      ) : (
+                        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
+                          <Text className="text-gray-400 italic text-xs">Chưa có thông tin cho giai đoạn này</Text>
+                        </div>
+                      )}
+                    </Timeline.Item>
+                  );
+                })}
+             </Timeline>
+          )}
         </Card>
 
-        {/* Brand/HTX Verification Section */}
-        {journal.brandAuthorized && journal.htxJournalId?.htxId && (
-          <Card className="mt-6 shadow-lg rounded-2xl border-0 bg-gradient-to-r from-gold-500 to-yellow-600 text-white overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #faad14 0%, #ffc53d 100%)' }}>
-            <div className="absolute right-[-20px] top-[-20px] opacity-20">
-              <SafetyCertificateOutlined style={{ fontSize: '150px' }} />
-            </div>
-            <Row gutter={[24, 24]} align="middle">
-              <Col xs={24} sm={6} className="text-center">
-                <div className="bg-white p-2 rounded-full inline-block shadow-lg">
-                   <Avatar 
-                     size={100} 
-                     src={getAvatarUrl(journal.htxJournalId.htxId.avatar)} 
-                     className="bg-gold-50 text-gold-600 flex items-center justify-center font-bold text-4xl"
-                   >
-                     {!getAvatarUrl(journal.htxJournalId.htxId.avatar) && getInitialAvatar(journal.htxJournalId.htxId.fullname || journal.htxJournalId.htxId.username)}
-                   </Avatar>
-                </div>
-              </Col>
-              <Col xs={24} sm={18}>
-                <Title level={3} className="!text-white !mb-1">Xác nhận thương hiệu HTX</Title>
-                <Paragraph className="text-white/90 text-lg mb-4 font-medium italic">
-                  "Lô hàng này đã được Hợp tác xã kiểm định chất lượng nghiêm ngặt và đủ điều kiện mang thương hiệu chính thức của HTX ra thị trường."
-                </Paragraph>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-xl border border-white/30">
-                    <Text className="text-white/70 text-xs block uppercase font-bold tracking-wider">Đơn vị bảo chứng</Text>
-                    <Text className="text-white text-base font-bold">{journal.htxJournalId.htxId.fullname}</Text>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-xl border border-white/30">
-                    <Text className="text-white/70 text-xs block uppercase font-bold tracking-wider">Thời điểm xác nhận</Text>
-                    <Text className="text-white text-base font-bold">{dayjs(journal.brandAuthorizedAt).format('HH:mm - DD/MM/YYYY')}</Text>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </Card>
+        {/* Certifications and Images for Journal */}
+        {!isBatch && (
+          <>
+            {journal.certifications?.length > 0 && (
+              <Card className="mb-6 shadow-xl rounded-3xl border-0" title={<div className="flex items-center gap-2"><SafetyCertificateOutlined className="text-yellow-600" /><Text strong>Chứng nhận & Kiểm định</Text></div>}>
+                 <Row gutter={[16, 16]}>
+                    {journal.certifications.map((cert, idx) => {
+                      const badge = getCertBadge(cert.name);
+                      return (
+                        <Col xs={24} sm={12} md={8} key={idx}>
+                          <div className="bg-white border-2 border-gray-50 p-4 rounded-2xl text-center shadow-sm hover:border-green-200 transition-all">
+                             <div className="text-4xl mb-2">{badge.icon}</div>
+                             <Tag color={badge.color} className="mb-2 font-bold">{cert.name}</Tag>
+                             <div className="text-left text-xs space-y-1">
+                               <div className="flex justify-between"><Text type="secondary">Số hiệu:</Text><Text strong>{cert.number}</Text></div>
+                               <div className="flex justify-between"><Text type="secondary">Ngày cấp:</Text><Text>{dayjs(cert.issueDate).format('DD/MM/YYYY')}</Text></div>
+                             </div>
+                          </div>
+                        </Col>
+                      );
+                    })}
+                 </Row>
+              </Card>
+            )}
+            {journal.images?.length > 0 && (
+              <Card className="mb-6 shadow-xl rounded-3xl border-0" title={<div className="flex items-center gap-2"><PictureOutlined className="text-pink-600" /><Text strong>Hình ảnh thực tế</Text></div>}>
+                 <Row gutter={[16, 16]}>
+                    {journal.images.map((img, idx) => (
+                      <Col xs={12} sm={8} md={6} key={idx}>
+                        <div className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-sm" onClick={() => { setPreviewImage(img.url); setImagePreviewVisible(true); }}>
+                           <Image src={img.url} preview={false} className="w-full h-40 object-cover" />
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <EyeOutlined className="text-white text-2xl" />
+                           </div>
+                        </div>
+                      </Col>
+                    ))}
+                 </Row>
+              </Card>
+            )}
+          </>
         )}
 
         {/* Footer */}
-        <div className="mt-8 text-center pb-8">
-          <Divider />
-          <div className="bg-white rounded-2xl shadow-md p-6 inline-block">
-            <Text className="text-gray-600 block mb-2">Được cung cấp bởi</Text>
-            <Title level={3} className="!mb-2 text-green-600">🌿 EBookFarm</Title>
-            <Text className="text-gray-500">Hệ thống quản lý và truy xuất nguồn gốc nông sản</Text>
-            <div className="mt-4">
-              <Link to="/">
-                <Button type="primary" size="large" className="bg-green-600 rounded-full px-8">
-                  Về trang chủ
-                </Button>
-              </Link>
-            </div>
-          </div>
+        <div className="text-center py-10">
+           <Title level={4} className="!text-green-600 !mb-1">🌿 EBookFarm Ecosystem</Title>
+           <Text className="text-gray-400">Trusted Traceability Solution for Smart Agriculture</Text>
+           <div className="mt-8 flex justify-center gap-4">
+              <Button type="primary" shape="round" size="large" onClick={() => window.location.href = '/'} className="bg-green-600 px-10 h-12 font-bold shadow-lg shadow-green-100">Về Trang Chủ</Button>
+              <Button shape="round" size="large" icon={<ShareAltOutlined />} onClick={() => setShareModalVisible(true)} className="px-10 h-12 font-bold border-2 border-green-600 text-green-600">Chia sẻ</Button>
+           </div>
         </div>
       </div>
 
       {/* Share Modal */}
-      <Modal
-        title={
-          <div className="flex items-center gap-2">
-            <ShareAltOutlined className="text-green-600" />
-            <span>Chia sẻ sản phẩm</span>
-          </div>
-        }
-        open={shareModalVisible}
-        onCancel={() => setShareModalVisible(false)}
-        footer={null}
-        centered
-      >
-        <div className="py-4">
-          <Text className="block mb-4 text-gray-600">Chia sẻ thông tin truy xuất nguồn gốc sản phẩm này:</Text>
-          <Space direction="vertical" size="middle" className="w-full">
-            <Button
-              block
-              size="large"
-              icon={<FacebookOutlined />}
-              onClick={() => handleShare('facebook')}
-              className="bg-blue-600 text-white hover:bg-blue-700 border-0 rounded-lg h-12"
-            >
-              Chia sẻ lên Facebook
-            </Button>
-            <Button
-              block
-              size="large"
-              icon={<span className="text-lg">💬</span>}
-              onClick={() => handleShare('zalo')}
-              className="bg-blue-500 text-white hover:bg-blue-600 border-0 rounded-lg h-12"
-            >
-              Chia sẻ qua Zalo
-            </Button>
-            <Button
-              block
-              size="large"
-              icon={<LinkOutlined />}
-              onClick={() => handleShare('copy')}
-              className="border-2 border-green-500 text-green-600 hover:bg-green-50 rounded-lg h-12"
-            >
-              Copy link
-            </Button>
-          </Space>
-          <Divider />
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <Text className="text-xs text-gray-500 block mb-1">Link truy xuất:</Text>
-            <Text className="text-xs font-mono break-all">{window.location.href}</Text>
-          </div>
+      <Modal title="Chia sẻ nguồn gốc" open={shareModalVisible} onCancel={() => setShareModalVisible(false)} footer={null} centered className="rounded-3xl overflow-hidden">
+        <div className="flex flex-col gap-4 py-4">
+           <Button block size="large" icon={<FacebookOutlined />} onClick={() => handleShare('facebook')} className="bg-blue-600 text-white border-0 h-12 font-bold rounded-xl">Facebook</Button>
+           <Button block size="large" icon={<LinkOutlined />} onClick={() => handleShare('copy')} className="bg-green-50 text-green-600 border-green-200 h-12 font-bold rounded-xl">Sao chép liên kết</Button>
+           <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+              <Text className="text-xs text-gray-400 block mb-1 uppercase font-bold">Link Truy Xuất</Text>
+              <Text className="text-[10px] break-all font-mono">{window.location.href}</Text>
+           </div>
         </div>
       </Modal>
 
-      {/* Image Preview Modal */}
-      <Modal
-        open={imagePreviewVisible}
-        footer={null}
-        onCancel={() => setImagePreviewVisible(false)}
-        width="80%"
-        centered
-        bodyStyle={{ padding: 0 }}
-      >
-        <Image
-          src={previewImage}
-          alt="Preview"
-          style={{ width: '100%' }}
-          preview={false}
-        />
+      {/* Image Preview */}
+      <Modal open={imagePreviewVisible} footer={null} onCancel={() => setImagePreviewVisible(false)} width="80%" centered bodyStyle={{ padding: 0 }}>
+        <img src={previewImage} alt="Preview" style={{ width: '100%' }} />
       </Modal>
 
-      {/* Custom CSS */}
       <style jsx>{`
-        .custom-descriptions .ant-descriptions-item-label {
-          background-color: #f0f9ff;
-          font-weight: 600;
-        }
-        .custom-descriptions .ant-descriptions-item-content {
-          background-color: white;
-        }
+        .ant-timeline-item-label { font-weight: bold; color: #059669; }
+        .ant-descriptions-item-label { background-color: #f0fdf4 !important; width: 140px; }
       `}</style>
     </div>
   );
