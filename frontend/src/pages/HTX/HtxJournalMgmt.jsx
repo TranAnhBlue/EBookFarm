@@ -460,46 +460,99 @@ const HtxJournalMgmt = () => {
       )
     },
     {
+      title: 'TIẾN ĐỘ PHÊ DUYỆT',
+      key: 'approval_progress',
+      width: 180,
+      render: (_, record) => {
+        const pendingCount = record.farmers?.filter(f => f.status === 'Chờ duyệt').length || 0;
+        const approvedCount = record.farmers?.filter(f => f.status === 'Đã duyệt').length || 0;
+        const total = record.farmers?.length || 0;
+        
+        return (
+          <Space direction="vertical" size={0} className="w-full">
+            <div className="flex justify-between items-center mb-1">
+              <Text className="text-[10px] text-gray-400 font-bold uppercase">Tiến độ:</Text>
+              <Text className="text-[10px] font-bold text-green-600">{approvedCount}/{total}</Text>
+            </div>
+            <div className="flex gap-1">
+              <Tooltip title={`${approvedCount} đã duyệt`}>
+                <div className="h-1.5 rounded-full bg-green-500" style={{ width: `${total ? (approvedCount / total) * 100 : 0}%` }}></div>
+              </Tooltip>
+              {pendingCount > 0 && (
+                <Tooltip title={`${pendingCount} đang chờ duyệt`}>
+                  <div className="h-1.5 rounded-full bg-orange-400 animate-pulse" style={{ width: `${(pendingCount / total) * 100}%` }}></div>
+                </Tooltip>
+              )}
+              <div className="h-1.5 rounded-full bg-gray-100 flex-1"></div>
+            </div>
+            {pendingCount > 0 && (
+              <Tag color="orange" className="mt-2 border-0 rounded-md text-[9px] font-bold px-2 py-0">
+                {pendingCount} HỘ CHỜ DUYỆT
+              </Tag>
+            )}
+          </Space>
+        );
+      }
+    },
+    {
       title: 'THAO TÁC',
       key: 'action',
       align: 'center',
-      render: (_, record) => (
-        <Space size="middle">
-          <Tooltip title="Thêm nông dân">
-            <Button
-              type="text"
-              icon={<UserAddOutlined className="text-blue-600" />}
-              onClick={() => {
-                setSelectedJournal(record);
-                setIsAddFarmersVisible(true);
-              }}
-              className="bg-blue-50 hover:bg-blue-100 rounded-xl"
-            />
-          </Tooltip>
-          <Tooltip title="Chi tiết">
-            <Button
-              type="text"
-              icon={<EyeOutlined className="text-green-600" />}
-              onClick={() => {
-                setSelectedJournal(record);
-                setIsDrawerVisible(true);
-              }}
-              className="bg-green-50 hover:bg-green-100 rounded-xl"
-            />
-          </Tooltip>
-          <Tooltip title="Báo cáo tổng hợp">
-            <Button
-              type="text"
-              icon={<BarChartOutlined className="text-purple-600" />}
-              onClick={() => {
-                setSelectedJournal(record);
-                fetchSummary(record._id);
-              }}
-              className="bg-purple-50 hover:bg-purple-100 rounded-xl"
-            />
-          </Tooltip>
-        </Space>
-      ),
+      render: (_, record) => {
+        const hasPending = record.farmers?.some(f => f.status === 'Chờ duyệt');
+        return (
+          <Space size="middle">
+            {hasPending && (
+              <Tooltip title="Phê duyệt nhanh">
+                <Button
+                  type="primary"
+                  icon={<CheckCircleOutlined />}
+                  onClick={() => {
+                    setSelectedJournal(record);
+                    setFarmerStatusFilter('Chờ duyệt');
+                    setIsDrawerVisible(true);
+                  }}
+                  className="bg-orange-500 hover:bg-orange-600 rounded-xl shadow-md border-0"
+                />
+              </Tooltip>
+            )}
+            <Tooltip title="Thêm nông dân">
+              <Button
+                type="text"
+                icon={<UserAddOutlined className="text-blue-600" />}
+                onClick={() => {
+                  setSelectedJournal(record);
+                  setIsAddFarmersVisible(true);
+                }}
+                className="bg-blue-50 hover:bg-blue-100 rounded-xl"
+              />
+            </Tooltip>
+            <Tooltip title="Chi tiết">
+              <Button
+                type="text"
+                icon={<EyeOutlined className="text-green-600" />}
+                onClick={() => {
+                  setSelectedJournal(record);
+                  setFarmerStatusFilter(null);
+                  setIsDrawerVisible(true);
+                }}
+                className="bg-green-50 hover:bg-green-100 rounded-xl"
+              />
+            </Tooltip>
+            <Tooltip title="Báo cáo tổng hợp">
+              <Button
+                type="text"
+                icon={<BarChartOutlined className="text-purple-600" />}
+                onClick={() => {
+                  setSelectedJournal(record);
+                  fetchSummary(record._id);
+                }}
+                className="bg-purple-50 hover:bg-purple-100 rounded-xl"
+              />
+            </Tooltip>
+          </Space>
+        );
+      },
     },
   ];
 

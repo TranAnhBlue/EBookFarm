@@ -30,6 +30,7 @@ import AgricultureModels from './pages/Admin/AgricultureModels';
 import AccountInfo from './pages/Admin/AccountInfo';
 import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
+import HtxJournalApproval from './pages/HTX/HtxJournalApproval';
 const HtxFarmerMgmt = lazy(() => import('./pages/HTX/HtxFarmerMgmt'));
 const HtxInventoryMgmt = lazy(() => import('./pages/HTX/HtxInventoryMgmt'));
 const HtxProductMgmt = lazy(() => import('./pages/HTX/HtxProductMgmt'));
@@ -187,6 +188,7 @@ const App = () => {
 
                     {/* HTX-only routes */}
                     <Route path="htx/journals" element={<ProtectedRoute><HtxJournalMgmt /></ProtectedRoute>} />
+                    <Route path="htx/approvals" element={<ProtectedRoute><HtxJournalApproval /></ProtectedRoute>} />
                     <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
                     <Route path="htx/products" element={<ProtectedRoute><HtxProductMgmt /></ProtectedRoute>} />
                     <Route path="htx/batches" element={<ProtectedRoute><HtxBatchMgmt /></ProtectedRoute>} />

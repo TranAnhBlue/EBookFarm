@@ -240,6 +240,11 @@ const MainLayout = () => {
       label: <span className="font-medium">Quản lý sổ HTX</span>,
     },
     {
+      key: '/htx/approvals',
+      icon: <CheckCircleOutlined className="text-lg text-orange-500" />,
+      label: <span className="font-medium">Quản lý nhật ký</span>,
+    },
+    {
       key: 'htx-traceability',
       icon: <GlobalOutlined className="text-lg" />,
       label: <span className="font-medium">Truy xuất nguồn gốc</span>,
@@ -269,10 +274,10 @@ const MainLayout = () => {
         <div className="p-2 min-w-[160px]">
           <Text strong className="block text-gray-800">{user?.fullname || user?.username || 'Thành viên'}</Text>
           <Text type="secondary" className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
-            {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' : 
-             user?.role?.toUpperCase() === 'FARMER' ? 'Nông dân' : 
-             user?.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' : 
-             user?.role?.toUpperCase() === 'USER' ? 'Người dùng' : (user?.role || 'Thành viên')}
+            {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' :
+              user?.role?.toUpperCase() === 'FARMER' ? 'Nông dân' :
+                user?.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' :
+                  user?.role?.toUpperCase() === 'USER' ? 'Người dùng' : (user?.role || 'Thành viên')}
           </Text>
         </div>
       ),
@@ -433,10 +438,10 @@ const MainLayout = () => {
                   <div className="text-left flex flex-col justify-center">
                     <Text className="font-bold text-gray-800 group-hover:text-green-600 transition-colors block text-sm leading-tight">{user?.fullname || user?.username || 'Thành viên'}</Text>
                     <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                      {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' : 
-                       user?.role?.toUpperCase() === 'FARMER' ? 'Nông dân' : 
-                       user?.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' : 
-                       user?.role?.toUpperCase() === 'USER' ? 'Người dùng' : (user?.role || 'Thành viên')}
+                      {user?.role?.toUpperCase() === 'ADMIN' ? 'Quản trị viên' :
+                        user?.role?.toUpperCase() === 'FARMER' ? 'Nông dân' :
+                          user?.role?.toUpperCase() === 'HTX' ? 'Hợp tác xã' :
+                            user?.role?.toUpperCase() === 'USER' ? 'Người dùng' : (user?.role || 'Thành viên')}
                     </Text>
                   </div>
                 )}
