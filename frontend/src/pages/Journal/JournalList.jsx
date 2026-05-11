@@ -486,17 +486,19 @@ const JournalList = () => {
             onClick={() => handleExportSingle(record._id)}
             title="Xuất Excel"
           />
-          <Button
-            type="text"
-            className="flex items-center justify-center hover:bg-green-50 text-green-600 rounded-lg"
-            icon={<QrcodeOutlined />}
-            onClick={() => {
-              // Dùng biến môi trường VITE_APP_URL nếu có, không thì dùng window.location.origin
-              const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-              setCurrentQr(`${baseUrl}/trace/${record.qrCode}`);
-              setQrModalVisible(true);
-            }}
-          />
+          {(record.status === 'Verified' || record.status === 'Locked') && (
+            <Button
+              type="text"
+              className="flex items-center justify-center hover:bg-green-50 text-green-600 rounded-lg"
+              icon={<QrcodeOutlined />}
+              onClick={() => {
+                const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+                setCurrentQr(`${baseUrl}/trace/${record.qrCode}`);
+                setQrModalVisible(true);
+              }}
+              title="Xem mã QR"
+            />
+          )}
           <Button
             type="text"
             className="flex items-center justify-center hover:bg-gray-100 text-gray-400 rounded-lg"
@@ -735,17 +737,20 @@ const JournalList = () => {
                           >
                             <Text className="text-green-600 font-medium">Vào sổ <RightOutlined className="text-[10px] ml-1" /></Text>
                           </div>
-                          <div
-                            className="w-12 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer flex items-center justify-center"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-                              setCurrentQr(`${baseUrl}/trace/${journal.qrCode}`);
-                              setQrModalVisible(true);
-                            }}
-                          >
-                            <QrcodeOutlined className="text-green-600 text-lg" />
-                          </div>
+                          {(journal.status === 'Verified' || journal.status === 'Locked') && (
+                            <div
+                              className="w-12 p-3 text-center hover:bg-green-50 transition-colors cursor-pointer flex items-center justify-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+                                setCurrentQr(`${baseUrl}/trace/${journal.qrCode}`);
+                                setQrModalVisible(true);
+                              }}
+                              title="Xem mã QR"
+                            >
+                              <QrcodeOutlined className="text-green-600 text-lg" />
+                            </div>
+                          )}
                         </div>
                       </Card>
                     </Col>
