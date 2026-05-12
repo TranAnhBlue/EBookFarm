@@ -11,16 +11,9 @@ const {
   authorizeBrand,
   removeFarmerFromHtx
 } = require('../controllers/htxJournalController');
-const { protect, admin, htx } = require('../middlewares/authMiddleware');
+const { protect, admin, htx, htxOrAdmin } = require('../middlewares/authMiddleware');
 
-// Middleware to check if user is HTX or Admin
-const htxOrAdmin = (req, res, next) => {
-  if (req.user && (req.user.role?.toUpperCase() === 'HTX' || req.user.role?.toUpperCase() === 'ADMIN')) {
-    next();
-  } else {
-    res.status(403).json({ success: false, message: 'Not authorized as HTX or Admin' });
-  }
-};
+
 
 router.route('/')
   .post(protect, htxOrAdmin, createHtxJournal)

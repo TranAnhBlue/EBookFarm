@@ -77,4 +77,12 @@ const htx = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin, htx };
+const htxOrAdmin = (req, res, next) => {
+  if (req.user && (req.user.role?.toUpperCase() === 'HTX' || req.user.role?.toUpperCase() === 'ADMIN')) {
+    next();
+  } else {
+    res.status(403).json({ success: false, message: 'Not authorized as HTX or Admin' });
+  }
+};
+
+module.exports = { protect, admin, htx, htxOrAdmin };
