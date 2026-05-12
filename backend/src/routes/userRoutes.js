@@ -7,7 +7,8 @@ const {
   deleteUser, 
   bulkCreateUsers,
   verifyCertification,
-  getPublicHtxList
+  getPublicHtxList,
+  getProfile
 } = require('../controllers/userController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
