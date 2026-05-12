@@ -205,7 +205,12 @@ const MainLayout = () => {
     {
       key: '/inventory/farmer',
       icon: <InboxOutlined className="text-lg" />,
-      label: <span className="font-medium">Tồn kho</span>,
+      label: <span className="font-medium">Tồn kho vật tư</span>,
+    },
+    {
+      key: '/supplies/farmer',
+      icon: <ShoppingOutlined className="text-lg" />,
+      label: <span className="font-medium">Xin cấp vật tư</span>,
     },
     {
       key: 'docs-submenu',
@@ -243,6 +248,11 @@ const MainLayout = () => {
       key: '/htx/approvals',
       icon: <CheckCircleOutlined className="text-lg text-orange-500" />,
       label: <span className="font-medium">Phê duyệt nhật ký</span>,
+    },
+    {
+      key: '/htx/supplies',
+      icon: <ShoppingOutlined className="text-lg text-blue-500" />,
+      label: <span className="font-medium">Phê duyệt vật tư</span>,
     },
     {
       key: 'htx-traceability',

@@ -35,8 +35,10 @@ const HtxFarmerMgmt = lazy(() => import('./pages/HTX/HtxFarmerMgmt'));
 const HtxInventoryMgmt = lazy(() => import('./pages/HTX/HtxInventoryMgmt'));
 const HtxProductMgmt = lazy(() => import('./pages/HTX/HtxProductMgmt'));
 const HtxBatchMgmt = lazy(() => import('./pages/HTX/HtxBatchMgmt'));
+const HtxSupplyMgmt = lazy(() => import('./pages/HTX/HtxSupplyMgmt'));
 const HtxPortalSettings = lazy(() => import('./pages/HTX/HtxPortalSettings'));
 const Reports = lazy(() => import('./pages/Admin/Reports'));
+const FarmerSupplyMgmt = lazy(() => import('./pages/Journal/FarmerSupplyMgmt'));
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
 import GroupManagement from './pages/Admin/GroupManagement';
@@ -192,6 +194,7 @@ const App = () => {
                     <Route path="htx/farmers" element={<ProtectedRoute><HtxFarmerMgmt /></ProtectedRoute>} />
                     <Route path="htx/products" element={<ProtectedRoute><HtxProductMgmt /></ProtectedRoute>} />
                     <Route path="htx/batches" element={<ProtectedRoute><HtxBatchMgmt /></ProtectedRoute>} />
+                    <Route path="htx/supplies" element={<ProtectedRoute><HtxSupplyMgmt /></ProtectedRoute>} />
                     <Route path="htx/portal-settings" element={<ProtectedRoute><HtxPortalSettings /></ProtectedRoute>} />
                     <Route path="journals/view/:id" element={<ProtectedRoute><JournalEntry /></ProtectedRoute>} />
 
@@ -222,6 +225,7 @@ const App = () => {
 
                     <Route path="docs" element={<ProtectedRoute farmerOnly><ProductionTech /></ProtectedRoute>} />
                     <Route path="inventory/farmer" element={<ProtectedRoute farmerOnly><FarmerInventory /></ProtectedRoute>} />
+                    <Route path="supplies/farmer" element={<ProtectedRoute farmerOnly><FarmerSupplyMgmt /></ProtectedRoute>} />
                   </Route>
 
                   {/* Catch-all: 404 */}

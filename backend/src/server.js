@@ -147,6 +147,9 @@ app.use('/api/batches', batchRoutes);
 const portalRoutes = require('./routes/portalRoutes.js');
 app.use('/api/portal', portalRoutes);
 
+const supplyRoutes = require('./routes/supplyRoutes.js');
+app.use('/api/supply-requests', supplyRoutes);
+
 app.get('/', (req, res) => {
   res.send('EBook Farm API is running.');
 });
