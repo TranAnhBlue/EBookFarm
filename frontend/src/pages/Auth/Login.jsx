@@ -104,12 +104,7 @@ const Login = () => {
 
             <Form.Item
               name="password"
-              label={
-                <div className="flex justify-between w-full items-end">
-                  <Text className="text-[11px] font-black uppercase tracking-[2px] text-gray-400 ml-1">Mật khẩu</Text>
-                  <Link to="/forgot-password" size="small" className="text-[11px] font-bold text-green-600 hover:text-green-700">Quên mật khẩu?</Link>
-                </div>
-              }
+              label={<Text className="text-[11px] font-black uppercase tracking-[2px] text-gray-400 ml-1">Mật khẩu bảo mật</Text>}
               rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
             >
               <Input.Password
@@ -123,6 +118,7 @@ const Login = () => {
               <Form.Item name="remember" valuePropName="checked" noStyle>
                 <Checkbox className="text-gray-500 font-bold text-xs">Ghi nhớ tôi</Checkbox>
               </Form.Item>
+              <Link to="/forgot-password" size="small" className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors">Quên mật khẩu?</Link>
             </div>
 
             <Button
@@ -155,16 +151,12 @@ const Login = () => {
             <Text className="text-gray-400 font-medium">Bạn mới biết đến EBookFarm?</Text>
             <Link to="/register">
               <Button type="link" className="text-green-600 font-black hover:text-green-700 ml-1">
-                Đăng ký Farmer
+                Đăng ký ngay
               </Button>
             </Link>
           </div>
         </div>
       </Card>
-
-      <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-black tracking-[4px] text-gray-400/40 pointer-events-none">
-        Copyright 2026 © EBookFarm Security Standard
-      </div>
     </div>
   );
 };

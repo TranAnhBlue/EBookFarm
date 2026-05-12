@@ -18,10 +18,10 @@ const Register = () => {
     try {
       setLoading(true);
       const { data } = await api.post('/auth/register', {
-          ...values,
-          role: 'Farmer' // Vai trò mặc định cho đăng ký công khai
+        ...values,
+        role: 'Farmer' // Vai trò mặc định cho đăng ký công khai
       });
-      
+
       setCredentials(data.data, data.data.token);
       message.success('Tài khoản đã được tạo thành công!');
       navigate('/dashboard');
@@ -63,8 +63,8 @@ const Register = () => {
                   label={<Text className="text-[11px] font-black uppercase tracking-[2px] text-gray-400 ml-1">Họ và tên nông dân</Text>}
                   rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
                 >
-                  <Input 
-                    prefix={<UserOutlined className="text-gray-300" />} 
+                  <Input
+                    prefix={<UserOutlined className="text-gray-300" />}
                     placeholder="Nguyễn Văn A"
                     className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all font-medium"
                   />
@@ -80,8 +80,8 @@ const Register = () => {
                 { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
               ]}
             >
-              <Input 
-                prefix={<PhoneOutlined className="text-gray-300" />} 
+              <Input
+                prefix={<PhoneOutlined className="text-gray-300" />}
                 placeholder="09xxxxxxxx"
                 className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all font-medium"
               />
@@ -92,8 +92,8 @@ const Register = () => {
               label={<Text className="text-[11px] font-black uppercase tracking-[2px] text-gray-400 ml-1">Địa chỉ Email (Nếu có)</Text>}
               rules={[{ type: 'email', message: 'Email không hợp lệ!' }]}
             >
-              <Input 
-                prefix={<MailOutlined className="text-gray-300" />} 
+              <Input
+                prefix={<MailOutlined className="text-gray-300" />}
                 placeholder="example@gmail.com"
                 className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all font-medium"
               />
@@ -107,8 +107,8 @@ const Register = () => {
                 { min: 6, message: 'Mật khẩu phải từ 6 ký tự!' }
               ]}
             >
-              <Input.Password 
-                prefix={<LockOutlined className="text-gray-300" />} 
+              <Input.Password
+                prefix={<LockOutlined className="text-gray-300" />}
                 placeholder="••••••••"
                 className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all"
               />
@@ -138,10 +138,6 @@ const Register = () => {
           </div>
         </div>
       </Card>
-
-      <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-black tracking-[4px] text-gray-400/40 pointer-events-none">
-        Copyright 2026 © EBookFarm Security Standard
-      </div>
     </div>
   );
 };
