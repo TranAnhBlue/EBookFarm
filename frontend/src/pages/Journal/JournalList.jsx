@@ -161,14 +161,26 @@ const JournalList = () => {
   const getStatusBadge = (record) => {
     const status = record.status;
     const htxStatus = record.htxStatus;
+    const feedback = record.feedback;
 
     const badges = {
       'Draft': { icon: '📝', text: 'Nháp', color: 'default' },
       'Submitted': { icon: '📤', text: 'Đã gửi', color: 'processing' },
-      'Verified': { icon: '✅', text: 'Đã xác minh', color: 'success' },
+      'Verified': { icon: '✅', text: 'Đã duyệt', color: 'success' },
       'Locked': { icon: '🔒', text: 'Đã khóa', color: 'error' },
       'Archived': { icon: '📦', text: 'Lưu trữ', color: 'default' }
     };
+
+    // Trường hợp có phản hồi (thường là bị từ chối/yêu cầu sửa)
+    if (status === 'Draft' && feedback) {
+      return (
+        <Tooltip title={`Yêu cầu chỉnh sửa: ${feedback}`}>
+          <Tag color="warning" icon={<ExclamationCircleOutlined />} className="rounded-md font-bold px-3 animate-pulse">
+            Cần chỉnh sửa
+          </Tag>
+        </Tooltip>
+      );
+    }
 
     // Nếu có trạng thái từ HTX thì ưu tiên hiển thị
     if (htxStatus) {
@@ -181,7 +193,7 @@ const JournalList = () => {
       return (
         <Tooltip title={`Trạng thái từ HTX: ${htxStatus}`}>
           <Tag color={color} className="rounded-md font-bold px-3">
-            {htxStatus}
+            {htxStatus === 'Đã duyệt' ? '✅ HTX Đã duyệt' : htxStatus}
           </Tag>
         </Tooltip>
       );
@@ -462,10 +474,18 @@ const JournalList = () => {
       }
     },
     {
-      title: 'Nhận xét HTX',
+      title: 'Phản hồi / Ghi chú',
       dataIndex: 'feedback',
       key: 'feedback',
-      render: (text) => text ? <Text type="danger" className="italic text-xs">{text}</Text> : <Text className="text-gray-300 italic text-xs">Không có</Text>
+      width: 200,
+      render: (text) => text ? (
+        <Tooltip title={text}>
+          <div className="flex items-start gap-1 text-red-500 bg-red-50 p-2 rounded-lg border border-red-100 max-w-[180px]">
+             <ExclamationCircleOutlined className="mt-1 flex-shrink-0" />
+             <Text type="danger" className="italic text-[11px] leading-tight line-clamp-2">{text}</Text>
+          </div>
+        </Tooltip>
+      ) : <Text className="text-gray-300 italic text-xs">Không có</Text>
     },
     {
       title: 'Lịch sử',

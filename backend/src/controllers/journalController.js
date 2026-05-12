@@ -128,6 +128,10 @@ const updateJournal = async (req, res) => {
 
           journal.entries = req.body.entries || journal.entries;
           journal.status = req.body.status || journal.status;
+          
+          if (req.body.feedback !== undefined) {
+              journal.feedback = req.body.feedback;
+          }
 
           // Set lockedAt timestamp if transitioning to Locked
           if (journal.status === 'Locked' && !journal.lockedAt) {
@@ -159,9 +163,52 @@ const updateJournal = async (req, res) => {
           }
 
           const updated = await journal.save();
+
+          // THÔNG BÁO CHO NÔNG DÂN KHI ADMIN DUYỆT HOẶC TỪ CHỐI
+          if (req.user.role?.toUpperCase() === 'ADMIN' && req.body.status) {
+              const categoryLabels = {
+                  'trongtrot': 'VietGAP Trồng trọt',
+                  'channuoi': 'VietGAHP Chăn nuôi',
+                  'thuysan': 'VietGAP Thủy sản',
+                  'huuco': 'Hữu cơ',
+                  'huuco_caytrong': 'Hữu cơ Cây trồng',
+                  'huuco_channuoi': 'Hữu cơ Chăn nuôi',
+                  'huuco_thuysan': 'Hữu cơ Thủy sản',
+                  'thongminh': 'Nông nghiệp Thông minh'
+              };
+              const catLabel = schema ? categoryLabels[schema.category] || '' : '';
+              
+              let nTitle = 'Cập nhật trạng thái sổ';
+              let nMessage = `Sổ nhật ký của bạn đã được cập nhật trạng thái: ${updated.status}`;
+              let nType = 'Journal_Verified';
+
+              if (updated.status === 'Verified') {
+                  nTitle = 'Sổ nhật ký đã được duyệt';
+                  nMessage = `Sổ nhật ký [${catLabel}] của bạn đã được Admin phê duyệt thành công.`;
+              } else if (updated.status === 'Draft' && req.body.feedback) {
+                  nTitle = 'Yêu cầu chỉnh sửa sổ';
+                  nMessage = `Admin yêu cầu bạn chỉnh sửa lại sổ [${catLabel}]. Lý do: ${req.body.feedback}`;
+                  nType = 'Journal_Revision_Requested';
+              } else if (updated.status === 'Locked') {
+                  nTitle = 'Sổ nhật ký đã bị khóa';
+                  nMessage = `Sổ nhật ký [${catLabel}] của bạn đã được khóa bất biến bởi Admin.`;
+                  nType = 'Journal_Locked';
+              }
+
+              await createNotification({
+                  recipient: updated.userId,
+                  sender: req.user._id,
+                  title: nTitle,
+                  message: nMessage,
+                  type: nType,
+                  relatedId: updated._id,
+                  relatedModel: 'FarmJournal',
+                  categoryLabel: catLabel
+              });
+          }
           
-          // Đồng bộ trạng thái lên HtxJournal nếu có
-          if (updated.htxJournalId && req.body.status) {
+          // Đồng bộ trạng thái lên HtxJournal nếu có (trường hợp cập nhật từ phía Farmer)
+          if (updated.htxJournalId && req.body.status && req.user.role?.toUpperCase() === 'FARMER') {
              const HtxJournal = require('../models/HtxJournal');
              const htxJournal = await HtxJournal.findById(updated.htxJournalId);
              if (htxJournal) {
