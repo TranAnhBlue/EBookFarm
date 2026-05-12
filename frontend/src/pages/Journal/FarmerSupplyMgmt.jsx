@@ -115,19 +115,33 @@ const FarmerSupplyMgmt = () => {
 
   const getStatusInfo = (status) => {
     switch (status) {
-      case 'Pending': return { color: 'orange', text: 'Đang chờ duyệt', icon: <ClockCircleOutlined /> };
-      case 'Approved': return { color: 'green', text: 'Đã phê duyệt', icon: <CheckCircleOutlined /> };
-      case 'Rejected': return { color: 'red', text: 'Bị từ chối', icon: <CloseCircleOutlined /> };
+      case 'Pending': return { color: 'orange', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
+      case 'Approved': return { color: 'green', text: 'Đã duyệt', icon: <CheckCircleOutlined /> };
+      case 'Rejected': return { color: 'red', text: 'Từ chối', icon: <CloseCircleOutlined /> };
       default: return { color: 'default', text: status, icon: null };
     }
   };
 
+  const [statusFilter, setStatusFilter] = useState(null);
+
+  const filteredRequests = statusFilter 
+    ? requests.filter(r => r.status === statusFilter)
+    : requests;
+
   const columns = [
+    {
+      title: 'STT',
+      key: 'stt',
+      width: 60,
+      align: 'center',
+      render: (text, record, index) => <Text className="text-xs text-gray-400">{index + 1}</Text>
+    },
     {
       title: 'NGÀY GỬI',
       dataIndex: 'createdAt',
       key: 'date',
-      render: (date) => <Text className="text-xs font-medium">{dayjs(date).format('DD/MM/YYYY HH:mm')}</Text>
+      width: 150,
+      render: (date) => <Text className="text-xs font-medium text-gray-500">{dayjs(date).format('DD/MM/YY HH:mm')}</Text>
     },
     {
       title: 'VẬT TƯ YÊU CẦU',
@@ -135,7 +149,7 @@ const FarmerSupplyMgmt = () => {
       render: (record) => (
         <div className="flex flex-wrap gap-2">
           {record.items.map((item, idx) => (
-            <Tag key={idx} color="blue" className="rounded-md border-blue-100 bg-blue-50 text-blue-700 font-medium">
+            <Tag key={idx} color="blue" className="rounded-md border-blue-100 bg-blue-50 text-blue-700 font-medium text-[11px]">
               {item.itemName} (x{item.quantity} {item.unit})
             </Tag>
           ))}
@@ -146,13 +160,14 @@ const FarmerSupplyMgmt = () => {
       title: 'HTX TIẾP NHẬN',
       dataIndex: ['htx', 'fullname'],
       key: 'htx',
-      render: (text, record) => <Text strong className="text-xs text-gray-600">{text || record.htx?.username}</Text>
+      render: (text, record) => <Text strong className="text-[12px] text-gray-600">{text || record.htx?.username}</Text>
     },
     {
       title: 'TRẠNG THÁI',
       dataIndex: 'status',
       key: 'status',
       align: 'center',
+      width: 140,
       render: (status) => {
         const info = getStatusInfo(status);
         return <Tag color={info.color} icon={info.icon} className="rounded-full px-3 font-bold uppercase text-[10px]">{info.text}</Tag>;
@@ -162,7 +177,7 @@ const FarmerSupplyMgmt = () => {
       title: 'PHẢN HỒI HTX',
       dataIndex: 'htxFeedback',
       key: 'feedback',
-      render: (text) => text ? <Text className="text-xs text-amber-600 italic">{text}</Text> : <Text className="text-xs text-gray-300">---</Text>
+      render: (text) => text ? <Text className="text-[12px] text-amber-600 italic">{text}</Text> : <Text className="text-xs text-gray-300">---</Text>
     }
   ];
 
@@ -233,18 +248,37 @@ const FarmerSupplyMgmt = () => {
         {/* Right Side: History Table */}
         <Col xs={24} lg={16}>
           <Card 
-            title={<Space><HistoryOutlined className="text-green-600" /><Text strong>Lịch sử yêu cầu</Text></Space>} 
+            title={
+              <div className="flex justify-between items-center w-full">
+                <Space><HistoryOutlined className="text-green-600" /><Text strong>Lịch sử yêu cầu</Text></Space>
+                <Select 
+                  placeholder="Lọc trạng thái" 
+                  allowClear 
+                  className="w-40 premium-select" 
+                  onChange={setStatusFilter}
+                  options={[
+                    { value: 'Pending', label: 'Chờ duyệt' },
+                    { value: 'Approved', label: 'Đã duyệt' },
+                    { value: 'Rejected', label: 'Từ chối' }
+                  ]}
+                />
+              </div>
+            } 
             className="rounded-[32px] border-gray-100 shadow-sm overflow-hidden"
             bodyStyle={{ padding: 0 }}
           >
             <Table 
               columns={columns} 
-              dataSource={requests} 
+              dataSource={filteredRequests} 
               rowKey="_id"
               loading={loading}
               className="premium-table"
               locale={{ emptyText: <Empty description="Bạn chưa có yêu cầu nào" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-              pagination={{ pageSize: 8, className: "px-6 py-4" }}
+              pagination={{ 
+                pageSize: 7, 
+                showTotal: (total) => `Tổng cộng ${total} đơn`,
+                className: "px-6 py-4" 
+              }}
             />
           </Card>
         </Col>

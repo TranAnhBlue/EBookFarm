@@ -26,6 +26,7 @@ router.post('/bulk', protect, admin, bulkCreateUsers);
 router.get('/htx-list', protect, getPublicHtxList);
 
 router.route('/profile')
+  .get(protect, getProfile)
   .put(protect, updateProfile);
 
 router.route('/:userId/certifications/:certId/verify')

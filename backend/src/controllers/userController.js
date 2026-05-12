@@ -14,6 +14,10 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getProfile = async (req, res) => {
+  res.json({ success: true, data: req.user });
+};
+
 const getPublicHtxList = async (req, res) => {
   try {
     const htxs = await User.find({ role: 'HTX', status: 'Active' })
@@ -307,5 +311,6 @@ module.exports = {
   deleteUser, 
   bulkCreateUsers,
   verifyCertification,
-  getPublicHtxList
+  getPublicHtxList,
+  getProfile
 };
