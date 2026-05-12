@@ -19,9 +19,9 @@ const Login = () => {
   React.useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail');
     if (rememberedEmail) {
-      form.setFieldsValue({ 
+      form.setFieldsValue({
         email: rememberedEmail,
-        remember: true 
+        remember: true
       });
     }
   }, [form]);
@@ -30,8 +30,8 @@ const Login = () => {
     try {
       setLoading(true);
       const { data } = await api.post('/auth/login', {
-          identifier: values.email, 
-          password: values.password
+        identifier: values.email,
+        password: values.password
       });
 
       if (values.remember) {
@@ -51,19 +51,19 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-      try {
-          setLoading(true);
-          const { data } = await api.post('/auth/google', { 
-              tokenId: credentialResponse.credential 
-          });
-          setCredentials(data.data, data.data.token);
-          message.success('Đăng nhập Google thành công!');
-          navigate('/dashboard');
-      } catch (error) {
-          message.error('Xác thực Google thất bại. Vui lòng thử lại.');
-      } finally {
-          setLoading(false);
-      }
+    try {
+      setLoading(true);
+      const { data } = await api.post('/auth/google', {
+        tokenId: credentialResponse.credential
+      });
+      setCredentials(data.data, data.data.token);
+      message.success('Đăng nhập Google thành công!');
+      navigate('/dashboard');
+    } catch (error) {
+      message.error('Xác thực Google thất bại. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,8 +95,8 @@ const Login = () => {
               label={<Text className="text-[11px] font-black uppercase tracking-[2px] text-gray-400 ml-1">Email / Số điện thoại</Text>}
               rules={[{ required: true, message: 'Vui lòng nhập tài khoản!' }]}
             >
-              <Input 
-                prefix={<MailOutlined className="text-gray-300" />} 
+              <Input
+                prefix={<MailOutlined className="text-gray-300" />}
                 placeholder="09xxxxxxxx"
                 className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all font-medium"
               />
@@ -112,8 +112,8 @@ const Login = () => {
               }
               rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
             >
-              <Input.Password 
-                prefix={<LockOutlined className="text-gray-300" />} 
+              <Input.Password
+                prefix={<LockOutlined className="text-gray-300" />}
                 placeholder="••••••••"
                 className="h-14 rounded-2xl bg-gray-50/50 border-gray-100 hover:border-green-400 focus:border-green-500 transition-all"
               />
@@ -163,11 +163,6 @@ const Login = () => {
       </Card>
 
       <div className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase font-black tracking-[4px] text-gray-400/40 pointer-events-none">
-        Copyright 2026 © EBookFarm Security Standard
-      </div>
-    </div>
-  );
-};t-0 right-0 text-center text-[10px] uppercase font-bold tracking-[3px] text-gray-400/50 pointer-events-none">
         Copyright 2026 © EBookFarm Security Standard
       </div>
     </div>
