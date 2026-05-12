@@ -6,7 +6,8 @@ const {
   createUser, 
   deleteUser, 
   bulkCreateUsers,
-  verifyCertification 
+  verifyCertification,
+  getPublicHtxList
 } = require('../controllers/userController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
@@ -22,6 +23,7 @@ const adminOrHtx = (req, res, next) => {
 const router = express.Router();
 
 router.post('/bulk', protect, admin, bulkCreateUsers);
+router.get('/htx-list', protect, getPublicHtxList);
 
 router.route('/profile')
   .put(protect, updateProfile);

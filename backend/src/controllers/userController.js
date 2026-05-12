@@ -14,6 +14,16 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getPublicHtxList = async (req, res) => {
+  try {
+    const htxs = await User.find({ role: 'HTX', status: 'Active' })
+      .select('fullname username phone avatar email province district ward address');
+    res.json({ success: true, data: htxs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách HTX.' });
+  }
+};
+
 const updateUserRoleStatus = async (req, res) => {
   try {
     const { role, status, fullname, email, password, groupId, htxId } = req.body;
@@ -296,5 +306,6 @@ module.exports = {
   createUser, 
   deleteUser, 
   bulkCreateUsers,
-  verifyCertification 
+  verifyCertification,
+  getPublicHtxList
 };

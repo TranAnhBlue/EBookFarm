@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import api from '../../services/api';
 import dayjs from 'dayjs';
+import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -26,6 +27,7 @@ const FarmerSupplyMgmt = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const [htxList, setHtxList] = useState([]);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchRequests();
@@ -46,11 +48,21 @@ const FarmerSupplyMgmt = () => {
 
   const fetchHtxList = async () => {
     try {
-      // In this system, farmers are often linked to an HTX. 
-      // We'll fetch HTX users or just use the one they are linked to.
-      // For now, let's fetch all users with role 'HTX' or 'Admin' as a fallback
-      const res = await api.get('/users?role=HTX');
-      if (res.data.success) setHtxList(res.data.data);
+      if (!user?.htxId) {
+        setHtxList([]);
+        return;
+      }
+      const res = await api.get('/users/htx-list');
+      if (res.data.success) {
+        // Chỉ lấy HTX mà nông dân này thuộc về
+        const myHtx = res.data.data.filter(htx => htx._id === user.htxId);
+        setHtxList(myHtx);
+        
+        // Tự động chọn HTX nếu chỉ có 1
+        if (myHtx.length === 1) {
+          form.setFieldsValue({ htxId: myHtx[0]._id });
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch HTX list');
     }
