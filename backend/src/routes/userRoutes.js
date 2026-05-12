@@ -1,15 +1,5 @@
 const express = require('express');
-const { 
-  getUsers, 
-  updateUserRoleStatus, 
-  updateProfile, 
-  createUser, 
-  deleteUser, 
-  bulkCreateUsers,
-  verifyCertification,
-  getPublicHtxList,
-  getProfile
-} = require('../controllers/userController');
+const userController = require('../controllers/userController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
 // Custom middleware for Admin or HTX
@@ -23,22 +13,22 @@ const adminOrHtx = (req, res, next) => {
 
 const router = express.Router();
 
-router.post('/bulk', protect, admin, bulkCreateUsers);
-router.get('/htx-list', protect, getPublicHtxList);
+router.post('/bulk', protect, admin, userController.bulkCreateUsers);
+router.get('/htx-list', protect, userController.getPublicHtxList);
 
 router.route('/profile')
-  .get(protect, getProfile)
-  .put(protect, updateProfile);
+  .get(protect, userController.getProfile)
+  .put(protect, userController.updateProfile);
 
 router.route('/:userId/certifications/:certId/verify')
-  .put(protect, adminOrHtx, verifyCertification);
+  .put(protect, adminOrHtx, userController.verifyCertification);
 
 router.route('/')
-  .get(protect, admin, getUsers)
-  .post(protect, admin, createUser);
+  .get(protect, admin, userController.getUsers)
+  .post(protect, admin, userController.createUser);
 
 router.route('/:id')
-  .put(protect, admin, updateUserRoleStatus)
-  .delete(protect, admin, deleteUser);
+  .put(protect, admin, userController.updateUserRoleStatus)
+  .delete(protect, admin, userController.deleteUser);
 
 module.exports = router;
