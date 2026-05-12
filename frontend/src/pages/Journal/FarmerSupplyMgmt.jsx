@@ -27,12 +27,28 @@ const FarmerSupplyMgmt = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
   const [htxList, setHtxList] = useState([]);
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   useEffect(() => {
-    fetchRequests();
-    fetchHtxList();
+    const init = async () => {
+      await fetchLatestProfile();
+      fetchRequests();
+    };
+    init();
   }, []);
+
+  const fetchLatestProfile = async () => {
+    try {
+      const res = await api.get('/users/profile');
+      if (res.data.success) {
+        setUser(res.data.data);
+        // Sau khi có profile mới nhất, mới đi lấy danh sách HTX
+        fetchHtxList(res.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile');
+    }
+  };
 
   const fetchRequests = async () => {
     try {
@@ -46,25 +62,32 @@ const FarmerSupplyMgmt = () => {
     }
   };
 
-  const fetchHtxList = async () => {
+  const fetchHtxList = async (currentUser) => {
     try {
-      if (!user?.htxId) {
+      const targetUser = currentUser || user;
+      const htxId = targetUser?.htxId;
+
+      if (!htxId) {
+        console.log('No HTX assigned to this user');
         setHtxList([]);
         return;
       }
+
       const res = await api.get('/users/htx-list');
       if (res.data.success) {
-        // Chỉ lấy HTX mà nông dân này thuộc về
-        const myHtx = res.data.data.filter(htx => htx._id === user.htxId);
+        // Lọc HTX theo ID (ép kiểu string để so khớp chính xác)
+        const myHtx = res.data.data.filter(htx => 
+          htx._id.toString() === (typeof htxId === 'object' ? htxId._id : htxId).toString()
+        );
+        
         setHtxList(myHtx);
         
-        // Tự động chọn HTX nếu chỉ có 1
-        if (myHtx.length === 1) {
+        if (myHtx.length > 0) {
           form.setFieldsValue({ htxId: myHtx[0]._id });
         }
       }
     } catch (error) {
-      console.error('Failed to fetch HTX list');
+      console.error('Failed to fetch HTX list', error);
     }
   };
 
