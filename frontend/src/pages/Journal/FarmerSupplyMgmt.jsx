@@ -75,11 +75,16 @@ const FarmerSupplyMgmt = () => {
 
       const res = await api.get('/users/htx-list');
       if (res.data.success) {
+        console.log('Farmer HTX ID:', htxId);
+        console.log('Available HTXs:', res.data.data.map(h => h._id));
+
         // Lọc HTX theo ID (ép kiểu string để so khớp chính xác)
-        const myHtx = res.data.data.filter(htx => 
-          htx._id.toString() === (typeof htxId === 'object' ? htxId._id : htxId).toString()
-        );
+        const myHtx = res.data.data.filter(htx => {
+          const htxIdStr = (typeof htxId === 'object' ? htxId._id : htxId).toString();
+          return htx._id.toString() === htxIdStr;
+        });
         
+        console.log('Matched HTX:', myHtx);
         setHtxList(myHtx);
         
         if (myHtx.length > 0) {

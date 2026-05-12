@@ -20,7 +20,10 @@ const getProfile = async (req, res) => {
 
 const getPublicHtxList = async (req, res) => {
   try {
-    const htxs = await User.find({ role: 'HTX', status: 'Active' })
+    const htxs = await User.find({ 
+      role: { $regex: /^htx$/i }, 
+      status: 'Active' 
+    })
       .select('fullname username phone avatar email province district ward address');
     res.json({ success: true, data: htxs });
   } catch (error) {
