@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination, Progress } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
+import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination, Progress, Input, Divider } from 'antd';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined, SearchOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -54,6 +54,8 @@ const JournalList = () => {
   const [historyModalVisible, setHistoryModalVisible] = useState(false);
   const [historyJournalId, setHistoryJournalId] = useState(null);
   const [typeFilter, setTypeFilter] = useState('all'); // all, personal, htx
+  const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const { data: journalsRaw, isLoading } = useQuery({
     queryKey: ['journals', category.key],
@@ -84,32 +86,53 @@ const JournalList = () => {
     return false;
   }), [schemasRaw, category.key, channuoiNames]);
 
-  const journals = useMemo(() => journalsRaw?.filter(j => {
-    // Filter by category
-    let categoryMatch = true;
-    if (category.key) {
-      const s = j.schemaId;
-      if (!s) {
-        categoryMatch = false;
-      } else if (s.category && s.category === category.key) {
-        categoryMatch = true;
-      } else if (!s.category) {
-        if (category.key === 'channuoi') categoryMatch = channuoiNames.has(s.name);
-        else if (category.key === 'trongtrot') categoryMatch = !channuoiNames.has(s.name);
-        else categoryMatch = false;
-      } else {
-        categoryMatch = false;
+  const journals = useMemo(() => {
+    if (!journalsRaw) return [];
+    
+    return journalsRaw.filter(j => {
+      // 1. Filter by category
+      let categoryMatch = true;
+      if (category.key) {
+        const s = j.schemaId;
+        if (!s) {
+          categoryMatch = false;
+        } else if (s.category && s.category === category.key) {
+          categoryMatch = true;
+        } else if (!s.category) {
+          if (category.key === 'channuoi') categoryMatch = channuoiNames.has(s.name);
+          else if (category.key === 'trongtrot') categoryMatch = !channuoiNames.has(s.name);
+          else categoryMatch = false;
+        } else {
+          categoryMatch = false;
+        }
       }
-    }
 
-    if (!categoryMatch) return false;
+      if (!categoryMatch) return false;
 
-    // Filter by type (Personal vs HTX)
-    if (typeFilter === 'personal') return !j.htxJournalId;
-    if (typeFilter === 'htx') return !!j.htxJournalId;
+      // 2. Filter by type (Personal vs HTX)
+      if (typeFilter === 'personal' && j.htxJournalId) return false;
+      if (typeFilter === 'htx' && !j.htxJournalId) return false;
 
-    return true;
-  }), [journalsRaw, category.key, typeFilter, channuoiNames]);
+      // 3. Filter by status
+      if (statusFilter !== 'all' && j.status !== statusFilter) return false;
+
+      // 4. Search text
+      if (searchText) {
+        const searchLower = searchText.toLowerCase();
+        const schemaName = (j.schemaId?.name || '').toLowerCase();
+        const userName = (j.userId?.fullname || j.userId?.username || '').toLowerCase();
+        const qrCode = (j.qrCode || '').toLowerCase();
+        
+        if (!schemaName.includes(searchLower) && 
+            !userName.includes(searchLower) && 
+            !qrCode.includes(searchLower)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [journalsRaw, category.key, typeFilter, statusFilter, searchText, channuoiNames]);
 
   const { data: fullJournal, isLoading: isFetchingFull } = useQuery({
     queryKey: ['journal-detail', selectedJournalId],
@@ -556,15 +579,36 @@ const JournalList = () => {
       {/* Main Table/Card Content */}
       <Card variant="borderless" className="shadow-sm rounded-xl overflow-hidden border border-green-200 p-0" styles={{ body: { padding: 0 } }}>
         {/* Toolbar in Card */}
-        <div className="p-4 flex justify-between items-center bg-white border-b border-green-200">
-          <Space>
+        <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border-b border-green-200">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <Input
+              placeholder="Tìm theo tên sổ, người tạo..."
+              prefix={<SearchOutlined className="text-gray-400" />}
+              className="w-full md:w-64 rounded-lg shadow-sm border-gray-200"
+              allowClear
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+            />
+            <Select
+              value={statusFilter}
+              onChange={setStatusFilter}
+              className="w-full md:w-40 shadow-sm"
+              placeholder="Trạng thái"
+            >
+              <Select.Option value="all">Tất cả trạng thái</Select.Option>
+              <Select.Option value="Draft">Nháp</Select.Option>
+              <Select.Option value="Submitted">Đã gửi</Select.Option>
+              <Select.Option value="Verified">Đã xác minh</Select.Option>
+              <Select.Option value="Locked">Đã khóa</Select.Option>
+            </Select>
             {selectedJournals.length > 0 && (
-              <>
+              <Space>
+                <Divider type="vertical" className="h-8 border-gray-200 hidden md:block" />
                 <Text className="text-gray-600">Đã chọn: <strong>{selectedJournals.length}</strong></Text>
                 <Button
                   icon={<DownloadOutlined />}
                   onClick={handleExportMultiple}
-                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50 h-9"
                 >
                   Xuất {selectedJournals.length} nhật ký
                 </Button>
@@ -576,16 +620,16 @@ const JournalList = () => {
                 >
                   Bỏ chọn
                 </Button>
-              </>
+              </Space>
             )}
-          </Space>
-          <Space>
+          </div>
+          <Space className="w-full md:w-auto justify-end">
             <>
               {user?.role?.toUpperCase() !== 'FARMER' && (
                 <Button
                   icon={<UploadOutlined />}
                   onClick={() => setImportModalVisible(true)}
-                  className="text-green-600 border-green-300 hover:bg-green-50"
+                  className="text-green-600 border-green-300 hover:bg-green-50 h-9"
                 >
                   Import
                 </Button>
@@ -594,7 +638,7 @@ const JournalList = () => {
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setSchemaModalVisible(true)}
-                className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium"
+                className="bg-green-500 hover:bg-green-600 rounded whitespace-nowrap h-9 font-medium shadow-md shadow-green-100"
               >
                 Tạo sổ nhật ký
               </Button>
