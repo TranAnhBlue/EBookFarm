@@ -10,6 +10,7 @@ const FormFieldSchema = new mongoose.Schema({
 
 const FormTableSchema = new mongoose.Schema({
   tableName: { type: String, required: true },
+  isMultiRow: { type: Boolean, default: false }, // Cho phép nhập nhiều dòng (nhật ký hàng ngày)
   fields: [FormFieldSchema]
 });
 

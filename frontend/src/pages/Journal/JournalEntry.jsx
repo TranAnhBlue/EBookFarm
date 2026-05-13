@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
 import dayjs from 'dayjs';
-import { InboxOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
@@ -1313,73 +1313,65 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           const consumePromises = [];
           for (const tableName in entries) {
             const tableData = entries[tableName];
-            if (!tableData || typeof tableData !== 'object') continue;
+            if (!tableData) continue;
 
-            for (const fieldName in tableData) {
-              const value = tableData[fieldName];
-              if (!value) continue;
+            const processRow = (row, oldRow = null) => {
+              for (const fieldName in row) {
+                const value = row[fieldName];
+                if (!value) continue;
 
-              // Kiểm tra xem đây có phải là field số lượng không
-              const field = schema.tables.find(t => t.tableName === tableName)
-                ?.fields.find(f => f.name === fieldName);
+                const field = schema.tables.find(t => t.tableName === tableName)
+                  ?.fields.find(f => f.name === fieldName);
 
-              if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón') || field.label.toLowerCase().includes('lượng dùng'))) {
-                // Tìm field vật tư tương ứng trong cùng bảng
-                const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
-                  ?.fields.find(f =>
-                    f.label.toLowerCase().includes('phân bón') ||
-                    f.label.toLowerCase().includes('thuốc') ||
-                    f.label.toLowerCase().includes('vật tư') ||
-                    f.label.toLowerCase().includes('giống') ||
-                    f.label.toLowerCase().includes('thức ăn')
-                  )?.name;
+                if (field && (field.label.toLowerCase().includes('số lượng') || field.label.toLowerCase().includes('lượng bón') || field.label.toLowerCase().includes('lượng dùng') || field.label.toLowerCase().includes('lượng sử dụng'))) {
+                  const supplyFieldName = schema.tables.find(t => t.tableName === tableName)
+                    ?.fields.find(f =>
+                      f.label.toLowerCase().includes('phân bón') ||
+                      f.label.toLowerCase().includes('thuốc') ||
+                      f.label.toLowerCase().includes('vật tư') ||
+                      f.label.toLowerCase().includes('giống') ||
+                      f.label.toLowerCase().includes('thức ăn')
+                    )?.name;
 
-                const selectedSupplyId = tableData[supplyFieldName];
-                if (selectedSupplyId) {
-                  const invItem = inventory?.find(item => item._id === selectedSupplyId);
-                  if (invItem) {
-                    // Tính toán độ lệch khi Sửa (Edit)
-                    let quantityToDeduct = Number(value);
-                    let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
+                  const selectedSupplyId = row[supplyFieldName];
+                  if (selectedSupplyId) {
+                    const invItem = inventory?.find(item => item._id === selectedSupplyId);
+                    if (invItem) {
+                      let quantityToDeduct = Number(value);
+                      let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
 
-                    if (isEditing && journalData?.entries && journalData.entries[tableName]) {
-                      const oldTableData = journalData.entries[tableName];
-                      const oldSupplyId = oldTableData[supplyFieldName];
-                      const oldQuantity = Number(oldTableData[fieldName]) || 0;
-
-                      if (oldSupplyId === selectedSupplyId) {
-                        // Cùng 1 vật tư, chỉ trừ phần chênh lệch
+                      if (oldRow && oldRow[supplyFieldName] === selectedSupplyId) {
+                        const oldQuantity = Number(oldRow[fieldName]) || 0;
                         quantityToDeduct = Number(value) - oldQuantity;
-                        if (quantityToDeduct < 0) {
-                          noteText = `Hoàn trả kho tự động (do sửa giảm số lượng) từ sổ: ${schema.name}`;
-                        } else if (quantityToDeduct > 0) {
-                          noteText = `Trừ kho bổ sung (do sửa tăng số lượng) từ sổ: ${schema.name}`;
-                        }
+                        if (quantityToDeduct < 0) noteText = `Hoàn trả kho (sửa giảm) từ sổ: ${schema.name}`;
+                        else if (quantityToDeduct > 0) noteText = `Trừ kho bổ sung (sửa tăng) từ sổ: ${schema.name}`;
                       }
-                    }
 
-                    if (quantityToDeduct !== 0) {
-                      consumePromises.push(
-                        api.post('/inventory/consume', {
-                          itemId: invItem._id,
-                          quantity: quantityToDeduct,
-                          note: noteText,
-                          journalId: isEditing ? id : 'New'
-                        })
-                      );
+                      if (quantityToDeduct !== 0) {
+                        consumePromises.push(api.post('/inventory/consume', { itemId: invItem._id, quantity: quantityToDeduct, note: noteText }));
+                      }
                     }
                   }
                 }
               }
+            };
+
+            if (Array.isArray(tableData)) {
+              tableData.forEach((row, idx) => {
+                const oldRow = journalData?.entries?.[tableName]?.[idx];
+                processRow(row, oldRow);
+              });
+            } else {
+              const oldRow = journalData?.entries?.[tableName];
+              processRow(tableData, oldRow);
             }
           }
-          await Promise.all(consumePromises);
-        } catch (invErr) {
-          console.error('Lỗi cập nhật kho:', invErr);
-          // Không throw lỗi ở đây để vẫn cho phép lưu nhật ký nếu lỗi kho
-          message.warning('Nhật ký đã lưu nhưng có lỗi khi cập nhật tồn kho vật tư.');
+          if (consumePromises.length > 0) await Promise.all(consumePromises);
+        } catch (err) {
+          console.error('Lỗi trừ kho:', err);
         }
       }
+
 
       if (isEditing) {
         return api.put(`/journals/${id}`, payload);
@@ -1414,7 +1406,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   });
 
   // Validation rules cho các trường khác nhau - Tăng cường cho chăn nuôi VietGAHP
-  const getValidationRules = (field, tableName) => {
+  const getValidationRules = (field, tableName, recordIndex = null) => {
     const rules = [];
 
     // Ánh xạ kiểu dữ liệu của hệ thống sang kiểu của Ant Design Validator
@@ -2131,7 +2123,12 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                   f.label.toLowerCase().includes('thức ăn')
                 )?.name;
 
-              const selectedSupplyId = tableData[supplyFieldName];
+              let selectedSupplyId;
+              if (recordIndex !== null && Array.isArray(tableData)) {
+                selectedSupplyId = tableData[recordIndex][supplyFieldName];
+              } else {
+                selectedSupplyId = tableData[supplyFieldName];
+              }
               if (!selectedSupplyId) return Promise.resolve();
 
               const item = inventory.find(i => i._id === selectedSupplyId);
@@ -2249,14 +2246,31 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         schema.tables.forEach(table => {
           const tableName = table.tableName;
           if (convertedEntries[tableName]) {
-            table.fields.forEach(field => {
-              if (field.type === 'date' && convertedEntries[tableName][field.name]) {
-                convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
-              }
-              if (field.type === 'number' && convertedEntries[tableName][field.name] !== undefined && convertedEntries[tableName][field.name] !== null && convertedEntries[tableName][field.name] !== '') {
-                convertedEntries[tableName][field.name] = Number(convertedEntries[tableName][field.name]);
-              }
-            });
+            if (Array.isArray(convertedEntries[tableName])) {
+              // Xử lý bảng nhiều dòng (Multi-row)
+              convertedEntries[tableName] = convertedEntries[tableName].map(row => {
+                const newRow = { ...row };
+                table.fields.forEach(field => {
+                  if (field.type === 'date' && newRow[field.name]) {
+                    newRow[field.name] = dayjs(newRow[field.name]);
+                  }
+                  if (field.type === 'number' && newRow[field.name] !== undefined && newRow[field.name] !== null && newRow[field.name] !== '') {
+                    newRow[field.name] = Number(newRow[field.name]);
+                  }
+                });
+                return newRow;
+              });
+            } else {
+              // Xử lý bảng đơn (Single-row)
+              table.fields.forEach(field => {
+                if (field.type === 'date' && convertedEntries[tableName][field.name]) {
+                  convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
+                }
+                if (field.type === 'number' && convertedEntries[tableName][field.name] !== undefined && convertedEntries[tableName][field.name] !== null && convertedEntries[tableName][field.name] !== '') {
+                  convertedEntries[tableName][field.name] = Number(convertedEntries[tableName][field.name]);
+                }
+              });
+            }
           }
         });
       }
@@ -2330,6 +2344,120 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   if (schemaLoading || (isEditing && journalLoading)) return <Skeleton active />;
   if (!schema) return <div>Schema not found</div>;
 
+  const renderField = (field, tableName, namePath, recordIndex = null) => {
+    const options = getInventoryOptions(field.label);
+    const isSupplyField = field.label.toLowerCase().includes('phân bón') ||
+      field.label.toLowerCase().includes('thuốc') ||
+      field.label.toLowerCase().includes('vật tư') ||
+      field.label.toLowerCase().includes('giống') ||
+      field.label.toLowerCase().includes('thức ăn');
+
+    const commonProps = {
+      size: "large",
+      className: "rounded-xl border-gray-200",
+      placeholder: `Nhập ${field.label.toLowerCase()}`,
+      disabled: isReadOnly
+    };
+
+    let inputNode;
+    if (field.type === 'text') {
+      if (isSupplyField && options.length > 0) {
+        inputNode = (
+          <Select
+            {...commonProps}
+            placeholder={`Chọn ${field.label.toLowerCase()} từ kho`}
+            showSearch
+            allowClear
+            onChange={(value) => {
+              const selected = options.find(o => o._id === value);
+              if (selected) {
+                const table = schema.tables.find(t => t.tableName === tableName);
+                const unitFieldName = table?.fields.find(f =>
+                  f.label.toLowerCase().includes('đơn vị') ||
+                  f.name.toLowerCase().includes('donvi')
+                )?.name;
+                if (unitFieldName) {
+                  if (recordIndex !== null) {
+                    const currentTable = form.getFieldValue(tableName) || [];
+                    currentTable[recordIndex][unitFieldName] = selected.unit;
+                    form.setFieldValue(tableName, [...currentTable]);
+                  } else {
+                    form.setFieldValue([tableName, unitFieldName], selected.unit);
+                  }
+                }
+              }
+            }}
+          >
+            {options.map(item => (
+              <Option key={item._id} value={item._id}>
+                <div className="flex justify-between items-center w-full">
+                  <span>{item.name}</span>
+                  <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
+                    Kho: {item.quantity} {item.unit}
+                  </Tag>
+                </div>
+              </Option>
+            ))}
+          </Select>
+        );
+      } else {
+        inputNode = (
+          <Input
+            {...commonProps}
+            maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('hoTen') ? 100 : 50}
+            showCount={field.name.includes('diaChi') || field.name.includes('hoTen')}
+          />
+        );
+      }
+    } else if (field.type === 'number') {
+      inputNode = (
+        <InputNumber
+          {...commonProps}
+          className="w-full rounded-xl border-gray-200"
+          min={0}
+        />
+      );
+    } else if (field.type === 'date') {
+      inputNode = (
+        <DatePicker
+          {...commonProps}
+          className="w-full rounded-xl border-gray-200"
+          format="DD/MM/YYYY"
+        />
+      );
+    } else if (field.type === 'select') {
+      inputNode = (
+        <Select {...commonProps} allowClear showSearch>
+          {field.options?.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+        </Select>
+      );
+    }
+
+    return (
+      <Form.Item
+        name={namePath}
+        label={
+          <Space>
+            <span className="font-medium text-gray-700">{field.label}</span>
+            {field.type === 'text' && !isReadOnly && (
+              <VoiceInput
+                targetField={field.label}
+                onSpeechEnd={(text) => {
+                  const currentVal = form.getFieldValue(namePath) || '';
+                  form.setFieldValue(namePath, currentVal ? `${currentVal} ${text}` : text);
+                }}
+              />
+            )}
+          </Space>
+        }
+        rules={getValidationRules(field, tableName, recordIndex)}
+        className="mb-4"
+      >
+        {inputNode}
+      </Form.Item>
+    );
+  };
+
   const tabItems = schema.tables.map((table, idx) => ({
     key: idx.toString(),
     label: <span className="font-semibold">{table.tableName}</span>,
@@ -2337,123 +2465,65 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       <Card className="shadow-sm rounded-2xl border-gray-100">
         <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
           <Title level={5} className="!mb-0 text-green-700">{table.tableName}</Title>
+          {table.isMultiRow && !isReadOnly && (
+            <div className="text-xs text-gray-500 italic">* Bảng này cho phép theo dõi nhiều dòng dữ liệu hàng ngày</div>
+          )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-          {table.fields.map((field) => (
-            <div key={field.name}>
-              <Form.Item
-                name={[table.tableName, field.name]}
-                label={
-                  <Space>
-                    <span className="font-medium text-gray-700">{field.label}</span>
-                    {field.type === 'text' && (
-                      <VoiceInput
-                        targetField={field.label}
-                        onSpeechEnd={(text) => handleVoiceInput(table.tableName, field.name, text)}
-                      />
-                    )}
-                  </Space>
-                }
-                rules={getValidationRules(field, table.tableName)}
-                className="mb-4"
-              >
-                {field.type === 'text' && (
-                  (() => {
-                    const options = getInventoryOptions(field.label);
-                    const isSupplyField = field.label.toLowerCase().includes('phân bón') ||
-                      field.label.toLowerCase().includes('thuốc') ||
-                      field.label.toLowerCase().includes('vật tư') ||
-                      field.label.toLowerCase().includes('giống') ||
-                      field.label.toLowerCase().includes('thức ăn');
 
-                    if (isSupplyField && options.length > 0) {
-                      return (
-                        <Select
-                          size="large"
-                          className="rounded-xl border-gray-200"
-                          placeholder={`Chọn ${field.label.toLowerCase()} từ kho`}
-                          showSearch
-                          allowClear
-                          onChange={(value) => {
-                            // Tìm vật tư để lấy đơn vị nếu có trường đơn vị tương ứng
-                            const selected = options.find(o => o._id === value);
-                            if (selected) {
-                              // Tự động tìm trường đơn vị trong cùng bảng
-                              const unitFieldName = table.fields.find(f =>
-                                f.label.toLowerCase().includes('đơn vị') ||
-                                f.name.toLowerCase().includes('donvi')
-                              )?.name;
-                              if (unitFieldName) {
-                                form.setFieldValue([table.tableName, unitFieldName], selected.unit);
-                              }
-                            }
-                          }}
-                        >
-                          {options.map(item => (
-                            <Option key={item._id} value={item._id}>
-                              <div className="flex justify-between items-center w-full">
-                                <span>{item.name}</span>
-                                <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
-                                  Kho: {item.quantity} {item.unit}
-                                </Tag>
-                              </div>
-                            </Option>
-                          ))}
-                        </Select>
-                      );
-                    }
-                    return (
-                      <Input
-                        size="large"
-                        className="rounded-xl border-gray-200"
-                        placeholder={`Nhập ${field.label.toLowerCase()}`}
-                        maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('tenCoSo') || field.name.includes('hoTen') ? 100 : 50}
-                        showCount={field.name.includes('diaChi') || field.name.includes('tenCoSo') || field.name.includes('hoTen')}
-                      />
-                    );
-                  })()
-                )}
-                {field.type === 'number' && (
-                  <InputNumber
-                    size="large"
-                    className="w-full rounded-xl border-gray-200"
-                    placeholder={`Nhập ${field.label.toLowerCase()}`}
-                    min={0}
-                    max={field.name.includes('dienTich') ? 1000000 : field.name.includes('namSanXuat') ? new Date().getFullYear() + 2 : undefined}
-                    formatter={field.name.includes('dienTich') ? (value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : undefined}
-                    parser={field.name.includes('dienTich') ? (value) => {
-                      const parsed = value.replace(/\$\s?|(,*)/g, '');
-                      return parsed ? Number(parsed) : '';
-                    } : undefined}
-                  />
-                )}
-                {field.type === 'date' && (
-                  <DatePicker
-                    size="large"
-                    className="w-full rounded-xl border-gray-200"
-                    placeholder={`Chọn ${field.label.toLowerCase()}`}
-                    format="DD/MM/YYYY"
-                    disabledDate={field.name.includes('hanSuDung') ? (current) => current && current < new Date() : undefined}
-                  />
-                )}
-                {field.type === 'select' && (
-                  <Select
-                    size="large"
-                    className="rounded-xl border-gray-200"
-                    placeholder={`Chọn ${field.label.toLowerCase()}`}
-                    allowClear
-                    showSearch
-                    optionFilterProp="children"
+        {table.isMultiRow ? (
+          <Form.List name={table.tableName}>
+            {(fields, { add, remove }) => (
+              <div className="space-y-6">
+                {fields.map(({ key, name, ...restField }, index) => (
+                  <Card 
+                    key={key} 
+                    size="small" 
+                    className="bg-gray-50/50 border-gray-200 rounded-xl relative pt-8"
+                    title={<Tag color="blue">Dòng #{index + 1}</Tag>}
+                    extra={!isReadOnly && (
+                      <Button 
+                        type="text" 
+                        danger 
+                        icon={<DeleteOutlined />} 
+                        onClick={() => remove(name)}
+                      >
+                        Xóa
+                      </Button>
+                    )}
                   >
-                    {field.options?.map((opt) => (
-                      <Option value={opt} key={opt}>{opt}</Option>
-                    ))}
-                  </Select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                      {table.fields.map(field => (
+                        <div key={field.name}>
+                          {renderField(field, table.tableName, [name, field.name], name)}
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                ))}
+                {!isReadOnly && (
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                    size="large"
+                    className="rounded-xl h-14 border-green-300 text-green-600 hover:text-green-700 hover:border-green-400 bg-green-50/30"
+                  >
+                    Thêm dòng mới cho {table.tableName}
+                  </Button>
                 )}
-              </Form.Item>
-            </div>
-          ))}
-        </div>
+              </div>
+            )}
+          </Form.List>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            {table.fields.map((field) => (
+              <div key={field.name}>
+                {renderField(field, table.tableName, [table.tableName, field.name])}
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
     )
   }));
