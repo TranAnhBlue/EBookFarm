@@ -2369,11 +2369,15 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
   const renderField = (field, tableName, namePath, recordIndex = null) => {
     const options = getInventoryOptions(field.label);
-    const isSupplyField = field.label.toLowerCase().includes('phân bón') ||
+    const isSupplyField = (
+      field.label.toLowerCase().includes('phân bón') ||
       field.label.toLowerCase().includes('thuốc') ||
       field.label.toLowerCase().includes('vật tư') ||
-      field.label.toLowerCase().includes('giống') ||
-      field.label.toLowerCase().includes('thức ăn');
+      field.label.toLowerCase().includes('thức ăn') ||
+      // Chỉ coi "giống" là vật tư nếu là trồng trọt (Hạt giống), 
+      // trong chăn nuôi "giống" là tên giống/số hiệu (Text)
+      (schema.category === 'trongtrot' && field.label.toLowerCase().includes('giống'))
+    );
 
     const commonProps = {
       size: "large",
@@ -2507,7 +2511,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         </div>
 
         {table.isMultiRow ? (
-          <Form.List name={table.tableName}>
+          <Form.List name={table.tableName} initialValue={[]}>
             {(fields, { add, remove }) => (
               <div className="space-y-6">
                 {fields.map(({ key, name, ...restField }, index) => (
