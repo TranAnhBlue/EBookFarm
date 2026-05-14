@@ -394,20 +394,20 @@ const JournalTrace = ({ isBatch }) => {
                                   const rawValue = row[f.name];
                                   let displayValue = rawValue || <span className="text-gray-400 italic">Chưa cập nhật</span>;
 
-                                  // 1. Xử lý nếu là ID vật tư (map sang tên)
-                                  if (inventory && typeof rawValue === 'string' && rawValue.length === 24) {
-                                    const item = inventory.find(i => i._id === rawValue);
-                                    if (item) displayValue = item.name;
-                                  } 
-                                  // 2. Xử lý nếu là ngày tháng (định dạng dd/MM/yyyy)
-                                  else if (typeof rawValue === 'string' && (
-                                    /^\d{4}-\d{2}-\d{2}/.test(rawValue) || // ISO format
+                                  // 1. Kiểm tra nếu là ngày tháng (Ưu tiên kiểm tra trước vì ISO string có thể dài 24 ký tự trùng với ID)
+                                  if (typeof rawValue === 'string' && (
+                                    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(rawValue) || // ISO string full
                                     f.label.toLowerCase().includes('ngày') || 
                                     f.label.toLowerCase().includes('tháng')
                                   )) {
                                     const d = dayjs(rawValue);
                                     if (d.isValid()) displayValue = d.format('DD/MM/YYYY');
                                   }
+                                  // 2. Xử lý nếu là ID vật tư (map sang tên) - Chỉ chạy nếu không phải ngày tháng
+                                  else if (inventory && typeof rawValue === 'string' && rawValue.length === 24) {
+                                    const item = inventory.find(i => i._id === rawValue);
+                                    if (item) displayValue = item.name;
+                                  } 
 
                                   return (
                                     <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
