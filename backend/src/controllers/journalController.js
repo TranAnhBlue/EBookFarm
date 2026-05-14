@@ -117,12 +117,17 @@ const updateJournal = async (req, res) => {
               return res.status(403).json({ success: false, message: 'Not authorized' });
           }
 
-          // DATA IMMUTABILITY ENFORCEMENT
-          // Nếu sổ đã bị khóa, ngăn chặn mọi nỗ lực chỉnh sửa (trừ Admin)
-          if (journal.status === 'Locked' && req.user.role?.toUpperCase() !== 'ADMIN') {
+          // DATA IMMUTABILITY & STATUS ENFORCEMENT
+          // Ngăn chặn chỉnh sửa nếu đã gửi duyệt hoặc đã duyệt (trừ Admin)
+          const immutableStatuses = ['Submitted', 'Verified', 'Locked'];
+          if (immutableStatuses.includes(journal.status) && req.user.role?.toUpperCase() !== 'ADMIN') {
+              let msg = `Sổ nhật ký đang ở trạng thái "${journal.status}". Không thể chỉnh sửa dữ liệu tại thời điểm này.`;
+              if (journal.status === 'Submitted') msg = 'Sổ đã được gửi duyệt. Vui lòng liên hệ Admin/HTX nếu bạn cần sửa đổi.';
+              if (journal.status === 'Verified') msg = 'Sổ đã được duyệt và xác minh thành công. Dữ liệu đã được khóa để đảm bảo truy xuất nguồn gốc.';
+              
               return res.status(403).json({ 
                   success: false, 
-                  message: 'Sổ nhật ký này đã bị khóa (Khóa bất biến). Không thể chỉnh sửa dữ liệu để đảm bảo tính minh bạch của mã QR.' 
+                  message: msg 
               });
           }
 
@@ -247,6 +252,21 @@ const updateJournal = async (req, res) => {
                      await htxJournal.save();
                  }
              }
+          } else if (updated.status === 'Submitted' && !updated.htxJournalId && req.user.role?.toUpperCase() === 'FARMER') {
+              // Thông báo cho ADMIN khi sổ CÁ NHÂN được gửi duyệt
+              const User = require('../models/User');
+              const admins = await User.find({ role: { $regex: /^admin$/i } });
+              for (const admin of admins) {
+                  await createNotification({
+                      recipient: admin._id,
+                      sender: req.user._id,
+                      title: 'Nhật ký cá nhân gửi duyệt',
+                      message: `Nông dân ${req.user.fullname || req.user.username} vừa gửi duyệt sổ nhật ký cá nhân.`,
+                      type: 'Journal_Submitted',
+                      relatedId: updated._id,
+                      relatedModel: 'FarmJournal'
+                  });
+              }
           }
 
           // Log action

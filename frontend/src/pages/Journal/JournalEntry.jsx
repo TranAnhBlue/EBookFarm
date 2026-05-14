@@ -119,7 +119,11 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
   const saveMutation = useMutation({
     mutationFn: async (values) => {
-      console.log('🔍 Form values received:', values);
+      // Tự động gán trạng thái dựa trên nút bấm
+      const statusToSet = isFinalSubmit ? 'Submitted' : 'Draft';
+      values.status = statusToSet;
+
+      console.log(`🔍 Saving journal with status: ${statusToSet}`, values);
 
       // Validation bổ sung trước khi gửi - Tăng cường cho chăn nuôi VietGAHP
       const errors = [];
@@ -2390,6 +2394,12 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           {field.options?.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
         </Select>
       );
+    } else if (field.type === 'multi-select') {
+      inputNode = (
+        <Select {...commonProps} mode="multiple" allowClear showSearch>
+          {field.options?.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
+        </Select>
+      );
     }
 
     return (
@@ -2598,13 +2608,14 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         {/* ===== TRẠNG THÁI ===== */}
         <Card className="mt-6 rounded-2xl shadow-sm border border-gray-100 bg-white">
           <div className="w-1/2">
-            <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
-              <Select size="large" className="rounded-xl">
-                <Option value="Assigned" disabled>Mới được phân công (Chờ ghi chép)</Option>
+            <Form.Item name="status" label="Trạng thái hồ sơ (Tự động cập nhật)" initialValue="Draft" className="mb-0">
+              <Select size="large" className="rounded-xl" disabled>
+                <Option value="Assigned">Mới được phân công (Chờ ghi chép)</Option>
                 <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
-                <Option value="Submitted">Hoàn tất (Gửi duyệt)</Option>
-                <Option value="Revision Requested" disabled>Đang bị trả về (Yêu cầu sửa lại)</Option>
-                <Option value="Verified" disabled>Đã được duyệt (Thành công)</Option>
+                <Option value="Submitted">Đã gửi (Chờ phê duyệt)</Option>
+                <Option value="Revision Requested">Yêu cầu sửa đổi</Option>
+                <Option value="Verified">Đã được duyệt (Thành công)</Option>
+                <Option value="Locked">Đã khóa</Option>
               </Select>
             </Form.Item>
           </div>

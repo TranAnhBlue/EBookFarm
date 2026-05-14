@@ -37,7 +37,7 @@ const seedVietGAPCrop = async () => {
           fields: [
             { name: 'ngayThang', label: 'Ngày tháng', type: 'date' },
             { name: 'dieuKien', label: 'Điều kiện (Đất/Nước/SP)', type: 'select', options: ['Đất/Giá thể', 'Nước tưới', 'Nước sơ chế', 'Sản phẩm'] },
-            { name: 'tacNhan', label: 'Tác nhân gây ô nhiễm', type: 'text' },
+            { name: 'tacNhan', label: 'Tác nhân gây ô nhiễm', type: 'multi-select', options: ['Kim loại nặng', 'Vi sinh vật', 'Dư lượng thuốc BVTV', 'Độc tố vi nấm trong sản phẩm', 'Khác'] },
             { name: 'danhGia', label: 'Đánh giá hiện tại', type: 'select', options: ['Đạt', 'Không đạt'] },
             { name: 'bienPhap', label: 'Biện pháp xử lý đã áp dụng', type: 'text' }
           ]
@@ -65,6 +65,9 @@ const seedVietGAPCrop = async () => {
             { name: 'thoiGian', label: 'Thời gian thực hiện', type: 'date' },
             { name: 'maSoThua', label: 'Mã số thửa', type: 'text' },
             { name: 'loSx', label: 'Lô sản xuất', type: 'text' },
+            { name: 'tenGiongCay', label: 'Tên giống cây', type: 'text' },
+            { name: 'dienTich', label: 'Diện tích (m2)', type: 'number' },
+            { name: 'ngayGieoTrong', label: 'Ngày gieo trồng', type: 'date' },
             { name: 'tenPhanBon', label: 'Tên phân bón', type: 'text' },
             { name: 'luongPhanBon', label: 'Lượng bón (Kg)', type: 'number' },
             { name: 'tenThuocBVTV', label: 'Tên thuốc BVTV', type: 'text' },

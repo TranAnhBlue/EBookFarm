@@ -164,36 +164,19 @@ const JournalList = () => {
     const feedback = record.feedback;
 
     const badges = {
-      'Draft': { icon: '📝', text: 'Nháp', color: 'default' },
-      'Submitted': { icon: '📤', text: 'Đã gửi', color: 'processing' },
-      'Verified': { icon: '✅', text: 'Đã duyệt', color: 'success' },
-      'Locked': { icon: '🔒', text: 'Đã khóa', color: 'error' },
-      'Archived': { icon: '📦', text: 'Lưu trữ', color: 'default' }
+      'Draft': { icon: <EditOutlined />, text: 'Lưu nháp', color: 'blue', bgColor: '#e6f7ff', textColor: '#1890ff' },
+      'Submitted': { icon: <ClockCircleOutlined />, text: 'Đã gửi duyệt', color: 'orange', bgColor: '#fff7e6', textColor: '#fa8c16' },
+      'Verified': { icon: <CheckCircleOutlined />, text: 'Đã duyệt', color: 'green', bgColor: '#f6ffed', textColor: '#52c41a' },
+      'Revision Requested': { icon: <ExclamationCircleOutlined />, text: 'Cần sửa lại', color: 'red', bgColor: '#fff1f0', textColor: '#f5222d' },
+      'Locked': { icon: <FileTextOutlined />, text: 'Đã khóa', color: 'default', bgColor: '#f5f5f5', textColor: '#8c8c8c' }
     };
 
-    // Trường hợp có phản hồi (thường là bị từ chối/yêu cầu sửa)
-    if (status === 'Draft' && feedback) {
+    // Ưu tiên hiển thị trạng thái "Cần chỉnh sửa" nếu có feedback
+    if ((status === 'Draft' || status === 'Revision Requested') && feedback) {
       return (
-        <Tooltip title={`Yêu cầu chỉnh sửa: ${feedback}`}>
-          <Tag color="warning" icon={<ExclamationCircleOutlined />} className="rounded-md font-bold px-3 animate-pulse">
-            Cần chỉnh sửa
-          </Tag>
-        </Tooltip>
-      );
-    }
-
-    // Nếu có trạng thái từ HTX thì ưu tiên hiển thị
-    if (htxStatus) {
-      let color = 'default';
-      if (htxStatus === 'Đã duyệt') color = 'success';
-      if (htxStatus === 'Chờ duyệt') color = 'processing';
-      if (htxStatus === 'Cần chỉnh sửa') color = 'warning';
-      if (htxStatus === 'Không đạt') color = 'error';
-
-      return (
-        <Tooltip title={`Trạng thái từ HTX: ${htxStatus}`}>
-          <Tag color={color} className="rounded-md font-bold px-3">
-            {htxStatus === 'Đã duyệt' ? '✅ HTX Đã duyệt' : htxStatus}
+        <Tooltip title={`Lý do: ${feedback}`}>
+          <Tag color="error" icon={<ExclamationCircleOutlined />} className="rounded-full font-bold px-3 py-1 border-0 shadow-sm animate-pulse">
+            CẦN SỬA LẠI
           </Tag>
         </Tooltip>
       );
@@ -201,8 +184,13 @@ const JournalList = () => {
 
     const badge = badges[status] || badges['Draft'];
     return (
-      <Tag color={badge.color} className="rounded-md font-medium">
-        {badge.icon} {badge.text}
+      <Tag 
+        color={badge.color} 
+        icon={badge.icon}
+        className="rounded-full font-bold px-3 py-1 border-0 shadow-sm"
+        style={{ backgroundColor: badge.bgColor, color: badge.textColor }}
+      >
+        {badge.text.toUpperCase()}
       </Tag>
     );
   };
@@ -379,8 +367,18 @@ const JournalList = () => {
 
     // 2. Lấy giá trị từ entries dựa trên các trường đã tìm thấy
     for (const target of targetFields) {
-      const val = entries[target.tableName]?.[target.fieldName];
-      if (val !== undefined && val !== null && val !== '') return val;
+      const tableData = entries[target.tableName];
+      if (!tableData) continue;
+
+      if (Array.isArray(tableData)) {
+        // Nếu là bảng nhiều dòng, lấy giá trị ở dòng đầu tiên
+        const firstRow = tableData[0];
+        const val = firstRow?.[target.fieldName];
+        if (val !== undefined && val !== null && val !== '') return val;
+      } else {
+        const val = tableData[target.fieldName];
+        if (val !== undefined && val !== null && val !== '') return val;
+      }
     }
 
     // 3. Fallback: Quét toàn bộ entries nếu không tìm thấy qua schema
@@ -680,6 +678,9 @@ const JournalList = () => {
                         styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
                       >
                         <div className="p-5 flex-1 relative flex">
+                          <div className="absolute top-4 right-4 z-10">
+                            {getStatusBadge(journal)}
+                          </div>
                           <div className="w-10 pt-2 flex justify-center text-orange-400 opacity-60">
                             <Leaf className="w-6 h-6" />
                           </div>
