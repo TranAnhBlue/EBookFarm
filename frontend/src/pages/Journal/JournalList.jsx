@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination, Progress, Input, Divider } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined, SearchOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined, SearchOutlined, ExclamationCircleOutlined, BarcodeOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -710,11 +710,11 @@ const JournalList = () => {
                             </div>
                             <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
 
-                              {/* Lô sản xuất */}
-                              <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
+                              {/* Mã số nông hộ */}
+                              <div className="flex items-center gap-1.5"><BarcodeOutlined className="text-green-500" /> Mã số nông hộ:</div>
                               <div className="text-right">
                                 <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'maLo', 'maSoLo', 'maThua', 'block_id', 'maSoThua']))}
+                                  {displayMappedValue(getEntryValue(journal, ['maSoNongHo', 'Mã số nông hộ', 'farmCode']))}
                                 </Text>
                               </div>
 
@@ -734,14 +734,6 @@ const JournalList = () => {
                               <div className="text-right leading-tight">
                                 <Text strong>
                                   {displayMappedValue(getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'location', 'address']))}
-                                </Text>
-                              </div>
-
-                              {/* Giống */}
-                              <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
-                              <div className="text-right">
-                                <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'giongCayTrong', 'tenGiong', 'giongNam', 'giống chè']))}
                                 </Text>
                               </div>
 
