@@ -20,10 +20,10 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       console.log(`   ${index + 1}. ${schema.name} (${schema.category})`);
     });
 
-    // Template VietGAHP chuẩn cho tất cả chăn nuôi (có thể điều chỉnh theo từng loại)
-    const vietgahpTables = [
+    // Template VietGAHP chuẩn cho tất c�    const vietgahpTables = [
       {
         tableName: 'Thông tin chung',
+        isMultiRow: false,
         fields: [
           { name: 'tenCoSo', label: 'Tên cơ sở', type: 'text', required: true },
           { name: 'diaChiCoSo', label: 'Địa chỉ cơ sở', type: 'text', required: true },
@@ -51,6 +51,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi mua/chuyển giống',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangMuaChuyenGiong', label: 'Ngày tháng mua/chuyển giống', type: 'date', required: true },
           { name: 'tenGiongMua', label: 'Tên giống', type: 'text', required: true },
@@ -64,6 +65,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi nhập thức ăn/nguyên liệu',
+        isMultiRow: true,
         fields: [
           { name: 'ngayNhapThucAn', label: 'Ngày nhập thức ăn/nguyên liệu', type: 'date', required: true },
           { name: 'tenLoaiThucAn', label: 'Tên loại thức ăn, nguyên liệu', type: 'text', required: true },
@@ -77,6 +79,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi sử dụng thức ăn',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangNamSuDung', label: 'Ngày, tháng, năm', type: 'date', required: true },
           { name: 'ngayTuoiThuSuDung', label: 'Ngày tuổi thứ', type: 'number', required: true },
@@ -90,6 +93,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi nhập thuốc thú y, vaccin',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangNamNhap', label: 'Ngày, tháng, năm', type: 'date', required: true },
           { name: 'tenVaccinThuoc', label: 'Tên vaccin, thuốc, hóa chất', type: 'text', required: true },
@@ -103,6 +107,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi sử dụng vaccin/thuốc điều trị',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangThucHien', label: 'Ngày tháng thực hiện', type: 'date', required: true },
           { name: 'ngayTuoiThuDieuTri', label: 'Ngày tuổi thứ', type: 'number', required: true },
@@ -116,6 +121,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi vệ sinh và khử trùng',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangThucHienSatTrung', label: 'Ngày tháng thực hiện', type: 'date', required: true },
           { name: 'noiDungThucHienSatTrung', label: 'Nội dung thực hiện', type: 'select', options: ['Khử trùng chuồng', 'Khử trùng dụng cụ', 'Khử trùng môi trường', 'Khác'], required: true },
@@ -127,6 +133,7 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi xử lý vật nuôi chết và rác thải',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThangNamXuLy', label: 'Ngày, tháng, năm', type: 'date', required: true },
           { name: 'soLuongChet', label: 'Số lượng chết (con)', type: 'number', required: false },
@@ -140,8 +147,19 @@ const updateAllLivestockSchemasToVietGAHP = async () => {
       },
       {
         tableName: 'Theo dõi tiêu thụ, xuất bán',
+        isMultiRow: true,
         fields: [
           { name: 'ngayThuHoach', label: 'Ngày thu hoạch', type: 'date', required: true },
+          { name: 'tenSanPham', label: 'Tên sản phẩm', type: 'text', required: true },
+          { name: 'tongKhoiLuongThu', label: 'Tổng khối lượng thu (kg)', type: 'number', required: true },
+          { name: 'tongKhoiLuongXuatBan', label: 'Tổng khối lượng xuất bán (kg)', type: 'number', required: true },
+          { name: 'maSoLoXuatBan', label: 'Mã số lô xuất bán', type: 'text', required: true },
+          { name: 'tenDiaChiBenMua', label: 'Tên/địa chỉ bên mua', type: 'text', required: true },
+          { name: 'tenNguoiXuatBan', label: 'Tên người xuất bán', type: 'text', required: true }
+        ]
+      }
+    ];
+ach', label: 'Ngày thu hoạch', type: 'date', required: true },
           { name: 'tenSanPham', label: 'Tên sản phẩm', type: 'text', required: true },
           { name: 'tongKhoiLuongThu', label: 'Tổng khối lượng thu (kg)', type: 'number', required: true },
           { name: 'tongKhoiLuongXuatBan', label: 'Tổng khối lượng xuất bán (kg)', type: 'number', required: true },

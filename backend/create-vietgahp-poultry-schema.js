@@ -44,6 +44,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 1: Theo dõi mua/chuyển giống vào nuôi thương phẩm',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangMuaChuyenGiong', label: 'Ngày tháng mua/chuyển giống', type: 'date', required: true },
             { name: 'tenGiongMua', label: 'Tên giống', type: 'select', options: ['Gà Ross 308', 'Gà Cobb 500', 'Gà Arbor Acres', 'Gà Hubbard', 'Gà ta', 'Vịt Pekin', 'Vịt Muscovy', 'Khác'], required: true },
@@ -57,6 +58,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 2: Theo dõi nhập thức ăn/nguyên liệu thô',
+          isMultiRow: true,
           fields: [
             { name: 'ngayNhapThucAn', label: 'Ngày nhập TA/NL thô', type: 'date', required: true },
             { name: 'tenLoaiThucAn', label: 'Tên loại thức ăn, nguyên liệu thô', type: 'select', options: ['Thức ăn gà con (0-3 tuần)', 'Thức ăn gà thịt (4-6 tuần)', 'Thức ăn hoàn chỉnh', 'Ngô', 'Đậu tương', 'Cám gạo', 'Khác'], required: true },
@@ -70,6 +72,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 3: Theo dõi thông tin phối trộn thức ăn',
+          isMultiRow: true,
           fields: [
             { name: 'tuanTuoiThu', label: 'Tuần tuổi thứ', type: 'number', required: true },
             { name: 'tenLoaiThucAnPhoiTron', label: 'Tên loại thức ăn, nguyên liệu thô phối trộn', type: 'text', required: true },
@@ -82,6 +85,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 4: Theo dõi nhập thuốc thú y, vaccin, thuốc sát trùng, hóa chất',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangNamNhap', label: 'Ngày, tháng, năm', type: 'date', required: true },
             { name: 'tenVaccinThuoc', label: 'Tên vaccin, thuốc, hóa chất', type: 'text', required: true },
@@ -95,6 +99,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 5: Theo dõi sử dụng thức ăn',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangNamSuDung', label: 'Ngày, tháng, năm', type: 'date', required: true },
             { name: 'ngayTuoiThuSuDung', label: 'Ngày tuổi thứ', type: 'number', required: true },
@@ -108,6 +113,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 6: Theo dõi sử dụng vaccin/thuốc điều trị bệnh',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangThucHien', label: 'Ngày tháng thực hiện', type: 'date', required: true },
             { name: 'ngayTuoiThuDieuTri', label: 'Ngày tuổi thứ', type: 'number', required: true },
@@ -121,6 +127,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 7: Theo dõi sử dụng thuốc sát trùng',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangThucHienSatTrung', label: 'Ngày tháng thực hiện', type: 'date', required: true },
             { name: 'noiDungThucHienSatTrung', label: 'Nội dung thực hiện', type: 'select', options: ['Khử trùng chuồng', 'Khử trùng dụng cụ', 'Khử trùng môi trường', 'Khử trùng nước uống', 'Khác'], required: true },
@@ -132,6 +139,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 8: Theo dõi thu gom xử lý vật nuôi chết',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangNamXuLy', label: 'Ngày, tháng, năm', type: 'date', required: true },
             { name: 'soLuongChet', label: 'Số lượng chết (con)', type: 'number', required: true },
@@ -144,6 +152,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 9: Theo dõi thu gom xử lý rác thải',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangThuGom', label: 'Ngày, tháng thu gom', type: 'date', required: true },
             { name: 'loaiRacThai', label: 'Loại rác thải', type: 'select', options: ['Rác hữu cơ', 'Rác vô cơ', 'Chất thải y tế', 'Phân gà', 'Khác'], required: true },
@@ -157,6 +166,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 10: Theo dõi diệt chuột và động vật gây hại',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangThucHienDietChuot', label: 'Ngày tháng thực hiện', type: 'date', required: true },
             { name: 'bienPhapApDung', label: 'Biện pháp áp dụng', type: 'select', options: ['Thuốc diệt chuột', 'Bẫy chuột', 'Mèo', 'Lưới chắn', 'Khác'], required: true },
@@ -167,6 +177,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 11: Theo dõi lấy mẫu xét nghiệm',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThangNamLayMau', label: 'Ngày, tháng, năm', type: 'date', required: true },
             { name: 'mauXetNghiem', label: 'Mẫu xét nghiệm (máu, cả con, nội tạng)', type: 'select', options: ['Máu', 'Cả con', 'Nội tạng', 'Phân', 'Nước uống', 'Thức ăn', 'Khác'], required: true },
@@ -179,6 +190,7 @@ const createVietGAHPPoultrySchema = async () => {
         },
         {
           tableName: 'Biểu 12: Theo dõi tiêu thụ, xuất bán',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThuHoach', label: 'Ngày thu hoạch', type: 'date', required: true },
             { name: 'tenSanPham', label: 'Tên sản phẩm', type: 'select', options: ['Gà thịt sống', 'Gà thịt mổ', 'Trứng gà', 'Phân gà', 'Khác'], required: true },

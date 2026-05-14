@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const seedVietGAPCrop = async () => {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/ebookfarm';
+    const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/ebookfarm';
     console.log('Connecting to:', uri);
     await mongoose.connect(uri);
     console.log('Connected to MongoDB');
