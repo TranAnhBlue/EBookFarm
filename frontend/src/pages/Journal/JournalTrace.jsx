@@ -388,22 +388,33 @@ const JournalTrace = ({ isBatch }) => {
                       {hasData ? (
                         <div className="space-y-4">
                           {(Array.isArray(data) ? data : [data]).map((row, rowIdx) => (
-                            <Card key={rowIdx} size="small" className="bg-gray-50/50 rounded-xl border-gray-100 shadow-sm">
-                              {Array.isArray(data) && <Tag color="green" className="mb-2 font-bold text-[10px]">Dòng #{rowIdx + 1}</Tag>}
+                            <Card key={rowIdx} size="small" className="bg-gray-50/50 rounded-xl border-gray-100 shadow-sm mb-4 last:mb-0">
                               <Descriptions column={1} size="small" bordered>
-                                {table.fields.map(f => (
-                                  <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
-                                    {inventory && typeof row[f.name] === 'string' && row[f.name].length === 24 ? (
-                                      // Thử tìm trong kho nếu là ID
-                                      (() => {
-                                        const item = inventory.find(i => i._id === row[f.name]);
-                                        return item ? item.name : row[f.name];
-                                      })()
-                                    ) : (
-                                      row[f.name] || <span className="text-gray-400 italic">Chưa cập nhật</span>
-                                    )}
-                                  </Descriptions.Item>
-                                ))}
+                                {table.fields.map(f => {
+                                  const rawValue = row[f.name];
+                                  let displayValue = rawValue || <span className="text-gray-400 italic">Chưa cập nhật</span>;
+
+                                  // 1. Xử lý nếu là ID vật tư (map sang tên)
+                                  if (inventory && typeof rawValue === 'string' && rawValue.length === 24) {
+                                    const item = inventory.find(i => i._id === rawValue);
+                                    if (item) displayValue = item.name;
+                                  } 
+                                  // 2. Xử lý nếu là ngày tháng (định dạng dd/MM/yyyy)
+                                  else if (typeof rawValue === 'string' && (
+                                    /^\d{4}-\d{2}-\d{2}/.test(rawValue) || // ISO format
+                                    f.label.toLowerCase().includes('ngày') || 
+                                    f.label.toLowerCase().includes('tháng')
+                                  )) {
+                                    const d = dayjs(rawValue);
+                                    if (d.isValid()) displayValue = d.format('DD/MM/YYYY');
+                                  }
+
+                                  return (
+                                    <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
+                                      {displayValue}
+                                    </Descriptions.Item>
+                                  );
+                                })}
                               </Descriptions>
                             </Card>
                           ))}
