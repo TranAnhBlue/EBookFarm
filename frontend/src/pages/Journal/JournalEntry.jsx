@@ -53,71 +53,29 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     enabled: !!activeSchemaId
   });
 
-  useEffect(() => {
-    if (isEditing && journalData && schema) {
-      const rawEntries = journalData.entries || {};
-      const convertedEntries = {};
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
 
-      // Convert nested table date fields
-      schema.tables.forEach(table => {
-        const tableName = table.tableName;
-        convertedEntries[tableName] = {};
-        table.fields.forEach(field => {
-          const val = rawEntries[tableName]?.[field.name];
-          if (field.type === 'date' && val) {
-            convertedEntries[tableName][field.name] = dayjs(val);
-          } else {
-            convertedEntries[tableName][field.name] = val;
-          }
-        });
-      });
-
-      // Load basic flat fields (Địa chỉ, Diện tích, Lô sản xuất...)
-      const basicFields = ['Mã nông hộ', 'Họ và tên', 'Địa chỉ', 'Diện tích', 'Lô sản xuất', 'Tên cơ sở', 'Địa chỉ sản xuất', 'Mã số thửa'];
-      basicFields.forEach(key => {
-        if (rawEntries[key] !== undefined) {
-          convertedEntries[key] = rawEntries[key];
-        }
-      });
-      // Convert Ngày bắt đầu
-      if (rawEntries['Ngày bắt đầu']) {
-        convertedEntries['Ngày bắt đầu'] = dayjs(rawEntries['Ngày bắt đầu']);
-      }
-
-
-      form.setFieldsValue({ ...convertedEntries, status: journalData.status });
-
-      // Load existing images/attachments
-      if (journalData.images && journalData.images.length > 0) {
-        const fileBaseURL = api.defaults.baseURL.replace('/api', '');
-        const existingFiles = journalData.images.map((img, index) => ({
-          uid: img._id || `existing-${index}`,
-          name: img.caption || img.url.split('/').pop(),
-          status: 'done',
-          url: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
-          thumbUrl: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
-        }));
-        setFileList(existingFiles);
-      }
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
     }
-  }, [isEditing, journalData, schema, form]);
-
-  const handleVoiceInput = (tableName, fieldName, text) => {
-    const currentValues = form.getFieldsValue();
-    const tableValues = currentValues[tableName] || {};
-    const currentValue = tableValues[fieldName] || '';
-
-    form.setFieldValue(
-      [tableName, fieldName],
-      currentValue ? `${currentValue} ${text}` : text
-    );
-    message.success(`Đã thêm: "${text}"`);
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
   };
+
 
   const uploadProps = {
     name: 'file',
     multiple: true,
     fileList: fileList,
+    onPreview: handlePreview,
     showUploadList: {
       showPreviewIcon: true,
       showRemoveIcon: !isReadOnly,
@@ -137,45 +95,25 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         });
 
         if (res.data.success) {
+          const fileData = res.data.data;
           const fileBaseURL = api.defaults.baseURL.replace('/api', '');
           const newFile = {
             uid: file.uid,
             name: file.name,
             status: 'done',
-            url: res.data.data.url.startsWith('http') ? res.data.data.url : `${fileBaseURL}${res.data.data.url}`,
-            thumbUrl: file.type.startsWith('image/') ? (res.data.data.url.startsWith('http') ? res.data.data.url : `${fileBaseURL}${res.data.data.url}`) : null,
+            url: fileData.url.startsWith('http') ? fileData.url : `${fileBaseURL}${fileData.url}`,
+            response: fileData
           };
-
-          setFileList(prev => {
-            const filtered = prev.filter(f => f.uid !== file.uid);
-            return [...filtered, newFile];
-          });
-          onSuccess(res.data.data);
+          setFileList(prev => [...prev, newFile]);
+          onSuccess(res.data);
         }
       } catch (err) {
-        message.error(`Lỗi khi tải lên ${file.name}`);
+        message.error('Lỗi khi tải tệp lên');
         onError(err);
       }
     },
     onRemove: (file) => {
-      if (isReadOnly) return false;
-      setFileList(prev => prev.filter(item => item.uid !== file.uid));
-    },
-    onPreview: async (file) => {
-      const url = file.url || file.thumbUrl;
-      if (!url) return;
-
-      // Nếu là ảnh thì hiện Modal Preview của Ant Design
-      const isImage = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url) || file.type?.startsWith('image/');
-
-      if (isImage) {
-        setPreviewImage(url);
-        setPreviewOpen(true);
-        setPreviewTitle(file.name || url.substring(url.lastIndexOf('/') + 1));
-      } else {
-        // Nếu là file khác (PDF, Word) thì mở tab mới
-        window.open(url, '_blank');
-      }
+      setFileList(prev => prev.filter(f => f.uid !== file.uid));
     }
   };
 
@@ -2238,22 +2176,34 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     if (journalData && schema) {
       console.log('Loading journal data:', journalData.entries);
       const rawEntries = journalData.entries || {};
-      // Tạo một bản sao sâu (deep copy) để tránh thay đổi trực tiếp rawEntries
       const convertedEntries = JSON.parse(JSON.stringify(rawEntries));
 
-      // Duyệt qua schema để tìm và convert các trường ngày tháng sang dayjs và trường số sang Number
       if (schema.tables) {
         schema.tables.forEach(table => {
           const tableName = table.tableName;
+          
+          // Đảm bảo dữ liệu bảng Multi-row luôn là mảng để Form.List hiển thị
+          if (table.isMultiRow) {
+            if (convertedEntries[tableName] && !Array.isArray(convertedEntries[tableName])) {
+              // Convert object to array (for legacy data compatibility)
+              const rawTableData = convertedEntries[tableName];
+              const keys = Object.keys(rawTableData);
+              if (keys.length > 0 && keys.every(k => !isNaN(k))) {
+                convertedEntries[tableName] = keys.sort((a,b) => Number(a)-Number(b)).map(k => rawTableData[k]);
+              } else {
+                convertedEntries[tableName] = [rawTableData];
+              }
+            } else if (!convertedEntries[tableName]) {
+              convertedEntries[tableName] = [];
+            }
+          }
+
           if (convertedEntries[tableName]) {
             if (Array.isArray(convertedEntries[tableName])) {
-              // Xử lý bảng nhiều dòng (Multi-row)
               convertedEntries[tableName] = convertedEntries[tableName].map(row => {
                 const newRow = { ...row };
                 table.fields.forEach(field => {
-                  if (field.type === 'date' && newRow[field.name]) {
-                    newRow[field.name] = dayjs(newRow[field.name]);
-                  }
+                  if (field.type === 'date' && newRow[field.name]) newRow[field.name] = dayjs(newRow[field.name]);
                   if (field.type === 'number' && newRow[field.name] !== undefined && newRow[field.name] !== null && newRow[field.name] !== '') {
                     newRow[field.name] = Number(newRow[field.name]);
                   }
@@ -2261,11 +2211,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                 return newRow;
               });
             } else {
-              // Xử lý bảng đơn (Single-row)
               table.fields.forEach(field => {
-                if (field.type === 'date' && convertedEntries[tableName][field.name]) {
-                  convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
-                }
+                if (field.type === 'date' && convertedEntries[tableName][field.name]) convertedEntries[tableName][field.name] = dayjs(convertedEntries[tableName][field.name]);
                 if (field.type === 'number' && convertedEntries[tableName][field.name] !== undefined && convertedEntries[tableName][field.name] !== null && convertedEntries[tableName][field.name] !== '') {
                   convertedEntries[tableName][field.name] = Number(convertedEntries[tableName][field.name]);
                 }
@@ -2275,27 +2222,39 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         });
       }
 
-      // Convert các trường ngày tháng ở cấp độ ngoài (phẳng) nếu có
-      if (convertedEntries['Ngày bắt đầu']) {
-        convertedEntries['Ngày bắt đầu'] = dayjs(convertedEntries['Ngày bắt đầu']);
-      }
+      if (convertedEntries['Ngày bắt đầu']) convertedEntries['Ngày bắt đầu'] = dayjs(convertedEntries['Ngày bắt đầu']);
+      
+      // Load status
+      convertedEntries.status = journalData.status;
 
       form.setFieldsValue(convertedEntries);
+
+      // Load existing images/attachments
+      if (journalData.images && journalData.images.length > 0) {
+        const fileBaseURL = api.defaults.baseURL.replace('/api', '');
+        const existingFiles = journalData.images.map((img, index) => ({
+          uid: img._id || `existing-${index}`,
+          name: img.caption || img.url.split('/').pop(),
+          status: 'done',
+          url: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+          thumbUrl: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+        }));
+        setFileList(existingFiles);
+      }
     } else if (!isEditing && user && schema) {
-      // Tự động điền thông tin từ Profile cho sổ mới
       const autoFillData = {};
       schema.tables.forEach(table => {
         const tableName = table.tableName;
-        autoFillData[tableName] = {};
-        table.fields.forEach(field => {
-          const lowerLabel = field.label.toLowerCase();
-          if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ tên')) {
-            autoFillData[tableName][field.name] = user.fullname || user.username;
-          }
-          if (lowerLabel.includes('địa chỉ')) {
-            autoFillData[tableName][field.name] = user.address || '';
-          }
-        });
+        if (table.isMultiRow) {
+          autoFillData[tableName] = [];
+        } else {
+          autoFillData[tableName] = {};
+          table.fields.forEach(field => {
+            const lowerLabel = field.label.toLowerCase();
+            if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ tên')) autoFillData[tableName][field.name] = user.fullname || user.username;
+            if (lowerLabel.includes('địa chỉ')) autoFillData[tableName][field.name] = user.address || '';
+          });
+        }
       });
       form.setFieldsValue(autoFillData);
     }

@@ -82,33 +82,44 @@ const exportJournal = async (req, res) => {
 
     // Add data sheets for each table
     journal.schemaId.tables.forEach((table, index) => {
-      const tableData = journal.entries[table.tableName] || {};
-      
-      // Create headers
-      const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
-      const rows = [headers];
+      // Check if data is multi-row
+      const tableData = journal.entries[table.tableName];
+      let rows = [];
 
-      // Add field data
-      table.fields.forEach(field => {
-        const value = tableData[field.name];
-        let displayValue = '';
+      if (Array.isArray(tableData)) {
+        // Horizontal format for Multi-row
+        const headers = table.fields.map(f => f.label);
+        rows.push(headers);
 
-        if (value !== undefined && value !== null) {
-          if (field.type === 'date') {
-            displayValue = new Date(value).toLocaleDateString('vi-VN');
-          } else if (field.type === 'boolean') {
-            displayValue = value ? 'Có' : 'Không';
-          } else {
-            displayValue = value.toString();
+        tableData.forEach(rowData => {
+          const row = table.fields.map(field => {
+            const value = rowData[field.name];
+            if (value === undefined || value === null) return '';
+            if (field.type === 'date') return new Date(value).toLocaleDateString('vi-VN');
+            if (field.type === 'boolean') return value ? 'Có' : 'Không';
+            return value.toString();
+          });
+          rows.push(row);
+        });
+      } else {
+        // Vertical format for Single-row (Legacy/Default)
+        const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
+        rows.push(headers);
+        const dataObj = tableData || {};
+
+        table.fields.forEach(field => {
+          const value = dataObj[field.name];
+          let displayValue = '';
+
+          if (value !== undefined && value !== null) {
+            if (field.type === 'date') displayValue = new Date(value).toLocaleDateString('vi-VN');
+            else if (field.type === 'boolean') displayValue = value ? 'Có' : 'Không';
+            else displayValue = value.toString();
           }
-        }
 
-        rows.push([
-          field.label,
-          displayValue,
-          field.type
-        ]);
-      });
+          rows.push([field.label, displayValue, field.type]);
+        });
+      }
 
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       
@@ -228,65 +239,59 @@ const importJournal = async (req, res) => {
       }
 
       // Convert sheet to JSON
-      const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const isMultiRow = table.isMultiRow;
+      const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: isMultiRow ? 1 : 1 });
       
       if (sheetData.length < 2) {
         importResults.warnings.push(`Sheet ${table.tableName} không có dữ liệu`);
         return;
       }
 
-      // Parse the data (assuming format: Field Name | Value | Type)
-      const tableEntries = {};
-      
-      for (let i = 1; i < sheetData.length; i++) {
-        const row = sheetData[i];
-        if (row.length < 2) continue;
-
-        const fieldLabel = row[0];
-        const fieldValue = row[1];
-
-        // Find field by label
-        const field = table.fields.find(f => f.label === fieldLabel);
-        if (!field) {
-          importResults.warnings.push(`Không tìm thấy trường: ${fieldLabel} trong bảng ${table.tableName}`);
-          continue;
-        }
-
-        // Convert value based on field type
-        let convertedValue = fieldValue;
+      if (isMultiRow) {
+        // Handle horizontal multi-row import
+        const headers = sheetData[0];
+        const rows = [];
         
-        try {
-          switch (field.type) {
-            case 'number':
-              convertedValue = fieldValue ? parseFloat(fieldValue) : null;
-              break;
-            case 'date':
-              if (fieldValue) {
-                // Handle various date formats
-                const dateValue = new Date(fieldValue);
-                if (!isNaN(dateValue.getTime())) {
-                  convertedValue = dateValue.toISOString();
-                } else {
-                  throw new Error(`Invalid date format: ${fieldValue}`);
-                }
+        for (let i = 1; i < sheetData.length; i++) {
+          const row = sheetData[i];
+          if (!row || row.length === 0) continue;
+
+          const entry = {};
+          table.fields.forEach(field => {
+            const colIndex = headers.indexOf(field.label);
+            if (colIndex !== -1) {
+              let val = row[colIndex];
+              if (val !== undefined && val !== null) {
+                if (field.type === 'number') val = parseFloat(val);
+                else if (field.type === 'date') val = new Date(val).toISOString();
+                else if (field.type === 'boolean') val = (val === 'Có' || val === true);
+                entry[field.name] = val;
               }
-              break;
-            case 'boolean':
-              convertedValue = fieldValue === 'Có' || fieldValue === true || fieldValue === 'true';
-              break;
-            default:
-              convertedValue = fieldValue ? fieldValue.toString() : '';
-          }
-
-          tableEntries[field.name] = convertedValue;
-          importResults.success++;
-
-        } catch (error) {
-          importResults.errors.push(`Lỗi chuyển đổi dữ liệu trường ${fieldLabel}: ${error.message}`);
+            }
+          });
+          if (Object.keys(entry).length > 0) rows.push(entry);
         }
+        entries[table.tableName] = rows;
+      } else {
+        // Vertical format parsing (Existing logic)
+        const tableEntries = {};
+        for (let i = 1; i < sheetData.length; i++) {
+          const row = sheetData[i];
+          if (!row || row.length < 2) continue;
+          const fieldLabel = row[0];
+          const fieldValue = row[1];
+          const field = table.fields.find(f => f.label === fieldLabel);
+          if (field) {
+            let val = fieldValue;
+            if (field.type === 'number') val = parseFloat(val);
+            else if (field.type === 'date') val = new Date(val).toISOString();
+            else if (field.type === 'boolean') val = (val === 'Có' || val === true);
+            tableEntries[field.name] = val;
+          }
+        }
+        entries[table.tableName] = tableEntries;
       }
-
-      entries[table.tableName] = tableEntries;
+      importResults.success++;
     });
 
     // Create new journal with imported data
@@ -487,45 +492,35 @@ const generateImportTemplate = async (req, res) => {
 
     // Add template sheets for each table
     schema.tables.forEach((table) => {
-      const headers = ['Trường', 'Giá trị', 'Loại dữ liệu', 'Ghi chú'];
-      const rows = [headers];
-
-      // Add field templates
-      table.fields.forEach(field => {
-        let example = '';
-        let note = '';
-
-        switch (field.type) {
-          case 'text':
-            example = 'Nhập văn bản';
-            break;
-          case 'number':
-            example = '123';
-            note = 'Chỉ nhập số';
-            break;
-          case 'date':
-            example = '01/01/2025';
-            note = 'DD/MM/YYYY';
-            break;
-          case 'select':
-            example = field.options ? field.options[0] : 'Chọn từ danh sách';
-            note = field.options ? `Chọn: ${field.options.join(', ')}` : '';
-            break;
-          case 'boolean':
-            example = 'Có';
-            note = 'Có hoặc Không';
-            break;
-          default:
-            example = '';
-        }
-
-        rows.push([
-          field.label,
-          example,
-          field.type,
-          note
-        ]);
-      });
+      if (table.isMultiRow) {
+        // Horizontal Header for Multi-row
+        const headers = table.fields.map(f => f.label);
+        const exampleRow = table.fields.map(field => {
+          if (field.type === 'number') return '123';
+          if (field.type === 'date') return '01/01/2025';
+          if (field.type === 'boolean') return 'Có';
+          return `Nhập ${field.label}`;
+        });
+        rows.push(headers);
+        rows.push(exampleRow);
+      } else {
+        // Vertical List for Single-row
+        const headers = ['Trường', 'Giá trị', 'Loại dữ liệu', 'Ghi chú'];
+        rows.push(headers);
+        table.fields.forEach(field => {
+          let example = '';
+          let note = '';
+          switch (field.type) {
+            case 'text': example = 'Nhập văn bản'; break;
+            case 'number': example = '123'; note = 'Chỉ nhập số'; break;
+            case 'date': example = '01/01/2025'; note = 'DD/MM/YYYY'; break;
+            case 'select': example = field.options ? field.options[0] : 'Chọn từ danh sách'; note = field.options ? `Chọn: ${field.options.join(', ')}` : ''; break;
+            case 'boolean': example = 'Có'; note = 'Có hoặc Không'; break;
+            default: example = '';
+          }
+          rows.push([field.label, example, field.type, note]);
+        });
+      }
 
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
       

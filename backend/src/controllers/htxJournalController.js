@@ -293,25 +293,33 @@ const getHtxJournalSummary = async (req, res) => {
           const fieldName = field.name;
           const fieldType = field.type;
 
-          let aggregatedValue = fieldType === 'number' ? 0 : [];
-
-          farmJournals.forEach(fj => {
-            const val = fj.entries?.[tableName]?.[fieldName];
-            if (val !== undefined && val !== null) {
-              if (fieldType === 'number') {
-                aggregatedValue += Number(val);
-              } else if (typeof val === 'string' && val.trim() !== '') {
-                if (!aggregatedValue.includes(val)) {
-                  aggregatedValue.push(val);
-                }
-              }
-            }
-          });
-
           summary.dataAggregation[tableName][fieldName] = {
             type: fieldType,
-            value: aggregatedValue
+            value: fieldType === 'number' ? 0 : []
           };
+
+          farmJournals.forEach(fj => {
+            const tableData = fj.entries?.[tableName];
+            if (!tableData) return;
+
+            const processValue = (val) => {
+              if (val !== undefined && val !== null) {
+                if (fieldType === 'number') {
+                  summary.dataAggregation[tableName][fieldName].value += Number(val);
+                } else if (typeof val === 'string' && val.trim() !== '') {
+                  if (!summary.dataAggregation[tableName][fieldName].value.includes(val)) {
+                    summary.dataAggregation[tableName][fieldName].value.push(val);
+                  }
+                }
+              }
+            };
+
+            if (Array.isArray(tableData)) {
+              tableData.forEach(row => processValue(row[fieldName]));
+            } else {
+              processValue(tableData[fieldName]);
+            }
+          });
         });
       });
     }
