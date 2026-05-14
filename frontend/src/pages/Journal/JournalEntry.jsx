@@ -2291,8 +2291,32 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           autoFillData[tableName] = {};
           table.fields.forEach(field => {
             const lowerLabel = field.label.toLowerCase();
-            if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ tên')) autoFillData[tableName][field.name] = user.fullname || user.username;
-            if (lowerLabel.includes('địa chỉ')) autoFillData[tableName][field.name] = user.address || '';
+            const lowerName = field.name.toLowerCase();
+
+            // Tên cơ sở: Ưu tiên farmName, sau đó đến fullname
+            if (lowerLabel.includes('tên cơ sở') || lowerName.includes('tencoso')) {
+              autoFillData[tableName][field.name] = user.farmName || user.fullname || user.username;
+            }
+            // Chủ hộ/Họ tên: fullname
+            if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ và tên') || lowerName.includes('hoten')) {
+              autoFillData[tableName][field.name] = user.fullname || user.username;
+            }
+            // Mã số nông hộ: farmCode
+            if (lowerLabel.includes('mã số nông hộ') || lowerName.includes('masonongho')) {
+              autoFillData[tableName][field.name] = user.farmCode || '';
+            }
+            // Diện tích: farmArea
+            if (lowerLabel.includes('diện tích') || lowerName.includes('dientich')) {
+              autoFillData[tableName][field.name] = user.farmArea || '';
+            }
+            // Địa chỉ: Ưu tiên địa chỉ nông trại/user
+            if (lowerLabel.includes('địa chỉ') || lowerName.includes('diachi')) {
+              autoFillData[tableName][field.name] = user.address || '';
+            }
+            // Cây trồng: Schema name (Ví dụ: Chè búp)
+            if (lowerLabel.includes('cây trồng') || lowerName.includes('caytrong')) {
+              autoFillData[tableName][field.name] = schema.name;
+            }
           });
         }
       });
