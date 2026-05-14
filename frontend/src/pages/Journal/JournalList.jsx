@@ -708,7 +708,7 @@ const JournalList = () => {
                                 )}
                               </div>
                             </div>
-                            <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm text-gray-600 items-start">
+                            <div className="grid grid-cols-[120px_1fr] gap-y-2 text-sm text-gray-600 items-start">
 
                               {/* Mã số nông hộ */}
                               <div className="flex items-center gap-1.5"><BarcodeOutlined className="text-green-500" /> Mã số nông hộ:</div>
