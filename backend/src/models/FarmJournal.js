@@ -19,6 +19,13 @@ const farmJournalSchema = new mongoose.Schema({
     caption: String,
     uploadedAt: { type: Date, default: Date.now }
   }],
+  // Documents (Attached files like PDF, Excel, etc.)
+  documents: [{
+    url: String,
+    name: String,
+    type: String,
+    uploadedAt: { type: Date, default: Date.now }
+  }],
   // Certifications
   certifications: [{
     name: String, // VietGAP, Organic, GlobalGAP, etc.

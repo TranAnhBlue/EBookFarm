@@ -1231,24 +1231,35 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       console.log('📦 Payload entries:', entries);
       console.log('📦 Payload status:', finalStatus);
 
+      const uploadedFiles = fileList.filter(f => f.status === 'done');
+      const fileBaseURL = api.defaults.baseURL.replace('/api', '');
+
+      const images = [];
+      const documents = [];
+
+      uploadedFiles.forEach(f => {
+        let finalUrl = f.url || (f.response?.data?.url);
+        if (!finalUrl) return;
+
+        if (finalUrl.startsWith(fileBaseURL)) {
+          finalUrl = finalUrl.replace(fileBaseURL, '');
+        }
+
+        const isImage = /\.(jpg|jpeg|png|gif|webp|heic)$/i.test(finalUrl) || (f.type && f.type.startsWith('image/'));
+        
+        if (isImage) {
+          images.push({ url: finalUrl, caption: f.name });
+        } else {
+          documents.push({ url: finalUrl, name: f.name, type: f.type || 'application/octet-stream' });
+        }
+      });
+
       const payload = {
         schemaId: activeSchemaId,
         status: finalStatus,
         entries: entries,
-        images: fileList
-          .filter(f => f.status === 'done')
-          .map(f => {
-            // Extract relative path from URL if it's our own server
-            const fileBaseURL = api.defaults.baseURL.replace('/api', '');
-            let finalUrl = f.url;
-            if (finalUrl.startsWith(fileBaseURL)) {
-              finalUrl = finalUrl.replace(fileBaseURL, '');
-            }
-            return {
-              url: finalUrl,
-              caption: f.name
-            };
-          })
+        images,
+        documents
       };
 
       console.log('🚀 FINAL PAYLOAD TO SEND:', JSON.stringify(payload, null, 2));
@@ -2240,15 +2251,34 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       form.setFieldsValue(convertedEntries);
 
       // Load existing images/attachments
+      const fileBaseURL = api.defaults.baseURL.replace('/api', '');
+      const existingFiles = [];
+
       if (journalData.images && journalData.images.length > 0) {
-        const fileBaseURL = api.defaults.baseURL.replace('/api', '');
-        const existingFiles = journalData.images.map((img, index) => ({
-          uid: img._id || `existing-${index}`,
-          name: img.caption || img.url.split('/').pop(),
-          status: 'done',
-          url: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
-          thumbUrl: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
-        }));
+        journalData.images.forEach((img, index) => {
+          existingFiles.push({
+            uid: img._id || `img-${index}`,
+            name: img.caption || img.url.split('/').pop(),
+            status: 'done',
+            url: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+            thumbUrl: img.url.startsWith('http') ? img.url : `${fileBaseURL}${img.url}`,
+          });
+        });
+      }
+
+      if (journalData.documents && journalData.documents.length > 0) {
+        journalData.documents.forEach((doc, index) => {
+          existingFiles.push({
+            uid: doc._id || `doc-${index}`,
+            name: doc.name || doc.url.split('/').pop(),
+            status: 'done',
+            url: doc.url.startsWith('http') ? doc.url : `${fileBaseURL}${doc.url}`,
+            type: doc.type
+          });
+        });
+      }
+
+      if (existingFiles.length > 0) {
         setFileList(existingFiles);
       }
     } else if (!isEditing && user && schema) {
@@ -2414,17 +2444,24 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         label={
           <Space>
             <span className="font-medium text-gray-700">{field.label}</span>
-            {field.type === 'text' && !isReadOnly && (
+            {['text', 'select', 'multi-select'].includes(field.type) && !isReadOnly && (
               <VoiceInput
                 targetField={field.label}
                 onSpeechEnd={(text) => {
-                  const currentVal = form.getFieldValue(namePath) || '';
-                  form.setFieldValue(namePath, currentVal ? `${currentVal} ${text}` : text);
+                  const currentVal = form.getFieldValue(namePath);
+                  if (field.type === 'text') {
+                    form.setFieldValue(namePath, currentVal ? `${currentVal} ${text}` : text);
+                  } else {
+                    // Đối với Select, đặt text vào search input hoặc chọn nếu khớp hoàn toàn
+                    // Ở đây chúng ta tạm thời set value để trigger filter
+                    form.setFieldValue(namePath, text);
+                  }
                 }}
               />
             )}
           </Space>
         }
+        required={field.required}
         rules={getValidationRules(field, tableName, recordIndex)}
         className="mb-4"
       >
