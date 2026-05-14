@@ -150,10 +150,19 @@ const JournalList = () => {
   // Helper function to map value to name if it's an ID
   const displayMappedValue = (value) => {
     if (!value) return <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
+    
+    // 1. Kiểm tra nếu là ngày tháng (ISO string hoặc có định dạng thời gian)
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+      const d = dayjs(value);
+      if (d.isValid()) return d.format('DD/MM/YYYY');
+    }
+
+    // 2. Kiểm tra nếu là ID vật tư
     if (inventory && typeof value === 'string' && value.length === 24) {
       const item = inventory.find(i => i._id === value);
       if (item) return item.name;
     }
+    
     return value;
   };
 
