@@ -9,6 +9,7 @@ const {
   getTransactions
 } = require('../controllers/inventoryController');
 
+router.get('/items/public', getInventory); // Publicly accessible for tracing
 router.use(protect);
 
 router.get('/', getInventory);

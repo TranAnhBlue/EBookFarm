@@ -1251,6 +1251,8 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           })
       };
 
+      console.log('🚀 FINAL PAYLOAD TO SEND:', JSON.stringify(payload, null, 2));
+
       // === XỬ LÝ TRỪ KHO TỰ ĐỘNG (CHỈ CHO NÔNG DÂN) ===
       if (user?.role?.toUpperCase() === 'FARMER' && inventory) {
         try {

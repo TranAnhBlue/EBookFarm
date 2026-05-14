@@ -22,7 +22,7 @@ const JournalTrace = ({ isBatch }) => {
   const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
 
-  const { data: traceData, isLoading, isError } = useQuery({
+  const { data: traceData, isLoading: isTraceLoading, isError } = useQuery({
     queryKey: ['trace', id, isBatch],
     queryFn: () => {
       const endpoint = isBatch 
@@ -31,6 +31,14 @@ const JournalTrace = ({ isBatch }) => {
       return axios.get(endpoint).then(res => res.data.data);
     },
   });
+
+  const { data: inventory } = useQuery({
+    queryKey: ['inventory-public'],
+    queryFn: () => axios.get(`${API_URL}/inventory/items/public`).then(res => res.data.data),
+    enabled: !!traceData
+  });
+
+  const isLoading = isTraceLoading;
 
   // Share functions
   const handleShare = (platform) => {
@@ -106,14 +114,60 @@ const JournalTrace = ({ isBatch }) => {
   const itemDesc = isBatch ? batch.productId?.description : journal.schemaId?.description;
   const traceCode = isBatch ? batch.traceId : journal.qrCode;
 
-  // Helpers for Journal only
-  const getDynamicFieldByLabel = (fields, data, possibleLabels) => {
-    if (!fields || !data) return null;
-    for (const field of fields) {
-      if (!field.label) continue;
-      const labelLower = field.label.toLowerCase();
-      if (possibleLabels.some(kw => labelLower === kw.toLowerCase() || labelLower.includes(kw.toLowerCase()))) {
-        return data[field.name];
+  // 1. Helper function to find values in entries by label or name
+  const getEntryValue = (journalObj, searchLabels) => {
+    if (!journalObj?.entries || !journalObj?.schemaId) return null;
+
+    const normalizedSearchLabels = searchLabels.map(label => label.toLowerCase().trim());
+    const entries = journalObj.entries || {};
+    const schema = journalObj.schemaId;
+
+    // A. Search via schema labels
+    const targetFields = [];
+    if (schema.tables) {
+      schema.tables.forEach(table => {
+        if (table.fields) {
+          table.fields.forEach(field => {
+            const lowerLabel = field.label.toLowerCase().trim();
+            const lowerName = field.name.toLowerCase().trim();
+
+            if (normalizedSearchLabels.some(sn =>
+              lowerLabel.includes(sn) || sn.includes(lowerLabel) ||
+              lowerName.includes(sn) || sn.includes(lowerName)
+            )) {
+              targetFields.push({ tableName: table.tableName, fieldName: field.name });
+            }
+          });
+        }
+      });
+    }
+
+    for (const target of targetFields) {
+      const tableData = entries[target.tableName];
+      if (!tableData) continue;
+      if (Array.isArray(tableData)) {
+        const val = tableData[0]?.[target.fieldName];
+        if (val !== undefined && val !== null && val !== '') return val;
+      } else {
+        const val = tableData[target.fieldName];
+        if (val !== undefined && val !== null && val !== '') return val;
+      }
+    }
+
+    // B. Fallback: Full scan of entries
+    for (const table in entries) {
+      const tableObj = entries[table];
+      if (tableObj && typeof tableObj === 'object') {
+        const rows = Array.isArray(tableObj) ? tableObj : [tableObj];
+        for (const row of rows) {
+          for (const key in row) {
+            const lowerKey = key.toLowerCase().trim();
+            if (normalizedSearchLabels.some(sn => lowerKey.includes(sn) || sn.includes(lowerKey))) {
+              const val = row[key];
+              if (val !== undefined && val !== null && val !== '') return val;
+            }
+          }
+        }
       }
     }
     return null;
@@ -122,10 +176,8 @@ const JournalTrace = ({ isBatch }) => {
   let tenCoSo = '';
   let diaChi = '';
   if (!isBatch) {
-    const thongTinChung = journal.entries?.['Thông tin chung'] || {};
-    const thongTinChungFields = journal.schemaId?.tables?.find(t => t.tableName === 'Thông tin chung')?.fields || [];
-    tenCoSo = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['tên cơ sở', 'họ tên chủ hộ', 'chủ hộ', 'tên nông trại', 'người đại diện']);
-    diaChi = getDynamicFieldByLabel(thongTinChungFields, thongTinChung, ['địa chỉ', 'vị trí', 'nơi sản xuất']);
+    tenCoSo = getEntryValue(journal, ['tên cơ sở', 'coSo', 'tên nông trại', 'người đại diện', 'họ và tên tổ chức/cá nhân sản xuất']);
+    diaChi = getEntryValue(journal, ['địa chỉ', 'địa chỉ sản xuất', 'vị trí', 'nơi sản xuất', 'location', 'address']);
   }
 
   return (
@@ -217,7 +269,7 @@ const JournalTrace = ({ isBatch }) => {
                       <div className="flex items-center gap-3 mb-2">
                         <EnvironmentOutlined className="text-green-600" />
                         <Text strong className="text-gray-600">Khu vực:</Text>
-                        <Text className="text-gray-800">{journal.userId?.province || 'Chưa cập nhật'}</Text>
+                        <Text className="text-gray-800">{journal.userId?.province || diaChi || 'Chưa cập nhật'}</Text>
                       </div>
                     </Col>
                     <Col xs={24} sm={12}>
@@ -334,15 +386,28 @@ const JournalTrace = ({ isBatch }) => {
                     <Timeline.Item key={index} color={hasData ? 'green' : 'gray'}>
                       <Title level={5} className="!mb-2">{table.tableName}</Title>
                       {hasData ? (
-                        <Card size="small" className="bg-gray-50/50 rounded-xl border-gray-100">
-                          <Descriptions column={1} size="small" bordered>
-                             {table.fields.map(f => (
-                               <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
-                                 {data[f.name] || <span className="text-gray-400 italic">Chưa cập nhật</span>}
-                               </Descriptions.Item>
-                             ))}
-                          </Descriptions>
-                        </Card>
+                        <div className="space-y-4">
+                          {(Array.isArray(data) ? data : [data]).map((row, rowIdx) => (
+                            <Card key={rowIdx} size="small" className="bg-gray-50/50 rounded-xl border-gray-100 shadow-sm">
+                              {Array.isArray(data) && <Tag color="green" className="mb-2 font-bold text-[10px]">Dòng #{rowIdx + 1}</Tag>}
+                              <Descriptions column={1} size="small" bordered>
+                                {table.fields.map(f => (
+                                  <Descriptions.Item key={f.name} label={<Text strong>{f.label}</Text>}>
+                                    {inventory && typeof row[f.name] === 'string' && row[f.name].length === 24 ? (
+                                      // Thử tìm trong kho nếu là ID
+                                      (() => {
+                                        const item = inventory.find(i => i._id === row[f.name]);
+                                        return item ? item.name : row[f.name];
+                                      })()
+                                    ) : (
+                                      row[f.name] || <span className="text-gray-400 italic">Chưa cập nhật</span>
+                                    )}
+                                  </Descriptions.Item>
+                                ))}
+                              </Descriptions>
+                            </Card>
+                          ))}
+                        </div>
                       ) : (
                         <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center">
                           <Text className="text-gray-400 italic text-xs">Chưa có thông tin cho giai đoạn này</Text>

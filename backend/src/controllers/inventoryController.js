@@ -5,8 +5,14 @@ const { createNotification } = require('./notificationController');
 // Lấy danh sách vật tư của HTX hoặc Nông dân
 const getInventory = async (req, res) => {
   try {
-    const owner = req.user._id;
-    const items = await InventoryItem.find({ owner }).sort({ updatedAt: -1 });
+    let filter = {};
+    if (req.user) {
+      // Nếu có user (Admin/Farmer), lọc theo quyền
+      filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { owner: req.user._id };
+    }
+    // Nếu không có user (yêu cầu từ Trace page), cho phép lấy toàn bộ để map ID -> Tên
+    
+    const items = await InventoryItem.find(filter).sort({ updatedAt: -1 });
     res.json({ success: true, data: items });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

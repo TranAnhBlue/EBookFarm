@@ -131,7 +131,12 @@ const updateJournal = async (req, res) => {
               });
           }
 
-          journal.entries = req.body.entries || journal.entries;
+          if (req.body.entries) {
+              console.log(`📦 Updating entries for journal ${journal._id}:`, JSON.stringify(req.body.entries).substring(0, 200) + '...');
+              journal.entries = req.body.entries;
+              journal.markModified('entries');
+          }
+          
           journal.status = req.body.status || journal.status;
           
           if (req.body.feedback !== undefined) {

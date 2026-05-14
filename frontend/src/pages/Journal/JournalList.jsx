@@ -705,7 +705,7 @@ const JournalList = () => {
                               <div className="flex items-center gap-1.5"><AppstoreOutlined className="text-green-500" /> Lô sản xuất:</div>
                               <div className="text-right">
                                 <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'block_id']))}
+                                  {displayMappedValue(getEntryValue(journal, ['loSanXuat', 'Lô sản xuất', 'maLo', 'maSoLo', 'maThua', 'block_id', 'maSoThua']))}
                                 </Text>
                               </div>
 
@@ -714,7 +714,7 @@ const JournalList = () => {
                               <div className="text-right">
                                 <Text strong>
                                   {(() => {
-                                    const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'area']);
+                                    const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'dienTichm2', 'dienTichCanhTac', 'area']);
                                     return value ? `${Number(value).toLocaleString('vi-VN')} m²` : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
                                   })()}
                                 </Text>
@@ -732,7 +732,7 @@ const JournalList = () => {
                               <div className="flex items-center gap-1.5"><CheckCircleOutlined className="text-green-500" /> Giống:</div>
                               <div className="text-right">
                                 <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'tenGiong', 'giống chè']))}
+                                  {displayMappedValue(getEntryValue(journal, ['giong', 'Giống', 'giongCayTrong', 'tenGiong', 'giongNam', 'giống chè']))}
                                 </Text>
                               </div>
 
