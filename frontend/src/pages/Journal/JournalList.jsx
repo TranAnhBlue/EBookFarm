@@ -948,6 +948,11 @@ const JournalList = () => {
                 onChange={setSelectedSchema}
                 value={selectedSchema}
                 loading={!schemas}
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                }
               >
                 {schemas?.map((s) => (
                   <Select.Option value={s._id} key={s._id}>{s.name}</Select.Option>
