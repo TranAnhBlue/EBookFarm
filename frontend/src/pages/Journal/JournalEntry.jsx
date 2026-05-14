@@ -44,7 +44,9 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     (journalData.status === 'Submitted' && user?.role?.toUpperCase() === 'FARMER')
   );
 
-  const activeSchemaId = isEditing && journalData ? journalData.schemaId._id : schemaId;
+  const activeSchemaId = (isEditing && journalData) 
+    ? (journalData.schemaId?._id || journalData.schemaId) 
+    : schemaId;
 
   // Fetch schema structure
   const { data: schema, isLoading: schemaLoading } = useQuery({
@@ -1217,7 +1219,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       console.log('✅ Validation passed, preparing payload...');
 
       const { status: formStatus, ...entries } = values;
-      
+
       // Tự động quyết định status nếu người dùng không chọn thủ công
       let finalStatus = formStatus;
       if (isFinalSubmit) {
@@ -1290,7 +1292,9 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                       }
 
                       if (quantityToDeduct !== 0) {
-                        consumePromises.push(api.post('/inventory/consume', { itemId: invItem._id, quantity: quantityToDeduct, note: noteText }));
+                        if (invItem?._id) {
+                          consumePromises.push(api.post('/inventory/consume', { itemId: invItem._id, quantity: quantityToDeduct, note: noteText }));
+                        }
                       }
                     }
                   }
@@ -2073,7 +2077,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
               }
               if (!selectedSupplyId) return Promise.resolve();
 
-              const item = inventory.find(i => i._id === selectedSupplyId);
+              const item = inventory?.find(i => i._id === selectedSupplyId);
 
               // Debug logging
               console.log('Validating Stock:', {
@@ -2185,7 +2189,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       if (schema.tables) {
         schema.tables.forEach(table => {
           const tableName = table.tableName;
-          
+
           // Đảm bảo dữ liệu bảng Multi-row luôn là mảng để Form.List hiển thị
           if (table.isMultiRow) {
             if (convertedEntries[tableName] && !Array.isArray(convertedEntries[tableName])) {
@@ -2193,7 +2197,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
               const rawTableData = convertedEntries[tableName];
               const keys = Object.keys(rawTableData);
               if (keys.length > 0 && keys.every(k => !isNaN(k))) {
-                convertedEntries[tableName] = keys.sort((a,b) => Number(a)-Number(b)).map(k => rawTableData[k]);
+                convertedEntries[tableName] = keys.sort((a, b) => Number(a) - Number(b)).map(k => rawTableData[k]);
               } else {
                 convertedEntries[tableName] = [rawTableData];
               }
@@ -2227,7 +2231,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
       }
 
       if (convertedEntries['Ngày bắt đầu']) convertedEntries['Ngày bắt đầu'] = dayjs(convertedEntries['Ngày bắt đầu']);
-      
+
       // Load status
       convertedEntries.status = journalData.status;
 
@@ -2332,7 +2336,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             showSearch
             allowClear
             onChange={(value) => {
-              const selected = options.find(o => o._id === value);
+              const selected = options?.find(o => o._id === value);
               if (selected) {
                 const table = schema.tables.find(t => t.tableName === tableName);
                 const unitFieldName = table?.fields.find(f =>
@@ -2444,16 +2448,16 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             {(fields, { add, remove }) => (
               <div className="space-y-6">
                 {fields.map(({ key, name, ...restField }, index) => (
-                  <Card 
-                    key={key} 
-                    size="small" 
+                  <Card
+                    key={key}
+                    size="small"
                     className="bg-gray-50/50 border-gray-200 rounded-xl relative pt-8"
                     title={<Tag color="blue">Dòng #{index + 1}</Tag>}
                     extra={!isReadOnly && (
-                      <Button 
-                        type="text" 
-                        danger 
-                        icon={<DeleteOutlined />} 
+                      <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
                         onClick={() => remove(name)}
                       >
                         Xóa
@@ -2516,25 +2520,25 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           }} className="rounded-xl">← Quay lại</Button>
           {!isReadOnly && (
             <Space>
-              <Button 
-                size="large" 
+              <Button
+                size="large"
                 onClick={() => {
                   setIsFinalSubmit(false);
                   form.submit();
-                }} 
-                loading={saveMutation.isPending && !isFinalSubmit} 
+                }}
+                loading={saveMutation.isPending && !isFinalSubmit}
                 className="rounded-xl border-green-600 text-green-600 font-medium px-6"
               >
                 Lưu tạm
               </Button>
-              <Button 
-                type="primary" 
-                size="large" 
+              <Button
+                type="primary"
+                size="large"
                 onClick={() => {
                   setIsFinalSubmit(true);
                   form.submit();
-                }} 
-                loading={saveMutation.isPending && isFinalSubmit} 
+                }}
+                loading={saveMutation.isPending && isFinalSubmit}
                 className="rounded-xl bg-green-600 font-bold px-8 shadow-lg shadow-green-200"
               >
                 Gửi duyệt
@@ -2608,7 +2612,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         {/* ===== TRẠNG THÁI ===== */}
         <Card className="mt-6 rounded-2xl shadow-sm border border-gray-100 bg-white">
           <div className="w-1/2">
-            <Form.Item name="status" label="Trạng thái hồ sơ (Tự động cập nhật)" initialValue="Draft" className="mb-0">
+            <Form.Item name="status" label="Trạng thái hồ sơ" initialValue="Draft" className="mb-0">
               <Select size="large" className="rounded-xl" disabled>
                 <Option value="Assigned">Mới được phân công (Chờ ghi chép)</Option>
                 <Option value="Draft">Đang thực hiện (Lưu nháp)</Option>
