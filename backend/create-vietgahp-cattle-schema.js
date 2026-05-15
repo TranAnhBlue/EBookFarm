@@ -57,7 +57,7 @@ const createCattleSchema = async () => {
             { name: 'tenGiong', label: 'Tên giống', type: 'text', required: true },
             { name: 'soHieu', label: 'Số hiệu', type: 'text' },
             { name: 'coSoBan', label: 'Cơ sở bán và địa chỉ', type: 'text' },
-            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text' }
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -69,7 +69,7 @@ const createCattleSchema = async () => {
             { name: 'soLuong', label: 'Số lượng (con)', type: 'number', required: true },
             { name: 'tongKhoiLuong', label: 'Tổng khối lượng bò (kg)', type: 'number' },
             { name: 'luongThucAn', label: 'Lượng thức ăn sử dụng (kg)', type: 'number' },
-            { name: 'nguoiCan', label: 'Người phụ trách cân', type: 'text' }
+            { name: 'nguoiCan', label: 'Người phụ trách cân (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -81,7 +81,7 @@ const createCattleSchema = async () => {
             { name: 'soLuong', label: 'Số lượng (kg)', type: 'number', required: true },
             { name: 'donGia', label: 'Đơn giá (Đồng/kg)', type: 'number' },
             { name: 'nhaCungCap', label: 'Tên người, cửa hàng/đại lý bán', type: 'text' },
-            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text' }
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -92,7 +92,7 @@ const createCattleSchema = async () => {
             { name: 'loaiThucAn', label: 'Loại thức ăn', type: 'text', required: true },
             { name: 'soLuong', label: 'Số lượng (kg)', type: 'number', required: true },
             { name: 'doiTuong', label: 'Đối tượng bò sử dụng', type: 'text' },
-            { name: 'nguoiChoAn', label: 'Người phụ trách cho ăn', type: 'text' }
+            { name: 'nguoiChoAn', label: 'Người phụ trách cho ăn (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -105,7 +105,7 @@ const createCattleSchema = async () => {
             { name: 'mucDo', label: 'Mức độ', type: 'select', options: ['Nhẹ', 'Trung bình', 'Nặng'] },
             { name: 'keHoach', label: 'Kế hoạch phòng và trị bệnh', type: 'text' },
             { name: 'tinhTrang', label: 'Tình trạng đàn sau xử lý', type: 'text' },
-            { name: 'nguoiPhuTrach', label: 'Người phụ trách dịch bệnh', type: 'text' }
+            { name: 'nguoiPhuTrach', label: 'Người phụ trách dịch bệnh (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -129,7 +129,7 @@ const createCattleSchema = async () => {
             { name: 'soLuong', label: 'Số lượng (ml/lít/kg)', type: 'text', required: true },
             { name: 'loaiBenh', label: 'Loại bệnh điều trị', type: 'text' },
             { name: 'doiTuong', label: 'Đối tượng bò điều trị', type: 'text' },
-            { name: 'nguoiDieuTri', label: 'Người điều trị', type: 'text' }
+            { name: 'nguoiDieuTri', label: 'Người điều trị (ký tên)', type: 'signature', required: true }
           ]
         },
         {
@@ -140,14 +140,14 @@ const createCattleSchema = async () => {
             { name: 'nguoiThamGia', label: 'Người tham gia tập huấn', type: 'text' },
             { name: 'noiDung', label: 'Nội dung tập huấn', type: 'text', required: true },
             { name: 'donViToChuc', label: 'Đơn vị, tổ chức, địa chỉ', type: 'text' },
-            { name: 'nguoiTapHuan', label: 'Người tập huấn', type: 'text' }
+            { name: 'nguoiTapHuan', label: 'Người tập huấn (ký tên)', type: 'signature', required: true }
           ]
         }
       ]
     });
 
     await cattleSchema.save();
-    console.log('VietGAHP Cattle Schema restored with full names successfully!');
+    console.log('VietGAHP Cattle Schema updated with signature types successfully!');
     process.exit(0);
   } catch (err) {
     console.error(err);

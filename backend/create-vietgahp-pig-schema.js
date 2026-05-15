@@ -39,6 +39,7 @@ const createPigSchema = async () => {
           isMultiRow: true,
           fields: [
             { name: 'ngayNhap', label: 'Ngày nhập', type: 'date', required: true },
+            { name: 'nguoiNhap', label: 'Tên người nhập', type: 'text', required: true },
             { name: 'tenHang', label: 'Tên hàng', type: 'text', required: true },
             { name: 'soLuong', label: 'Số lượng (kg)', type: 'number', required: true },
             { name: 'coSoSanXuat', label: 'Cơ sở sản xuất', type: 'text' },
@@ -69,7 +70,9 @@ const createPigSchema = async () => {
             { name: 'donViTinh', label: 'Đơn vị tính', type: 'text' },
             { name: 'soLuong', label: 'Số lượng', type: 'number', required: true },
             { name: 'tacDung', label: 'Tác dụng', type: 'text' },
-            { name: 'nhaCungCap', label: 'Tên và địa chỉ nhà cung cấp', type: 'text' }
+            { name: 'nhaCungCap', label: 'Tên và địa chỉ nhà cung cấp', type: 'text' },
+            { name: 'nguoiNhan', label: 'Người nhận (ký tên)', type: 'signature', required: true },
+            { name: 'ghiChu', label: 'Ghi chú', type: 'text' }
           ]
         },
         {
@@ -81,7 +84,8 @@ const createPigSchema = async () => {
             { name: 'maSoLo', label: 'Mã số lô', type: 'text' },
             { name: 'oChuongSo', label: 'Ô/Chuồng nuôi số', type: 'text', required: true },
             { name: 'khoiLuongNgay', label: 'Khối lượng/ngày (kg)', type: 'number', required: true },
-            { name: 'nguoiThucHien', label: 'Công nhân chăn nuôi', type: 'text' }
+            { name: 'nguoiThucHien', label: 'Công nhân chăn nuôi (ký tên)', type: 'signature', required: true },
+            { name: 'ghiChu', label: 'Ghi chú', type: 'text' }
           ]
         },
         {
@@ -96,6 +100,7 @@ const createPigSchema = async () => {
             { name: 'lieuLuong', label: 'Liều lượng, cách dùng', type: 'text' },
             { name: 'ngayKetThuc', label: 'Ngày kết thúc điều trị', type: 'date' },
             { name: 'ketQua', label: 'Kết quả điều trị', type: 'text' },
+            { name: 'nguoiDieuTri', label: 'Người điều trị', type: 'text', required: true },
             { name: 'oChuongSo', label: 'Ô/Chuồng nuôi số', type: 'text' }
           ]
         },
@@ -109,7 +114,8 @@ const createPigSchema = async () => {
             { name: 'tenThuoc', label: 'Tên thuốc', type: 'text', required: true },
             { name: 'soLoHanDung', label: 'Số lô/Hạn sử dụng', type: 'text' },
             { name: 'lieuDung', label: 'Liều dùng', type: 'text' },
-            { name: 'nguoiThucHien', label: 'Người thực hiện', type: 'text' }
+            { name: 'nguoiThucHien', label: 'Người thực hiện', type: 'text' },
+            { name: 'ghiChu', label: 'Ghi chú', type: 'text' }
           ]
         },
         {
@@ -137,16 +143,16 @@ const createPigSchema = async () => {
             { name: 'maLoSanPham', label: 'Mã lô sản phẩm', type: 'text', required: true },
             { name: 'ngayTiemCuoi', label: 'Ngày tiêm phòng/trị bệnh lần cuối', type: 'date' },
             { name: 'loaiThuocCuoi', label: 'Loại vaccine/thuốc đã sử dụng', type: 'text' },
-            { name: 'ngayKetThucDieuTri', label: 'Ngày kết thúc điều trị', type: 'date' },
+            { name: 'nguoiKetThucDieuTri', label: 'Ngày kết thúc điều trị', type: 'date' },
             { name: 'nguoiMua', label: 'Tên/địa chỉ người mua', type: 'text' },
-            { name: 'nguoiXuat', label: 'Người xuất bán', type: 'text' }
+            { name: 'nguoiXuat', label: 'Người xuất bán (ký tên)', type: 'signature', required: true }
           ]
         }
       ]
     });
 
     await pigSchema.save();
-    console.log('VietGAHP Pig Schema updated successfully with standardized common info!');
+    console.log('VietGAHP Pig Schema updated with signatures and notes successfully!');
     process.exit(0);
   } catch (err) {
     console.error(err);

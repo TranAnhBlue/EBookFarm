@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
 import dayjs from 'dayjs';
-import { InboxOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
@@ -10,6 +10,123 @@ import { useAuthStore } from '../../store/authStore';
 
 const { Title } = Typography;
 const { Option } = Select;
+
+// --- Custom Signature Field Component ---
+const SignatureField = ({ value, onChange, label }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  const startDrawing = (e) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const saveSignature = () => {
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL('image/png');
+    onChange(dataUrl);
+    setIsModalVisible(false);
+  };
+
+  useEffect(() => {
+    if (isModalVisible && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+    }
+  }, [isModalVisible]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {value ? (
+        <div className="relative border border-gray-200 rounded-lg p-2 bg-white flex flex-col items-center">
+          <img src={value} alt="Signature" className="max-h-20 object-contain" />
+          <Button 
+            type="link" 
+            danger 
+            size="small" 
+            onClick={() => setIsModalVisible(true)}
+            className="mt-1"
+          >
+            Ký lại
+          </Button>
+        </div>
+      ) : (
+        <Button 
+          icon={<EditOutlined />} 
+          onClick={() => setIsModalVisible(true)}
+          className="w-full border-dashed border-green-300 text-green-600 hover:text-green-700 hover:border-green-500"
+        >
+          Bấm để ký xác nhận
+        </Button>
+      )}
+
+      <Modal
+        title={`Ký xác nhận: ${label}`}
+        open={isModalVisible}
+        onOk={saveSignature}
+        onCancel={() => setIsModalVisible(false)}
+        width={400}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        centered
+      >
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <canvas
+            ref={canvasRef}
+            width={350}
+            height={200}
+            className="bg-white border border-gray-300 rounded cursor-crosshair touch-none mx-auto"
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseOut={stopDrawing}
+            onTouchStart={startDrawing}
+            onTouchMove={draw}
+            onTouchEnd={stopDrawing}
+          />
+          <div className="mt-4 flex justify-between items-center text-xs text-gray-500 italic">
+            <span>Dùng ngón tay hoặc chuột để ký vào khung trên</span>
+            <Button size="small" onClick={clearCanvas}>Xóa ký lại</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
 
 const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   const { user } = useAuthStore();
@@ -2381,6 +2498,19 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
 
     const commonProps = {
       size: "large",
+      className: "w-full rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500",
+    };
+
+    if (field.type === 'signature') {
+      return (
+        <Form.Item name={namePath} label={field.label} rules={[{ required: field.required, message: `${field.label} là bắt buộc` }]}>
+          <SignatureField label={field.label} />
+        </Form.Item>
+      );
+    }
+
+    const inputCommonProps = {
+      ...commonProps,
       className: "rounded-xl border-gray-200",
       placeholder: `Nhập ${field.label.toLowerCase()}`,
       disabled: isReadOnly
