@@ -20,11 +20,18 @@ const createPigSchema = async () => {
           tableName: 'Thông tin chung',
           isMultiRow: false,
           fields: [
-            { name: 'tenToChuc', label: 'Tên tổ chức/cá nhân chăn nuôi', type: 'text', required: true },
-            { name: 'diaChi', label: 'Địa chỉ', type: 'text', required: true },
-            { name: 'luaChanNuoi', label: 'Lứa chăn nuôi', type: 'text', required: true },
-            { name: 'tenChuong', label: 'Tên chuồng nuôi/khu vực', type: 'text', required: true },
-            { name: 'nam', label: 'Năm', type: 'text', required: true }
+            { name: 'tenChuHo', label: 'Họ và tên tổ chức/cá nhân chăn nuôi', type: 'text', required: true },
+            { name: 'diaChi', label: 'Địa chỉ (Thôn/Xã/Huyện/Tỉnh)', type: 'text', required: true },
+            { name: 'ngayNhapLon', label: 'Ngày nhập lợn con', type: 'date', required: true },
+            { name: 'tenGiong', label: 'Tên giống', type: 'text', required: true },
+            { name: 'coSoCungCap', label: 'Mua tại cơ sở', type: 'text' },
+            { name: 'soLuongCon', label: 'Số lượng con', type: 'number', required: true },
+            { name: 'maSoLoLon', label: 'Mã số lô lợn con', type: 'text', required: true },
+            { name: 'trongLuongTB', label: 'Trọng lượng trung bình (kg/con)', type: 'number' },
+            { name: 'oChuongSo', label: 'Ô/Chuồng nuôi số', type: 'text' },
+            { name: 'matDoNuoi', label: 'Mật độ nuôi', type: 'text' },
+            { name: 'dienTichChuong', label: 'Diện tích chuồng nuôi (m2)', type: 'number' },
+            { name: 'dienTichKhuVuc', label: 'Diện tích toàn bộ khu vực chăn nuôi (m2)', type: 'number' }
           ]
         },
         {
@@ -139,7 +146,7 @@ const createPigSchema = async () => {
     });
 
     await pigSchema.save();
-    console.log('VietGAHP Pig Schema created successfully!');
+    console.log('VietGAHP Pig Schema updated successfully with standardized common info!');
     process.exit(0);
   } catch (err) {
     console.error(err);
