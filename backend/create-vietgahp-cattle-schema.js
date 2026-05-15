@@ -73,7 +73,7 @@ const createCattleSchema = async () => {
           ]
         },
         {
-          tableName: 'BIỂU 4: MUA THỨC ĂN, CHẤT BỔ SUNG',
+          tableName: 'BIỂU 4: MUA THỨC ĂN. CHẤT BỔ SUNG THỨC ĂN',
           isMultiRow: true,
           fields: [
             { name: 'ngayThang', label: 'Ngày, tháng, năm', type: 'date', required: true },
@@ -147,7 +147,7 @@ const createCattleSchema = async () => {
     });
 
     await cattleSchema.save();
-    console.log('VietGAHP Cattle Schema created successfully!');
+    console.log('VietGAHP Cattle Schema restored with full names successfully!');
     process.exit(0);
   } catch (err) {
     console.error(err);

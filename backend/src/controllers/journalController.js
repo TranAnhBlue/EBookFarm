@@ -25,6 +25,9 @@ const createJournal = async (req, res) => {
         journal.progress = Math.round((completedSteps / totalSteps) * 100);
     }
 
+    if (req.body.entries) {
+        journal.markModified('entries');
+    }
     const createdJournal = await journal.save();
     
     // Log action

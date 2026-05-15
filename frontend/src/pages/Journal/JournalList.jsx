@@ -422,9 +422,12 @@ const JournalList = () => {
     },
     {
       title: 'Người tạo',
-      dataIndex: ['userId', 'username'],
       key: 'user',
-      render: (text) => <Tag color="blue" className="rounded-md border-blue-100 font-medium">{text}</Tag>
+      render: (_, record) => (
+        <Tag color="blue" className="rounded-md border-blue-100 font-medium">
+          {record.userId?.fullname || record.userId?.username}
+        </Tag>
+      )
     },
     {
       title: 'Loại hình',
