@@ -8,7 +8,7 @@ const createCattleSchema = async () => {
     await mongoose.connect(uri);
     console.log('Connected to MongoDB');
 
-    const schemaName = 'VietGAHP Chăn nuôi Bò';
+    const schemaName = 'Bò';
     await FormSchema.deleteMany({ name: schemaName });
 
     const cattleSchema = new FormSchema({
