@@ -1153,19 +1153,54 @@ const JournalList = () => {
                       description: (
                         <div className={`bg-gray-50 p-6 rounded-2xl mt-3 mb-6 border shadow-sm ${hasData ? 'border-green-100' : 'border-gray-100 opacity-60'}`}>
                           {hasData ? (
-                            <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
-                              {table.fields.map((field) => (
-                                <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
-                                  <span className="text-gray-800 font-medium">
-                                    {field.type === 'date' && entryData[field.name]
-                                      ? new Date(entryData[field.name]).toLocaleDateString('vi-VN')
-                                      : field.type === 'boolean'
-                                        ? (entryData[field.name] ? 'Có' : 'Không')
-                                        : (entryData[field.name]?.toString() || '---')}
-                                  </span>
-                                </Descriptions.Item>
-                              ))}
-                            </Descriptions>
+                            Array.isArray(entryData) ? (
+                              <div className="space-y-4">
+                                {entryData.map((row, rowIndex) => (
+                                  <div key={rowIndex} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                      Bản ghi {rowIndex + 1}
+                                    </div>
+                                    <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                                      {table.fields.map((field) => {
+                                        let val = row[field.name];
+                                        if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+                                        
+                                        return (
+                                          <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
+                                            <span className="text-gray-800 font-medium break-words whitespace-pre-wrap">
+                                              {field.type === 'date' && val
+                                                ? new Date(val).toLocaleDateString('vi-VN')
+                                                : field.type === 'boolean'
+                                                  ? (val ? 'Có' : 'Không')
+                                                  : (val?.toString() || '---')}
+                                            </span>
+                                          </Descriptions.Item>
+                                        );
+                                      })}
+                                    </Descriptions>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                                {table.fields.map((field) => {
+                                  let val = entryData[field.name];
+                                  if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+                                  
+                                  return (
+                                    <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
+                                      <span className="text-gray-800 font-medium break-words whitespace-pre-wrap">
+                                        {field.type === 'date' && val
+                                          ? new Date(val).toLocaleDateString('vi-VN')
+                                          : field.type === 'boolean'
+                                            ? (val ? 'Có' : 'Không')
+                                            : (val?.toString() || '---')}
+                                      </span>
+                                    </Descriptions.Item>
+                                  );
+                                })}
+                              </Descriptions>
+                            )
                           ) : (
                             <div className="text-gray-400 italic text-sm py-2">Chưa cập nhật thông tin cho phần này</div>
                           )}
