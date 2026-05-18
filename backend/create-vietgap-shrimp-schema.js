@@ -2,162 +2,186 @@ const mongoose = require('mongoose');
 const FormSchema = require('./src/models/FormSchema');
 require('dotenv').config();
 
-// Kết nối MongoDB
-mongoose.connect(process.env.MONGO_URI);
-
 const createVietGAPShrimpSchema = async () => {
   try {
-    console.log('🦐 Tạo schema nhật ký nuôi tôm theo VietGAP...');
+    const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/ebookfarm';
+    await mongoose.connect(uri);
+    console.log('Connected to MongoDB');
 
-    // Schema nhật ký nuôi tôm theo VietGAP chuẩn
-    const vietgapShrimpSchema = new FormSchema({
-      name: 'Nhật ký nuôi tôm VietGAP',
-      description: 'Sổ nhật ký nuôi tôm theo tiêu chuẩn VietGAP thủy sản',
-      category: 'thuyssan',
+    const schemaData = {
+      name: 'Tôm',
+      category: 'thuysan',
+      description: 'Sổ nhật ký nuôi tôm theo tiêu chuẩn VietGAP',
       tables: [
         {
           tableName: 'Thông tin chung',
+          isMultiRow: false,
           fields: [
             { name: 'tenCoSo', label: 'Tên cơ sở', type: 'text', required: true },
-            { name: 'diaChiCoSo', label: 'Địa chỉ cơ sở', type: 'text', required: true },
-            { name: 'hoTenToChucCaNhan', label: 'Họ và tên tổ chức/cá nhân sản xuất', type: 'text', required: true },
-            { name: 'maSoHo', label: 'Mã số hộ', type: 'text', required: true },
-            { name: 'dienTich', label: 'Diện tích (ha)', type: 'number', required: true },
-            { name: 'tenGiong', label: 'Tên giống tôm', type: 'text', required: true },
+            { name: 'diaChi', label: 'Địa chỉ', type: 'text', required: true },
+            { name: 'hoVaTen', label: 'Họ và tên tổ chức/cá nhân sản xuất', type: 'text', required: true },
+            { name: 'maSoHo', label: 'Mã số hộ', type: 'text', required: false },
+            { name: 'dienTich', label: 'Diện tích', type: 'text', required: false },
+            { name: 'tenGiong', label: 'Tên giống', type: 'text', required: false },
             { name: 'diaChiSanXuat', label: 'Địa chỉ sản xuất', type: 'text', required: true },
-            { name: 'namSanXuat', label: 'Năm sản xuất', type: 'number', required: true },
-            { name: 'soDoAoHo', label: 'Sơ đồ ao/hồ nuôi kèm theo', type: 'text', required: false }
+            { name: 'namSanXuat', label: 'Năm sản xuất', type: 'number', required: true }
           ]
         },
         {
-          tableName: 'Biểu 1: Thông tin chung',
+          tableName: 'Biểu 1 (1/2). Thông tin ao nuôi',
+          isMultiRow: false,
           fields: [
             { name: 'aoNuoiSo', label: 'Ao nuôi số', type: 'text', required: true },
-            { name: 'dienTichAo', label: 'Diện tích ao (ha)', type: 'number', required: true },
-            { name: 'tenGiongTom', label: 'Tên giống tôm', type: 'select', options: ['Tôm sú', 'Tôm chân trắng', 'Tôm càng xanh', 'Tôm he', 'Khác'], required: true },
-            { name: 'doSau', label: 'Độ sâu (m)', type: 'number', required: true },
+            { name: 'dienTichHa', label: 'Diện tích (ha)', type: 'number', required: true },
+            { name: 'tenGiongTom', label: 'Tên giống tôm', type: 'text', required: true },
+            { name: 'doSau', label: 'Độ sâu (m)', type: 'number', required: false }
+          ]
+        },
+        {
+          tableName: 'Biểu 1 (2/2). Thông tin về thả giống',
+          isMultiRow: true,
+          fields: [
             { name: 'ngayThaGiong', label: 'Ngày thả giống', type: 'date', required: true },
-            { name: 'soLuongCon', label: 'Số lượng (con)', type: 'number', required: true },
-            { name: 'coTom', label: 'Cỡ tôm (gram)', type: 'number', required: true },
-            { name: 'matDoTha', label: 'Mật độ thả (con/m²)', type: 'number', required: true },
-            { name: 'tongLuongGiongTha', label: 'Tổng lượng giống thả (kg)', type: 'number', required: true },
-            { name: 'tenDiaChiCoSoCungCap', label: 'Tên/Địa chỉ cơ sở cung cấp giống', type: 'text', required: true },
+            { name: 'soLuong', label: 'Số lượng (con)', type: 'number', required: true },
+            { name: 'coTom', label: 'Cỡ tôm (gam)', type: 'number', required: true },
+            { name: 'matDoTha', label: 'Mật độ thả (con/m2)', type: 'number', required: false },
+            { name: 'tongLuongGiong', label: 'Tổng lượng giống thả (kg, con)', type: 'text', required: true },
+            { name: 'coSoCungCap', label: 'Tên/Địa chỉ cơ sở cung cấp giống', type: 'text', required: true },
             { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text', required: true }
           ]
         },
         {
-          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi',
+          tableName: 'Biểu 2 (1/2). Thông tin cải tạo ao nuôi',
+          isMultiRow: false,
           fields: [
-            { name: 'thoiGianCaiTaoBatDau', label: 'Thời gian cải tạo bắt đầu', type: 'date', required: true },
-            { name: 'thoiGianCaiTaoKetThuc', label: 'Thời gian cải tạo kết thúc', type: 'date', required: true },
-            { name: 'moTaQuyTrinhCaiTao', label: 'Mô tả tóm tắt quy trình cải tạo', type: 'text', required: true },
-            { name: 'tenHoaChat', label: 'Tên hóa chất đã sử dụng', type: 'text', required: false },
-            { name: 'soLuongHoaChat', label: 'Số lượng hóa chất (g/kg/ml/lít)', type: 'text', required: false },
-            { name: 'phuongPhapSuDungHoaChat', label: 'Phương pháp sử dụng hóa chất', type: 'select', options: ['Rắc trực tiếp', 'Pha loãng', 'Phun', 'Khác'], required: false },
-            { name: 'cachThuGomXuLyBun', label: 'Cách thu gom xử lý bùn', type: 'text', required: true },
-            { name: 'noiChuaBun', label: 'Nơi chứa bùn', type: 'text', required: true },
-            { name: 'khoiLuongBunThai', label: 'Khối lượng bùn thải (m³)', type: 'number', required: true },
-            { name: 'pHSauCaiTao', label: 'pH sau khi cải tạo', type: 'number', required: true },
-            { name: 'oxySauCaiTao', label: 'Oxy sau khi cải tạo (mg/l)', type: 'number', required: true },
-            { name: 'nh3SauCaiTao', label: 'NH3 sau khi cải tạo (mg/l)', type: 'number', required: true },
-            { name: 'nhietDoSauCaiTao', label: 'Nhiệt độ sau khi cải tạo (°C)', type: 'number', required: true },
-            { name: 'cacChatDocKhac', label: 'Các chất độc khác', type: 'text', required: false }
+            { name: 'thoiGianBatDau', label: 'Thời gian bắt đầu', type: 'date', required: true },
+            { name: 'thoiGianKetThuc', label: 'Thời gian kết thúc', type: 'date', required: true },
+            { name: 'quyTrinhCaiTao', label: 'Mô tả tóm tắt quy trình cải tạo', type: 'textarea', required: true },
+            { name: 'thuGomBun', label: 'Cách thu gom xử lý bùn', type: 'textarea', required: false },
+            { name: 'noiChuaBun', label: 'Nơi chứa bùn', type: 'text', required: false },
+            { name: 'khoiLuongBun', label: 'Khối lượng bùn thải', type: 'text', required: false },
+            { name: 'pH', label: 'pH sau cải tạo', type: 'number', required: false },
+            { name: 'oxy', label: 'Oxy sau cải tạo', type: 'number', required: false },
+            { name: 'nh3', label: 'NH3 sau cải tạo', type: 'number', required: false },
+            { name: 'nhietDo', label: 'Nhiệt độ sau cải tạo', type: 'number', required: false },
+            { name: 'chatDocKhac', label: 'Các chất độc khác', type: 'text', required: false }
           ]
         },
         {
-          tableName: 'Biểu 3: Theo dõi nhập thức ăn',
+          tableName: 'Biểu 2 (2/2). Hóa chất sử dụng cải tạo ao',
+          isMultiRow: true,
           fields: [
-            { name: 'ngayThangNhapThucAn', label: 'Ngày tháng nhập', type: 'date', required: true },
-            { name: 'tenLoaiThucAn', label: 'Tên loại thức ăn', type: 'text', required: true },
-            { name: 'soLuongKg', label: 'Số lượng (kg)', type: 'number', required: true },
-            { name: 'soLo', label: 'Số lô', type: 'text', required: true },
+            { name: 'tenHoaChat', label: 'Tên hóa chất', type: 'text', required: true },
+            { name: 'soLuong', label: 'Số lượng (g/kg/ml/lít)', type: 'text', required: true },
+            { name: 'phuongPhap', label: 'Phương pháp sử dụng', type: 'text', required: false }
+          ]
+        },
+        {
+          tableName: 'Biểu 3. Theo dõi nhập thức ăn',
+          isMultiRow: true,
+          fields: [
+            { name: 'ngayNhap', label: 'Ngày tháng nhập', type: 'date', required: true },
+            { name: 'tenThucAn', label: 'Tên loại thức ăn', type: 'text', required: true },
+            { name: 'soLuong', label: 'Số lượng (kg)', type: 'number', required: true },
+            { name: 'soLo', label: 'Số lô', type: 'text', required: false },
             { name: 'ngaySanXuat', label: 'Ngày sản xuất', type: 'date', required: true },
             { name: 'hanSuDung', label: 'Hạn sử dụng', type: 'date', required: true },
-            { name: 'tenDiaChiCongTySanXuat', label: 'Tên/Địa chỉ công ty sản xuất', type: 'text', required: true },
-            { name: 'nguoiTheoDoiNhapThucAn', label: 'Người theo dõi', type: 'text', required: true }
+            { name: 'congTySanXuat', label: 'Tên/Địa chỉ công ty sản xuất', type: 'text', required: true },
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text', required: true }
           ]
         },
         {
-          tableName: 'Biểu 4: Theo dõi sử dụng thức ăn',
+          tableName: 'Biểu 4. Sử dụng thức ăn và môi trường',
+          isMultiRow: true,
           fields: [
-            { name: 'ngaySuDung', label: 'Ngày sử dụng', type: 'date', required: true },
-            { name: 'trongLuongTom', label: 'Trọng lượng tôm (g)', type: 'number', required: true },
-            { name: 'maSoThucAn', label: 'Mã số thức ăn', type: 'text', required: true },
-            { name: 'doDamThucAn', label: 'Độ đạm thức ăn (%)', type: 'number', required: true },
-            { name: 'tongKgThucAn', label: 'Tổng thức ăn (kg)', type: 'number', required: true },
-            { name: 'thayNuocM3', label: 'Thay nước (m³)', type: 'number', required: false },
-            { name: 'doMan', label: 'Độ mặn (‰)', type: 'number', required: true },
-            { name: 'doTrong', label: 'Độ trong (cm)', type: 'number', required: true },
-            { name: 'nhietDo', label: 'Nhiệt độ (°C)', type: 'number', required: true },
-            { name: 'pH', label: 'pH', type: 'number', required: true },
-            { name: 'oxy', label: 'Oxy (mg/l)', type: 'number', required: true },
-            { name: 'doKem', label: 'Độ kiềm (mg/l)', type: 'number', required: false },
-            { name: 'nh3', label: 'NH3 (mg/l)', type: 'number', required: false },
-            { name: 'h2s', label: 'H2S (mg/l)', type: 'number', required: false },
-            { name: 'no2', label: 'NO2 (mg/l)', type: 'number', required: false },
-            { name: 'tenHoaChatSuDung', label: 'Tên hóa chất sử dụng', type: 'text', required: false },
-            { name: 'lyDoSuDungHoaChat', label: 'Lý do dùng hóa chất', type: 'select', options: ['Xử lý nước', 'Diệt khuẩn', 'Tăng oxy', 'Điều chỉnh pH', 'Khác'], required: false },
-            { name: 'soLuongHoaChatSuDung', label: 'Số lượng hóa chất', type: 'text', required: false },
-            { name: 'thoiGianCachLy', label: 'Thời gian cách ly (ngày)', type: 'number', required: false },
-            { name: 'tinhTrangTom', label: 'Tình trạng tôm', type: 'select', options: ['Bình thường', 'Yếu', 'Có bệnh', 'Chết'], required: true },
+            { name: 'ngay', label: 'Ngày', type: 'date', required: true },
+            { name: 'trongLuong', label: 'Trọng lượng (g)', type: 'number', required: false },
+            { name: 'maSoThucAn', label: 'Mã số thức ăn', type: 'text', required: false },
+            { name: 'doDam', label: 'Độ đạm', type: 'number', required: false },
+            { name: 'tongThucAn', label: 'Tổng thức ăn (kg)', type: 'number', required: false },
+            { name: 'thayNuoc', label: 'Thay nước (m3)', type: 'number', required: false },
+            { name: 'doMan', label: 'Độ mặn', type: 'number', required: false },
+            { name: 'doTrong', label: 'Độ trong', type: 'number', required: false },
+            { name: 'nhietDo', label: 'Nhiệt độ', type: 'number', required: false },
+            { name: 'pH', label: 'pH', type: 'number', required: false },
+            { name: 'oxy', label: 'Oxy', type: 'number', required: false },
+            { name: 'doKem', label: 'Độ kềm', type: 'number', required: false },
+            { name: 'nh3', label: 'NH3', type: 'number', required: false },
+            { name: 'h2s', label: 'H2S', type: 'number', required: false },
+            { name: 'no2', label: 'NO2', type: 'number', required: false },
+            { name: 'tenHoaChat', label: 'Tên hóa chất', type: 'text', required: false },
+            { name: 'lyDoDung', label: 'Lý do dùng hóa chất', type: 'text', required: false },
+            { name: 'soLuongHoaChat', label: 'Số lượng hóa chất', type: 'text', required: false },
+            { name: 'thoiGianCachLy', label: 'Thời gian cách ly', type: 'text', required: false },
+            { name: 'tinhTrangTom', label: 'Tình trạng tôm', type: 'text', required: false },
             { name: 'tomChet', label: 'Tôm chết (con)', type: 'number', required: false },
-            { name: 'nguoiTheoDoiSuDung', label: 'Người theo dõi', type: 'text', required: true }
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text', required: true }
           ]
         },
         {
-          tableName: 'Biểu 5: Theo dõi nhập thuốc/hóa chất/sản phẩm xử lý cải tạo môi trường',
+          tableName: 'Biểu 5. Theo dõi nhập thuốc/sản phẩm xử lý',
+          isMultiRow: true,
           fields: [
-            { name: 'ngayThangNhapThuoc', label: 'Ngày tháng nhập', type: 'date', required: true },
-            { name: 'tenThuocHoaChatSanPham', label: 'Tên thuốc/hóa chất/sản phẩm xử lý cải tạo môi trường', type: 'text', required: true },
-            { name: 'soLuongKgThuoc', label: 'Số lượng (kg)', type: 'number', required: true },
-            { name: 'soLoThuoc', label: 'Số lô', type: 'text', required: true },
-            { name: 'ngaySanXuatThuoc', label: 'Ngày sản xuất', type: 'date', required: true },
-            { name: 'hanSuDungThuoc', label: 'Hạn sử dụng', type: 'date', required: true },
-            { name: 'tenDiaChiCongTySanXuatThuoc', label: 'Tên/Địa chỉ công ty sản xuất', type: 'text', required: true },
-            { name: 'nguoiTheoDoiNhapThuoc', label: 'Người theo dõi', type: 'text', required: true }
+            { name: 'ngayNhap', label: 'Ngày tháng nhập', type: 'date', required: true },
+            { name: 'tenThuoc', label: 'Tên thuốc/sản phẩm xử lý cải tạo môi trường', type: 'text', required: true },
+            { name: 'soLuong', label: 'Số lượng (kg/lít)', type: 'number', required: true },
+            { name: 'soLo', label: 'Số lô', type: 'text', required: false },
+            { name: 'ngaySanXuat', label: 'Ngày sản xuất', type: 'date', required: true },
+            { name: 'hanSuDung', label: 'Hạn sử dụng', type: 'date', required: true },
+            { name: 'congTySanXuat', label: 'Tên/Địa chỉ công ty sản xuất', type: 'text', required: true },
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text', required: true }
           ]
         },
         {
-          tableName: 'Biểu 6: Theo dõi điều trị bệnh',
+          tableName: 'Biểu 6. Theo dõi điều trị bệnh',
+          isMultiRow: true,
           fields: [
             { name: 'ngayDieuTri', label: 'Ngày điều trị', type: 'date', required: true },
-            { name: 'loaiBenh', label: 'Loại bệnh', type: 'select', options: ['Bệnh đốm trắng', 'Bệnh hoại tử gan tụy cấp', 'Bệnh đầu vàng', 'Bệnh vi khuẩn', 'Bệnh nấm', 'Khác'], required: true },
-            { name: 'tenThuocDieuTri', label: 'Tên thuốc', type: 'text', required: true },
-            { name: 'cachDieuTri', label: 'Cách điều trị', type: 'select', options: ['Trộn thức ăn', 'Tắm thuốc', 'Rắc trực tiếp', 'Pha nước', 'Khác'], required: true },
-            { name: 'ketQuaSauKhiTriBenh', label: 'Kết quả sau khi trị bệnh', type: 'select', options: ['Khỏi hoàn toàn', 'Giảm bệnh', 'Không hiệu quả', 'Tái phát'], required: true },
+            { name: 'loaiBenh', label: 'Loại bệnh', type: 'text', required: true },
+            { name: 'tenThuoc', label: 'Tên thuốc', type: 'text', required: true },
+            { name: 'cachDieuTri', label: 'Cách điều trị', type: 'text', required: true },
+            { name: 'ketQua', label: 'Kết quả sau khi trị bệnh', type: 'text', required: false },
             { name: 'nguoiDieuTri', label: 'Người điều trị', type: 'text', required: true }
           ]
         },
         {
-          tableName: 'Biểu 7: Theo dõi thu hoạch',
+          tableName: 'Biểu 7. Theo dõi thu hoạch',
+          isMultiRow: true,
           fields: [
             { name: 'ngayThuHoach', label: 'Ngày thu hoạch', type: 'date', required: true },
-            { name: 'khoiLuongKg', label: 'Khối lượng (kg)', type: 'number', required: true },
-            { name: 'coTomThuHoach', label: 'Cỡ tôm (g/con)', type: 'number', required: true },
-            { name: 'tenDiaChiDonViThuMua', label: 'Tên/Địa chỉ đơn vị thu mua', type: 'text', required: true },
-            { name: 'dieuKienVeSinhSot', label: 'Điều kiện vệ sinh - Sọt/Thùng chứa', type: 'select', options: ['Sạch sẽ', 'Đạt yêu cầu', 'Cần cải thiện'], required: true },
-            { name: 'dieuKienVeSinhLuoiKeo', label: 'Điều kiện vệ sinh - Lưới kéo', type: 'select', options: ['Sạch sẽ', 'Đạt yêu cầu', 'Cần cải thiện'], required: true },
-            { name: 'nguoiTheoDoiThuHoach', label: 'Người theo dõi', type: 'text', required: true },
-            { name: 'congNhanThuHoach', label: 'Công nhân thu hoạch', type: 'text', required: true }
+            { name: 'khoiLuong', label: 'Khối lượng (kg)', type: 'number', required: true },
+            { name: 'coTom', label: 'Cỡ tôm (g/con)', type: 'number', required: true },
+            { name: 'donViThuMua', label: 'Tên/Địa chỉ đơn vị thu mua', type: 'text', required: true },
+            { name: 'vsCongNhan', label: 'Điều kiện vệ sinh - Công nhân', type: 'text', required: false },
+            { name: 'vsSotThung', label: 'Điều kiện vệ sinh - Sọt/Thùng chứa', type: 'text', required: false },
+            { name: 'vsLuoiKeo', label: 'Điều kiện vệ sinh - Lưới kéo', type: 'text', required: false },
+            { name: 'nguoiTheoDoi', label: 'Người theo dõi', type: 'text', required: true },
+            { name: 'chuKy', label: 'Chữ ký người phụ trách', type: 'signature', required: false }
           ]
         }
       ]
-    });
+    };
 
-    // Lưu schema
-    await vietgapShrimpSchema.save();
-    console.log('✅ Đã tạo thành công schema nhật ký nuôi tôm VietGAP');
-    console.log('📋 Schema ID:', vietgapShrimpSchema._id);
-    console.log('📊 Số bảng:', vietgapShrimpSchema.tables.length);
+    // Check if schema exists
+    let schema = await FormSchema.findOne({ name: schemaData.name });
     
-    // Hiển thị thông tin các bảng
-    vietgapShrimpSchema.tables.forEach((table, index) => {
-      console.log(`   ${index + 1}. ${table.tableName} (${table.fields.length} trường)`);
-    });
+    if (schema) {
+      console.log('Schema already exists, updating...');
+      schema.tables = schemaData.tables;
+      schema.description = schemaData.description;
+      schema.category = schemaData.category;
+      await schema.save();
+      console.log('Schema updated successfully!');
+    } else {
+      console.log('Creating new schema...');
+      schema = new FormSchema(schemaData);
+      await schema.save();
+      console.log('Schema created successfully!');
+    }
 
     process.exit(0);
-  } catch (error) {
-    console.error('❌ Lỗi tạo schema:', error);
+  } catch (err) {
+    console.error('Error:', err);
     process.exit(1);
   }
 };

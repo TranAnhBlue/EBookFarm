@@ -2639,75 +2639,110 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     );
   };
 
-  const tabItems = schema.tables.map((table, idx) => ({
-    key: idx.toString(),
-    label: <span className="font-semibold">{table.tableName}</span>,
-    children: (
-      <Card className="shadow-sm rounded-2xl border-gray-100">
-        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-          <Title level={5} className="!mb-0 text-green-700">{table.tableName}</Title>
-          {table.isMultiRow && !isReadOnly && (
-            <div className="text-xs text-gray-500 italic">* Bảng này cho phép theo dõi nhiều dòng dữ liệu hàng ngày</div>
-          )}
-        </div>
+  // Group tables by their Biểu prefix (e.g. "Biểu 1 (1/2)" and "Biểu 1 (2/2)" → same group "Biểu 1")
+  const tableGroups = [];
+  schema.tables.forEach((table) => {
+    // Extract group key: "Biểu 1 (1/2). ..." → "Biểu 1", "Thông tin chung" → "Thông tin chung"
+    const prefixMatch = table.tableName.match(/^(Biểu \d+)/);
+    const groupKey = prefixMatch ? prefixMatch[1] : table.tableName;
+    
+    const existing = tableGroups.find(g => g.groupKey === groupKey);
+    if (existing) {
+      existing.tables.push(table);
+    } else {
+      tableGroups.push({ groupKey, tables: [table] });
+    }
+  });
 
-        {table.isMultiRow ? (
-          <Form.List name={table.tableName} initialValue={[]}>
-            {(fields, { add, remove }) => (
-              <div className="space-y-6">
-                {fields.map(({ key, name, ...restField }, index) => (
-                  <Card
-                    key={key}
-                    size="small"
-                    className="bg-gray-50/50 border-gray-200 rounded-xl relative pt-8"
-                    title={<Tag color="blue">Dòng #{index + 1}</Tag>}
-                    extra={!isReadOnly && (
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => remove(name)}
-                      >
-                        Xóa
-                      </Button>
-                    )}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                      {table.fields.map(field => (
-                        <div key={field.name}>
-                          {renderField(field, table.tableName, [name, field.name], name)}
-                        </div>
-                      ))}
+  const tabItems = tableGroups.map((group, idx) => {
+    // Label: if grouped, use the group key; if single, use table's full name
+    const tabLabel = group.tables.length > 1 ? group.groupKey : group.tables[0].tableName;
+
+    return {
+      key: idx.toString(),
+      label: <span className="font-semibold">{tabLabel}</span>,
+      children: (
+        <Card className="shadow-sm rounded-2xl border-gray-100">
+          <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+            <Title level={5} className="!mb-0 text-green-700">{tabLabel}</Title>
+          </div>
+
+          <div className="space-y-8">
+            {group.tables.map((table) => (
+              <div key={table.tableName}>
+                {/* Sub-header if this group has multiple tables */}
+                {group.tables.length > 1 && (
+                  <div className="mb-4">
+                    <div className="text-sm font-bold text-gray-600 border-l-4 border-green-500 pl-3 mb-3">
+                      {table.tableName.replace(/^Biểu \d+\s*\(\d+\/\d+\)\.\s*/, '')}
                     </div>
-                  </Card>
-                ))}
-                {!isReadOnly && (
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                    size="large"
-                    className="rounded-xl h-14 border-green-300 text-green-600 hover:text-green-700 hover:border-green-400 bg-green-50/30"
-                  >
-                    Thêm dòng mới cho {table.tableName}
-                  </Button>
+                    {table.isMultiRow && !isReadOnly && (
+                      <div className="text-xs text-gray-500 italic mb-2">* Bảng này cho phép theo dõi nhiều dòng dữ liệu hàng ngày</div>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-          </Form.List>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-            {table.fields.map((field) => (
-              <div key={field.name}>
-                {renderField(field, table.tableName, [table.tableName, field.name])}
+
+                {table.isMultiRow ? (
+                  <Form.List name={table.tableName} initialValue={[]}>
+                    {(fields, { add, remove }) => (
+                      <div className="space-y-6">
+                        {fields.map(({ key, name, ...restField }, index) => (
+                          <Card
+                            key={key}
+                            size="small"
+                            className="bg-gray-50/50 border-gray-200 rounded-xl relative pt-8"
+                            title={<Tag color="blue">Dòng #{index + 1}</Tag>}
+                            extra={!isReadOnly && (
+                              <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                              >
+                                Xóa
+                              </Button>
+                            )}
+                          >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                              {table.fields.map(field => (
+                                <div key={field.name}>
+                                  {renderField(field, table.tableName, [name, field.name], name)}
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+                        ))}
+                        {!isReadOnly && (
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            block
+                            icon={<PlusOutlined />}
+                            size="large"
+                            className="rounded-xl h-14 border-green-300 text-green-600 hover:text-green-700 hover:border-green-400 bg-green-50/30"
+                          >
+                            Thêm dòng mới
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </Form.List>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                    {table.fields.map((field) => (
+                      <div key={field.name}>
+                        {renderField(field, table.tableName, [table.tableName, field.name])}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        )}
-      </Card>
-    )
-  }));
+        </Card>
+      )
+    };
+  });
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
