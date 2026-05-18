@@ -2642,9 +2642,10 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   // Group tables by their Biểu prefix (e.g. "Biểu 1 (1/2)" and "Biểu 1 (2/2)" → same group "Biểu 1")
   const tableGroups = [];
   schema.tables.forEach((table) => {
-    // Extract group key: "Biểu 1 (1/2). ..." → "Biểu 1", "Thông tin chung" → "Thông tin chung"
-    const prefixMatch = table.tableName.match(/^(Biểu \d+)/);
-    const groupKey = prefixMatch ? prefixMatch[1] : table.tableName;
+    // Extract group key: "Biểu 1: Thông tin chung ao nuôi (1/2). ..." → "Biểu 1: Thông tin chung ao nuôi"
+    // plain table "Thông tin chung" → "Thông tin chung"
+    const prefixMatch = table.tableName.match(/^(Biểu \d+(?::[^(]+)?)\s*\(/);
+    const groupKey = prefixMatch ? prefixMatch[1].trim() : table.tableName;
     
     const existing = tableGroups.find(g => g.groupKey === groupKey);
     if (existing) {
