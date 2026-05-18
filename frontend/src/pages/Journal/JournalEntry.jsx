@@ -2675,7 +2675,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                 {group.tables.length > 1 && (
                   <div className="mb-4">
                     <div className="text-sm font-bold text-gray-600 border-l-4 border-green-500 pl-3 mb-3">
-                      {table.tableName.replace(/^Biểu \d+\s*\(\d+\/\d+\)\.\s*/, '')}
+                      {table.tableName.replace(/^Biểu \d+.*?\(\d+\/\d+\)\.\s*/, '')}
                     </div>
                     {table.isMultiRow && !isReadOnly && (
                       <div className="text-xs text-gray-500 italic mb-2">* Bảng này cho phép theo dõi nhiều dòng dữ liệu hàng ngày</div>
