@@ -2594,6 +2594,17 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           {field.options?.map(opt => <Option key={opt} value={opt}>{opt}</Option>)}
         </Select>
       );
+    } else if (field.type === 'boolean') {
+      inputNode = (
+        <Select {...commonProps} allowClear placeholder="Chọn">
+          <Option value={true}>Có</Option>
+          <Option value={false}>Không</Option>
+        </Select>
+      );
+    } else if (field.type === 'textarea') {
+      inputNode = (
+        <Input.TextArea {...inputCommonProps} rows={4} />
+      );
     }
 
     return (

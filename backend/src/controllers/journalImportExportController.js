@@ -55,7 +55,9 @@ const exportJournal = async (req, res) => {
     }
 
     // Check if user owns this journal or is admin
-    if (journal.userId._id.toString() !== req.user.id && req.user.role !== 'Admin') {
+    // Check if user owns this journal or is admin
+    const journalUserId = journal.userId ? journal.userId._id.toString() : null;
+    if (journalUserId && journalUserId !== req.user.id && req.user.role !== 'Admin') {
       return res.status(403).json({
         success: false,
         message: 'Không có quyền xuất nhật ký này'
@@ -64,16 +66,19 @@ const exportJournal = async (req, res) => {
 
     // Create workbook
     const workbook = XLSX.utils.book_new();
+    const schemaName = journal.schemaId ? journal.schemaId.name : 'Unknown Schema';
+    const schemaDesc = journal.schemaId ? journal.schemaId.description : '';
+    const creatorName = journal.userId ? (journal.userId.fullname || journal.userId.username) : 'Unknown User';
 
     // Add journal info sheet
     const journalInfo = [
       ['Thông tin nhật ký'],
-      ['Tên schema:', journal.schemaId.name],
-      ['Mô tả:', journal.schemaId.description],
-      ['Người tạo:', journal.userId.fullname || journal.userId.username],
+      ['Tên schema:', schemaName],
+      ['Mô tả:', schemaDesc],
+      ['Người tạo:', creatorName],
       ['Ngày tạo:', new Date(journal.createdAt).toLocaleDateString('vi-VN')],
       ['Trạng thái:', journal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'],
-      ['Mã QR:', journal.qrCode],
+      ['Mã QR:', journal.qrCode || ''],
       []
     ];
 
@@ -81,73 +86,93 @@ const exportJournal = async (req, res) => {
     XLSX.utils.book_append_sheet(workbook, infoSheet, 'Thông tin chung');
 
     // Add data sheets for each table
-    journal.schemaId.tables.forEach((table, index) => {
-      // Check if data is multi-row
-      const tableData = journal.entries[table.tableName];
-      let rows = [];
+    if (journal.schemaId && journal.schemaId.tables) {
+      const usedSheetNames = new Set(['Thông tin chung']);
+      
+      journal.schemaId.tables.forEach((table, index) => {
+        // Check if data is multi-row
+        const tableData = journal.entries[table.tableName];
+        let rows = [];
 
-      if (Array.isArray(tableData)) {
-        // Horizontal format for Multi-row
-        const headers = table.fields.map(f => f.label);
-        rows.push(headers);
+        if (Array.isArray(tableData)) {
+          // Horizontal format for Multi-row
+          const headers = table.fields.map(f => f.label);
+          rows.push(headers);
 
-        tableData.forEach(rowData => {
-          const row = table.fields.map(field => {
-            const value = rowData[field.name];
-            if (value === undefined || value === null) return '';
-            if (field.type === 'date') return new Date(value).toLocaleDateString('vi-VN');
-            if (field.type === 'boolean') return value ? 'Có' : 'Không';
-            return value.toString();
+          tableData.forEach(rowData => {
+            const row = table.fields.map(field => {
+              const value = rowData[field.name];
+              if (value === undefined || value === null) return '';
+              if (field.type === 'date') return new Date(value).toLocaleDateString('vi-VN');
+              if (field.type === 'boolean') return value ? 'Có' : 'Không';
+              if (field.type === 'signature') {
+                 // For signatures (Base64 images), do not output the massive string to Excel
+                 return value.startsWith('data:image') ? '[Chữ ký điện tử]' : value.toString();
+              }
+              return value.toString();
+            });
+            rows.push(row);
           });
-          rows.push(row);
-        });
-      } else {
-        // Vertical format for Single-row (Legacy/Default)
-        const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
-        rows.push(headers);
-        const dataObj = tableData || {};
+        } else {
+          // Vertical format for Single-row (Legacy/Default)
+          const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
+          rows.push(headers);
+          const dataObj = tableData || {};
 
-        table.fields.forEach(field => {
-          const value = dataObj[field.name];
-          let displayValue = '';
+          table.fields.forEach(field => {
+            const value = dataObj[field.name];
+            let displayValue = '';
 
-          if (value !== undefined && value !== null) {
-            if (field.type === 'date') displayValue = new Date(value).toLocaleDateString('vi-VN');
-            else if (field.type === 'boolean') displayValue = value ? 'Có' : 'Không';
-            else displayValue = value.toString();
-          }
+            if (value !== undefined && value !== null) {
+              if (field.type === 'date') displayValue = new Date(value).toLocaleDateString('vi-VN');
+              else if (field.type === 'boolean') displayValue = value ? 'Có' : 'Không';
+              else if (field.type === 'signature') {
+                displayValue = value.startsWith('data:image') ? '[Chữ ký điện tử]' : value.toString();
+              }
+              else displayValue = value.toString();
+            }
 
-          rows.push([field.label, displayValue, field.type]);
-        });
-      }
+            rows.push([field.label, displayValue, field.type]);
+          });
+        }
 
-      const worksheet = XLSX.utils.aoa_to_sheet(rows);
-      
-      // Auto-size columns
-      const colWidths = [
-        { wch: 30 }, // Field name
-        { wch: 20 }, // Value
-        { wch: 15 }  // Type
-      ];
-      worksheet['!cols'] = colWidths;
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        
+        // Auto-size columns
+        const colWidths = [
+          { wch: 30 }, // Field name
+          { wch: 20 }, // Value
+          { wch: 15 }  // Type
+        ];
+        worksheet['!cols'] = colWidths;
 
-      // Sanitize sheet name: remove invalid characters : \ / ? * [ ]
-      let sheetName = table.tableName
-        .replace(/[:\\\/\?\*\[\]]/g, '-') // Replace invalid chars with dash
-        .replace(/\s+/g, ' ')              // Normalize spaces
-        .trim();                            // Remove leading/trailing spaces
-      
-      // Limit sheet name to 31 characters (Excel limit)
-      if (sheetName.length > 31) {
-        sheetName = sheetName.substring(0, 28) + '...';
-      }
-      
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    });
+        // Sanitize sheet name: remove invalid characters : \ / ? * [ ]
+        let sheetName = table.tableName
+          .replace(/[:\\\/\?\*\[\]]/g, '-') // Replace invalid chars with dash
+          .replace(/\s+/g, ' ')              // Normalize spaces
+          .trim();                            // Remove leading/trailing spaces
+        
+        // Limit sheet name to 31 characters (Excel limit)
+        if (sheetName.length > 31) {
+          sheetName = sheetName.substring(0, 28) + '...';
+        }
+
+        // Prevent duplicate sheet names
+        let counter = 1;
+        let originalSheetName = sheetName;
+        while (usedSheetNames.has(sheetName)) {
+           sheetName = originalSheetName.substring(0, 27) + ` (${counter})`;
+           counter++;
+        }
+        usedSheetNames.add(sheetName);
+        
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      });
+    }
 
     // Generate filename
     const timestamp = new Date().toISOString().slice(0, 10);
-    const filename = `nhat-ky-${journal.schemaId.name.replace(/\s+/g, '-')}-${timestamp}.${format}`;
+    const filename = `nhat-ky-${schemaName.replace(/\s+/g, '-')}-${timestamp}.${format}`;
 
     // Set response headers
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
