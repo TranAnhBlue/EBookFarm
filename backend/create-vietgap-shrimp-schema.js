@@ -51,7 +51,7 @@ const createVietGAPShrimpSchema = async () => {
           ]
         },
         {
-          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (1/3). Cải tạo ao',
+          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (1/4). 1. Cải tạo ao',
           isMultiRow: false,
           fields: [
             { name: 'thoiGianBatDau', label: 'Thời gian cải tạo - Bắt đầu', type: 'date', required: true },
@@ -60,7 +60,7 @@ const createVietGAPShrimpSchema = async () => {
           ]
         },
         {
-          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (2/3). Các loại hóa chất đã sử dụng',
+          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (2/4). Các loại hóa chất đã sử dụng',
           isMultiRow: true,
           fields: [
             { name: 'tenHoaChat', label: 'Tên hóa chất', type: 'text', required: true },
@@ -69,12 +69,18 @@ const createVietGAPShrimpSchema = async () => {
           ]
         },
         {
-          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (3/3). Xử lý bùn và kiểm tra sau cải tạo',
+          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (3/4). Xử lý bùn',
           isMultiRow: false,
           fields: [
             { name: 'thuGomBun', label: 'Cách thu gom xử lý bùn', type: 'textarea', required: false },
             { name: 'noiChuaBun', label: 'Nơi chứa bùn', type: 'text', required: false },
-            { name: 'khoiLuongBun', label: 'Khối lượng bùn thải', type: 'text', required: false },
+            { name: 'khoiLuongBun', label: 'Khối lượng bùn thải', type: 'text', required: false }
+          ]
+        },
+        {
+          tableName: 'Biểu 2: Thông tin cải tạo ao nuôi (4/4). 2. Kiểm tra sau cải tạo ao',
+          isMultiRow: false,
+          fields: [
             { name: 'pH', label: 'pH sau cải tạo', type: 'number', required: false },
             { name: 'oxy', label: 'Oxy sau cải tạo', type: 'number', required: false },
             { name: 'nh3', label: 'NH3 sau cải tạo', type: 'number', required: false },
