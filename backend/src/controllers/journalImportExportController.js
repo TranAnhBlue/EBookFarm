@@ -94,12 +94,14 @@ const exportJournal = async (req, res) => {
         const tableData = journal.entries[table.tableName];
         let rows = [];
 
-        if (Array.isArray(tableData)) {
+        if (table.isMultiRow) {
           // Horizontal format for Multi-row
           const headers = table.fields.map(f => f.label);
           rows.push(headers);
 
-          tableData.forEach(rowData => {
+          const dataArray = Array.isArray(tableData) ? tableData : (tableData ? [tableData] : []);
+
+          dataArray.forEach(rowData => {
             const row = table.fields.map(field => {
               const value = rowData[field.name];
               if (value === undefined || value === null) return '';
@@ -107,7 +109,7 @@ const exportJournal = async (req, res) => {
               if (field.type === 'boolean') return value ? 'Có' : 'Không';
               if (field.type === 'signature') {
                  // For signatures (Base64 images), do not output the massive string to Excel
-                 return value.startsWith('data:image') ? '[Chữ ký điện tử]' : value.toString();
+                 return (typeof value === 'string' && value.startsWith('data:image')) ? '[Chữ ký điện tử]' : value.toString();
               }
               return value.toString();
             });
@@ -117,7 +119,8 @@ const exportJournal = async (req, res) => {
           // Vertical format for Single-row (Legacy/Default)
           const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
           rows.push(headers);
-          const dataObj = tableData || {};
+          // Convert to object in case it was accidentally saved as an array with custom properties
+          const dataObj = tableData ? Object.assign({}, tableData) : {};
 
           table.fields.forEach(field => {
             const value = dataObj[field.name];
@@ -127,7 +130,7 @@ const exportJournal = async (req, res) => {
               if (field.type === 'date') displayValue = new Date(value).toLocaleDateString('vi-VN');
               else if (field.type === 'boolean') displayValue = value ? 'Có' : 'Không';
               else if (field.type === 'signature') {
-                displayValue = value.startsWith('data:image') ? '[Chữ ký điện tử]' : value.toString();
+                displayValue = (typeof value === 'string' && value.startsWith('data:image')) ? '[Chữ ký điện tử]' : value.toString();
               }
               else displayValue = value.toString();
             }
