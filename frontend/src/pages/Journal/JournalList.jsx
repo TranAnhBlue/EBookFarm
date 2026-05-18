@@ -88,7 +88,7 @@ const JournalList = () => {
 
   const journals = useMemo(() => {
     if (!journalsRaw) return [];
-    
+
     return journalsRaw.filter(j => {
       // 1. Filter by category
       let categoryMatch = true;
@@ -122,10 +122,10 @@ const JournalList = () => {
         const schemaName = (j.schemaId?.name || '').toLowerCase();
         const userName = (j.userId?.fullname || j.userId?.username || '').toLowerCase();
         const qrCode = (j.qrCode || '').toLowerCase();
-        
-        if (!schemaName.includes(searchLower) && 
-            !userName.includes(searchLower) && 
-            !qrCode.includes(searchLower)) {
+
+        if (!schemaName.includes(searchLower) &&
+          !userName.includes(searchLower) &&
+          !qrCode.includes(searchLower)) {
           return false;
         }
       }
@@ -150,7 +150,7 @@ const JournalList = () => {
   // Helper function to map value to name if it's an ID
   const displayMappedValue = (value) => {
     if (!value) return <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
-    
+
     // 1. Kiểm tra nếu là ngày tháng (ISO string hoặc có định dạng thời gian)
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
       const d = dayjs(value);
@@ -162,7 +162,7 @@ const JournalList = () => {
       const item = inventory.find(i => i._id === value);
       if (item) return item.name;
     }
-    
+
     return value;
   };
 
@@ -193,8 +193,8 @@ const JournalList = () => {
 
     const badge = badges[status] || badges['Draft'];
     return (
-      <Tag 
-        color={badge.color} 
+      <Tag
+        color={badge.color}
         icon={badge.icon}
         className="rounded-full font-bold px-3 py-1 border-0 shadow-sm"
         style={{ backgroundColor: badge.bgColor, color: badge.textColor }}
@@ -467,9 +467,9 @@ const JournalList = () => {
         return (
           <Space direction="vertical" size={0} className="w-full">
             <Tooltip title={`Đã xong bước: ${lastStep}`}>
-              <Progress 
-                percent={record.progress || 0} 
-                size="small" 
+              <Progress
+                percent={record.progress || 0}
+                size="small"
                 strokeColor={{
                   '0%': '#10b981',
                   '100%': '#059669',
@@ -491,8 +491,8 @@ const JournalList = () => {
       render: (text) => text ? (
         <Tooltip title={text}>
           <div className="flex items-start gap-1 text-red-500 bg-red-50 p-2 rounded-lg border border-red-100 max-w-[180px]">
-             <ExclamationCircleOutlined className="mt-1 flex-shrink-0" />
-             <Text type="danger" className="italic text-[11px] leading-tight line-clamp-2">{text}</Text>
+            <ExclamationCircleOutlined className="mt-1 flex-shrink-0" />
+            <Text type="danger" className="italic text-[11px] leading-tight line-clamp-2">{text}</Text>
           </div>
         </Tooltip>
       ) : <Text className="text-gray-300 italic text-xs">Không có</Text>
@@ -745,25 +745,25 @@ const JournalList = () => {
                               <div className="text-right mt-2"><Text strong className="text-green-600">{journal.schemaId?.name}</Text></div>
 
                               {/* Ngày tạo */}
-                            <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày tạo:</div>
-                            <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
-                          </div>
-
-                          {/* Progress & Last Step tracking */}
-                          <div className="mt-4 p-3 bg-green-50/50 rounded-xl border border-green-100/50">
-                            <div className="flex justify-between items-center mb-1">
-                              <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tiến độ thực hiện:</Text>
-                              <Text className="text-[10px] font-bold text-green-600">{journal.progress || 0}%</Text>
+                              <div className="flex items-center gap-1.5"><CalendarOutlined className="text-green-500" /> Ngày tạo:</div>
+                              <div className="text-right"><Text strong>{new Date(journal.createdAt).toLocaleDateString('vi-VN')}</Text></div>
                             </div>
-                            <Progress 
-                              percent={journal.progress || 0} 
-                              size="small" 
-                              showInfo={false}
-                              strokeColor="#10b981"
-                              trailColor="#ffffff"
-                              className="m-0 mb-2"
-                            />
-                            {(() => {
+
+                            {/* Progress & Last Step tracking */}
+                            <div className="mt-4 p-3 bg-green-50/50 rounded-xl border border-green-100/50">
+                              <div className="flex justify-between items-center mb-1">
+                                <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tiến độ thực hiện:</Text>
+                                <Text className="text-[10px] font-bold text-green-600">{journal.progress || 0}%</Text>
+                              </div>
+                              <Progress
+                                percent={journal.progress || 0}
+                                size="small"
+                                showInfo={false}
+                                strokeColor="#10b981"
+                                trailColor="#ffffff"
+                                className="m-0 mb-2"
+                              />
+                              {(() => {
                                 const schema = journal.schemaId;
                                 const entries = journal.entries || {};
                                 let lastStep = 'Chưa bắt đầu';
@@ -786,8 +786,8 @@ const JournalList = () => {
                                     </Text>
                                   </div>
                                 );
-                            })()}
-                          </div>
+                              })()}
+                            </div>
 
                             {/* Feedback from HTX */}
                             {journal.feedback && (
@@ -1111,8 +1111,8 @@ const JournalList = () => {
               <div className="absolute top-4 right-4">
                 <Button shape="circle" icon={<span>✕</span>} onClick={() => setViewModalVisible(false)} className="border-0 bg-white/20 text-white hover:bg-white/40" />
               </div>
-              <Title level={2} className="!text-white !mb-2">EBookFarm Traceability</Title>
-              <p className="opacity-90">Transparent Agricultural Product Information</p>
+              <Title level={2} className="!text-white !mb-2">Truy Xuất Nguồn Gốc EBookFarm</Title>
+              <p className="opacity-90">Thông tin Nông sản Minh bạch</p>
               <div className="mt-4 inline-block bg-white text-green-700 px-4 py-1 rounded-full font-bold shadow-md">
                 ID: {fullJournal.qrCode}
               </div>
@@ -1121,15 +1121,15 @@ const JournalList = () => {
             <div className="p-8 max-h-[70vh] overflow-y-auto custom-sidebar-scroll bg-white">
               <div className="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
                 <div>
-                  <Title level={3} className="!mb-1">Product: {fullJournal.schemaId?.name}</Title>
-                  <p className="text-gray-500 font-medium">Producer: {fullJournal.userId?.fullname || fullJournal.userId?.username}</p>
+                  <Title level={3} className="!mb-1">Sản phẩm: {fullJournal.schemaId?.name}</Title>
+                  <p className="text-gray-500 font-medium">Người sản xuất: {fullJournal.userId?.fullname || fullJournal.userId?.username}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
-                    {fullJournal.status === 'Completed' ? 'Completed' : 'In Progress'}
+                    {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
                   </Tag>
                   <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`${location.pathname}/edit/${fullJournal._id}`)}>
-                    Edit Journal
+                    Chỉnh sửa nhật ký
                   </Button>
                 </div>
               </div>
@@ -1137,7 +1137,7 @@ const JournalList = () => {
               <div className="mb-10">
                 <Title level={4} className="!mb-8 flex items-center gap-2">
                   <div className="w-1.5 h-6 bg-green-500 rounded-full"></div>
-                  Production Timeline
+                  Tiến độ sản xuất
                 </Title>
 
                 <Steps
@@ -1158,20 +1158,20 @@ const JournalList = () => {
                                 {entryData.map((row, rowIndex) => (
                                   <div key={rowIndex} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
                                     <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                                      Record {rowIndex + 1}
+                                      Bản ghi {rowIndex + 1}
                                     </div>
                                     <Descriptions layout="vertical" size="small" column={{ xxl: 3, xl: 3, lg: 2, md: 2, sm: 1, xs: 1 }} className="trace-descriptions">
                                       {table.fields.map((field) => {
                                         let val = row[field.name];
-                                        if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Digital Signature]';
-                                        
+                                        if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+
                                         return (
                                           <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
                                             <span className="text-gray-800 font-medium">
                                               {field.type === 'date' && val
                                                 ? new Date(val).toLocaleDateString('vi-VN')
                                                 : field.type === 'boolean'
-                                                  ? (val ? 'Yes' : 'No')
+                                                  ? (val ? 'Có' : 'Không')
                                                   : (val?.toString() || '---')}
                                             </span>
                                           </Descriptions.Item>
@@ -1185,15 +1185,15 @@ const JournalList = () => {
                               <Descriptions layout="vertical" size="small" column={{ xxl: 3, xl: 3, lg: 2, md: 2, sm: 1, xs: 1 }} className="trace-descriptions">
                                 {table.fields.map((field) => {
                                   let val = entryData[field.name];
-                                  if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Digital Signature]';
-                                  
+                                  if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+
                                   return (
                                     <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
                                       <span className="text-gray-800 font-medium">
                                         {field.type === 'date' && val
                                           ? new Date(val).toLocaleDateString('vi-VN')
                                           : field.type === 'boolean'
-                                            ? (val ? 'Yes' : 'No')
+                                            ? (val ? 'Có' : 'Không')
                                             : (val?.toString() || '---')}
                                       </span>
                                     </Descriptions.Item>
@@ -1202,7 +1202,7 @@ const JournalList = () => {
                               </Descriptions>
                             )
                           ) : (
-                            <div className="text-gray-400 italic text-sm py-2">No data available for this stage</div>
+                            <div className="text-gray-400 italic text-sm py-2">Hiện chưa có dữ liệu nào cho giai đoạn này.</div>
                           )}
                         </div>
                       )
