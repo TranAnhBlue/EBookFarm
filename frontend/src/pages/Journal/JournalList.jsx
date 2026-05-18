@@ -1126,10 +1126,10 @@ const JournalList = () => {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Tag color={fullJournal.status === 'Completed' ? 'success' : 'processing'} className="rounded-full px-4 py-0.5 border-0 font-bold m-0 text-sm">
-                    {fullJournal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'}
+                    {fullJournal.status === 'Completed' ? 'Completed' : 'In Progress'}
                   </Tag>
                   <Button size="small" type="link" icon={<EditOutlined />} onClick={() => navigate(`${location.pathname}/edit/${fullJournal._id}`)}>
-                    Chỉnh sửa nhật ký
+                    Edit Journal
                   </Button>
                 </div>
               </div>
@@ -1157,21 +1157,21 @@ const JournalList = () => {
                               <div className="space-y-4">
                                 {entryData.map((row, rowIndex) => (
                                   <div key={rowIndex} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                                      Bản ghi {rowIndex + 1}
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                      Record {rowIndex + 1}
                                     </div>
-                                    <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                                    <Descriptions layout="vertical" size="small" column={{ xxl: 3, xl: 3, lg: 2, md: 2, sm: 1, xs: 1 }} className="trace-descriptions">
                                       {table.fields.map((field) => {
                                         let val = row[field.name];
-                                        if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+                                        if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Digital Signature]';
                                         
                                         return (
                                           <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
-                                            <span className="text-gray-800 font-medium break-words whitespace-pre-wrap">
+                                            <span className="text-gray-800 font-medium">
                                               {field.type === 'date' && val
                                                 ? new Date(val).toLocaleDateString('vi-VN')
                                                 : field.type === 'boolean'
-                                                  ? (val ? 'Có' : 'Không')
+                                                  ? (val ? 'Yes' : 'No')
                                                   : (val?.toString() || '---')}
                                             </span>
                                           </Descriptions.Item>
@@ -1182,18 +1182,18 @@ const JournalList = () => {
                                 ))}
                               </div>
                             ) : (
-                              <Descriptions size="small" column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }} className="trace-descriptions">
+                              <Descriptions layout="vertical" size="small" column={{ xxl: 3, xl: 3, lg: 2, md: 2, sm: 1, xs: 1 }} className="trace-descriptions">
                                 {table.fields.map((field) => {
                                   let val = entryData[field.name];
-                                  if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Chữ ký điện tử]';
+                                  if (field.type === 'signature' && typeof val === 'string' && val.startsWith('data:image')) val = '[Digital Signature]';
                                   
                                   return (
                                     <Descriptions.Item label={<span className="font-bold text-gray-500">{field.label}</span>} key={field.name}>
-                                      <span className="text-gray-800 font-medium break-words whitespace-pre-wrap">
+                                      <span className="text-gray-800 font-medium">
                                         {field.type === 'date' && val
                                           ? new Date(val).toLocaleDateString('vi-VN')
                                           : field.type === 'boolean'
-                                            ? (val ? 'Có' : 'Không')
+                                            ? (val ? 'Yes' : 'No')
                                             : (val?.toString() || '---')}
                                       </span>
                                     </Descriptions.Item>
@@ -1202,12 +1202,13 @@ const JournalList = () => {
                               </Descriptions>
                             )
                           ) : (
-                            <div className="text-gray-400 italic text-sm py-2">Chưa cập nhật thông tin cho phần này</div>
+                            <div className="text-gray-400 italic text-sm py-2">No data available for this stage</div>
                           )}
                         </div>
                       )
                     };
                   })}
+
                 />
               </div>
             </div>
