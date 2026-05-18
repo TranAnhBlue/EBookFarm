@@ -204,6 +204,22 @@ const JournalList = () => {
     );
   };
 
+  const isSchemaUpdated = (name) => {
+    if (!name) return false;
+    const normalized = name.toLowerCase().trim();
+    
+    // Check specific aquaculture & poultry & livestock
+    if (normalized.includes('tôm') || normalized.includes('cá') || normalized.includes('cua')) return true;
+    if (normalized.includes('gà đẻ') || normalized.includes('gà thịt') || normalized.includes('bò') || normalized.includes('lợn')) return true;
+    if (normalized.includes('trồng trọt') || normalized.includes('nấm')) return true;
+    
+    // Crop schemas
+    const cropNames = ['cam', 'na', 'dứa', 'chuối', 'xoài', 'vải', 'nhãn', 'sầu riêng', 'hồ tiêu', 'điều', 'chè xanh', 'ổi', 'rau xà lách'];
+    if (cropNames.some(c => normalized.includes(c))) return true;
+    
+    return false;
+  };
+
   const showHistory = (journalId) => {
     setHistoryJournalId(journalId);
     setHistoryModalVisible(true);
@@ -953,14 +969,24 @@ const JournalList = () => {
                 value={selectedSchema}
                 loading={!schemas}
                 showSearch
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-                }
+                optionFilterProp="filterText"
+                optionLabelProp="label"
               >
-                {schemas?.map((s) => (
-                  <Select.Option value={s._id} key={s._id}>{s.name}</Select.Option>
-                ))}
+                {schemas?.map((s) => {
+                  const updated = isSchemaUpdated(s.name);
+                  return (
+                    <Select.Option value={s._id} key={s._id} label={s.name} filterText={s.name}>
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-medium text-gray-700">{s.name}</span>
+                        {updated && (
+                          <Tag color="success" className="m-0 text-[10px] font-extrabold rounded-full border-0 bg-green-50 text-green-600 px-2 flex items-center gap-1 scale-90 shadow-sm">
+                            <span>✨ Mới / Chuẩn</span>
+                          </Tag>
+                        )}
+                      </div>
+                    </Select.Option>
+                  );
+                })}
               </Select>
             </Form.Item>
           )}
@@ -1252,12 +1278,25 @@ const JournalList = () => {
               className="h-10"
               onChange={(value) => setImportSchemaId(value)}
               value={importSchemaId}
+              showSearch
+              optionFilterProp="filterText"
+              optionLabelProp="label"
             >
-              {schemas?.map((s) => (
-                <Select.Option value={s._id} key={s._id}>
-                  {s.name}
-                </Select.Option>
-              ))}
+              {schemas?.map((s) => {
+                const updated = isSchemaUpdated(s.name);
+                return (
+                  <Select.Option value={s._id} key={s._id} label={s.name} filterText={s.name}>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium text-gray-700">{s.name}</span>
+                      {updated && (
+                        <Tag color="success" className="m-0 text-[10px] font-extrabold rounded-full border-0 bg-green-50 text-green-600 px-2 flex items-center gap-1 scale-90 shadow-sm">
+                          <span>✨ Mới / Chuẩn</span>
+                        </Tag>
+                      )}
+                    </div>
+                  </Select.Option>
+                );
+              })}
             </Select>
           </div>
 
