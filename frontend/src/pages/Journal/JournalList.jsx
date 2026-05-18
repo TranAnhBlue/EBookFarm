@@ -220,6 +220,95 @@ const JournalList = () => {
     return false;
   };
 
+  const getCardFields = (journal) => {
+    const cat = journal.schemaId?.category || category.key;
+    
+    if (cat === 'channuoi') {
+      const giongValue = getEntryValue(journal, ['tenGiongGa', 'tenGiongLon', 'tenGiongBo', 'tenGiong', 'giongGa', 'giongVatNuoi']);
+      const soLuongValue = getEntryValue(journal, ['soLuong', 'soLuongVatNuoi', 'soLuongGa', 'soLuongLon', 'soLuongBo']);
+      const dienTichValue = getEntryValue(journal, ['dienTichChuong', 'dienTichChuongNuoi', 'dienTich', 'dienTichKhuVuc']);
+      const diaChiValue = getEntryValue(journal, ['diaChi', 'diaChiTrangTrai', 'diaChiCoSo']);
+      
+      return [
+        {
+          icon: <BarcodeOutlined className="text-orange-500" />,
+          label: 'Giống vật nuôi:',
+          value: giongValue ? <Text strong className="text-orange-600">{giongValue}</Text> : null
+        },
+        {
+          icon: <ProfileOutlined className="text-orange-500" />,
+          label: 'Quy mô đàn:',
+          value: soLuongValue ? <Text strong>{Number(soLuongValue).toLocaleString('vi-VN')} con</Text> : null
+        },
+        {
+          icon: <ProfileOutlined className="text-orange-500" />,
+          label: 'Diện tích chuồng:',
+          value: dienTichValue ? <Text strong>{Number(dienTichValue).toLocaleString('vi-VN')} m²</Text> : null
+        },
+        {
+          icon: <EnvironmentOutlined className="text-orange-500" />,
+          label: 'Địa chỉ:',
+          value: diaChiValue ? <Text strong>{displayMappedValue(diaChiValue)}</Text> : null
+        }
+      ];
+    }
+    
+    if (cat === 'thuysan') {
+      const maSoValue = getEntryValue(journal, ['maSoHo', 'maSoCoSo', 'maSoNongHo', 'farmCode']);
+      const dienTichHaValue = getEntryValue(journal, ['dienTichHa', 'dienTichAoHa']);
+      const dienTichValue = getEntryValue(journal, ['dienTich', 'dienTichAo', 'area']);
+      const diaChiValue = getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi']);
+      
+      let dtRender = null;
+      if (dienTichHaValue) {
+        dtRender = <Text strong>{dienTichHaValue} ha</Text>;
+      } else if (dienTichValue) {
+        dtRender = <Text strong>{Number(dienTichValue).toLocaleString('vi-VN')} m²</Text>;
+      }
+      
+      return [
+        {
+          icon: <BarcodeOutlined className="text-blue-500" />,
+          label: 'Mã số hộ/cơ sở:',
+          value: maSoValue ? <Text strong>{maSoValue}</Text> : null
+        },
+        {
+          icon: <ProfileOutlined className="text-blue-500" />,
+          label: 'Diện tích ao nuôi:',
+          value: dtRender
+        },
+        {
+          icon: <EnvironmentOutlined className="text-blue-500" />,
+          label: 'Địa chỉ sản xuất:',
+          value: diaChiValue ? <Text strong>{displayMappedValue(diaChiValue)}</Text> : null
+        }
+      ];
+    }
+    
+    // Trồng trọt / Mặc định
+    const maSoValue = getEntryValue(journal, ['maSoNongHo', 'maSoHo', 'farmCode']);
+    const dienTichValue = getEntryValue(journal, ['dienTich', 'dienTichm2', 'dienTichCanhTac', 'area']);
+    const diaChiValue = getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'address']);
+    
+    return [
+      {
+        icon: <BarcodeOutlined className="text-green-500" />,
+        label: 'Mã số nông hộ:',
+        value: maSoValue ? <Text strong>{maSoValue}</Text> : null
+      },
+      {
+        icon: <ProfileOutlined className="text-green-500" />,
+        label: 'Diện tích:',
+        value: dienTichValue ? <Text strong>{Number(dienTichValue).toLocaleString('vi-VN')} m²</Text> : null
+      },
+      {
+        icon: <EnvironmentOutlined className="text-green-500" />,
+        label: 'Địa chỉ:',
+        value: diaChiValue ? <Text strong>{displayMappedValue(diaChiValue)}</Text> : null
+      }
+    ];
+  };
+
   const showHistory = (journalId) => {
     setHistoryJournalId(journalId);
     setHistoryModalVisible(true);
@@ -728,33 +817,14 @@ const JournalList = () => {
                               </div>
                             </div>
                             <div className="grid grid-cols-[120px_1fr] gap-y-2 text-sm text-gray-600 items-start">
-
-                              {/* Mã số nông hộ */}
-                              <div className="flex items-center gap-1.5"><BarcodeOutlined className="text-green-500" /> Mã số nông hộ:</div>
-                              <div className="text-right">
-                                <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['maSoNongHo', 'Mã số nông hộ', 'farmCode']))}
-                                </Text>
-                              </div>
-
-                              {/* Diện tích */}
-                              <div className="flex items-center gap-1.5"><ProfileOutlined className="text-green-500" /> Diện tích:</div>
-                              <div className="text-right">
-                                <Text strong>
-                                  {(() => {
-                                    const value = getEntryValue(journal, ['dienTich', 'Diện tích', 'dienTichm2', 'dienTichCanhTac', 'area']);
-                                    return value ? `${Number(value).toLocaleString('vi-VN')} m²` : <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>;
-                                  })()}
-                                </Text>
-                              </div>
-
-                              {/* Địa chỉ sản xuất */}
-                              <div className="flex items-center gap-1.5"><EnvironmentOutlined className="text-green-500" /> Địa chỉ:</div>
-                              <div className="text-right leading-tight">
-                                <Text strong>
-                                  {displayMappedValue(getEntryValue(journal, ['diaChiSanXuat', 'diaChiCoSo', 'diaChi', 'Địa chỉ', 'location', 'address']))}
-                                </Text>
-                              </div>
+                              {getCardFields(journal).map((field, idx) => (
+                                <React.Fragment key={idx}>
+                                  <div className="flex items-center gap-1.5">{field.icon} {field.label}</div>
+                                  <div className="text-right leading-tight">
+                                    {field.value || <span className="text-gray-300 font-normal italic">Chưa cập nhật</span>}
+                                  </div>
+                                </React.Fragment>
+                              ))}
 
                               {/* Loại sổ */}
                               <div className="flex items-center gap-1.5 mt-2"><FileTextOutlined className="text-green-500" /> Loại sổ:</div>
