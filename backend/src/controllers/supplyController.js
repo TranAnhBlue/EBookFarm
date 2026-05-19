@@ -42,7 +42,8 @@ const getRequests = async (req, res) => {
     const role = req.user.role;
     
     let query = {};
-    if (role === 'Admin' || role === 'HTX') {
+    const roleUpper = (role || '').toUpperCase();
+    if (roleUpper === 'ADMIN' || roleUpper === 'HTX') {
        query = { htx: userId };
     } else {
        query = { farmer: userId };
