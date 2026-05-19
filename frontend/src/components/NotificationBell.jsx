@@ -89,6 +89,13 @@ const NotificationBell = () => {
                 case 'InventoryItem':
                     navigate('/inventory/farmer'); // Nông dân nhận được thì bay vào kho
                     break;
+                case 'SupplyRequest':
+                    if (user?.role?.toUpperCase() === 'ADMIN' || user?.role?.toUpperCase() === 'HTX') {
+                        navigate('/htx/supplies');
+                    } else {
+                        navigate('/supplies/farmer');
+                    }
+                    break;
                 case 'Consultation':
                     navigate('/admin/consultations'); // Admin xử lý tư vấn
                     break;
