@@ -1571,14 +1571,6 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
-
-            <FloatButton.BackTop 
-                visibilityHeight={400} 
-                shape="circle"
-                type="primary"
-                className="bg-green-600 hover:bg-green-700 w-12 h-12 shadow-2xl"
-                icon={<ArrowRightOutlined className="-rotate-90" />}
-            />
         </div>
     );
 };

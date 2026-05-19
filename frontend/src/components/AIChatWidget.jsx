@@ -7,7 +7,8 @@ import {
     RobotOutlined,
     UserOutlined,
     CrownOutlined,
-    LoginOutlined
+    LoginOutlined,
+    ArrowUpOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -33,12 +34,49 @@ const AIChatWidget = () => {
     const [showWelcome, setShowWelcome] = useState(true);
     const [chatInfo, setChatInfo] = useState(null);
     const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
     const messagesEndRef = useRef(null);
 
     // Lấy thông tin user từ localStorage
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
+
+    // Theo dõi vị trí cuộn trang để ẩn/hiện nút Scroll To Top
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        // Kiểm tra ngay khi mount
+        handleScroll();
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    // Tự động hiển thị lời chào sau 3 giây để thu hút tương tác của khách hàng
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!isOpen) {
+                setHasNewMessage(true);
+            }
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [isOpen]);
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
 
     // Lấy thông tin chat khi mở widget
     useEffect(() => {
@@ -317,21 +355,62 @@ const AIChatWidget = () => {
                 </div>
             )}
 
-            {/* Chat Widget Button */}
+            {/* Chat Widget Button & Support Group */}
             <div className="ai-chat-widget-container">
                 {!isOpen && (
-                    <Tooltip title="Chat với AI Assistant" placement="left">
-                        <Badge dot={hasNewMessage} offset={[-5, 5]}>
-                            <Button
-                                type="primary"
-                                shape="circle"
-                                size="large"
-                                icon={<MessageOutlined />}
-                                onClick={toggleChat}
-                                className="ai-chat-toggle-btn"
-                            />
-                        </Badge>
-                    </Tooltip>
+                    <div className="floating-action-group">
+                        {/* Scroll to Top */}
+                        <Tooltip title="Cuộn lên đầu trang" placement="left">
+                            <button 
+                                onClick={scrollToTop} 
+                                className={`floating-btn scroll-top-btn ${showScrollTop ? 'visible' : ''}`}
+                            >
+                                <ArrowUpOutlined style={{ fontSize: '18px' }} />
+                            </button>
+                        </Tooltip>
+
+                        {/* Telegram */}
+                        <Tooltip title="Liên hệ Telegram" placement="left">
+                            <a 
+                                href="https://t.me/ebookfarm" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="floating-btn telegram-btn"
+                            >
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                    <path d="M9.78 18.65l.28-4.24 7.68-6.97c.33-.3-.07-.46-.5-.18L7.67 12.19l-4.1-1.28c-.89-.28-.91-.89.19-1.32l16.06-6.19c.74-.27 1.39.18 1.17 1.08l-2.73 12.87c-.2 1-.8 1.25-1.63.78l-4.16-3.07-2 1.93-.19.86z"/>
+                                </svg>
+                            </a>
+                        </Tooltip>
+
+                        {/* Messenger */}
+                        <Tooltip title="Liên hệ Facebook Messenger" placement="left">
+                            <a 
+                                href="https://m.me/ebookfarm" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="floating-btn messenger-btn"
+                            >
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                    <path d="M12 2C6.36 2 1.78 6.36 1.78 11.74c0 2.96 1.4 5.6 3.63 7.37.19.15.3.38.28.62l-.08 2.16c-.02.49.47.85.94.67l2.46-.94c.17-.06.35-.06.52-.02 1.5.47 3.1.72 4.47.72 5.64 0 10.22-4.36 10.22-9.74S17.64 2 12 2zm4.83 8.87l-2.67 4.24c-.45.71-1.44.89-2.12.38l-2.27-1.71c-.17-.13-.41-.13-.58 0l-2.88 2.18c-.4.3-.92-.17-.69-.62l2.67-4.24c.45-.71 1.44-.89 2.12-.38l2.27 1.71c.17.13.41.13.58 0l2.88-2.18c.4-.3.92.17.69.62z"/>
+                                </svg>
+                            </a>
+                        </Tooltip>
+
+                        {/* AI Chat Button */}
+                        <Tooltip title="Chat với AI Assistant" placement="left">
+                            <Badge dot={hasNewMessage} offset={[-5, 5]}>
+                                <Button
+                                    type="primary"
+                                    shape="circle"
+                                    size="large"
+                                    icon={<MessageOutlined />}
+                                    onClick={toggleChat}
+                                    className="ai-chat-toggle-btn"
+                                />
+                            </Badge>
+                        </Tooltip>
+                    </div>
                 )}
 
                 {/* Chat Window */}

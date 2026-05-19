@@ -7,11 +7,11 @@
   z-index: 9999;
 }
 
-/* Welcome Tooltip */
+/* Welcome Tooltip (Positioned left of the AI Chat button) */
 .ai-chat-welcome-tooltip {
   position: fixed;
-  bottom: 100px;
-  right: 24px;
+  bottom: 32px;
+  right: 104px;
   background: white;
   padding: 16px 20px;
   border-radius: 16px;
@@ -27,13 +27,14 @@
 .ai-chat-welcome-tooltip::after {
   content: '';
   position: absolute;
-  bottom: -8px;
-  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid white;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid white;
 }
 
 .ai-chat-welcome-content {
@@ -64,14 +65,94 @@
   }
 }
 
+/* Floating Action Group (Vertical Stack) */
+.floating-action-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+/* Scroll to Top Button */
+.scroll-top-btn {
+  background-color: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  /* Smooth scale & fade visibility based on scroll position */
+  opacity: 0;
+  transform: scale(0) translateY(10px);
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  margin-bottom: -12px; /* Pull other buttons up when hidden */
+  overflow: hidden;
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+  height: 52px;
+  width: 52px;
+  margin-bottom: 0;
+}
+
+.scroll-top-btn:hover {
+  background-color: #f8fafc;
+  color: #10b981;
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Telegram Button */
+.telegram-btn {
+  background-color: #229ED9;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3);
+}
+
+.telegram-btn:hover {
+  background-color: #2CA5E0;
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 20px rgba(34, 158, 217, 0.5);
+}
+
+/* Messenger Button */
+.messenger-btn {
+  background: linear-gradient(135deg, #09f 0%, #a44eed 50%, #ff5274 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(164, 78, 237, 0.3);
+}
+
+.messenger-btn:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 20px rgba(164, 78, 237, 0.5);
+}
+
 /* Toggle Button */
 .ai-chat-toggle-btn {
-  width: 64px !important;
-  height: 64px !important;
+  width: 60px !important;
+  height: 60px !important;
   background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%) !important;
   border: none !important;
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4) !important;
-  font-size: 28px !important;
+  font-size: 26px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   animation: pulse-chat 2s infinite;
 }
@@ -383,10 +464,36 @@
     right: 16px;
   }
 
+  .floating-action-group {
+    gap: 8px;
+  }
+
+  .floating-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .scroll-top-btn.visible {
+    width: 44px;
+    height: 44px;
+  }
+
   .ai-chat-toggle-btn {
-    width: 56px !important;
-    height: 56px !important;
-    font-size: 24px !important;
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 22px !important;
+  }
+
+  .ai-chat-welcome-tooltip {
+    right: 80px;
+    bottom: 20px;
+    padding: 12px 16px;
+    max-width: 200px;
+  }
+
+  .ai-chat-welcome-tooltip::after {
+    right: -8px;
+    border-left: 8px solid white;
   }
 
   .ai-chat-window {
