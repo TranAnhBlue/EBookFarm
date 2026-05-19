@@ -181,8 +181,38 @@ const updateRequestStatus = async (req, res) => {
   }
 };
 
+// 4. Nông dân hủy yêu cầu (Chỉ khi đang Pending)
+const cancelRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const farmerId = req.user._id;
+
+    const request = await SupplyRequest.findById(id);
+    if (!request) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy yêu cầu vật tư.' });
+    }
+
+    // Kiểm tra quyền sở hữu
+    if (request.farmer.toString() !== farmerId.toString()) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy yêu cầu này.' });
+    }
+
+    // Chỉ cho phép hủy khi trạng thái là Pending
+    if (request.status !== 'Pending') {
+      return res.status(400).json({ success: false, message: 'Chỉ có thể hủy yêu cầu đang ở trạng thái chờ duyệt.' });
+    }
+
+    await SupplyRequest.findByIdAndDelete(id);
+
+    res.json({ success: true, message: 'Đã hủy yêu cầu vật tư thành công.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   createRequest,
   getRequests,
-  updateRequestStatus
+  updateRequestStatus,
+  cancelRequest
 };

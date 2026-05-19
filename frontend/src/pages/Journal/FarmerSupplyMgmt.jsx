@@ -179,6 +179,26 @@ const FarmerSupplyMgmt = () => {
     }
   };
 
+  const handleCancelRequest = (id) => {
+    Modal.confirm({
+      title: 'Xác nhận hủy yêu cầu',
+      content: 'Bạn có chắc chắn muốn hủy yêu cầu vật tư này không? Thao tác này không thể hoàn tác.',
+      okText: 'Hủy yêu cầu',
+      okType: 'danger',
+      cancelText: 'Quay lại',
+      centered: true,
+      onOk: async () => {
+        try {
+          await api.delete(`/supply-requests/${id}`);
+          message.success('Đã hủy yêu cầu vật tư thành công!');
+          fetchRequests();
+        } catch (error) {
+          message.error(error.response?.data?.message || 'Không thể hủy yêu cầu.');
+        }
+      }
+    });
+  };
+
   const getStatusInfo = (status) => {
     switch (status) {
       case 'Pending': return { color: 'orange', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
@@ -251,6 +271,28 @@ const FarmerSupplyMgmt = () => {
       dataIndex: 'htxFeedback',
       key: 'feedback',
       render: (text) => text ? <Text className="text-[12px] text-amber-600 italic">{text}</Text> : <Text className="text-xs text-gray-300">---</Text>
+    },
+    {
+      title: 'THAO TÁC',
+      key: 'action',
+      width: 110,
+      align: 'center',
+      render: (_, record) => {
+        if (record.status === 'Pending') {
+          return (
+            <Button 
+              type="link" 
+              danger 
+              size="small" 
+              className="font-bold hover:underline"
+              onClick={() => handleCancelRequest(record._id)}
+            >
+              Hủy đơn
+            </Button>
+          );
+        }
+        return <Text className="text-gray-300">-</Text>;
+      }
     }
   ];
 
