@@ -22,7 +22,7 @@ const getInventory = async (req, res) => {
 // Thêm vật tư mới (Nhập kho)
 const addItem = async (req, res) => {
   try {
-    const { name, category, unit, quantity, minQuantity } = req.body;
+    const { name, category, unit, quantity, minQuantity, note, evidenceImage } = req.body;
     const owner = req.user._id;
 
     // Kiểm tra xem đã có vật tư này chưa
@@ -43,7 +43,8 @@ const addItem = async (req, res) => {
       type: 'Import',
       quantity: Number(quantity),
       performedBy: owner,
-      note: 'Nhập kho hệ thống'
+      note: note || 'Nhập kho hệ thống',
+      evidenceImage: evidenceImage || null
     });
 
     res.json({ success: true, data: item });

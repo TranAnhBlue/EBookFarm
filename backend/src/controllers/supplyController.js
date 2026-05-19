@@ -5,7 +5,7 @@ const { createNotification } = require('./notificationController');
 // 1. Nông dân tạo yêu cầu mới
 const createRequest = async (req, res) => {
   try {
-    const { items, htxId, reason } = req.body;
+    const { items, htxId, reason, isExternalPurchase, evidenceImage } = req.body;
     const farmerId = req.user._id;
 
     const request = await SupplyRequest.create({
@@ -13,6 +13,8 @@ const createRequest = async (req, res) => {
       htx: htxId,
       items,
       reason,
+      isExternalPurchase: isExternalPurchase || false,
+      evidenceImage: evidenceImage || null,
       status: 'Pending'
     });
 
@@ -68,52 +70,86 @@ const updateRequestStatus = async (req, res) => {
     if (!request) return res.status(404).json({ success: false, message: 'Không tìm thấy yêu cầu.' });
 
     if (status === 'Approved') {
-      // Bắt đầu xử lý cấp phát vật tư
-      for (const itemData of approvedItems) {
-        const { inventoryItemId, quantity, originalItemIndex } = itemData;
-        const requestedItem = request.items[originalItemIndex];
+      if (request.isExternalPurchase) {
+        // Xử lý duyệt hàng tự mua ngoài (Không trừ kho HTX)
+        for (const requestedItem of request.items) {
+          let farmerItem = await InventoryItem.findOne({ 
+            name: requestedItem.itemName, 
+            owner: request.farmer._id, 
+            unit: requestedItem.unit 
+          });
 
-        // 1. Kiểm tra kho HTX
-        const htxItem = await InventoryItem.findOne({ _id: inventoryItemId, owner: htxId });
-        if (!htxItem) throw new Error(`Vật tư ${requestedItem.itemName} không tồn tại trong kho HTX.`);
-        if (htxItem.quantity < quantity) throw new Error(`Số lượng ${htxItem.name} trong kho không đủ.`);
+          if (farmerItem) {
+            farmerItem.quantity += Number(requestedItem.quantity);
+            await farmerItem.save();
+          } else {
+            farmerItem = await InventoryItem.create({
+              name: requestedItem.itemName,
+              category: requestedItem.category,
+              unit: requestedItem.unit,
+              quantity: Number(requestedItem.quantity),
+              owner: request.farmer._id
+            });
+          }
 
-        // 2. Trừ kho HTX
-        htxItem.quantity -= Number(quantity);
-        await htxItem.save();
-
-        // 3. Tăng kho Nông dân
-        let farmerItem = await InventoryItem.findOne({ 
-          name: htxItem.name, 
-          owner: request.farmer._id, 
-          unit: htxItem.unit 
-        });
-
-        if (farmerItem) {
-          farmerItem.quantity += Number(quantity);
-          await farmerItem.save();
-        } else {
-          farmerItem = await InventoryItem.create({
-            name: htxItem.name,
-            category: htxItem.category,
-            unit: htxItem.unit,
-            quantity: Number(quantity),
-            owner: request.farmer._id
+          // Ghi log giao dịch cho nông dân
+          await InventoryTransaction.create({
+            itemId: farmerItem._id,
+            type: 'Import',
+            quantity: Number(requestedItem.quantity),
+            performedBy: request.farmer._id,
+            note: `HTX duyệt hàng tự mua ngoài (Mã đơn #${request._id})`,
+            evidenceImage: request.evidenceImage || null
           });
         }
+      } else {
+        // Bắt đầu xử lý cấp phát vật tư (Từ kho HTX)
+        for (const itemData of approvedItems) {
+          const { inventoryItemId, quantity, originalItemIndex } = itemData;
+          const requestedItem = request.items[originalItemIndex];
 
-        // 4. Ghi log giao dịch
-        await InventoryTransaction.create({
-          itemId: htxItem._id,
-          type: 'Distribute',
-          quantity: Number(quantity),
-          receiverId: request.farmer._id,
-          performedBy: htxId,
-          note: `Cấp phát theo đơn yêu cầu #${request._id}`
-        });
+          // 1. Kiểm tra kho HTX
+          const htxItem = await InventoryItem.findOne({ _id: inventoryItemId, owner: htxId });
+          if (!htxItem) throw new Error(`Vật tư ${requestedItem.itemName} không tồn tại trong kho HTX.`);
+          if (htxItem.quantity < quantity) throw new Error(`Số lượng ${htxItem.name} trong kho không đủ.`);
 
-        // Cập nhật ID vật tư vào đơn để truy vết
-        request.items[originalItemIndex].inventoryItemId = inventoryItemId;
+          // 2. Trừ kho HTX
+          htxItem.quantity -= Number(quantity);
+          await htxItem.save();
+
+          // 3. Tăng kho Nông dân
+          let farmerItem = await InventoryItem.findOne({ 
+            name: htxItem.name, 
+            owner: request.farmer._id, 
+            unit: htxItem.unit 
+          });
+
+          if (farmerItem) {
+            farmerItem.quantity += Number(quantity);
+            await farmerItem.save();
+          } else {
+            farmerItem = await InventoryItem.create({
+              name: htxItem.name,
+              category: htxItem.category,
+              unit: htxItem.unit,
+              quantity: Number(quantity),
+              owner: request.farmer._id
+            });
+          }
+
+          // 4. Ghi log giao dịch
+          await InventoryTransaction.create({
+            itemId: htxItem._id,
+            type: 'Distribute',
+            quantity: Number(quantity),
+            receiverId: request.farmer._id,
+            performedBy: htxId,
+            note: `Cấp phát theo đơn yêu cầu #${request._id}`
+          });
+
+          // Cập nhật ID vật tư vào đơn để truy vết
+          request.items[originalItemIndex].inventoryItemId = inventoryItemId;
+        }
       }
 
       request.approvedAt = new Date();

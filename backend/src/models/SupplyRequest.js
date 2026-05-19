@@ -19,6 +19,8 @@ const supplyRequestSchema = new mongoose.Schema({
     inventoryItemId: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem' } // Link to HTX inventory item if matched
   }],
   reason: { type: String },
+  isExternalPurchase: { type: Boolean, default: false },
+  evidenceImage: { type: String },
   status: { 
     type: String, 
     enum: ['Pending', 'Approved', 'Rejected'], 

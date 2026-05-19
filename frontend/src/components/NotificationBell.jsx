@@ -7,6 +7,8 @@ import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } 
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import { useAuthStore } from '../store/authStore';
+import api from '../services/api';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -24,6 +26,33 @@ const NotificationBell = () => {
         refetchInterval: 10000, // Reduced to 10 seconds for "closer" to realtime
     });
 
+    const { user } = useAuthStore();
+    const { data: inventory } = useQuery({
+        queryKey: ['farmer-inventory-alert'],
+        queryFn: () => api.get('/inventory').then(res => res.data.data),
+        enabled: !!user && user.role?.toUpperCase() === 'FARMER',
+        refetchInterval: 30000,
+    });
+
+    // Generate dynamic low stock alerts
+    const lowStockItems = (inventory || []).filter(item => item.quantity <= (item.minQuantity || 10));
+    
+    const combinedNotifications = [...(data?.data || [])];
+    lowStockItems.forEach(item => {
+        const isOutOfStock = item.quantity === 0;
+        combinedNotifications.unshift({
+            _id: `inv-${item._id}`, // Fake ID
+            type: 'Inventory_LowStock',
+            title: isOutOfStock ? 'Hết hàng' : 'Cảnh báo sắp hết hàng',
+            message: `Vật tư "${item.name}" ${isOutOfStock ? 'đã hết sạch' : `chỉ còn ${item.quantity} ${item.unit}`}. Vui lòng nhập thêm!`,
+            isRead: false,
+            createdAt: new Date().toISOString(),
+            relatedModel: 'InventoryItem'
+        });
+    });
+
+    const totalUnreadCount = (data?.unreadCount || 0) + lowStockItems.length;
+
     const markReadMutation = useMutation({
         mutationFn: markNotificationAsRead,
         onSuccess: () => {
@@ -40,8 +69,8 @@ const NotificationBell = () => {
     });
 
     const handleNotificationClick = (item) => {
-        // Mark as read first
-        if (!item.isRead) {
+        // Mark as read first if it's a real notification
+        if (!item.isRead && !item._id.startsWith('inv-')) {
             markReadMutation.mutate(item._id);
         }
         
@@ -80,7 +109,9 @@ const NotificationBell = () => {
 
     const handleMarkRead = (id, e) => {
         if (e) e.stopPropagation();
-        markReadMutation.mutate(id);
+        if (!id.startsWith('inv-')) {
+            markReadMutation.mutate(id);
+        }
     };
 
     const getTypeTag = (type) => {
@@ -91,6 +122,7 @@ const NotificationBell = () => {
             case 'Journal_Assigned': return <Tag color="purple" className="mr-0">Phân công</Tag>;
             case 'System': return <Tag color="cyan" className="mr-0">Hệ thống</Tag>;
             case 'Announcement': return <Tag color="magenta" className="mr-0">Tin tức</Tag>;
+            case 'Inventory_LowStock': return <Tag color="red" className="mr-0 border-red-200 bg-red-50 text-red-600 font-bold">Kho bãi</Tag>;
             default: return null;
         }
     };
@@ -100,7 +132,7 @@ const NotificationBell = () => {
             <div className="px-4 py-3 border-b flex justify-between items-center bg-white">
                 <div className="flex items-center gap-2">
                     <Text strong className="text-base">Thông báo</Text>
-                    {data?.unreadCount > 0 && <Badge count={data.unreadCount} className="notification-badge-small" />}
+                    {totalUnreadCount > 0 && <Badge count={totalUnreadCount} className="notification-badge-small" />}
                 </div>
                 {data?.unreadCount > 0 && (
                     <Button 
@@ -120,10 +152,10 @@ const NotificationBell = () => {
                     <div className="p-12 text-center">
                         <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
                     </div>
-                ) : data?.data?.length > 0 ? (
+                ) : combinedNotifications.length > 0 ? (
                     <List
                         itemLayout="horizontal"
-                        dataSource={data.data}
+                        dataSource={combinedNotifications}
                         renderItem={(item) => (
                             <List.Item 
                                 className={`px-4 py-3 cursor-pointer hover:bg-white transition-all border-b border-gray-50 last:border-0 ${!item.isRead ? 'bg-green-50/30' : 'bg-white/50'}`}
@@ -150,7 +182,7 @@ const NotificationBell = () => {
                                         <Text className={`text-xs block leading-snug flex-1 ${!item.isRead ? 'text-gray-700' : 'text-gray-400'}`}>
                                             {item.message}
                                         </Text>
-                                        {!item.isRead && (
+                                        {!item.isRead && !item._id.startsWith('inv-') && (
                                             <Button 
                                                 type="text" 
                                                 icon={<CheckOutlined className="text-green-500" />} 
@@ -193,7 +225,7 @@ const NotificationBell = () => {
         >
             <div className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-gray-50 rounded-xl transition-all relative">
                 <Badge 
-                    count={data?.unreadCount || 0} 
+                    count={totalUnreadCount} 
                     size="small" 
                     offset={[-2, 2]}
                     styles={{ badge: { fontSize: '10px', height: '16px', minWidth: '16px', lineHeight: '16px' } }}

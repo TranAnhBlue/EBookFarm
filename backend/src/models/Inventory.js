@@ -19,6 +19,7 @@ const inventoryTransactionSchema = new mongoose.Schema({
   receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Nông dân nhận (nếu HTX cấp phát)
   performedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Người thực hiện giao dịch
   note: { type: String },
+  evidenceImage: { type: String }, // Ảnh bằng chứng mua ngoài / Hóa đơn
   date: { type: Date, default: Date.now }
 }, { timestamps: true });
 
