@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Form, Input, InputNumber, Button, DatePicker, Select, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
+import { Card, Form, Input, InputNumber, Button, DatePicker, Select, AutoComplete, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
 import dayjs from 'dayjs';
 import { InboxOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -1407,14 +1407,15 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                       f.label.toLowerCase().includes('thức ăn')
                     )?.name;
 
-                  const selectedSupplyId = row[supplyFieldName];
-                  if (selectedSupplyId) {
-                    const invItem = inventory?.find(item => item._id === selectedSupplyId);
+                  const selectedSupplyName = row[supplyFieldName];
+                  if (selectedSupplyName) {
+                    // Tìm vật tư theo tên (hoặc ID nếu dữ liệu cũ còn lưu ID)
+                    const invItem = inventory?.find(item => item.name === selectedSupplyName || item._id === selectedSupplyName);
                     if (invItem) {
                       let quantityToDeduct = Number(value);
                       let noteText = `Trừ kho tự động từ sổ: ${schema.name}`;
 
-                      if (oldRow && oldRow[supplyFieldName] === selectedSupplyId) {
+                      if (oldRow && (oldRow[supplyFieldName] === selectedSupplyName || oldRow[supplyFieldName] === invItem._id)) {
                         const oldQuantity = Number(oldRow[fieldName]) || 0;
                         quantityToDeduct = Number(value) - oldQuantity;
                         if (quantityToDeduct < 0) noteText = `Hoàn trả kho (sửa giảm) từ sổ: ${schema.name}`;
@@ -2531,13 +2532,26 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     if (field.type === 'text') {
       if (isSupplyField && options.length > 0) {
         inputNode = (
-          <Select
+          <AutoComplete
             {...commonProps}
-            placeholder={`Chọn ${field.label.toLowerCase()} từ kho`}
-            showSearch
-            allowClear
-            onChange={(value) => {
-              const selected = options?.find(o => o._id === value);
+            placeholder={`Nhập hoặc chọn ${field.label.toLowerCase()}`}
+            options={options.map(item => ({
+              value: item.name,
+              label: (
+                <div className="flex justify-between items-center w-full">
+                  <span>{item.name}</span>
+                  <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
+                    Kho: {item.quantity} {item.unit}
+                  </Tag>
+                </div>
+              ),
+              itemdata: item // Lưu trữ toàn bộ item để dùng trong onSelect
+            }))}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+            }
+            onSelect={(value, option) => {
+              const selected = option.itemdata;
               if (selected) {
                 const table = schema.tables.find(t => t.tableName === tableName);
                 const unitFieldName = table?.fields.find(f =>
@@ -2555,18 +2569,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
                 }
               }
             }}
-          >
-            {options.map(item => (
-              <Option key={item._id} value={item._id}>
-                <div className="flex justify-between items-center w-full">
-                  <span>{item.name}</span>
-                  <Tag color={item.quantity > 0 ? 'green' : 'red'} className="m-0 text-[10px]">
-                    Kho: {item.quantity} {item.unit}
-                  </Tag>
-                </div>
-              </Option>
-            ))}
-          </Select>
+          />
         );
       } else {
         inputNode = (
