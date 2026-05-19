@@ -2454,15 +2454,26 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     if (!inventory) return [];
     const label = fieldLabel.toLowerCase();
 
-    // Phân loại vật tư dựa trên nhãn trường
-    let category = '';
-    if (label.includes('phân bón')) category = 'Phân bón';
-    else if (label.includes('thuốc')) category = 'Thuốc BVTV';
-    else if (label.includes('giống')) category = 'Giống';
-    else if (label.includes('thức ăn')) category = 'Thức ăn';
+    // Phân loại vật tư dựa trên nhãn trường và loại sổ (chăn nuôi vs trồng trọt)
+    let allowedCategories = [];
+    if (label.includes('phân bón')) {
+      allowedCategories = ['Phân bón'];
+    } else if (label.includes('thuốc') || label.includes('vaccin') || label.includes('vắc xin')) {
+      if (schema?.category === 'channuoi' || schema?.category === 'thuysan') {
+        // Chăn nuôi/Thủy sản: Không dùng Thuốc BVTV (Pesticides), mà là Thuốc thú y, Vaccine...
+        allowedCategories = ['Thuốc thú y', 'Vaccine', 'Thuốc thủy sản', 'Khác'];
+      } else {
+        // Trồng trọt: Thuốc BVTV
+        allowedCategories = ['Thuốc BVTV'];
+      }
+    } else if (label.includes('giống')) {
+      allowedCategories = ['Giống'];
+    } else if (label.includes('thức ăn')) {
+      allowedCategories = ['Thức ăn'];
+    }
 
-    if (category) {
-      return inventory.filter(item => item.category === category || !item.category);
+    if (allowedCategories.length > 0) {
+      return inventory.filter(item => allowedCategories.includes(item.category) || !item.category);
     }
     return inventory;
   };
