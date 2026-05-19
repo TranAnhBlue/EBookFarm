@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Card, Typography, Row, Col, Button, Tag, Space, Modal, Form, Input, InputNumber, Select, message, Empty, Badge, Steps, Divider } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Table, Card, Typography, Row, Col, Button, Tag, Space, Modal, Form, Input, InputNumber, Select, message, Empty, Badge, Steps, Divider, Upload } from 'antd';
 import { 
   PlusOutlined, 
   SendOutlined, 
@@ -10,7 +10,10 @@ import {
   ShoppingOutlined,
   InfoCircleOutlined,
   DeleteOutlined,
-  PlusSquareOutlined
+  PlusSquareOutlined,
+  ShoppingCartOutlined,
+  PictureOutlined,
+  CloudUploadOutlined
 } from '@ant-design/icons';
 import api from '../../services/api';
 import dayjs from 'dayjs';
@@ -24,8 +27,13 @@ const FarmerSupplyMgmt = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isExternalModalVisible, setIsExternalModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [externalSubmitting, setExternalSubmitting] = useState(false);
+  const [evidenceFileList, setEvidenceFileList] = useState([]);
+  const evidenceUrlRef = useRef(null);
   const [form] = Form.useForm();
+  const [externalForm] = Form.useForm();
   const [htxList, setHtxList] = useState([]);
   const { user, setUser } = useAuthStore();
 
@@ -118,6 +126,52 @@ const FarmerSupplyMgmt = () => {
     }
   };
 
+  const handleUploadEvidence = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await api.post('/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      evidenceUrlRef.current = res.data?.url || null;
+      return false;
+    } catch {
+      message.error('Upload ảnh bằng chứng thất bại');
+      return false;
+    }
+  };
+
+  const handleExternalSubmit = async (values) => {
+    try {
+      if (!evidenceUrlRef.current) {
+        message.warning('Vui lòng tải lên ảnh hóa đơn hoặc bằng chứng mua hàng!');
+        return;
+      }
+      setExternalSubmitting(true);
+      const htxId = typeof user?.htxId === 'object' ? user?.htxId?._id : user?.htxId;
+      if (!htxId) {
+        message.error('Bạn chưa được gán vào HTX nào. Không thể gửi đơn khai báo.');
+        return;
+      }
+      const unitValue = Array.isArray(values.unit) ? values.unit[0] : values.unit;
+      await api.post('/supply-requests', {
+        htxId,
+        reason: 'Khai báo vật tư mua ngoài (Tự túc)',
+        isExternalPurchase: true,
+        evidenceImage: evidenceUrlRef.current,
+        items: [{ itemName: values.name, category: values.category, quantity: values.quantity, unit: unitValue }]
+      });
+      message.success('Đã gửi khai báo mua ngoài! Vui lòng chờ HTX phê duyệt.');
+      setIsExternalModalVisible(false);
+      externalForm.resetFields();
+      setEvidenceFileList([]);
+      evidenceUrlRef.current = null;
+      fetchRequests();
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Lỗi khi gửi khai báo');
+    } finally {
+      setExternalSubmitting(false);
+    }
+  };
+
   const getStatusInfo = (status) => {
     switch (status) {
       case 'Pending': return { color: 'orange', text: 'Chờ duyệt', icon: <ClockCircleOutlined /> };
@@ -151,13 +205,20 @@ const FarmerSupplyMgmt = () => {
     {
       title: 'VẬT TƯ YÊU CẦU',
       key: 'items',
-      render: (record) => (
-        <div className="flex flex-wrap gap-2">
-          {record.items.map((item, idx) => (
-            <Tag key={idx} color="blue" className="rounded-md border-blue-100 bg-blue-50 text-blue-700 font-medium text-[11px]">
-              {item.itemName} (x{item.quantity} {item.unit})
+      render: (_, record) => (
+        <div className="flex flex-col gap-1.5">
+          {record.isExternalPurchase && (
+            <Tag color="orange" className="w-fit rounded-full border-0 bg-orange-50 text-orange-600 font-bold text-[10px] px-2">
+              🛒 Tự mua ngoài
             </Tag>
-          ))}
+          )}
+          <div className="flex flex-wrap gap-1.5">
+            {record.items.map((item, idx) => (
+              <Tag key={idx} color={record.isExternalPurchase ? 'orange' : 'blue'} className="rounded-md font-medium text-[11px]">
+                {item.itemName} (x{item.quantity} {item.unit})
+              </Tag>
+            ))}
+          </div>
         </div>
       )
     },
@@ -194,15 +255,25 @@ const FarmerSupplyMgmt = () => {
           <Title level={3} className="!mb-1">Xin Cấp Vật Tư</Title>
           <Paragraph className="text-gray-400">Gửi yêu cầu hỗ trợ vật tư nông nghiệp tới Hợp tác xã</Paragraph>
         </div>
-        <Button 
-          type="primary" 
-          size="large" 
-          icon={<PlusSquareOutlined />} 
-          onClick={() => setIsModalVisible(true)}
-          className="h-12 px-8 bg-green-600 border-0 rounded-2xl font-bold shadow-lg shadow-green-100 flex items-center gap-2"
-        >
-          Tạo đơn yêu cầu
-        </Button>
+        <Space size={12}>
+          <Button 
+            size="large"
+            icon={<ShoppingCartOutlined />}
+            onClick={() => setIsExternalModalVisible(true)}
+            className="h-12 px-6 border-2 border-orange-300 text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-2xl font-bold flex items-center gap-2"
+          >
+            Khai báo mua ngoài
+          </Button>
+          <Button 
+            type="primary" 
+            size="large" 
+            icon={<PlusSquareOutlined />} 
+            onClick={() => setIsModalVisible(true)}
+            className="h-12 px-8 bg-green-600 border-0 rounded-2xl font-bold shadow-lg shadow-green-100 flex items-center gap-2"
+          >
+            Tạo đơn yêu cầu
+          </Button>
+        </Space>
       </div>
 
       <Row gutter={[24, 24]}>
@@ -417,6 +488,81 @@ const FarmerSupplyMgmt = () => {
             >
               Gửi yêu cầu ngay
             </Button>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* Modal: Khai báo hàng mua ngoài */}
+      <Modal
+        title={
+          <div className="flex items-center gap-3 pt-2">
+            <div className="w-10 h-10 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <ShoppingCartOutlined className="text-orange-500 text-xl" />
+            </div>
+            <div>
+              <div className="font-black text-gray-800">Khai Báo Hàng Mua Ngoài</div>
+              <div className="text-xs text-gray-400 font-normal">Nộp bằng chứng để HTX xem xét và phê duyệt</div>
+            </div>
+          </div>
+        }
+        open={isExternalModalVisible}
+        onCancel={() => { setIsExternalModalVisible(false); externalForm.resetFields(); setEvidenceFileList([]); evidenceUrlRef.current = null; }}
+        footer={null}
+        width={560}
+        centered
+        className="premium-modal"
+      >
+        <Form form={externalForm} layout="vertical" onFinish={handleExternalSubmit} requiredMark={false} className="pt-4">
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item name="name" label={<Text className="text-xs font-black uppercase tracking-wider text-gray-400">Tên vật tư / Hàng hóa</Text>} rules={[{ required: true, message: 'Nhập tên vật tư!' }]}>
+                <Input placeholder="VD: Phân NPK 20-20-15, Thuốc Abamectin..." className="h-11 rounded-xl" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="category" label={<Text className="text-xs font-black uppercase tracking-wider text-gray-400">Phân loại</Text>} rules={[{ required: true, message: 'Chọn loại!' }]}>
+                <Select placeholder="Chọn loại" className="h-11 premium-select">
+                  <Option value="Phân bón">Phân bón</Option>
+                  <Option value="Thuốc BVTV">Thuốc BVTV</Option>
+                  <Option value="Thuốc thú y">Thuốc thú y</Option>
+                  <Option value="Giống">Giống cây / con</Option>
+                  <Option value="Dụng cụ">Dụng cụ lao động</Option>
+                  <Option value="Khác">Khác</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="quantity" label={<Text className="text-xs font-black uppercase tracking-wider text-gray-400">Số lượng</Text>} rules={[{ required: true, message: 'Nhập SL!' }]}>
+                <InputNumber min={0.1} className="w-full h-11 rounded-xl flex items-center" />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="unit" label={<Text className="text-xs font-black uppercase tracking-wider text-gray-400">Đơn vị</Text>} rules={[{ required: true, message: 'Nhập đơn vị!' }]}>
+                <Input placeholder="kg, lít, bao..." className="h-11 rounded-xl" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item label={
+            <span className="text-xs font-black uppercase tracking-wider text-gray-400">
+              Bằng chứng mua hàng / Hóa đơn <span className="text-red-500">*</span>
+            </span>
+          }>
+            <Upload.Dragger
+              name="file" fileList={evidenceFileList} maxCount={1} accept="image/*"
+              beforeUpload={async (file) => { await handleUploadEvidence(file); setEvidenceFileList([{ uid: '-1', name: file.name, status: 'done', originFileObj: file }]); return false; }}
+              onRemove={() => { setEvidenceFileList([]); evidenceUrlRef.current = null; }}
+              className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/30 hover:border-orange-400 transition-all"
+            >
+              <p className="ant-upload-drag-icon"><CloudUploadOutlined className="text-orange-400 text-4xl" /></p>
+              <p className="text-sm font-bold text-gray-600">Chụp ảnh hoặc kéo thả hóa đơn vào đây</p>
+              <p className="text-xs text-gray-400 mt-1">Ảnh sản phẩm, tem nhãn hoặc hóa đơn mua hàng (Theo chuẩn VietGAHP)</p>
+            </Upload.Dragger>
+          </Form.Item>
+
+          <div className="flex gap-4 pt-2">
+            <Button block size="large" className="h-12 rounded-2xl font-bold border-2" onClick={() => { setIsExternalModalVisible(false); externalForm.resetFields(); setEvidenceFileList([]); evidenceUrlRef.current = null; }}>Hủy</Button>
+            <Button type="primary" block size="large" htmlType="submit" loading={externalSubmitting} className="h-12 rounded-2xl font-black bg-orange-500 border-0 shadow-lg shadow-orange-100">Gửi khai báo</Button>
           </div>
         </Form>
       </Modal>

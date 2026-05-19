@@ -263,17 +263,8 @@ const FarmerInventory = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-2">
           <Title level={2} className="!mb-0 tracking-tight text-gray-800">Tồn kho Sản xuất</Title>
-          <Text className="text-gray-400 font-medium">Quản lý vật tư cấp phát và hàng hóa tự mua ngoài</Text>
+          <Text className="text-gray-400 font-medium">Quản lý vật tư cấp phát từ HTX và hàng hóa tự mua ngoài</Text>
         </div>
-        <Button 
-          type="primary" 
-          size="large" 
-          icon={<PlusOutlined />} 
-          onClick={() => setIsAddModalVisible(true)}
-          className="h-11 px-6 bg-green-600 border-0 rounded-xl font-bold shadow-lg shadow-green-100 flex items-center gap-2"
-        >
-          Nhập hàng mua ngoài
-        </Button>
       </div>
 
       <Row gutter={[24, 24]}>
