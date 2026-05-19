@@ -71,6 +71,8 @@ const FarmerInventory = () => {
         return;
       }
       
+      const unitValue = Array.isArray(values.unit) ? values.unit[0] : values.unit;
+
       if (user?.htxId) {
         // Nông dân thuộc HTX -> Gửi đơn chờ duyệt
         const htxId = typeof user.htxId === 'object' ? user.htxId._id : user.htxId;
@@ -83,7 +85,7 @@ const FarmerInventory = () => {
             itemName: values.name,
             category: values.category,
             quantity: values.quantity,
-            unit: values.unit
+            unit: unitValue
           }]
         });
         message.success('Đã gửi đơn khai báo mua ngoài! Vui lòng chờ HTX phê duyệt.');
@@ -91,6 +93,7 @@ const FarmerInventory = () => {
         // Nông dân độc lập -> Cộng thẳng vào kho
         await api.post('/inventory/add', { 
           ...values, 
+          unit: unitValue,
           note: 'Tự mua ngoài / Tự túc (Nông dân độc lập)',
           evidenceImage: evidenceUrlRef.current
         });
