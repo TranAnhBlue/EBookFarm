@@ -57,8 +57,8 @@ const HtxSupplyMgmt = () => {
   const handleStatusUpdate = async (status) => {
     if (!selectedRequest) return;
 
-    // Check if all items are mapped for approval
-    if (status === 'Approved') {
+    // Check if all items are mapped for approval (Skip if it's an external purchase)
+    if (status === 'Approved' && !selectedRequest.isExternalPurchase) {
       const allMapped = selectedRequest.items.every((_, idx) => itemMappings[idx]);
       if (!allMapped) {
         return message.warning('Vui lòng chọn vật tư tương ứng trong kho HTX cho tất cả các mục yêu cầu.');
@@ -336,37 +336,52 @@ const HtxSupplyMgmt = () => {
               <div className="space-y-3">
                 {selectedRequest.items.map((item, idx) => (
                   <Card key={idx} className="rounded-2xl border-gray-100 shadow-sm bg-slate-50/30" bodyStyle={{ padding: '12px 16px' }}>
-                    <Row gutter={16} align="middle">
+                    <Row gutter={12} align="middle">
                       <Col span={10}>
-                        <div className="flex flex-col">
-                          <Text strong className="text-gray-700">{item.itemName}</Text>
-                          <Text className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{item.category}</Text>
-                        </div>
+                        <Text strong className="text-[13px] block truncate">{item.itemName}</Text>
+                        <Text type="secondary" className="text-[11px] block truncate">Yêu cầu: <span className="text-green-600 font-bold">{item.quantity} {item.unit}</span></Text>
                       </Col>
-                      <Col span={4} className="text-center">
-                        <Tag color="green" className="rounded-md font-black m-0">{item.quantity} {item.unit}</Tag>
-                      </Col>
-                      <Col span={10}>
-                        <Select
-                          placeholder="Chọn vật tư trong kho HTX"
-                          className="w-full rounded-xl"
-                          onChange={(val) => setItemMappings(prev => ({ ...prev, [idx]: val }))}
-                        >
-                          {inventory
-                            .filter(inv => inv.category === item.category)
-                            .map(inv => (
-                              <Select.Option key={inv._id} value={inv._id}>
-                                {inv.name} (Còn: {inv.quantity} {inv.unit})
-                              </Select.Option>
-                            ))
-                          }
-                        </Select>
+                      <Col span={14}>
+                        {!selectedRequest.isExternalPurchase ? (
+                          <Select
+                            placeholder="Chọn vật tư trong kho HTX"
+                            className="w-full rounded-xl"
+                            onChange={(val) => setItemMappings(prev => ({ ...prev, [idx]: val }))}
+                          >
+                            {inventory
+                              .filter(inv => inv.category === item.category)
+                              .map(inv => (
+                                <Select.Option key={inv._id} value={inv._id}>
+                                  {inv.name} (Còn: {inv.quantity} {inv.unit})
+                                </Select.Option>
+                              ))
+                            }
+                          </Select>
+                        ) : (
+                          <Tag color="orange" className="w-full m-0 text-center py-1 rounded-lg border-0 bg-orange-50 text-orange-600 font-medium text-xs">
+                            Không trừ kho (Mua ngoài)
+                          </Tag>
+                        )}
                       </Col>
                     </Row>
                   </Card>
                 ))}
               </div>
             </div>
+
+            {selectedRequest.isExternalPurchase && selectedRequest.evidenceImage && (
+              <div className="mb-4">
+                <Text strong className="block mb-2 text-gray-600">Ảnh Bằng Chứng (Hóa đơn/Tem nhãn)</Text>
+                <div className="flex justify-center bg-gray-50 p-2 rounded-xl border border-gray-200 border-dashed">
+                  <img 
+                    src={selectedRequest.evidenceImage.startsWith('http') ? selectedRequest.evidenceImage : `${(import.meta.env.VITE_API_URL || 'https://ebookfarm.onrender.com/api').replace(/\/api$/, '')}${selectedRequest.evidenceImage}`} 
+                    alt="Bằng chứng" 
+                    className="max-h-48 object-contain rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity" 
+                    onClick={() => window.open(selectedRequest.evidenceImage.startsWith('http') ? selectedRequest.evidenceImage : `${(import.meta.env.VITE_API_URL || 'https://ebookfarm.onrender.com/api').replace(/\/api$/, '')}${selectedRequest.evidenceImage}`, '_blank')}
+                  />
+                </div>
+              </div>
+            )}
 
             <Divider className="my-2" />
 
