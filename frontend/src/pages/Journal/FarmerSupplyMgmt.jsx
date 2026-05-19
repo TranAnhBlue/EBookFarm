@@ -31,6 +31,7 @@ const FarmerSupplyMgmt = () => {
   const [submitting, setSubmitting] = useState(false);
   const [externalSubmitting, setExternalSubmitting] = useState(false);
   const [evidenceFileList, setEvidenceFileList] = useState([]);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const evidenceUrlRef = useRef(null);
   const [form] = Form.useForm();
   const [externalForm] = Form.useForm();
@@ -127,14 +128,19 @@ const FarmerSupplyMgmt = () => {
   };
 
   const handleUploadEvidence = async (file) => {
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
     const formData = new FormData();
     formData.append('file', file);
     try {
       const res = await api.post('/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       evidenceUrlRef.current = res.data?.url || null;
+      if (res.data?.url) setPreviewUrl(res.data.url);
       return false;
     } catch {
       message.error('Upload ảnh bằng chứng thất bại');
+      setPreviewUrl(null);
       return false;
     }
   };
@@ -163,6 +169,7 @@ const FarmerSupplyMgmt = () => {
       setIsExternalModalVisible(false);
       externalForm.resetFields();
       setEvidenceFileList([]);
+      setPreviewUrl(null);
       evidenceUrlRef.current = null;
       fetchRequests();
     } catch (error) {
@@ -506,7 +513,7 @@ const FarmerSupplyMgmt = () => {
           </div>
         }
         open={isExternalModalVisible}
-        onCancel={() => { setIsExternalModalVisible(false); externalForm.resetFields(); setEvidenceFileList([]); evidenceUrlRef.current = null; }}
+        onCancel={() => { setIsExternalModalVisible(false); externalForm.resetFields(); setEvidenceFileList([]); setPreviewUrl(null); evidenceUrlRef.current = null; }}
         footer={null}
         width={560}
         centered
@@ -548,16 +555,39 @@ const FarmerSupplyMgmt = () => {
               Bằng chứng mua hàng / Hóa đơn <span className="text-red-500">*</span>
             </span>
           }>
-            <Upload.Dragger
-              name="file" fileList={evidenceFileList} maxCount={1} accept="image/*"
-              beforeUpload={async (file) => { await handleUploadEvidence(file); setEvidenceFileList([{ uid: '-1', name: file.name, status: 'done', originFileObj: file }]); return false; }}
-              onRemove={() => { setEvidenceFileList([]); evidenceUrlRef.current = null; }}
-              className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/30 hover:border-orange-400 transition-all"
-            >
-              <p className="ant-upload-drag-icon"><CloudUploadOutlined className="text-orange-400 text-4xl" /></p>
-              <p className="text-sm font-bold text-gray-600">Chụp ảnh hoặc kéo thả hóa đơn vào đây</p>
-              <p className="text-xs text-gray-400 mt-1">Ảnh sản phẩm, tem nhãn hoặc hóa đơn mua hàng (Theo chuẩn VietGAHP)</p>
-            </Upload.Dragger>
+            {previewUrl ? (
+              <div className="relative rounded-2xl overflow-hidden border-2 border-orange-300 bg-orange-50/30 group">
+                <img 
+                  src={previewUrl} 
+                  alt="Bằng chứng" 
+                  className="w-full max-h-52 object-contain p-2" 
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <Button 
+                    danger 
+                    size="small" 
+                    className="rounded-xl font-bold shadow-lg"
+                    onClick={() => { setPreviewUrl(null); setEvidenceFileList([]); evidenceUrlRef.current = null; }}
+                  >
+                    Xóa ảnh
+                  </Button>
+                </div>
+                <div className="px-3 py-2 bg-orange-50 border-t border-orange-100 flex items-center gap-2">
+                  <CheckCircleOutlined className="text-green-500 text-sm" />
+                  <Text className="text-xs text-green-600 font-bold">Ảnh đã được tải lên thành công</Text>
+                </div>
+              </div>
+            ) : (
+              <Upload.Dragger
+                name="file" fileList={[]} maxCount={1} accept="image/*" showUploadList={false}
+                beforeUpload={async (file) => { await handleUploadEvidence(file); setEvidenceFileList([{ uid: '-1', name: file.name, status: 'done' }]); return false; }}
+                className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/30 hover:border-orange-400 transition-all"
+              >
+                <p className="ant-upload-drag-icon"><CloudUploadOutlined className="text-orange-400 text-4xl" /></p>
+                <p className="text-sm font-bold text-gray-600">Chụp ảnh hoặc kéo thả hóa đơn vào đây</p>
+                <p className="text-xs text-gray-400 mt-1">Ảnh sản phẩm, tem nhãn hoặc hóa đơn mua hàng (Theo chuẩn VietGAHP)</p>
+              </Upload.Dragger>
+            )}
           </Form.Item>
 
           <div className="flex gap-4 pt-2">
