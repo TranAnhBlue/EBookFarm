@@ -1,4 +1,5 @@
 const SupplyRequest = require('../models/SupplyRequest');
+const User = require('../models/User');
 const { InventoryItem, InventoryTransaction } = require('../models/Inventory');
 const { createNotification } = require('./notificationController');
 
