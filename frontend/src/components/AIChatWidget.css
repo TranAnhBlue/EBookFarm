@@ -120,17 +120,17 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
-/* Telegram Button */
-.telegram-btn {
-  background-color: #229ED9;
+/* Zalo Button */
+.zalo-btn {
+  background-color: #0068ff;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 104, 255, 0.3);
 }
 
-.telegram-btn:hover {
-  background-color: #2CA5E0;
+.zalo-btn:hover {
+  background-color: #0084ff;
   transform: scale(1.1) !important;
-  box-shadow: 0 8px 20px rgba(34, 158, 217, 0.5);
+  box-shadow: 0 8px 20px rgba(0, 104, 255, 0.5);
 }
 
 /* Messenger Button */

@@ -369,16 +369,16 @@ const AIChatWidget = () => {
                             </button>
                         </Tooltip>
 
-                        {/* Telegram */}
-                        <Tooltip title="Liên hệ Telegram" placement="left">
+                        {/* Zalo */}
+                        <Tooltip title="Liên hệ Zalo" placement="left">
                             <a 
-                                href="https://t.me/ebookfarm" 
+                                href="https://zalo.me/0912345678" 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
-                                className="floating-btn telegram-btn"
+                                className="floating-btn zalo-btn"
                             >
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                    <path d="M9.78 18.65l.28-4.24 7.68-6.97c.33-.3-.07-.46-.5-.18L7.67 12.19l-4.1-1.28c-.89-.28-.91-.89.19-1.32l16.06-6.19c.74-.27 1.39.18 1.17 1.08l-2.73 12.87c-.2 1-.8 1.25-1.63.78l-4.16-3.07-2 1.93-.19.86z"/>
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 5.92 2 10.75c0 2.72 1.44 5.15 3.7 6.7a.82.82 0 01.3.62l-.08 1.95c-.02.43.43.76.84.6l2.25-.86a.83.83 0 01.48-.02c.8.2 1.63.31 2.51.31 5.52 0 10-3.92 10-8.75S17.52 2 12 2zm2.5 12h-5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h3.19L9.22 8.78A.75.75 0 019.75 7.5h5c.41 0 .75.34.75.75s-.34.75-.75.75h-3.19l3.47 3.72a.75.75 0 01-.53 1.28z"/>
                                 </svg>
                             </a>
                         </Tooltip>
