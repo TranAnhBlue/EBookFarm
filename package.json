@@ -4,8 +4,6 @@
   "description": "EBookFarm - Nông nghiệp số",
   "private": true,
   "workspaces": [
-    "backend",
-    "frontend",
     "mobile"
   ],
   "scripts": {
