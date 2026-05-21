@@ -1,7 +1,13 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
 // Initialize Gemini AI with API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Initialize Groq AI for robust fallback
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY || 'gsk_demo_key'
+});
 
 // System prompt for EBookFarm chatbot - Sử dụng kiến thức tổng hợp
 const SYSTEM_PROMPT = `Bạn là trợ lý AI thông minh của EBookFarm - Hệ thống quản lý nông trại và truy xuất nguồn gốc nông sản.
@@ -198,8 +204,8 @@ CHỈ khuyến khích liên hệ hotline khi:
 
 // Chat with Gemini AI
 const chatWithGemini = async (req, res) => {
+    const { message, conversationHistory = [] } = req.body;
     try {
-        const { message, conversationHistory = [] } = req.body;
 
         if (!message || message.trim() === '') {
             return res.status(400).json({
@@ -275,15 +281,63 @@ const chatWithGemini = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Gemini API Error:', error);
+        console.error('Gemini API Error, falling back to Groq:', error);
         
-        // Return fallback response if API fails
-        res.status(500).json({
-            success: false,
-            message: 'Có lỗi xảy ra khi xử lý yêu cầu',
-            error: error.message,
-            fallbackResponse: getFallbackResponse(req.body.message)
-        });
+        try {
+            // Build conversation messages for Groq format
+            const groqMessages = [
+                {
+                    role: 'system',
+                    content: SYSTEM_PROMPT
+                }
+            ];
+
+            // Add conversation history
+            conversationHistory.forEach(msg => {
+                groqMessages.push({
+                    role: msg.type === 'user' ? 'user' : 'assistant',
+                    content: msg.text
+                });
+            });
+
+            // Add current message
+            groqMessages.push({
+                role: 'user',
+                content: message
+            });
+
+            console.log('🤖 Using Groq Llama-3.1-8B fallback');
+            const completion = await groq.chat.completions.create({
+                model: 'llama-3.1-8b-instant',
+                messages: groqMessages,
+                max_tokens: 2048,
+                temperature: 0.9,
+                top_p: 0.95,
+                stream: false
+            });
+
+            const groqText = completion.choices[0].message.content;
+
+            res.json({
+                success: true,
+                message: 'Phản hồi thành công (Groq Fallback)',
+                data: {
+                    response: groqText,
+                    timestamp: new Date()
+                }
+            });
+        } catch (groqError) {
+            console.error('Groq Fallback Error:', groqError);
+            // If both fail, return standard fallback dictionary response
+            res.json({
+                success: true,
+                message: 'Phản hồi thành công (Offline Fallback)',
+                data: {
+                    response: getFallbackResponse(message),
+                    timestamp: new Date()
+                }
+            });
+        }
     }
 };
 

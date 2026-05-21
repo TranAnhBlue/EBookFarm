@@ -1,0 +1,29 @@
+{
+  "name": "ebookfarm-monorepo",
+  "version": "1.0.0",
+  "description": "EBookFarm - Nông nghiệp số",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "mobile"
+  ],
+  "scripts": {
+    "mobile": "cd mobile && npx expo start",
+    "mobile:android": "cd mobile && npx expo start --android",
+    "mobile:ios": "cd mobile && npx expo start --ios",
+    "mobile:web": "cd mobile && npx expo start --web",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../mobile && npm install"
+  },
+  "keywords": [
+    "agriculture",
+    "farming",
+    "vietgap",
+    "mobile",
+    "react-native"
+  ],
+  "author": "EBookFarm Team",
+  "license": "MIT"
+}
