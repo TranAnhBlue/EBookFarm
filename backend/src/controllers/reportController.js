@@ -97,7 +97,9 @@ const getDashboardStats = async (req, res) => {
         totalGroups,
         totalJournals,
         completedJournals,
+        verifiedJournals: completedJournals,
         pendingApprovalsCount,
+        pendingJournals: pendingApprovalsCount,
         inventoryCount,
         ...extraStats
       }

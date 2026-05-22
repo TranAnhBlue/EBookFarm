@@ -1,364 +1,647 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, Image, Dimensions, RefreshControl } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import api from '../api/api';
 import { useAuthStore } from '../store/authStore';
 
-const { width } = Dimensions.get('window');
+const FARM_DARK = '#27c65a';
+const FARM = '#27c65a';
+
+const ROLE_LABELS = {
+  Admin: 'Quản trị viên',
+  Farmer: 'Nông dân',
+  HTX: 'Hợp tác xã',
+  Htx: 'Hợp tác xã',
+  User: 'Thành viên',
+};
 
 export default function HomeScreen({ navigation }) {
   const [stats, setStats] = useState(null);
-  const [news, setNews] = useState([]);
-  const [invCount, setInvCount] = useState(0);
-  const [supplyPending, setSupplyPending] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [weatherInfo, setWeatherInfo] = useState({
+    temp: '--',
+    humidity: '--',
+    wind: '--',
+    condition: 'Đang cập nhật',
+    updatedAt: '--:--',
+  });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const user = useAuthStore((state) => state.user);
 
-  const fetchData = async () => {
+  const fetchWeather = useCallback(async () => {
     try {
-      const [statsRes, newsRes, invRes, supplyRes] = await Promise.all([
+      const location = encodeURIComponent(user?.province || 'Hanoi');
+      const response = await fetch(`https://wttr.in/${location}?format=j1&lang=vi`);
+      const data = await response.json();
+      const current = data?.current_condition?.[0];
+      const condition = current?.lang_vi?.[0]?.value || current?.weatherDesc?.[0]?.value || 'Có mây';
+
+      setWeatherInfo({
+        temp: current?.temp_C || '--',
+        humidity: current?.humidity || '--',
+        wind: current?.windspeedKmph || '--',
+        condition,
+        updatedAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      });
+    } catch (error) {
+      setWeatherInfo((prev) => ({ ...prev, condition: 'Có mây' }));
+    }
+  }, [user?.province]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [statsRes, notificationsRes] = await Promise.all([
         api.get('/reports/dashboard-stats'),
-        api.get('/news'),
-        api.get('/inventory').catch(() => ({ data: { data: [] } })),
-        api.get('/supply-requests').catch(() => ({ data: { data: [] } })),
+        api.get('/notifications'),
       ]);
 
       if (statsRes.data?.success) setStats(statsRes.data.data);
-      if (newsRes.data?.success)  setNews(newsRes.data.data.slice(0, 5));
-      if (invRes.data?.data)      setInvCount(invRes.data.data.length);
-      if (supplyRes.data?.data)   setSupplyPending(supplyRes.data.data.filter(r => r.status === 'Pending').length);
+      if (notificationsRes.data?.success) {
+        setUnreadCount(notificationsRes.data.unreadCount || 0);
+      }
     } catch (error) {
       console.error('Home Screen Fetch Error:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      fetchWeather();
+    }, [fetchData, fetchWeather])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
   };
 
-  const quickActions = [
-    { id: 'scan',      title: 'Tra cứu QR',     icon: 'maximize',       color: '#3b82f6', route: 'Scanner'   },
-    { id: 'journals',  title: 'Nhật ký',         icon: 'book',           color: '#16a34a', route: 'Journals'  },
-    { id: 'inventory', title: 'Kho vật tư',      icon: 'package',        color: '#f97316', route: 'Inventory' },
-    { id: 'supply',    title: 'Xin cấp vật tư',  icon: 'shopping-bag',   color: '#8b5cf6', route: 'Supply'    },
-    { id: 'ai',        title: 'Hỏi AI',          icon: 'cpu',            color: '#0891b2', route: 'AI'        },
+  const roleLabel = ROLE_LABELS[user?.role] || user?.role || 'Thành viên';
+  const normalizedStats = useMemo(() => ({
+    totalJournals: stats?.totalJournals || 0,
+    pendingJournals: stats?.pendingJournals ?? stats?.pendingApprovalsCount ?? 0,
+    verifiedJournals: stats?.verifiedJournals ?? stats?.completedJournals ?? 0,
+    inventoryCount: stats?.inventoryCount || 0,
+  }), [stats]);
+
+  const todayText = useMemo(() => (
+    new Date().toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+  ), []);
+
+  const sensors = [
+    { id: 'soilMoisture', label: 'Độ ẩm đất', value: '42%', status: 'Tốt', icon: 'droplet', color: '#3b82f6', bg: '#eff6ff' },
+    { id: 'soilTemp', label: 'Nhiệt độ đất', value: '24°C', status: 'Ổn định', icon: 'sun', color: '#f97316', bg: '#fff7ed' },
+    { id: 'drone', label: 'Drone phun thuốc', value: 'Sẵn sàng', status: 'Online', icon: 'wind', color: '#16a34a', bg: '#dcfce7' },
   ];
+
+  const sections = [
+    {
+      title: 'Thông báo và trạng thái',
+      items: [
+        {
+          id: 'notifications',
+          title: 'Thông báo',
+          icon: 'bell',
+          route: 'Notifications',
+          color: '#f59e0b',
+          iconBg: '#fff7ed',
+          badge: unreadCount > 0 ? (unreadCount > 99 ? '99+' : String(unreadCount)) : '',
+        },
+        {
+          id: 'journals',
+          title: 'Nhật ký',
+          icon: 'book-open',
+          route: 'Journals',
+          color: '#2563eb',
+          iconBg: '#eff6ff',
+          badge: String(normalizedStats.totalJournals),
+        },
+      ],
+    },
+    {
+      title: 'Truy cập thông tin',
+      items: [
+        {
+          id: 'inventory',
+          title: 'Kho vật tư',
+          icon: 'package',
+          route: 'Inventory',
+          color: '#0891b2',
+          iconBg: '#ecfeff',
+          badge: String(normalizedStats.inventoryCount),
+        },
+        {
+          id: 'supply',
+          title: 'Xin cấp vật tư',
+          icon: 'shopping-bag',
+          route: 'Supply',
+          color: '#dc2626',
+          iconBg: '#fef2f2',
+        },
+        {
+          id: 'productionTech',
+          title: 'Tài liệu kỹ thuật',
+          icon: 'file-text',
+          route: 'ProductionTech',
+          color: '#7c3aed',
+          iconBg: '#f5f3ff',
+        },
+        {
+          id: 'tcvn',
+          title: 'Tiêu chuẩn TCVN',
+          icon: 'award',
+          route: 'TCVN',
+          color: '#ca8a04',
+          iconBg: '#fefce8',
+        },
+      ],
+    },
+    {
+      title: 'Báo cáo',
+      items: [
+        {
+          id: 'trace',
+          title: 'Truy xuất QR',
+          icon: 'grid',
+          route: 'Scanner',
+          color: '#16a34a',
+          iconBg: '#ddfbea',
+        },
+        {
+          id: 'ai',
+          title: 'Hỏi AI',
+          icon: 'cpu',
+          route: 'AI',
+          color: '#9333ea',
+          iconBg: '#faf5ff',
+        },
+        {
+          id: 'pending',
+          title: 'Chờ duyệt',
+          icon: 'clock',
+          route: 'Journals',
+          color: '#f97316',
+          iconBg: '#fff7ed',
+          badge: String(normalizedStats.pendingJournals),
+        },
+        {
+          id: 'verified',
+          title: 'Đã duyệt',
+          icon: 'check-square',
+          route: 'Journals',
+          color: '#16a34a',
+          iconBg: '#dcfce7',
+          badge: String(normalizedStats.verifiedJournals),
+        },
+      ],
+    },
+  ];
+
+  const renderCard = (item) => (
+    <TouchableOpacity
+      key={item.id}
+      style={styles.featureCard}
+      activeOpacity={0.84}
+      onPress={() => navigation.navigate(item.route)}
+    >
+      {!!item.badge && (
+        <View style={styles.cardBadge}>
+          <Text style={styles.cardBadgeText}>{item.badge}</Text>
+        </View>
+      )}
+      <View style={[styles.featureIcon, { backgroundColor: item.iconBg }]}>
+        <Feather name={item.icon} size={26} color={item.color} />
+      </View>
+      <Text style={styles.featureTitle} numberOfLines={2}>{item.title}</Text>
+    </TouchableOpacity>
+  );
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#16a34a" />
       </View>
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      {/* Upper Header Block */}
-      <View style={styles.headerBlock}>
-        <View style={styles.welcomeRow}>
-          <View>
-            <Text style={styles.welcomeText}>Xin chào,</Text>
-            <Text style={styles.userName}>{user?.fullname || user?.username || 'Nông dân'}</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.profileRow}>
+          <View style={styles.avatarFrame}>
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>
+                {(user?.fullname || user?.username || 'U')[0].toUpperCase()}
+              </Text>
+            )}
           </View>
-          <View style={styles.notificationBadge}>
-            <Feather name="bell" size={24} color="#1e293b" />
-          </View>
-        </View>
 
-        {/* Dynamic Weather Card */}
-        <View style={styles.weatherCard}>
-          <View>
-            <Text style={styles.tempText}>31°C</Text>
-            <Text style={styles.weatherCondition}>Nắng nhẹ • Thời tiết tốt cho thu hoạch</Text>
+          <View style={styles.profileText}>
+            <Text style={styles.name} numberOfLines={1}>
+              {user?.fullname || user?.username || 'EBookFarm'}
+            </Text>
+            <Text style={styles.org} numberOfLines={1}>
+              {user?.organization || roleLabel}
+            </Text>
           </View>
-          <Feather name="sun" size={40} color="#fbbf24" />
-        </View>
-      </View>
 
-      {/* Main Content Area */}
-      <View style={styles.content}>
-        {/* Stats Section */}
-        <Text style={styles.sectionTitle}>Tổng quan sản xuất</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{stats?.totalJournals || 0}</Text>
-            <Text style={styles.statLabel}>Tổng nhật ký</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftWidth: 1, borderLeftColor: '#f1f5f9' }]}>
-            <Text style={[styles.statNumber, { color: '#16a34a' }]}>{stats?.completedJournals || 0}</Text>
-            <Text style={styles.statLabel}>Hoàn thành</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftWidth: 1, borderLeftColor: '#f1f5f9' }]}>
-            <Text style={[styles.statNumber, { color: '#f97316' }]}>{invCount}</Text>
-            <Text style={styles.statLabel}>Loại vật tư</Text>
-          </View>
-          <View style={[styles.statBox, { borderLeftWidth: 1, borderLeftColor: '#f1f5f9' }]}>
-            <Text style={[styles.statNumber, { color: '#8b5cf6' }]}>{supplyPending}</Text>
-            <Text style={styles.statLabel}>Đơn chờ</Text>
-          </View>
-        </View>
-
-        {/* Quick Actions Grid */}
-        <Text style={styles.sectionTitle}>Lối tắt nhanh</Text>
-        <View style={styles.actionsGrid}>
-          {quickActions.map(action => (
-            <TouchableOpacity
-              key={action.id}
-              style={styles.actionButton}
-              onPress={() => navigation.navigate(action.route)}
-            >
-              <View style={[styles.actionIconContainer, { backgroundColor: action.color + '15' }]}>
-                <Feather name={action.icon} size={24} color={action.color} />
-              </View>
-              <Text style={styles.actionText}>{action.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* News Feed Horizontal Section */}
-        <View style={styles.newsHeader}>
-          <Text style={styles.sectionTitle}>Tin tức nông nghiệp mới nhất</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('NewsList')}>
-            <Text style={styles.viewAllText}>Xem tất cả</Text>
+          <TouchableOpacity
+            style={styles.headerBell}
+            onPress={() => navigation.navigate('Notifications')}
+            activeOpacity={0.8}
+          >
+            <Feather name="bell" size={23} color="#fff" />
+            {unreadCount > 0 && <View style={styles.headerBellDot} />}
           </TouchableOpacity>
         </View>
-        
-        {news.length === 0 ? (
-          <Text style={styles.emptyText}>Chưa có tin tức nào được cập nhật.</Text>
-        ) : (
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={news}
-            keyExtractor={item => item._id}
-            renderItem={({ item }) => (
-              <TouchableOpacity 
-                style={styles.newsCard}
-                onPress={() => navigation.navigate('NewsDetail', { newsId: item._id })}
-              >
-                <Image 
-                  source={{ uri: item.image || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=500' }} 
-                  style={styles.newsImage} 
-                />
-                <View style={styles.newsContent}>
-                  <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
-                  <Text style={styles.newsMeta}>
-                    {new Date(item.publishedAt || item.createdAt).toLocaleDateString('vi-VN')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={styles.newsList}
-          />
-        )}
-
-        <View style={{ height: 40 }} />
       </View>
-    </ScrollView>
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#16a34a']} />}
+      >
+        <View style={styles.overview}>
+          <Text style={styles.overviewTitle} numberOfLines={1}>
+            Theo dõi nông trại hôm nay
+          </Text>
+          <Text style={styles.todayText}>{todayText}</Text>
+
+          <View style={styles.weatherCard}>
+            <View style={styles.weatherTop}>
+              <View style={styles.liveBadge}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveText}>Trực tiếp</Text>
+              </View>
+              <Text style={styles.weatherUpdated}>Cập nhật {weatherInfo.updatedAt}</Text>
+            </View>
+            <View style={styles.weatherBody}>
+              <View style={styles.weatherMain}>
+                <Feather name="cloud" size={38} color="#60a5fa" />
+                <View>
+                  <Text style={styles.weatherTemp}>{weatherInfo.temp}°</Text>
+                  <Text style={styles.weatherCondition} numberOfLines={1}>{weatherInfo.condition}</Text>
+                </View>
+              </View>
+              <View style={styles.weatherStats}>
+                <View style={styles.weatherMini}>
+                  <Feather name="droplet" size={14} color="#3b82f6" />
+                  <Text style={styles.weatherMiniLabel}>Độ ẩm</Text>
+                  <Text style={styles.weatherMiniValue}>{weatherInfo.humidity}%</Text>
+                </View>
+                <View style={styles.weatherMini}>
+                  <Feather name="wind" size={14} color="#16a34a" />
+                  <Text style={styles.weatherMiniLabel}>Gió</Text>
+                  <Text style={styles.weatherMiniValue}>{weatherInfo.wind} km/h</Text>
+                </View>
+              </View>
+            </View>
+
+            <Text style={styles.sensorTitle}>Trạm cảm biến IoT</Text>
+            <View style={styles.sensorGrid}>
+              {sensors.map((sensor) => (
+                <View key={sensor.id} style={styles.sensorCard}>
+                  <View style={[styles.sensorIcon, { backgroundColor: sensor.bg }]}>
+                    <Feather name={sensor.icon} size={15} color={sensor.color} />
+                  </View>
+                  <Text style={styles.sensorLabel} numberOfLines={1}>{sensor.label}</Text>
+                  <Text style={styles.sensorValue} numberOfLines={1}>{sensor.value}</Text>
+                  <Text style={styles.sensorStatus}>{sensor.status}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+        </View>
+
+        {sections.map((section) => (
+          <View key={section.title} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <View style={styles.grid}>
+              {section.items.map(renderCard)}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f6fbf7',
   },
-  loaderContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f6fbf7',
   },
-  headerBlock: {
-    backgroundColor: '#fff',
+  header: {
+    backgroundColor: FARM_DARK,
     paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 25,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 15,
-    elevation: 4,
+    paddingTop: 42,
+    paddingBottom: 14,
   },
-  welcomeRow: {
+  profileRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  welcomeText: {
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '500',
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginTop: 2,
-  },
-  notificationBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#f1f5f9',
+  avatarFrame: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+    marginRight: 12,
+  },
+  avatarImage: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+  },
+  avatarText: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: FARM_DARK,
+  },
+  profileText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  name: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '900',
+    lineHeight: 23,
+  },
+  org: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  headerBell: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  headerBellDot: {
+    position: 'absolute',
+    top: 8,
+    right: 9,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: '#ef4444',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 16,
+    paddingBottom: 96,
+  },
+  overview: {
+    paddingHorizontal: 16,
+    marginBottom: 18,
+  },
+  overviewTitle: {
+    color: '#111827',
+    fontSize: 17,
+    fontWeight: '900',
+    lineHeight: 22,
+  },
+  todayText: {
+    color: '#64748b',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+    marginBottom: 12,
   },
   weatherCard: {
-    backgroundColor: '#ecfdf5',
-    borderRadius: 20,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: '#f0fdf4',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#dcfce7',
+    shadowColor: '#bbf7d0',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.28,
+    shadowRadius: 16,
+    elevation: 2,
   },
-  tempText: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#065f46',
+  weatherTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#22c55e',
+  },
+  liveText: {
+    color: '#166534',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  weatherUpdated: {
+    color: '#94a3b8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  weatherBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 14,
+  },
+  weatherMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minWidth: 0,
+  },
+  weatherTemp: {
+    color: '#111827',
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: '900',
   },
   weatherCondition: {
-    fontSize: 13,
-    color: '#047857',
+    color: '#374151',
+    fontSize: 12,
+    fontWeight: '800',
+    maxWidth: 115,
+  },
+  weatherStats: {
+    width: 112,
+    gap: 8,
+  },
+  weatherMini: {
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  weatherMiniLabel: {
+    color: '#94a3b8',
+    fontSize: 10,
+    fontWeight: '800',
     marginTop: 2,
-    fontWeight: '500',
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  weatherMiniValue: {
+    color: '#111827',
+    fontSize: 12,
+    fontWeight: '900',
+    marginTop: 1,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginBottom: 15,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 5,
-    elevation: 2,
-    marginBottom: 25,
-  },
-  statBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  statLabel: {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 25,
-  },
-  actionButton: {
-    width: '18%',
-    flexGrow: 1,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 6,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  actionIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+  sensorTitle: {
+    color: '#94a3b8',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
     marginBottom: 8,
   },
-  actionText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#334155',
-    textAlign: 'center',
-  },
-  newsHeader: {
+  sensorGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
+  },
+  sensorCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.72)',
+    borderRadius: 13,
+    padding: 9,
+    minWidth: 0,
+  },
+  sensorIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 9,
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'center',
+    marginBottom: 7,
   },
-  viewAllText: {
-    fontSize: 14,
-    fontWeight: '600',
+  sensorLabel: {
+    color: '#64748b',
+    fontSize: 10,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  sensorValue: {
+    color: '#111827',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  sensorStatus: {
     color: '#16a34a',
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    marginTop: 3,
   },
-  newsList: {
-    paddingRight: 20,
+  section: {
+    marginBottom: 18,
   },
-  newsCard: {
-    width: width * 0.65,
+  sectionTitle: {
+    marginHorizontal: 22,
+    marginBottom: 10,
+    color: '#159447',
+    fontSize: 13,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 0,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  featureCard: {
+    width: '48%',
+    minHeight: 116,
     backgroundColor: '#fff',
-    borderRadius: 20,
-    marginRight: 15,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 5,
-    elevation: 2,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+    marginBottom: 12,
+    shadowColor: '#a7c7b1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.10,
+    shadowRadius: 16,
+    elevation: 3,
   },
-  newsImage: {
-    width: '100%',
-    height: 120,
+  featureIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  newsContent: {
-    padding: 12,
-  },
-  newsTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    lineHeight: 20,
-    marginBottom: 6,
-  },
-  newsMeta: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '500',
-  },
-  emptyText: {
-    color: '#94a3b8',
-    fontStyle: 'italic',
+  featureTitle: {
+    color: '#343b4a',
+    fontSize: 13,
+    lineHeight: 17,
+    fontWeight: '800',
     textAlign: 'center',
-    marginVertical: 10,
-  }
+  },
+  cardBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    paddingHorizontal: 6,
+    backgroundColor: FARM,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '900',
+  },
 });

@@ -103,7 +103,8 @@ export default function ChangePasswordScreen({ navigation }) {
                 style={styles.input}
                 value={formData.currentPassword}
                 onChangeText={(text) => setFormData({ ...formData, currentPassword: text })}
-                placeholder="Nhập mật khẩu hiện tại"
+                placeholder="Nhập mật khẩu đang sử dụng"
+                placeholderTextColor="#9ca3af"
                 secureTextEntry={!showCurrentPassword}
               />
               <TouchableOpacity
@@ -129,7 +130,8 @@ export default function ChangePasswordScreen({ navigation }) {
                 style={styles.input}
                 value={formData.newPassword}
                 onChangeText={(text) => setFormData({ ...formData, newPassword: text })}
-                placeholder="Nhập mật khẩu mới"
+                placeholder="Tối thiểu 6 ký tự, nên có chữ và số"
+                placeholderTextColor="#9ca3af"
                 secureTextEntry={!showNewPassword}
               />
               <TouchableOpacity
@@ -154,7 +156,8 @@ export default function ChangePasswordScreen({ navigation }) {
                 style={styles.input}
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-                placeholder="Nhập lại mật khẩu mới"
+                placeholder="Nhập lại mật khẩu để xác nhận"
+                placeholderTextColor="#9ca3af"
                 secureTextEntry={!showConfirmPassword}
               />
               <TouchableOpacity
@@ -202,11 +205,11 @@ export default function ChangePasswordScreen({ navigation }) {
           <Text style={styles.cancelButtonText}>Hủy bỏ</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.submitButton, updateMutation.isLoading && styles.submitButtonDisabled]}
+          style={[styles.submitButton, updateMutation.isPending && styles.submitButtonDisabled]}
           onPress={handleSubmit}
-          disabled={updateMutation.isLoading}
+          disabled={updateMutation.isPending}
         >
-          {updateMutation.isLoading ? (
+          {updateMutation.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>

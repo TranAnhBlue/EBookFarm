@@ -9,16 +9,22 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuthStore } from '../store/authStore';
 import api from '../api/api';
-import * as ImagePicker from 'expo-image-picker';
+
+const GENDERS = ['Nam', 'Nữ', 'Khác'];
+const FARM_TYPES = ['Trồng trọt', 'Chăn nuôi', 'Thủy sản', 'Hỗn hợp'];
 
 export default function AccountInfoScreen({ navigation }) {
   const { user, setUser } = useAuthStore();
   const queryClient = useQueryClient();
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [formData, setFormData] = useState({
     fullname: user?.fullname || '',
@@ -28,25 +34,87 @@ export default function AccountInfoScreen({ navigation }) {
     ward: user?.ward || '',
     organization: user?.organization || '',
     bio: user?.bio || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    gender: user?.gender || '',
     farmName: user?.farmName || '',
     farmCode: user?.farmCode || '',
-    farmArea: user?.farmArea || '',
+    farmArea: user?.farmArea ? String(user.farmArea) : '',
+    farmType: user?.farmType || '',
   });
+
+  const canEditPhone = ['Admin', 'HTX', 'Htx'].includes(user?.role);
+  const isFarmerLike = ['Farmer', 'User'].includes(user?.role);
 
   const updateMutation = useMutation({
-    mutationFn: (values) => api.put('/users/profile', values),
-    onSuccess: (res) => {
+    mutationFn: (values) => {
+      const updateData = {
+        ...values,
+        farmArea: values.farmArea === '' ? '' : Number(values.farmArea),
+      };
+      return api.put('/users/profile', updateData);
+    },
+    onSuccess: async (res) => {
       const updatedUser = res.data.data;
-      setUser(updatedUser);
+      await setUser(updatedUser);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       Alert.alert('Thành công', 'Cập nhật hồ sơ thành công!');
-      queryClient.invalidateQueries(['users']);
     },
     onError: (err) => {
-      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ!');
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra khi lưu hồ sơ.');
     },
   });
 
+  const updateField = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateProfile = () => {
+    const errors = [];
+    const fullname = formData.fullname.trim();
+    const phone = formData.phone.trim();
+    const farmArea = formData.farmArea.trim();
+
+    if (!fullname) errors.push('Họ và tên là bắt buộc.');
+    if (fullname && fullname.length < 2) errors.push('Họ và tên cần có ít nhất 2 ký tự.');
+    if (phone && !/^[0-9]{10,11}$/.test(phone)) errors.push('Số điện thoại phải gồm 10-11 chữ số.');
+
+    if (farmArea) {
+      const numericArea = Number(farmArea.replace(',', '.'));
+      if (Number.isNaN(numericArea) || numericArea < 0) {
+        errors.push('Diện tích nông trại phải là số không âm.');
+      }
+    }
+
+    if (formData.dateOfBirth) {
+      const birthDate = new Date(formData.dateOfBirth);
+      if (Number.isNaN(birthDate.getTime())) errors.push('Ngày sinh không hợp lệ.');
+      if (birthDate > new Date()) errors.push('Ngày sinh không được lớn hơn ngày hiện tại.');
+    }
+
+    return errors;
+  };
+
+  const handleSaveProfile = () => {
+    const errors = validateProfile();
+    if (errors.length > 0) {
+      Alert.alert('Thông tin chưa hợp lệ', errors.join('\n'));
+      return;
+    }
+    updateMutation.mutate({
+      ...formData,
+      fullname: formData.fullname.trim(),
+      phone: formData.phone.trim(),
+      farmArea: formData.farmArea.trim(),
+    });
+  };
+
   const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Cần quyền truy cập', 'Vui lòng cho phép truy cập thư viện ảnh để đổi ảnh đại diện.');
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -54,31 +122,90 @@ export default function AccountInfoScreen({ navigation }) {
       quality: 0.8,
     });
 
-    if (!result.canceled) {
-      // Upload avatar logic here
-      Alert.alert('Thông báo', 'Chức năng upload ảnh đang được phát triển');
+    if (result.canceled) return;
+
+    try {
+      const asset = result.assets[0];
+      const body = new FormData();
+      body.append('avatar', {
+        uri: asset.uri,
+        name: asset.fileName || `avatar-${Date.now()}.jpg`,
+        type: asset.mimeType || 'image/jpeg',
+      });
+
+      const { data } = await api.post('/upload/avatar', body, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (data.success) {
+        await setUser({ ...user, avatar: data.data.avatar });
+        Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', error.response?.data?.message || 'Không thể tải ảnh đại diện lên.');
     }
   };
 
-  const handleSave = () => {
-    updateMutation.mutate(formData);
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (event.type === 'set' && selectedDate) {
+      updateField('dateOfBirth', selectedDate.toISOString());
+    }
+    if (Platform.OS === 'android') setShowDatePicker(false);
   };
 
-  const canEditPhone = ['Admin', 'HTX'].includes(user?.role);
+  const formatDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('vi-VN');
+  };
+
+  const renderInput = ({ label, field, placeholder, keyboardType = 'default', multiline = false, editable = true }) => (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        style={[styles.input, multiline && styles.textArea, !editable && styles.inputDisabled]}
+        value={formData[field]}
+        onChangeText={(text) => updateField(field, text)}
+        placeholder={placeholder}
+        placeholderTextColor="#9ca3af"
+        keyboardType={keyboardType}
+        multiline={multiline}
+        numberOfLines={multiline ? 3 : 1}
+        editable={editable}
+      />
+    </View>
+  );
+
+  const renderChoices = (field, values) => (
+    <View style={styles.choiceRow}>
+      {values.map((value) => {
+        const active = formData[field] === value;
+        return (
+          <TouchableOpacity
+            key={value}
+            style={[styles.choiceChip, active && styles.choiceChipActive]}
+            onPress={() => updateField(field, value)}
+          >
+            <Text style={[styles.choiceText, active && styles.choiceTextActive]}>{value}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
           <Feather name="arrow-left" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thông tin tài khoản</Text>
-        <View style={{ width: 40 }} />
+        <View style={styles.headerButton} />
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Avatar Section */}
+      <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
         <View style={styles.avatarSection}>
           <View style={styles.avatarContainer}>
             {user?.avatar ? (
@@ -94,151 +221,92 @@ export default function AccountInfoScreen({ navigation }) {
               <Feather name="camera" size={16} color="#fff" />
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName}>{user?.fullname || user?.username}</Text>
-          <Text style={styles.userRole}>
-            {user?.role === 'Admin' ? 'Quản trị viên' : 
-             user?.role === 'Farmer' ? 'Nông dân' : 
-             user?.role === 'HTX' ? 'Hợp tác xã' : 
-             user?.role}
-          </Text>
+          <Text style={styles.userName} numberOfLines={1}>{user?.fullname || user?.username}</Text>
+          <Text style={styles.userRole}>{user?.role || 'User'}</Text>
         </View>
 
-        {/* Form Section */}
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Họ và tên *</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.fullname}
-              onChangeText={(text) => setFormData({ ...formData, fullname: text })}
-              placeholder="Nhập họ và tên"
-            />
-          </View>
+          {renderInput({ label: 'Họ và tên *', field: 'fullname', placeholder: 'Ví dụ: Nguyễn Văn A' })}
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.input, styles.inputDisabled]}
-              value={user?.email}
-              editable={false}
-            />
+            <TextInput style={[styles.input, styles.inputDisabled]} value={user?.email || ''} editable={false} />
+          </View>
+
+          {renderInput({
+            label: 'Số điện thoại',
+            field: 'phone',
+            placeholder: 'Ví dụ: 0901234567',
+            keyboardType: 'phone-pad',
+            editable: canEditPhone,
+          })}
+          {renderInput({ label: 'Tổ chức/Công ty', field: 'organization', placeholder: 'Ví dụ: HTX Nông nghiệp ABC' })}
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Ngày sinh</Text>
+            <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+              <Feather name="calendar" size={18} color="#64748b" />
+              <Text style={[styles.dateText, formData.dateOfBirth && styles.dateTextFilled]}>
+                {formatDate(formData.dateOfBirth) || 'Chọn ngày sinh'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Số điện thoại</Text>
-            <TextInput
-              style={[styles.input, !canEditPhone && styles.inputDisabled]}
-              value={formData.phone}
-              onChangeText={(text) => setFormData({ ...formData, phone: text })}
-              placeholder="Nhập số điện thoại"
-              keyboardType="phone-pad"
-              editable={canEditPhone}
-            />
+            <Text style={styles.label}>Giới tính</Text>
+            {renderChoices('gender', GENDERS)}
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Tổ chức/Công ty</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.organization}
-              onChangeText={(text) => setFormData({ ...formData, organization: text })}
-              placeholder="Nhập tên tổ chức"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Giới thiệu ngắn</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.bio}
-              onChangeText={(text) => setFormData({ ...formData, bio: text })}
-              placeholder="Viết vài dòng về bạn..."
-              multiline
-              numberOfLines={3}
-            />
-          </View>
+          {renderInput({
+            label: 'Giới thiệu ngắn',
+            field: 'bio',
+            placeholder: 'Ví dụ: Nông dân có 10 năm kinh nghiệm trồng lúa...',
+            multiline: true,
+          })}
 
           <Text style={styles.sectionTitle}>Địa chỉ</Text>
+          {renderInput({ label: 'Tỉnh/Thành phố', field: 'province', placeholder: 'Ví dụ: An Giang, Hà Nội...' })}
+          {renderInput({ label: 'Phường/Xã', field: 'ward', placeholder: 'Ví dụ: Xã Tân Phú...' })}
+          {renderInput({ label: 'Địa chỉ chi tiết', field: 'address', placeholder: 'Ví dụ: 123 Đường ABC' })}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Tỉnh/Thành phố</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.province}
-              onChangeText={(text) => setFormData({ ...formData, province: text })}
-              placeholder="Nhập tỉnh/thành phố"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phường/Xã</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.ward}
-              onChangeText={(text) => setFormData({ ...formData, ward: text })}
-              placeholder="Nhập phường/xã"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Địa chỉ chi tiết</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.address}
-              onChangeText={(text) => setFormData({ ...formData, address: text })}
-              placeholder="Nhập địa chỉ chi tiết"
-            />
-          </View>
-
-          {['Farmer', 'User'].includes(user?.role) && (
+          {isFarmerLike && (
             <>
               <Text style={styles.sectionTitle}>Thông tin nông trại</Text>
-
+              {renderInput({ label: 'Tên nông trại', field: 'farmName', placeholder: 'Ví dụ: Nông trại Xanh' })}
+              {renderInput({ label: 'Mã nông trại', field: 'farmCode', placeholder: 'Ví dụ: NT001' })}
+              {renderInput({
+                label: 'Diện tích (m²)',
+                field: 'farmArea',
+                placeholder: 'Ví dụ: 5000',
+                keyboardType: 'numeric',
+              })}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Tên nông trại</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.farmName}
-                  onChangeText={(text) => setFormData({ ...formData, farmName: text })}
-                  placeholder="Nhập tên nông trại"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Mã nông trại</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.farmCode}
-                  onChangeText={(text) => setFormData({ ...formData, farmCode: text })}
-                  placeholder="Nhập mã nông trại"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Diện tích (m²)</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.farmArea}
-                  onChangeText={(text) => setFormData({ ...formData, farmArea: text })}
-                  placeholder="Nhập diện tích"
-                  keyboardType="numeric"
-                />
+                <Text style={styles.label}>Loại hình</Text>
+                {renderChoices('farmType', FARM_TYPES)}
               </View>
             </>
           )}
         </View>
       </ScrollView>
 
-      {/* Save Button */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : new Date(1990, 0, 1)}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          maximumDate={new Date()}
+          onChange={handleDateChange}
+        />
+      )}
+
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.saveButton, updateMutation.isLoading && styles.saveButtonDisabled]}
-          onPress={handleSave}
-          disabled={updateMutation.isLoading}
+          style={[styles.saveButton, updateMutation.isPending && styles.saveButtonDisabled]}
+          onPress={handleSaveProfile}
+          disabled={updateMutation.isPending}
         >
-          {updateMutation.isLoading ? (
+          {updateMutation.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
@@ -255,102 +323,106 @@ export default function AccountInfoScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
+    paddingTop: 56,
+    paddingBottom: 14,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: '#eef2f7',
   },
-  backButton: {
+  headerButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: '#1f2937',
   },
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: 24,
+  },
   avatarSection: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 28,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: '#eef2f7',
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
   },
   avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#22c55e',
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#16a34a',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 40,
-    fontWeight: '700',
+    fontSize: 34,
+    fontWeight: '800',
     color: '#fff',
   },
   cameraButton: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#22c55e',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#16a34a',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
     borderColor: '#fff',
   },
   userName: {
-    fontSize: 24,
-    fontWeight: '700',
+    maxWidth: '86%',
+    fontSize: 22,
+    fontWeight: '800',
     color: '#1f2937',
     marginBottom: 4,
   },
   userRole: {
-    fontSize: 14,
-    color: '#22c55e',
-    fontWeight: '600',
+    fontSize: 13,
+    color: '#16a34a',
+    fontWeight: '700',
   },
   formSection: {
-    padding: 20,
+    padding: 18,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: '#1f2937',
-    marginTop: 24,
-    marginBottom: 16,
+    marginTop: 18,
+    marginBottom: 14,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: '#374151',
     marginBottom: 8,
   },
@@ -359,40 +431,84 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: 15,
     color: '#1f2937',
   },
   inputDisabled: {
-    backgroundColor: '#f9fafb',
-    color: '#9ca3af',
+    backgroundColor: '#f1f5f9',
+    color: '#94a3b8',
   },
   textArea: {
-    height: 80,
+    minHeight: 88,
     textAlignVertical: 'top',
+  },
+  dateButton: {
+    minHeight: 48,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dateText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#9ca3af',
+  },
+  dateTextFilled: {
+    color: '#1f2937',
+  },
+  choiceRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  choiceChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  choiceChipActive: {
+    backgroundColor: '#dcfce7',
+    borderColor: '#16a34a',
+  },
+  choiceText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748b',
+  },
+  choiceTextActive: {
+    color: '#15803d',
   },
   footer: {
     padding: 16,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: '#eef2f7',
   },
   saveButton: {
+    minHeight: 50,
+    borderRadius: 12,
+    backgroundColor: '#16a34a',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#22c55e',
-    paddingVertical: 16,
-    borderRadius: 12,
   },
   saveButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.65,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
   },
 });

@@ -13,7 +13,7 @@ const categories = [
   {
     id: 'trong-trot',
     title: 'Kỹ thuật Trồng trọt',
-    icon: 'leaf',
+    icon: 'layers',
     color: '#22c55e',
     bgColor: '#dcfce7',
     docs: [

@@ -16,6 +16,8 @@ const STATUS_CFG = {
   Rejected: { label: 'Từ chối',   color: '#ef4444', bg: '#fef2f2', icon: 'x-circle' },
 };
 
+const UNITS = ['kg', 'lít', 'bao', 'gói', 'lọ', 'chai', 'viên'];
+
 export default function SupplyScreen() {
   const user = useAuthStore((state) => state.user);
 
@@ -27,7 +29,7 @@ export default function SupplyScreen() {
   // HTX Request modal
   const [htxModal, setHtxModal]   = useState(false);
   const [htxList, setHtxList]     = useState([]);
-  const [items, setItems]         = useState([{ itemName: '', category: '', quantity: '', unit: '' }]);
+  const [items, setItems]         = useState([{ itemName: '', category: 'Khác', quantity: '', unit: 'kg' }]);
   const [reason, setReason]       = useState('');
   const [selectedHtx, setSelectedHtx] = useState('');
   const [submitting, setSubmitting]   = useState(false);
@@ -83,7 +85,7 @@ export default function SupplyScreen() {
   const pending  = requests.filter(r => r.status === 'Pending').length;
 
   // ── Add item row ──
-  const addItemRow = () => setItems(p => [...p, { itemName: '', category: '', quantity: '', unit: '' }]);
+  const addItemRow = () => setItems(p => [...p, { itemName: '', category: 'Khác', quantity: '', unit: 'kg' }]);
   const removeItemRow = (idx) => setItems(p => p.filter((_, i) => i !== idx));
   const updateItem = (idx, field, val) =>
     setItems(p => p.map((it, i) => i === idx ? { ...it, [field]: val } : it));
@@ -91,19 +93,26 @@ export default function SupplyScreen() {
   // ── Submit HTX Request ──
   const handleHtxSubmit = async () => {
     if (!selectedHtx) { Alert.alert('Lỗi', 'Bạn chưa được gán vào HTX nào.'); return; }
-    const invalid = items.some(i => !i.itemName || !i.category || !i.quantity);
+    const normalizedItems = items.map(i => ({
+      ...i,
+      itemName: i.itemName.trim(),
+      category: i.category.trim(),
+      unit: i.unit.trim(),
+      quantity: Number(String(i.quantity).replace(',', '.')),
+    }));
+    const invalid = normalizedItems.some(i => !i.itemName || !i.category || !i.unit || Number.isNaN(i.quantity) || i.quantity <= 0);
     if (invalid) { Alert.alert('Thiếu thông tin', 'Vui lòng điền đầy đủ vật tư cần xin.'); return; }
     setSubmitting(true);
     try {
       const { data } = await api.post('/supply-requests', {
         htxId: selectedHtx,
-        reason,
-        items: items.map(i => ({ ...i, quantity: Number(i.quantity) })),
+        reason: reason.trim(),
+        items: normalizedItems,
       });
       if (data.success) {
         Alert.alert('Thành công', 'Đã gửi đơn yêu cầu tới HTX!');
         setHtxModal(false);
-        setItems([{ itemName: '', category: '', quantity: '', unit: '' }]);
+        setItems([{ itemName: '', category: 'Khác', quantity: '', unit: 'kg' }]);
         setReason('');
         fetchRequests();
       }
@@ -116,7 +125,13 @@ export default function SupplyScreen() {
 
   // ── Submit External ──
   const handleExtSubmit = async () => {
-    if (!extForm.name || !extForm.category || !extForm.quantity || !extForm.unit) {
+    const normalizedExt = {
+      itemName: extForm.name.trim(),
+      category: extForm.category.trim(),
+      quantity: Number(String(extForm.quantity).replace(',', '.')),
+      unit: extForm.unit.trim(),
+    };
+    if (!normalizedExt.itemName || !normalizedExt.category || !normalizedExt.unit || Number.isNaN(normalizedExt.quantity) || normalizedExt.quantity <= 0) {
       Alert.alert('Thiếu thông tin', 'Vui lòng điền đầy đủ thông tin vật tư.');
       return;
     }
@@ -128,7 +143,7 @@ export default function SupplyScreen() {
         htxId,
         reason: 'Khai báo vật tư mua ngoài (Tự túc)',
         isExternalPurchase: true,
-        items: [{ itemName: extForm.name, category: extForm.category, quantity: Number(extForm.quantity), unit: extForm.unit }],
+        items: [normalizedExt],
       });
       Alert.alert('Thành công', 'Đã gửi khai báo mua ngoài! Chờ HTX phê duyệt.');
       setExtModal(false);
@@ -249,7 +264,12 @@ export default function SupplyScreen() {
       </View>
 
       {/* Filter chips */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.chipScroll}
+        contentContainerStyle={styles.chipContent}
+      >
         {['all', 'Pending', 'Approved', 'Rejected'].map(s => (
           <TouchableOpacity
             key={s}
@@ -453,33 +473,42 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
 
   header: {
-    padding: 20, paddingTop: 50, backgroundColor: '#fff',
+    paddingHorizontal: 20, paddingTop: 44, paddingBottom: 16, backgroundColor: '#fff',
     borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1e293b' },
   headerSub:   { fontSize: 12, color: '#94a3b8', marginTop: 3 },
 
-  statsRow: { flexDirection: 'row', padding: 14, gap: 14 },
-  statCard: { flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
-  statNum:  { fontSize: 30, fontWeight: 'bold', color: '#1e293b' },
+  statsRow: { flexDirection: 'row', paddingHorizontal: 14, paddingVertical: 12, gap: 12 },
+  statCard: { flex: 1, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
+  statNum:  { fontSize: 24, fontWeight: 'bold', color: '#1e293b' },
   statLbl:  { fontSize: 12, color: '#64748b', marginTop: 2, fontWeight: '500' },
 
-  actionsBtnRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 14, marginBottom: 10 },
+  actionsBtnRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 14, marginBottom: 8 },
   extBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    borderWidth: 1.5, borderColor: '#f97316', borderRadius: 12, paddingVertical: 12,
+    borderWidth: 1.3, borderColor: '#f97316', borderRadius: 12, paddingVertical: 10,
     backgroundColor: '#fff7ed',
   },
-  extBtnText: { color: '#f97316', fontWeight: 'bold', fontSize: 13 },
+  extBtnText: { color: '#f97316', fontWeight: 'bold', fontSize: 12 },
   htxBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: '#16a34a', borderRadius: 12, paddingVertical: 12,
+    backgroundColor: '#16a34a', borderRadius: 12, paddingVertical: 10,
     shadowColor: '#16a34a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
-  htxBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
+  htxBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
 
-  chipScroll: { paddingLeft: 14, marginBottom: 8 },
-  chip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: '#f1f5f9', marginRight: 8 },
+  chipScroll: { height: 44, maxHeight: 44, marginBottom: 6 },
+  chipContent: { paddingHorizontal: 14, alignItems: 'center' },
+  chip: {
+    height: 34,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+    borderRadius: 17,
+    backgroundColor: '#f1f5f9',
+    marginRight: 8,
+  },
   chipActive: { backgroundColor: '#16a34a' },
   chipText: { fontSize: 12, color: '#64748b', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
@@ -511,7 +540,7 @@ const styles = StyleSheet.create({
   cancelBtn: { alignSelf: 'flex-end', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8, backgroundColor: '#fef2f2' },
   cancelBtnText: { fontSize: 12, color: '#ef4444', fontWeight: 'bold' },
 
-  empty: { alignItems: 'center', marginTop: 60 },
+  empty: { alignItems: 'center', marginTop: 44 },
   emptyText: { color: '#94a3b8', fontSize: 14, marginTop: 12 },
 
   /* Modal */

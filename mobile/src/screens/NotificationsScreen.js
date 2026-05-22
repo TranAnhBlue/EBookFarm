@@ -9,17 +9,32 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../api/api';
 
 export default function NotificationsScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: notifications = [], isLoading, refetch } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
       const { data } = await api.get('/notifications');
       return data.data || [];
+    },
+  });
+
+  const markAllMutation = useMutation({
+    mutationFn: () => api.put('/notifications/read-all'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: (id) => api.put(`/notifications/${id}/read`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 
@@ -30,33 +45,25 @@ export default function NotificationsScreen({ navigation }) {
   };
 
   const getNotificationIcon = (type) => {
-    switch (type) {
-      case 'journal':
-        return 'book';
-      case 'approval':
+    const normalizedType = String(type || '').toLowerCase();
+    if (normalizedType.includes('journal')) return 'book';
+    if (normalizedType.includes('verified') || normalizedType.includes('approved')) {
         return 'check-circle';
-      case 'system':
-        return 'bell';
-      case 'news':
-        return 'file-text';
-      default:
-        return 'info';
     }
+    if (normalizedType.includes('rejected') || normalizedType.includes('revision')) return 'x-circle';
+    if (normalizedType.includes('system')) return 'bell';
+    if (normalizedType.includes('news')) return 'file-text';
+    return 'info';
   };
 
   const getNotificationColor = (type) => {
-    switch (type) {
-      case 'journal':
-        return '#3b82f6';
-      case 'approval':
-        return '#22c55e';
-      case 'system':
-        return '#f59e0b';
-      case 'news':
-        return '#8b5cf6';
-      default:
-        return '#6b7280';
-    }
+    const normalizedType = String(type || '').toLowerCase();
+    if (normalizedType.includes('journal')) return '#3b82f6';
+    if (normalizedType.includes('verified') || normalizedType.includes('approved')) return '#22c55e';
+    if (normalizedType.includes('rejected') || normalizedType.includes('revision')) return '#ef4444';
+    if (normalizedType.includes('system')) return '#f59e0b';
+    if (normalizedType.includes('news')) return '#8b5cf6';
+    return '#6b7280';
   };
 
   const formatTime = (dateString) => {
@@ -90,7 +97,11 @@ export default function NotificationsScreen({ navigation }) {
           <Feather name="arrow-left" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thông báo</Text>
-        <TouchableOpacity style={styles.headerAction}>
+        <TouchableOpacity
+          style={styles.headerAction}
+          onPress={() => markAllMutation.mutate()}
+          disabled={markAllMutation.isPending || notifications.length === 0}
+        >
           <Feather name="check-circle" size={20} color="#6b7280" />
         </TouchableOpacity>
       </View>
@@ -108,8 +119,13 @@ export default function NotificationsScreen({ navigation }) {
               key={notification._id || index}
               style={[
                 styles.notificationCard,
-                !notification.read && styles.notificationUnread,
+                !notification.isRead && styles.notificationUnread,
               ]}
+              onPress={() => {
+                if (!notification.isRead && notification._id) {
+                  markAsReadMutation.mutate(notification._id);
+                }
+              }}
             >
               <View
                 style={[
@@ -134,7 +150,7 @@ export default function NotificationsScreen({ navigation }) {
                 </Text>
               </View>
 
-              {!notification.read && <View style={styles.unreadDot} />}
+              {!notification.isRead && <View style={styles.unreadDot} />}
             </TouchableOpacity>
           ))
         ) : (

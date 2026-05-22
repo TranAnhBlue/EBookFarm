@@ -26,6 +26,11 @@ export const useAuthStore = create((set) => ({
     set({ user, token });
   },
 
+  setUser: async (user) => {
+    await AsyncStorage.setItem('user', JSON.stringify(user));
+    set({ user });
+  },
+
   logout: async () => {
     await AsyncStorage.removeItem('user');
     await AsyncStorage.removeItem('token');

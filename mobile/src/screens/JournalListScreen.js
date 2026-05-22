@@ -49,7 +49,6 @@ export default function JournalListScreen({ navigation }) {
   // ─── Schemas for creating new journal ───
   const [schemas, setSchemas]             = useState([]);
   const [schemaModal, setSchemaModal]     = useState(false);
-  const [creatingId, setCreatingId]       = useState(null);
 
   const fetchJournals = async () => {
     try {
@@ -124,21 +123,11 @@ export default function JournalListScreen({ navigation }) {
     ]);
   };
 
-  // ─── Create new journal ───
-  const handleCreate = async (schemaId) => {
-    setCreatingId(schemaId);
-    try {
-      const { data } = await api.post('/journals', { schemaId, status: 'Draft' });
-      if (data.success) {
-        Alert.alert('Thành công', 'Đã tạo sổ nhật ký mới!');
-        setSchemaModal(false);
-        fetchJournals();
-      }
-    } catch (e) {
-      Alert.alert('Lỗi', e.response?.data?.message || 'Không thể tạo sổ');
-    } finally {
-      setCreatingId(null);
-    }
+  // ─── Navigate to create new journal ───
+  const handleCreate = (schemaId) => {
+    setSchemaModal(false);
+    // Navigate to JournalEntryScreen to fill the form
+    navigation.navigate('JournalEntry', { schemaId });
   };
 
   const CATEGORY_COLORS = {
@@ -200,13 +189,25 @@ export default function JournalListScreen({ navigation }) {
           {/* Actions */}
           <View style={styles.actionsRow}>
             {item.status === 'Draft' && (
-              <TouchableOpacity
-                style={[styles.actionBtn, { backgroundColor: '#fef3c7' }]}
-                onPress={() => handleSubmit(item._id)}
-              >
-                <Feather name="send" size={13} color="#d97706" />
-                <Text style={[styles.actionBtnText, { color: '#d97706' }]}>Gửi duyệt</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  style={[styles.actionBtn, { backgroundColor: '#dbeafe' }]}
+                  onPress={() => navigation.navigate('JournalEntry', { 
+                    journalId: item._id, 
+                    schemaId: item.schemaId?._id 
+                  })}
+                >
+                  <Feather name="edit-3" size={13} color="#3b82f6" />
+                  <Text style={[styles.actionBtnText, { color: '#3b82f6' }]}>Viết</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionBtn, { backgroundColor: '#fef3c7' }]}
+                  onPress={() => handleSubmit(item._id)}
+                >
+                  <Feather name="send" size={13} color="#d97706" />
+                  <Text style={[styles.actionBtnText, { color: '#d97706' }]}>Gửi duyệt</Text>
+                </TouchableOpacity>
+              </>
             )}
             {(item.status === 'Verified' || item.status === 'Locked') && item.qrCode && (
               <TouchableOpacity
@@ -311,7 +312,6 @@ export default function JournalListScreen({ navigation }) {
                   <TouchableOpacity
                     style={styles.schemaItem}
                     onPress={() => handleCreate(s._id)}
-                    disabled={creatingId === s._id}
                   >
                     <View style={[styles.schemaIcon, { backgroundColor: cat.color + '18' }]}>
                       <Feather name="file-text" size={20} color={cat.color} />
@@ -320,10 +320,7 @@ export default function JournalListScreen({ navigation }) {
                       <Text style={styles.schemaName}>{s.name}</Text>
                       <Text style={styles.schemaCat}>{cat.label || s.category || 'Quy trình canh tác'}</Text>
                     </View>
-                    {creatingId === s._id
-                      ? <ActivityIndicator size="small" color="#16a34a" />
-                      : <Feather name="chevron-right" size={18} color="#cbd5e1" />
-                    }
+                    <Feather name="chevron-right" size={18} color="#cbd5e1" />
                   </TouchableOpacity>
                 );
               }}
@@ -380,15 +377,30 @@ export default function JournalListScreen({ navigation }) {
                   </View>
                 )}
 
-                {/* Submit button if Draft */}
+                {/* Edit and Submit buttons if Draft */}
                 {detailJournal.status === 'Draft' && (
-                  <TouchableOpacity
-                    style={styles.submitBtn}
-                    onPress={() => { setDetailVisible(false); handleSubmit(detailJournal._id); }}
-                  >
-                    <Feather name="send" size={16} color="#fff" />
-                    <Text style={styles.submitBtnText}>Gửi duyệt nhật ký</Text>
-                  </TouchableOpacity>
+                  <>
+                    <TouchableOpacity
+                      style={[styles.submitBtn, { backgroundColor: '#3b82f6' }]}
+                      onPress={() => { 
+                        setDetailVisible(false); 
+                        navigation.navigate('JournalEntry', { 
+                          journalId: detailJournal._id, 
+                          schemaId: detailJournal.schemaId?._id 
+                        }); 
+                      }}
+                    >
+                      <Feather name="edit-3" size={16} color="#fff" />
+                      <Text style={styles.submitBtnText}>Chỉnh sửa nhật ký</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.submitBtn}
+                      onPress={() => { setDetailVisible(false); handleSubmit(detailJournal._id); }}
+                    >
+                      <Feather name="send" size={16} color="#fff" />
+                      <Text style={styles.submitBtnText}>Gửi duyệt nhật ký</Text>
+                    </TouchableOpacity>
+                  </>
                 )}
 
                 {/* QR trace button if verified */}
