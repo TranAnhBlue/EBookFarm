@@ -27,7 +27,7 @@ api.interceptors.response.use(
     } else if (error.response && error.response.status === 401 && isLoginEndpoint) {
       // Trường hợp sai mật khẩu tại trang login: Trả về để component Login tự xử lý
       return Promise.reject(error);
-    } else {
+    } else if (!error.config?.skipGlobalErrorMessage) {
       // Thông báo lỗi cho các trường hợp khác
       const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại sau.';
       message.error(errorMsg);

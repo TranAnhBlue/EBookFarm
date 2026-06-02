@@ -21,6 +21,8 @@ router.route('/profile')
   .get(protect, userController.getProfile)
   .put(protect, userController.updateProfile);
 
+router.put('/profile/phone', protect, userController.changeProfilePhone);
+
 router.route('/:userId/certifications/:certId/verify')
   .put(protect, adminOrHtx, userController.verifyCertification);
 

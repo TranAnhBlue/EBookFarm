@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Card, Typography, Form, Input, Button, Avatar, Space, message, Divider, Row, Col, Select, DatePicker, Upload, Tag, Spin, Alert, Empty, Modal, Tooltip } from 'antd';
 import { UserOutlined, MailOutlined, HomeOutlined, SaveOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, CameraOutlined, IdcardOutlined, ShopOutlined, SafetyCertificateOutlined, LoadingOutlined, WarningOutlined, PlusOutlined, DeleteOutlined, ClockCircleOutlined, BankOutlined, CalendarOutlined, WomanOutlined, ManOutlined, AreaChartOutlined, BarcodeOutlined, FieldTimeOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store/authStore';
@@ -11,6 +11,18 @@ import { API_BASE_URL, API_URL, getAvatarUrl, getInitialAvatar } from '../../uti
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
+const getDisplayRole = (role) => {
+    const normalized = String(role || '').toUpperCase();
+    if (normalized === 'ADMIN') return 'Quản trị viên';
+    if (normalized === 'FARMER' || normalized === 'USER') return 'Thành viên VietGAP';
+    if (normalized === 'HTX' || normalized === 'HTX_DIRECTOR') return 'Giám đốc HTX';
+    if (normalized === 'HTX_TECHNICAL') return 'Ban kỹ thuật';
+    if (normalized === 'HTX_DISTRIBUTION') return 'Ban phân phối';
+    if (normalized === 'HTX_ACCOUNTANT') return 'Kế toán';
+    if (normalized === 'HTX_SUPERVISOR') return 'Ban kiểm soát';
+    return role || 'Thành viên';
+};
 
 const CertificationModal = ({ visible, onCancel, onSave, initialValues, loading }) => {
     const [form] = Form.useForm();
@@ -114,6 +126,7 @@ const AccountInfo = () => {
     const { user, setUser } = useAuthStore();
     const queryClient = useQueryClient();
     const [form] = Form.useForm();
+    const [phoneForm] = Form.useForm();
     const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
 
     const [provinces, setProvinces] = useState([]);
@@ -125,8 +138,11 @@ const AccountInfo = () => {
     const [isCertModalVisible, setIsCertModalVisible] = useState(false);
     const [editingCert, setEditingCert] = useState(null);
     const [localCerts, setLocalCerts] = useState(user?.certifications || []);
-
-    const canEditPhone = ['Admin', 'HTX'].includes(user?.role);
+    const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [debugOtp, setDebugOtp] = useState('');
+    const [sendingOtp, setSendingOtp] = useState(false);
+    const [changingPhone, setChangingPhone] = useState(false);
 
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -193,6 +209,7 @@ const AccountInfo = () => {
                 avatar: avatarUrl,
                 certifications: localCerts
             };
+            delete updateData.phone;
 
             if (updateData.dateOfBirth && dayjs.isDayjs(updateData.dateOfBirth)) {
                 updateData.dateOfBirth = updateData.dateOfBirth.toISOString();
@@ -243,6 +260,56 @@ const AccountInfo = () => {
         }
     };
 
+    const openPhoneModal = () => {
+        phoneForm.resetFields();
+        setOtpSent(false);
+        setDebugOtp('');
+        setPhoneModalOpen(true);
+    };
+
+    const handleSendPhoneOtp = async () => {
+        try {
+            const { phone } = await phoneForm.validateFields(['phone']);
+            setSendingOtp(true);
+            const res = await api.post('/auth/send-otp', { phone, type: 'CHANGE_PHONE' }, { skipGlobalErrorMessage: true });
+            const otp = res.data?.debugOtp;
+            setOtpSent(true);
+            if (otp) {
+                setDebugOtp(otp);
+                phoneForm.setFieldsValue({ otp });
+                message.success(`OTP mock: ${otp}`);
+            } else {
+                setDebugOtp('');
+                message.success('Đã gửi mã OTP. Vui lòng kiểm tra tin nhắn.');
+            }
+        } catch (error) {
+            if (error?.errorFields) return;
+            message.error(error.response?.data?.message || 'Không gửi được mã OTP');
+        } finally {
+            setSendingOtp(false);
+        }
+    };
+
+    const handleChangePhone = async () => {
+        try {
+            const values = await phoneForm.validateFields();
+            setChangingPhone(true);
+            const res = await api.put('/users/profile/phone', values, { skipGlobalErrorMessage: true });
+            const updatedUser = res.data.data;
+            setUser(updatedUser);
+            form.setFieldsValue({ phone: updatedUser.phone });
+            setPhoneModalOpen(false);
+            setOtpSent(false);
+            setDebugOtp('');
+            message.success('Đổi số điện thoại thành công');
+        } catch (error) {
+            if (error?.errorFields) return;
+            message.error(error.response?.data?.message || 'Không đổi được số điện thoại');
+        } finally {
+            setChangingPhone(false);
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-6 p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col gap-2">
@@ -280,15 +347,17 @@ const AccountInfo = () => {
                         </div>
                         <Title level={4} className="!mb-0">{user?.fullname || user?.username}</Title>
                         <Text type="secondary" className="text-[10px] uppercase font-bold text-green-600 tracking-widest">
-                            {user?.role === 'Admin' ? 'Quản trị viên' : 
-                             user?.role === 'Farmer' ? 'Nông dân' : 
-                             user?.role === 'HTX' ? 'Hợp tác xã' : 
-                             user?.role === 'User' ? 'Người dùng' : user?.role}
+                            {getDisplayRole(user?.role)}
                         </Text>
                         
                         {user?.organization && (
-                            <div className="mt-3">
-                                <Tag icon={<BankOutlined />} color="success" className="px-3 py-1 rounded-full border-0 shadow-sm text-[11px]">{user.organization}</Tag>
+                            <div className="mt-3 mx-auto max-w-[230px] rounded-2xl bg-green-100 text-green-700 px-3 py-2 shadow-sm">
+                                <div className="flex items-start gap-2 text-left">
+                                    <BankOutlined className="mt-0.5 shrink-0 text-[12px]" />
+                                    <span className="min-w-0 flex-1 text-[11px] font-medium leading-5 break-words">
+                                        {user.organization}
+                                    </span>
+                                </div>
                             </div>
                         )}
                         
@@ -369,10 +438,11 @@ const AccountInfo = () => {
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item name="phone" label="Số điện thoại">
-                                        <Input 
-                                            disabled={!canEditPhone} 
-                                            className={`h-11 rounded-lg ${!canEditPhone ? 'bg-gray-50' : ''}`} 
-                                            prefix={<PhoneOutlined className="text-gray-300" />} 
+                                        <Input
+                                            readOnly
+                                            className="h-11 rounded-lg bg-gray-50"
+                                            prefix={<PhoneOutlined className="text-gray-300" />}
+                                            suffix={<Button type="link" size="small" onClick={openPhoneModal}>Đổi số</Button>}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -502,6 +572,69 @@ const AccountInfo = () => {
                 </Col>
             </Row>
 
+            <Modal
+                title={<Space><PhoneOutlined className="text-green-600" /><Text strong>Đổi số điện thoại</Text></Space>}
+                open={phoneModalOpen}
+                onCancel={() => setPhoneModalOpen(false)}
+                footer={[
+                    <Button key="cancel" onClick={() => setPhoneModalOpen(false)}>Hủy</Button>,
+                    <Button key="send" onClick={handleSendPhoneOtp} loading={sendingOtp}>
+                        {otpSent ? 'Gửi lại OTP' : 'Gửi OTP'}
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleChangePhone} loading={changingPhone} disabled={!otpSent}>
+                        Xác nhận đổi số
+                    </Button>,
+                ]}
+                width={520}
+                centered
+            >
+                <Alert
+                    type="info"
+                    showIcon
+                    className="mb-4"
+                    message="Xác thực OTP là bắt buộc"
+                    description="Nhập số điện thoại mới, gửi OTP, sau đó nhập mã 6 chữ số để hoàn tất đổi số. OTP hết hạn sau 5 phút."
+                />
+                {debugOtp && (
+                    <Alert
+                        type="success"
+                        showIcon
+                        className="mb-4"
+                        message="OTP mock cho môi trường local"
+                        description={<span>Mã OTP: <Text strong copyable>{debugOtp}</Text></span>}
+                    />
+                )}
+                <Form form={phoneForm} layout="vertical">
+                    <Form.Item
+                        name="phone"
+                        label="Số điện thoại mới"
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập số điện thoại mới' },
+                            { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại phải có 10-11 chữ số' },
+                            {
+                                validator: (_, value) => (
+                                    value && value === user?.phone
+                                        ? Promise.reject(new Error('Số mới đang trùng với số hiện tại'))
+                                        : Promise.resolve()
+                                ),
+                            },
+                        ]}
+                    >
+                        <Input className="h-11 rounded-lg" prefix={<PhoneOutlined className="text-gray-300" />} placeholder="Nhập số điện thoại mới" />
+                    </Form.Item>
+                    <Form.Item
+                        name="otp"
+                        label="Mã OTP"
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập mã OTP' },
+                            { pattern: /^[0-9]{6}$/, message: 'OTP gồm 6 chữ số' },
+                        ]}
+                    >
+                        <Input className="h-11 rounded-lg tracking-[6px] font-bold" maxLength={6} placeholder="------" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
             <CertificationModal 
                 visible={isCertModalVisible}
                 onCancel={() => setIsCertModalVisible(false)}
@@ -519,3 +652,4 @@ const AccountInfo = () => {
 };
 
 export default AccountInfo;
+

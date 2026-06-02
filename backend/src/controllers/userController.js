@@ -1,4 +1,4 @@
-const User = require('../models/User');
+﻿const User = require('../models/User');
 const { createLog } = require('./logController');
 const Otp = require('../models/Otp');
 
@@ -10,7 +10,7 @@ const getUsers = async (req, res) => {
       .populate('htxId', 'fullname username');
     res.json({ success: true, data: users });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách người dùng.' });
+    res.status(500).json({ success: false, message: 'Lá»—i khi láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng.' });
   }
 };
 
@@ -27,7 +27,7 @@ const getPublicHtxList = async (req, res) => {
       .select('fullname username phone avatar email province district ward address');
     res.json({ success: true, data: htxs });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách HTX.' });
+    res.status(500).json({ success: false, message: 'Lá»—i khi láº¥y danh sÃ¡ch HTX.' });
   }
 };
 
@@ -51,7 +51,7 @@ const updateUserRoleStatus = async (req, res) => {
       const updatedUser = await user.save();
 
       // Log action
-      await createLog(req.user.id, 'Cập nhật tài khoản', user._id, 'User', { 
+      await createLog(req.user.id, 'Cáº­p nháº­t tÃ i khoáº£n', user._id, 'User', { 
         username: user.username,
         role: user.role,
         status: user.status
@@ -68,8 +68,8 @@ const updateUserRoleStatus = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    console.log('📝 Updating profile for user:', req.user._id);
-    console.log('📦 Request body:', req.body);
+    console.log('ðŸ“ Updating profile for user:', req.user._id);
+    console.log('ðŸ“¦ Request body:', req.body);
 
     const { 
       fullname, 
@@ -88,23 +88,23 @@ const updateProfile = async (req, res) => {
       organization,
       bio,
       avatar,
-      currentPassword, // Thêm currentPassword
+      currentPassword, // ThÃªm currentPassword
       password,
-      otp // Thêm otp
+      otp // ThÃªm otp
     } = req.body;
     
     const user = await User.findById(req.user._id);
 
     if (user) {
-      // Nếu có yêu cầu đổi mật khẩu, phải kiểm tra mật khẩu cũ
+      // Náº¿u cÃ³ yÃªu cáº§u Ä‘á»•i máº­t kháº©u, pháº£i kiá»ƒm tra máº­t kháº©u cÅ©
       if (password) {
         if (!currentPassword) {
-          return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mật khẩu hiện tại.' });
+          return res.status(400).json({ success: false, message: 'Vui lÃ²ng cung cáº¥p máº­t kháº©u hiá»‡n táº¡i.' });
         }
         
         const isMatch = await user.matchPassword(currentPassword);
         if (!isMatch) {
-          return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác.' });
+          return res.status(400).json({ success: false, message: 'Máº­t kháº©u hiá»‡n táº¡i khÃ´ng chÃ­nh xÃ¡c.' });
         }
         
         user.password = password;
@@ -114,16 +114,8 @@ const updateProfile = async (req, res) => {
 
       user.fullname = fullname !== undefined ? fullname : user.fullname;
       
-      // Xử lý đổi số điện thoại
       if (phone && phone !== user.phone) {
-        // Kiểm tra xem số mới có bị trùng không
-        const phoneExists = await User.findOne({ phone, _id: { $ne: user._id } });
-        if (phoneExists) {
-          return res.status(400).json({ success: false, message: 'Số điện thoại này đã được sử dụng bởi một tài khoản khác.' });
-        }
-
-        user.phone = phone;
-        user.username = phone; // Đồng bộ username nếu username là số điện thoại
+        return res.status(400).json({ success: false, message: 'Vui lòng đổi số điện thoại bằng xác thực OTP.' });
       }
 
       user.dateOfBirth = dateOfBirth !== undefined ? dateOfBirth : user.dateOfBirth;
@@ -147,20 +139,68 @@ const updateProfile = async (req, res) => {
       user.avatar = avatar !== undefined ? avatar : user.avatar;
 
       const updatedUser = await user.save();
-      console.log('✅ User saved to DB:', updatedUser.username);
+      console.log('âœ… User saved to DB:', updatedUser.username);
       
       // Log action
-      await createLog(req.user._id, 'Cập nhật hồ sơ cá nhân', user._id, 'User', { 
+      await createLog(req.user._id, 'Cáº­p nháº­t há»“ sÆ¡ cÃ¡ nhÃ¢n', user._id, 'User', { 
         fullname: user.fullname 
       });
       
       res.json({ success: true, data: updatedUser });
     } else {
-      console.warn('⚠️ Update failed: User not found for ID', req.user._id);
+      console.warn('âš ï¸ Update failed: User not found for ID', req.user._id);
       res.status(404).json({ success: false, message: 'User not found' });
     }
   } catch (error) {
-    console.error('❌ CRITICAL ERROR in updateProfile:', error);
+    console.error('âŒ CRITICAL ERROR in updateProfile:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+const changeProfilePhone = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ. Vui lòng nhập từ 10-11 chữ số.' });
+    }
+
+    if (!otp || !/^[0-9]{6}$/.test(otp)) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập mã OTP gồm 6 chữ số.' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
+    }
+
+    if (phone === user.phone) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại mới đang trùng với số hiện tại.' });
+    }
+
+    const phoneExists = await User.findOne({ phone, _id: { $ne: user._id } });
+    if (phoneExists) {
+      return res.status(400).json({ success: false, message: 'Số điện thoại này đã được sử dụng bởi một tài khoản khác.' });
+    }
+
+    const otpRecord = await Otp.findOne({ phone, type: 'CHANGE_PHONE' });
+    if (!otpRecord || otpRecord.otp !== otp) {
+      return res.status(400).json({ success: false, message: 'Mã OTP không đúng hoặc đã hết hạn.' });
+    }
+
+    user.phone = phone;
+    if (/^[0-9]{10,11}$/.test(user.username || '')) {
+      user.username = phone;
+    }
+
+    const updatedUser = await user.save();
+    await Otp.deleteOne({ _id: otpRecord._id });
+
+    await createLog(req.user._id, 'Đổi số điện thoại hồ sơ cá nhân', user._id, 'User', { phone });
+
+    res.json({ success: true, message: 'Đổi số điện thoại thành công.', data: updatedUser });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -171,7 +211,7 @@ const createUser = async (req, res) => {
     const finalUsername = phone || username;
 
     if (phone && !/^[0-9]{10,11}$/.test(phone)) {
-      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ. Vui lòng nhập từ 10-11 chữ số.' });
+      return res.status(400).json({ success: false, message: 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡. Vui lÃ²ng nháº­p tá»« 10-11 chá»¯ sá»‘.' });
     }
 
     const userExists = await User.findOne({ 
@@ -179,7 +219,7 @@ const createUser = async (req, res) => {
     });
 
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'Người dùng đã tồn tại (Email hoặc Số điện thoại trùng lặp)' });
+      return res.status(400).json({ success: false, message: 'NgÆ°á»i dÃ¹ng Ä‘Ã£ tá»“n táº¡i (Email hoáº·c Sá»‘ Ä‘iá»‡n thoáº¡i trÃ¹ng láº·p)' });
     }
 
     const user = await User.create({
@@ -196,7 +236,7 @@ const createUser = async (req, res) => {
     });
 
     // Log action
-    await createLog(req.user.id, 'Tạo tài khoản mới', user._id, 'User', { 
+    await createLog(req.user.id, 'Táº¡o tÃ i khoáº£n má»›i', user._id, 'User', { 
       username: user.username,
       role: user.role 
     });
@@ -204,9 +244,9 @@ const createUser = async (req, res) => {
     res.status(201).json({ success: true, data: user });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc email đã tồn tại.' });
+      return res.status(400).json({ success: false, message: 'TÃªn Ä‘Äƒng nháº­p hoáº·c email Ä‘Ã£ tá»“n táº¡i.' });
     }
-    res.status(500).json({ success: false, message: 'Lỗi khi tạo tài khoản mới.' });
+    res.status(500).json({ success: false, message: 'Lá»—i khi táº¡o tÃ i khoáº£n má»›i.' });
   }
 };
 
@@ -218,14 +258,14 @@ const deleteUser = async (req, res) => {
       await user.deleteOne();
 
       // Log action
-      await createLog(req.user.id, 'Xóa tài khoản', req.params.id, 'User', { username });
+      await createLog(req.user.id, 'XÃ³a tÃ i khoáº£n', req.params.id, 'User', { username });
 
-      res.json({ success: true, message: 'Đã xóa người dùng thành công' });
+      res.json({ success: true, message: 'ÄÃ£ xÃ³a ngÆ°á»i dÃ¹ng thÃ nh cÃ´ng' });
     } else {
-      res.status(404).json({ success: false, message: 'Người dùng không tồn tại.' });
+      res.status(404).json({ success: false, message: 'NgÆ°á»i dÃ¹ng khÃ´ng tá»“n táº¡i.' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi khi xóa người dùng.' });
+    res.status(500).json({ success: false, message: 'Lá»—i khi xÃ³a ngÆ°á»i dÃ¹ng.' });
   }
 }
 
@@ -247,7 +287,7 @@ const bulkCreateUsers = async (req, res) => {
 
         await User.create({
           ...userData,
-          username: userData.phone || userData.username, // Ưu tiên SDT làm username
+          username: userData.phone || userData.username, // Æ¯u tiÃªn SDT lÃ m username
           password: userData.password || '123456', 
           status: 'Active',
           mustChangePassword: true
@@ -260,7 +300,7 @@ const bulkCreateUsers = async (req, res) => {
 
     res.json({ success: true, data: results });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi khi xử lý nhập liệu hàng loạt.' });
+    res.status(500).json({ success: false, message: 'Lá»—i khi xá»­ lÃ½ nháº­p liá»‡u hÃ ng loáº¡t.' });
   }
 };
 
@@ -271,22 +311,22 @@ const verifyCertification = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+      return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng' });
     }
 
-    // Kiểm tra quyền hạn: Nếu là HTX thì chỉ được duyệt cho thành viên của mình
+    // Kiá»ƒm tra quyá»n háº¡n: Náº¿u lÃ  HTX thÃ¬ chá»‰ Ä‘Æ°á»£c duyá»‡t cho thÃ nh viÃªn cá»§a mÃ¬nh
     if (req.user.role?.toUpperCase() === 'HTX') {
       if (!user.htxId || user.htxId.toString() !== req.user._id.toString()) {
         return res.status(403).json({ 
           success: false, 
-          message: 'Bạn không có quyền duyệt chứng chỉ cho người dùng không thuộc HTX của mình.' 
+          message: 'Báº¡n khÃ´ng cÃ³ quyá»n duyá»‡t chá»©ng chá»‰ cho ngÆ°á»i dÃ¹ng khÃ´ng thuá»™c HTX cá»§a mÃ¬nh.' 
         });
       }
     }
 
     const cert = user.certifications.id(certId);
     if (!cert) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy chứng chỉ' });
+      return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y chá»©ng chá»‰' });
     }
 
     cert.status = status;
@@ -298,7 +338,7 @@ const verifyCertification = async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: `Đã ${status === 'Approved' ? 'phê duyệt' : 'từ chối'} chứng chỉ`,
+      message: `ÄÃ£ ${status === 'Approved' ? 'phÃª duyá»‡t' : 'tá»« chá»‘i'} chá»©ng chá»‰`,
       data: cert 
     });
   } catch (error) {
@@ -310,6 +350,7 @@ module.exports = {
   getUsers, 
   updateUserRoleStatus, 
   updateProfile, 
+  changeProfilePhone,
   createUser, 
   deleteUser, 
   bulkCreateUsers,
