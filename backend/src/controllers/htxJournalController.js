@@ -1,33 +1,34 @@
-const HtxJournal = require('../models/HtxJournal');
+﻿const HtxJournal = require('../models/HtxJournal');
 const FarmJournal = require('../models/FarmJournal');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 
 const createHtxJournal = async (req, res) => {
   try {
     const { name, description, schemaId } = req.body;
-    if (req.user.role?.toUpperCase() !== 'HTX' && req.user.role?.toUpperCase() !== 'ADMIN') {
-      return res.status(403).json({ success: false, message: 'Bạn không có quyền tạo sổ.' });
+    if (!isHtxRole(req.user.role) && !isAdminRole(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Báº¡n khÃ´ng cÃ³ quyá»n táº¡o sá»•.' });
     }
 
     const htxJournal = new HtxJournal({
       name,
       description,
       schemaId,
-      htxId: req.user._id,
+      htxId: getHtxOwnerId(req.user),
       farmers: []
     });
 
     const saved = await htxJournal.save();
 
-    // Thông báo cho toàn bộ Admin biết có sổ HTX mới được tạo
+    // ThÃ´ng bÃ¡o cho toÃ n bá»™ Admin biáº¿t cÃ³ sá»• HTX má»›i Ä‘Æ°á»£c táº¡o
     const admins = await User.find({ role: { $regex: /^admin$/i } });
     for (const admin of admins) {
       await createNotification({
         recipient: admin._id,
         sender: req.user._id,
-        title: 'Sổ nhật ký HTX mới',
-        message: `HTX ${req.user.fullname || req.user.username} vừa tạo sổ kế hoạch mới: ${name}`,
+        title: 'Sá»• nháº­t kÃ½ HTX má»›i',
+        message: `HTX ${req.user.fullname || req.user.username} vá»«a táº¡o sá»• káº¿ hoáº¡ch má»›i: ${name}`,
         type: 'System',
         relatedId: saved._id,
         relatedModel: 'HtxJournal'
@@ -42,7 +43,7 @@ const createHtxJournal = async (req, res) => {
 
 const getHtxJournals = async (req, res) => {
   try {
-    const filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { htxId: req.user._id };
+    const filter = isAdminRole(req.user.role) ? {} : { htxId: getHtxOwnerId(req.user) };
     const journals = await HtxJournal.find(filter)
       .populate('schemaId')
       .populate('htxId', 'fullname username')
@@ -60,10 +61,10 @@ const addFarmersToJournal = async (req, res) => {
     const { farmerIds } = req.body; // Array of farmer IDs
 
     const htxJournal = await HtxJournal.findById(id);
-    if (!htxJournal) return res.status(404).json({ success: false, message: 'Không tìm thấy sổ.' });
+    if (!htxJournal) return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y sá»•.' });
 
-    if (htxJournal.htxId.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
-      return res.status(403).json({ success: false, message: 'Không có quyền.' });
+    if (htxJournal.htxId.toString() !== String(getHtxOwnerId(req.user)) && !isAdminRole(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'KhÃ´ng cÃ³ quyá»n.' });
     }
 
     const addedFarmers = [];
@@ -86,20 +87,20 @@ const addFarmersToJournal = async (req, res) => {
       htxJournal.farmers.push({
         farmerId,
         farmJournalId: farmJournal._id,
-        status: 'Chưa nhập'
+        status: 'ChÆ°a nháº­p'
       });
       addedFarmers.push(farmerId);
 
       // Create notification for farmer
       const categoryLabels = {
-        'trongtrot': 'VietGAP Trồng trọt',
-        'channuoi': 'VietGAHP Chăn nuôi',
-        'thuysan': 'VietGAP Thủy sản',
-        'huuco': 'Hữu cơ',
-        'huuco_caytrong': 'Hữu cơ Cây trồng',
-        'huuco_channuoi': 'Hữu cơ Chăn nuôi',
-        'huuco_thuysan': 'Hữu cơ Thủy sản',
-        'thongminh': 'Nông nghiệp Thông minh'
+        'trongtrot': 'VietGAP Trá»“ng trá»t',
+        'channuoi': 'VietGAHP ChÄƒn nuÃ´i',
+        'thuysan': 'VietGAP Thá»§y sáº£n',
+        'huuco': 'Há»¯u cÆ¡',
+        'huuco_caytrong': 'Há»¯u cÆ¡ CÃ¢y trá»“ng',
+        'huuco_channuoi': 'Há»¯u cÆ¡ ChÄƒn nuÃ´i',
+        'huuco_thuysan': 'Há»¯u cÆ¡ Thá»§y sáº£n',
+        'thongminh': 'NÃ´ng nghiá»‡p ThÃ´ng minh'
       };
       
       // Fetch schema for category info
@@ -110,8 +111,8 @@ const addFarmersToJournal = async (req, res) => {
       await createNotification({
         recipient: farmerId,
         sender: req.user._id,
-        title: 'Sổ nhật ký mới',
-        message: `Bạn đã được phân công tham gia sổ [${catLabel}]: ${htxJournal.name}`,
+        title: 'Sá»• nháº­t kÃ½ má»›i',
+        message: `Báº¡n Ä‘Ã£ Ä‘Æ°á»£c phÃ¢n cÃ´ng tham gia sá»• [${catLabel}]: ${htxJournal.name}`,
         type: 'Journal_Assigned',
         relatedId: farmJournal._id,
         relatedModel: 'FarmJournal',
@@ -120,7 +121,7 @@ const addFarmersToJournal = async (req, res) => {
     }
 
     await htxJournal.save();
-    res.json({ success: true, message: `Đã thêm ${addedFarmers.length} nông dân vào sổ.` });
+    res.json({ success: true, message: `ÄÃ£ thÃªm ${addedFarmers.length} nÃ´ng dÃ¢n vÃ o sá»•.` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -132,14 +133,14 @@ const updateFarmerStatus = async (req, res) => {
     const { status, feedback } = req.body;
 
     const htxJournal = await HtxJournal.findById(id);
-    if (!htxJournal) return res.status(404).json({ success: false, message: 'Không tìm thấy sổ.' });
+    if (!htxJournal) return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y sá»•.' });
 
-    if (htxJournal.htxId.toString() !== req.user._id.toString() && req.user.role?.toUpperCase() !== 'ADMIN') {
-      return res.status(403).json({ success: false, message: 'Không có quyền.' });
+    if (htxJournal.htxId.toString() !== String(getHtxOwnerId(req.user)) && !isAdminRole(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'KhÃ´ng cÃ³ quyá»n.' });
     }
 
     const farmerEntry = htxJournal.farmers.find(f => f.farmerId.toString() === farmerId.toString());
-    if (!farmerEntry) return res.status(404).json({ success: false, message: 'Nông dân không thuộc sổ này.' });
+    if (!farmerEntry) return res.status(404).json({ success: false, message: 'NÃ´ng dÃ¢n khÃ´ng thuá»™c sá»• nÃ y.' });
 
     if (feedback !== undefined) {
       farmerEntry.feedback = feedback;
@@ -153,40 +154,40 @@ const updateFarmerStatus = async (req, res) => {
     if (status) {
       farmerEntry.status = status;
       
-      // Đồng bộ trạng thái xuống FarmJournal
+      // Äá»“ng bá»™ tráº¡ng thÃ¡i xuá»‘ng FarmJournal
       if (farmerEntry.farmJournalId) {
         let farmJournalStatus = 'Draft';
-        if (status === 'Chờ duyệt') farmJournalStatus = 'Submitted';
-        if (status === 'Đã duyệt') farmJournalStatus = 'Verified';
-        if (status === 'Cần chỉnh sửa' || status === 'Không đạt') farmJournalStatus = 'Draft';
+        if (status === 'Chá» duyá»‡t') farmJournalStatus = 'Submitted';
+        if (status === 'ÄÃ£ duyá»‡t') farmJournalStatus = 'Verified';
+        if (status === 'Cáº§n chá»‰nh sá»­a' || status === 'KhÃ´ng Ä‘áº¡t') farmJournalStatus = 'Draft';
         
         await FarmJournal.findByIdAndUpdate(farmerEntry.farmJournalId, { 
           status: farmJournalStatus,
-          htxStatus: status // Lưu cả trạng thái tiếng Việt của HTX
+          htxStatus: status // LÆ°u cáº£ tráº¡ng thÃ¡i tiáº¿ng Viá»‡t cá»§a HTX
         });
 
         // Create notification for farmer
         const categoryLabels = {
-          'trongtrot': 'VietGAP Trồng trọt',
-          'channuoi': 'VietGAHP Chăn nuôi',
-          'thuysan': 'VietGAP Thủy sản',
-          'huuco': 'Hữu cơ',
-          'huuco_caytrong': 'Hữu cơ Cây trồng',
-          'huuco_channuoi': 'Hữu cơ Chăn nuôi',
-          'huuco_thuysan': 'Hữu cơ Thủy sản',
-          'thongminh': 'Nông nghiệp Thông minh'
+          'trongtrot': 'VietGAP Trá»“ng trá»t',
+          'channuoi': 'VietGAHP ChÄƒn nuÃ´i',
+          'thuysan': 'VietGAP Thá»§y sáº£n',
+          'huuco': 'Há»¯u cÆ¡',
+          'huuco_caytrong': 'Há»¯u cÆ¡ CÃ¢y trá»“ng',
+          'huuco_channuoi': 'Há»¯u cÆ¡ ChÄƒn nuÃ´i',
+          'huuco_thuysan': 'Há»¯u cÆ¡ Thá»§y sáº£n',
+          'thongminh': 'NÃ´ng nghiá»‡p ThÃ´ng minh'
         };
         const FormSchema = require('../models/FormSchema');
         const schema = await FormSchema.findById(htxJournal.schemaId);
         const catLabel = schema ? categoryLabels[schema.category] || '' : '';
 
-        let nTitle = 'Cập nhật trạng thái sổ';
-        let nMessage = `Sổ "${htxJournal.name}" của bạn đã được cập nhật trạng thái: ${status}`;
+        let nTitle = 'Cáº­p nháº­t tráº¡ng thÃ¡i sá»•';
+        let nMessage = `Sá»• "${htxJournal.name}" cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t tráº¡ng thÃ¡i: ${status}`;
         let nType = 'Journal_Verified';
 
-        if (status === 'Cần chỉnh sửa') {
-          nTitle = 'Yêu cầu chỉnh sửa sổ';
-          nMessage = `HTX yêu cầu bạn chỉnh sửa sổ "${htxJournal.name}". Phản hồi: ${feedback || 'Không có'}`;
+        if (status === 'Cáº§n chá»‰nh sá»­a') {
+          nTitle = 'YÃªu cáº§u chá»‰nh sá»­a sá»•';
+          nMessage = `HTX yÃªu cáº§u báº¡n chá»‰nh sá»­a sá»• "${htxJournal.name}". Pháº£n há»“i: ${feedback || 'KhÃ´ng cÃ³'}`;
           nType = 'Journal_Revision_Requested';
         }
 
@@ -244,14 +245,14 @@ const getMyHtxJournals = async (req, res) => {
 
 const getFarmersForHtx = async (req, res) => {
   try {
-    const isHtx = req.user.role?.toUpperCase() === 'HTX';
-    const isAdmin = req.user.role?.toUpperCase() === 'ADMIN';
+    const isHtx = isHtxRole(req.user.role);
+    const isAdmin = isAdminRole(req.user.role);
 
     let filter = { role: { $regex: /^farmer$/i } };
 
     if (isHtx) {
-      // Chỉ lấy nông dân thuộc HTX này
-      filter.htxId = req.user._id;
+      // Chá»‰ láº¥y nÃ´ng dÃ¢n thuá»™c HTX nÃ y
+      filter.htxId = getHtxOwnerId(req.user);
     }
 
     const farmers = await User.find(filter)
@@ -266,7 +267,7 @@ const getHtxJournalSummary = async (req, res) => {
   try {
     const { id } = req.params;
     const htxJournal = await HtxJournal.findById(id).populate('schemaId');
-    if (!htxJournal) return res.status(404).json({ success: false, message: 'Không tìm thấy sổ.' });
+    if (!htxJournal) return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y sá»•.' });
 
     const farmJournals = await FarmJournal.find({ htxJournalId: id }).populate('userId', 'fullname username');
     
@@ -279,7 +280,7 @@ const getHtxJournalSummary = async (req, res) => {
 
     // Initialize status counts
     farmJournals.forEach(fj => {
-      const status = fj.htxStatus || 'Chưa nhập';
+      const status = fj.htxStatus || 'ChÆ°a nháº­p';
       summary.farmersStatus[status] = (summary.farmersStatus[status] || 0) + 1;
     });
 
@@ -332,12 +333,12 @@ const getHtxJournalSummary = async (req, res) => {
 
 const authorizeBrand = async (req, res) => {
   try {
-    const { id } = req.params; // id của FarmJournal
+    const { id } = req.params; // id cá»§a FarmJournal
     const { authorized } = req.body;
 
     const journal = await FarmJournal.findById(id);
     if (!journal) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
+      return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y nháº­t kÃ½' });
     }
 
     journal.brandAuthorized = authorized;
@@ -348,7 +349,7 @@ const authorizeBrand = async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: authorized ? 'Đã cấp quyền thương hiệu HTX' : 'Đã thu hồi quyền thương hiệu',
+      message: authorized ? 'ÄÃ£ cáº¥p quyá»n thÆ°Æ¡ng hiá»‡u HTX' : 'ÄÃ£ thu há»“i quyá»n thÆ°Æ¡ng hiá»‡u',
       data: journal 
     });
   } catch (error) {
@@ -359,26 +360,26 @@ const authorizeBrand = async (req, res) => {
 const removeFarmerFromHtx = async (req, res) => {
   try {
     const { farmerId } = req.params;
-    const htxId = req.user._id;
+    const htxId = getHtxOwnerId(req.user);
 
-    // 1. Cập nhật User để bỏ htxId
+    // 1. Cáº­p nháº­t User Ä‘á»ƒ bá» htxId
     const user = await User.findById(farmerId);
-    if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy nông dân.' });
+    if (!user) return res.status(404).json({ success: false, message: 'KhÃ´ng tÃ¬m tháº¥y nÃ´ng dÃ¢n.' });
 
-    if (user.htxId?.toString() !== htxId.toString() && req.user.role !== 'Admin') {
-      return res.status(403).json({ success: false, message: 'Bạn không có quyền gỡ nông dân này.' });
+    if (user.htxId?.toString() !== htxId.toString() && !isAdminRole(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Báº¡n khÃ´ng cÃ³ quyá»n gá»¡ nÃ´ng dÃ¢n nÃ y.' });
     }
 
     user.htxId = null;
     await user.save();
 
-    // 2. Gỡ khỏi các HtxJournal của HTX này
+    // 2. Gá»¡ khá»i cÃ¡c HtxJournal cá»§a HTX nÃ y
     await HtxJournal.updateMany(
       { htxId: htxId },
       { $pull: { farmers: { farmerId: farmerId } } }
     );
 
-    res.json({ success: true, message: 'Đã gỡ nông dân khỏi HTX thành công.' });
+    res.json({ success: true, message: 'ÄÃ£ gá»¡ nÃ´ng dÃ¢n khá»i HTX thÃ nh cÃ´ng.' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -395,3 +396,4 @@ module.exports = {
   authorizeBrand,
   removeFarmerFromHtx
 };
+

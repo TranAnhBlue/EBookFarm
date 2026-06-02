@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { isAdminRole, isHtxRole } = require('../utils/roles');
 
 const protect = async (req, res, next) => {
   let token;
@@ -52,7 +53,7 @@ const admin = (req, res, next) => {
     id: req.user?._id
   });
   
-  if (req.user && req.user.role?.toUpperCase() === 'ADMIN') {
+  if (req.user && isAdminRole(req.user.role)) {
     console.log('✅ Admin access granted');
     next();
   } else {
@@ -68,7 +69,7 @@ const htx = (req, res, next) => {
     id: req.user?._id
   });
   
-  if (req.user && req.user.role?.toUpperCase() === 'HTX') {
+  if (req.user && isHtxRole(req.user.role)) {
     console.log('✅ HTX access granted');
     next();
   } else {
@@ -78,7 +79,7 @@ const htx = (req, res, next) => {
 };
 
 const htxOrAdmin = (req, res, next) => {
-  if (req.user && (req.user.role?.toUpperCase() === 'HTX' || req.user.role?.toUpperCase() === 'ADMIN')) {
+  if (req.user && (isHtxRole(req.user.role) || isAdminRole(req.user.role))) {
     next();
   } else {
     res.status(403).json({ success: false, message: 'Not authorized as HTX or Admin' });

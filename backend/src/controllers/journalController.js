@@ -1,6 +1,7 @@
 const FarmJournal = require('../models/FarmJournal');
 const { createLog } = require('./logController');
 const { createNotification } = require('./notificationController');
+const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 
 const createJournal = async (req, res) => {
   try {
@@ -59,7 +60,7 @@ const createJournal = async (req, res) => {
 
 const getJournals = async (req, res) => {
   try {
-    const filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { userId: req.user._id };
+    const filter = isAdminRole(req.user.role) ? {} : { userId: req.user._id };
 
     // Lấy tất cả journals với category của schema
     const journals = await FarmJournal.find(filter)
@@ -107,12 +108,12 @@ const updateJournal = async (req, res) => {
       const journal = await FarmJournal.findById(req.params.id);
       if(journal) {
           let hasAccess = false;
-          if (journal.userId.toString() === req.user._id.toString() || req.user.role?.toUpperCase() === 'ADMIN') {
+          if (journal.userId.toString() === req.user._id.toString() || isAdminRole(req.user.role)) {
              hasAccess = true;
-          } else if (req.user.role?.toUpperCase() === 'HTX' && journal.htxJournalId) {
+          } else if (isHtxRole(req.user.role) && journal.htxJournalId) {
              const HtxJournal = require('../models/HtxJournal');
              const htxJournal = await HtxJournal.findById(journal.htxJournalId);
-             if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {
+             if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
                 hasAccess = true;
              }
           }
@@ -123,7 +124,7 @@ const updateJournal = async (req, res) => {
           // DATA IMMUTABILITY & STATUS ENFORCEMENT
           // Ngăn chặn chỉnh sửa nếu đã gửi duyệt hoặc đã duyệt (trừ Admin)
           const immutableStatuses = ['Submitted', 'Verified', 'Locked'];
-          if (immutableStatuses.includes(journal.status) && req.user.role?.toUpperCase() !== 'ADMIN') {
+          if (immutableStatuses.includes(journal.status) && !isAdminRole(req.user.role)) {
               let msg = `Sổ nhật ký đang ở trạng thái "${journal.status}". Không thể chỉnh sửa dữ liệu tại thời điểm này.`;
               if (journal.status === 'Submitted') msg = 'Sổ đã được gửi duyệt. Vui lòng liên hệ Admin/HTX nếu bạn cần sửa đổi.';
               if (journal.status === 'Verified') msg = 'Sổ đã được duyệt và xác minh thành công. Dữ liệu đã được khóa để đảm bảo truy xuất nguồn gốc.';
@@ -178,7 +179,7 @@ const updateJournal = async (req, res) => {
           const updated = await journal.save();
 
           // THÔNG BÁO CHO NÔNG DÂN KHI ADMIN DUYỆT HOẶC TỪ CHỐI
-          if (req.user.role?.toUpperCase() === 'ADMIN' && req.body.status) {
+          if (isAdminRole(req.user.role) && req.body.status) {
               const categoryLabels = {
                   'trongtrot': 'VietGAP Trồng trọt',
                   'channuoi': 'VietGAHP Chăn nuôi',
@@ -302,12 +303,12 @@ const getJournalById = async (req, res) => {
     }
     // Only owner, admin, or HTX can view
     let hasAccess = false;
-    if (journal.userId._id.toString() === req.user._id.toString() || req.user.role?.toUpperCase() === 'ADMIN') {
+    if (journal.userId._id.toString() === req.user._id.toString() || isAdminRole(req.user.role)) {
        hasAccess = true;
-    } else if (req.user.role?.toUpperCase() === 'HTX' && journal.htxJournalId) {
+    } else if (isHtxRole(req.user.role) && journal.htxJournalId) {
        const HtxJournal = require('../models/HtxJournal');
        const htxJournal = await HtxJournal.findById(journal.htxJournalId);
-       if (htxJournal && htxJournal.htxId.toString() === req.user._id.toString()) {
+       if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
           hasAccess = true;
        }
     }

@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String },
   googleId: { type: String, unique: true, sparse: true },
-  role: { type: String, enum: ['Admin', 'Farmer', 'HTX', 'User', 'Htx'], default: 'Farmer' },
+  role: { type: String, enum: ['Admin', 'Farmer', 'HTX', 'User', 'Htx', 'ADMIN', 'FARMER', 'HTX_DIRECTOR', 'HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'], default: 'Farmer' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   htxId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Liên kết nông dân với một HTX cụ thể

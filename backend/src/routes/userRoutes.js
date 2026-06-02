@@ -1,10 +1,11 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { protect, admin } = require('../middlewares/authMiddleware');
+const { isAdminRole, isHtxRole } = require('../utils/roles');
 
 // Custom middleware for Admin or HTX
 const adminOrHtx = (req, res, next) => {
-  if (req.user && (req.user.role?.toUpperCase() === 'ADMIN' || req.user.role?.toUpperCase() === 'HTX')) {
+  if (req.user && (isAdminRole(req.user.role) || isHtxRole(req.user.role))) {
     next();
   } else {
     res.status(403).json({ success: false, message: 'Not authorized as Admin or HTX' });

@@ -1,4 +1,4 @@
-// EBookFarm Backend API - v1.0.2 - Render Deploy Fix
+﻿// EBookFarm Backend API - v1.0.2 - Render Deploy Fix
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -31,7 +31,7 @@ app.use(cors({
     if (isAllowed) {
       callback(null, true);
     } else {
-      console.log('❌ CORS blocked for origin:', origin);
+      console.log('âŒ CORS blocked for origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -129,15 +129,18 @@ app.use('/api/rag', ragRoutes);
 try {
   const journalAIRoutes = require('./routes/journalAIRoutes.js');
   app.use('/api/journal-ai', journalAIRoutes);
-  console.log('✅ Journal AI routes loaded successfully');
+  console.log('âœ… Journal AI routes loaded successfully');
 } catch (error) {
-  console.error('❌ Failed to load Journal AI routes:', error);
+  console.error('âŒ Failed to load Journal AI routes:', error);
 }
 
 const htxJournalRoutes = require('./routes/htxJournalRoutes.js');
 app.use('/api/htx/journals', htxJournalRoutes);
 
-// === TXNG Quốc Gia ===
+const htxManagementRoutes = require('./routes/htxManagementRoutes.js');
+app.use('/api/htx/management', htxManagementRoutes);
+
+// === TXNG Quá»‘c Gia ===
 const productRoutes = require('./routes/productRoutes.js');
 app.use('/api/products', productRoutes);
 

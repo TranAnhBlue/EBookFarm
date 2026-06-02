@@ -36,6 +36,15 @@ export const formatPhone = (phone) => {
   return phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
 };
 
+export const formatCurrencyVND = (value) => {
+  const amount = Number(value || 0);
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 /**
  * Validate số điện thoại Việt Nam
  * @param {string} phone - Số điện thoại
