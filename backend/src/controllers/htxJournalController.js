@@ -2,7 +2,8 @@
 const FarmJournal = require('../models/FarmJournal');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
-const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+const { ROLES, isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+const { notifyHtxRoles } = require('../utils/notificationHelpers');
 
 const createHtxJournal = async (req, res) => {
   try {
@@ -34,6 +35,16 @@ const createHtxJournal = async (req, res) => {
         relatedModel: 'HtxJournal'
       });
     }
+    await notifyHtxRoles({
+      htxId: saved.htxId,
+      roles: [ROLES.HTX_TECHNICAL, ROLES.HTX_SUPERVISOR],
+      sender: req.user._id,
+      title: 'Sổ nhật ký HTX mới',
+      message: `${req.user.fullname || req.user.username} vừa tạo sổ HTX: ${name}`,
+      type: 'HTX_Internal_Task',
+      relatedId: saved._id,
+      relatedModel: 'HtxJournal',
+    });
 
     res.status(201).json({ success: true, data: saved });
   } catch (error) {
@@ -347,6 +358,18 @@ const authorizeBrand = async (req, res) => {
 
     await journal.save();
 
+    await createNotification({
+      recipient: journal.userId,
+      sender: req.user._id,
+      title: authorized ? 'HTX cấp quyền thương hiệu' : 'HTX thu hồi quyền thương hiệu',
+      message: authorized
+        ? 'Sổ nhật ký của bạn đã được HTX cấp quyền sử dụng thương hiệu/truy xuất.'
+        : 'HTX đã thu hồi quyền sử dụng thương hiệu/truy xuất của sổ nhật ký này.',
+      type: 'Brand_Authorized',
+      relatedId: journal._id,
+      relatedModel: 'FarmJournal',
+    });
+
     res.json({ 
       success: true, 
       message: authorized ? 'ÄÃ£ cáº¥p quyá»n thÆ°Æ¡ng hiá»‡u HTX' : 'ÄÃ£ thu há»“i quyá»n thÆ°Æ¡ng hiá»‡u',
@@ -378,6 +401,16 @@ const removeFarmerFromHtx = async (req, res) => {
       { htxId: htxId },
       { $pull: { farmers: { farmerId: farmerId } } }
     );
+
+    await createNotification({
+      recipient: farmerId,
+      sender: req.user._id,
+      title: 'Cập nhật thành viên HTX',
+      message: 'Tài khoản của bạn đã được gỡ khỏi HTX hiện tại.',
+      type: 'Farmer_Removed_From_HTX',
+      relatedId: farmerId,
+      relatedModel: 'User',
+    });
 
     res.json({ success: true, message: 'ÄÃ£ gá»¡ nÃ´ng dÃ¢n khá»i HTX thÃ nh cÃ´ng.' });
   } catch (error) {

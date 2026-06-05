@@ -1,7 +1,8 @@
 const FarmJournal = require('../models/FarmJournal');
 const { createLog } = require('./logController');
 const { createNotification } = require('./notificationController');
-const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+const { ROLES, isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+const { notifyHtxRoles } = require('../utils/notificationHelpers');
 
 const createJournal = async (req, res) => {
   try {
@@ -248,6 +249,17 @@ const updateJournal = async (req, res) => {
                          // Create notification for HTX
                          await createNotification({
                              recipient: htxJournal.htxId,
+                             sender: req.user._id,
+                             title: 'Sổ mới được gửi duyệt',
+                             message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ [${catLabel}]: ${htxJournal.name}`,
+                             type: 'Journal_Submitted',
+                             relatedId: htxJournal._id,
+                             relatedModel: 'HtxJournal',
+                             categoryLabel: catLabel
+                         });
+                         await notifyHtxRoles({
+                             htxId: htxJournal.htxId,
+                             roles: [ROLES.HTX_TECHNICAL, ROLES.HTX_SUPERVISOR],
                              sender: req.user._id,
                              title: 'Sổ mới được gửi duyệt',
                              message: `Nông dân ${req.user.fullname || req.user.username} đã gửi duyệt sổ [${catLabel}]: ${htxJournal.name}`,

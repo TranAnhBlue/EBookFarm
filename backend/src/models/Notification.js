@@ -7,7 +7,27 @@ const notificationSchema = new mongoose.Schema({
   message: { type: String, required: true },
   type: { 
     type: String, 
-    enum: ['Journal_Assigned', 'Journal_Submitted', 'Journal_Verified', 'Journal_Revision_Requested', 'System', 'Announcement'],
+    enum: [
+      'Journal_Assigned',
+      'Journal_Submitted',
+      'Journal_Verified',
+      'Journal_Revision_Requested',
+      'Journal_Locked',
+      'HTX_Management_Assigned',
+      'HTX_Management_Updated',
+      'HTX_Internal_Task',
+      'Farmer_Feedback_Submitted',
+      'Distribution_Finance_Submitted',
+      'Distribution_Finance_Processed',
+      'Accounting_Record_Created',
+      'Supply_Request_Submitted',
+      'Supply_Request_Processed',
+      'Inventory_Distributed',
+      'Farmer_Removed_From_HTX',
+      'Brand_Authorized',
+      'System',
+      'Announcement',
+    ],
     required: true 
   },
   relatedId: { type: mongoose.Schema.Types.ObjectId }, // Link to Journal, HtxJournal, etc.

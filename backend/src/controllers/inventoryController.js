@@ -1,6 +1,7 @@
 const { InventoryItem, InventoryTransaction } = require('../models/Inventory');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 
 // Lấy danh sách vật tư của HTX hoặc Nông dân
 const getInventory = async (req, res) => {
@@ -8,7 +9,7 @@ const getInventory = async (req, res) => {
     let filter = {};
     if (req.user) {
       // Nếu có user (Admin/Farmer), lọc theo quyền
-      filter = req.user.role?.toUpperCase() === 'ADMIN' ? {} : { owner: req.user._id };
+      filter = isAdminRole(req.user.role) ? {} : { owner: isHtxRole(req.user.role) ? getHtxOwnerId(req.user) : req.user._id };
     }
     // Nếu không có user (yêu cầu từ Trace page), cho phép lấy toàn bộ để map ID -> Tên
     
@@ -23,7 +24,7 @@ const getInventory = async (req, res) => {
 const addItem = async (req, res) => {
   try {
     const { name, category, unit, quantity, minQuantity, note, evidenceImage } = req.body;
-    const owner = req.user._id;
+    const owner = isHtxRole(req.user.role) ? getHtxOwnerId(req.user) : req.user._id;
 
     // Kiểm tra xem đã có vật tư này chưa
     let item = await InventoryItem.findOne({ name, owner, unit });
@@ -57,7 +58,7 @@ const addItem = async (req, res) => {
 const distributeItem = async (req, res) => {
   try {
     const { itemId, farmerId, quantity, note } = req.body;
-    const htxId = req.user._id;
+    const htxId = getHtxOwnerId(req.user);
 
     // 1. Kiểm tra kho HTX
     const htxItem = await InventoryItem.findOne({ _id: itemId, owner: htxId });
@@ -104,7 +105,7 @@ const distributeItem = async (req, res) => {
       sender: htxId,
       title: 'Nhận vật tư mới',
       message: `HTX vừa cấp cho bạn ${quantity} ${htxItem.unit} ${htxItem.name}. Vui lòng kiểm tra mục Tồn kho.`,
-      type: 'System',
+      type: 'Inventory_Distributed',
       relatedId: farmerItem._id,
       relatedModel: 'InventoryItem'
     });
@@ -118,7 +119,7 @@ const distributeItem = async (req, res) => {
 // Lấy lịch sử giao dịch
 const getTransactions = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = isHtxRole(req.user.role) ? getHtxOwnerId(req.user) : req.user._id;
     // Tìm các giao dịch mà user này thực hiện hoặc nhận
     const transactions = await InventoryTransaction.find({
       $or: [

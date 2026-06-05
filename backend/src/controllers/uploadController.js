@@ -1,6 +1,4 @@
 const User = require('../models/User');
-const path = require('path');
-const fs = require('fs');
 
 // Upload avatar
 const uploadAvatar = async (req, res) => {
@@ -41,7 +39,7 @@ const uploadDocument = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Không có file nào được tải lên!' });
     }
 
-    const fileUrl = `/uploads/documents/${req.file.filename}`;
+    const fileUrl = req.file.path;
     
     res.json({ 
       success: true, 
@@ -53,9 +51,6 @@ const uploadDocument = async (req, res) => {
       }
     });
   } catch (error) {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

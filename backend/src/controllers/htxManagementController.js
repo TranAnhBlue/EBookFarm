@@ -1,6 +1,7 @@
 const HtxManagementRecord = require('../models/HtxManagementRecord');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const { notifyMany, notifyHtxRoles } = require('../utils/notificationHelpers');
 const {
   ROLES,
   normalizeRole,
@@ -109,6 +110,53 @@ const validateScopedFarmers = async (req, farmerIds) => {
   return farmers.map(farmer => farmer._id);
 };
 
+const getModuleTargetRoles = (module, record = {}) => {
+  const assignedRole = normalizeRole(record.assignedToRole);
+  if (
+    Object.values(ROLES).includes(assignedRole)
+    && assignedRole !== ROLES.ADMIN
+    && assignedRole !== ROLES.FARMER
+  ) {
+    return [assignedRole];
+  }
+
+  if (TECHNICAL_MODULES.includes(module) || TECHNICAL_FARMER_MODULES.includes(module)) {
+    return [ROLES.HTX_TECHNICAL, ROLES.HTX_DIRECTOR];
+  }
+  if (module === 'distribution-finance-requests') {
+    return [ROLES.HTX_ACCOUNTANT, ROLES.HTX_DIRECTOR];
+  }
+  if (DISTRIBUTION_MODULES.includes(module)) {
+    return [ROLES.HTX_DISTRIBUTION, ROLES.HTX_DIRECTOR];
+  }
+  if (ACCOUNTING_MODULES.includes(module) || module === 'finance') {
+    return [ROLES.HTX_ACCOUNTANT, ROLES.HTX_DIRECTOR];
+  }
+  if (['tasks', 'documents', 'training'].includes(module)) {
+    return [ROLES.HTX_TECHNICAL, ROLES.HTX_DISTRIBUTION, ROLES.HTX_ACCOUNTANT, ROLES.HTX_SUPERVISOR];
+  }
+  return [];
+};
+
+const notifyInternalStakeholders = async ({ req, record, action }) => {
+  const roles = getModuleTargetRoles(record.module, record);
+  if (!roles.length) return;
+
+  await notifyHtxRoles({
+    htxId: record.htxId || getHtxOwnerId(req.user),
+    roles,
+    sender: req.user._id,
+    title: action === 'updated' ? 'Cập nhật nghiệp vụ HTX' : 'Nghiệp vụ HTX mới',
+    message: `${record.title} (${record.documentType || record.module})`,
+    type: record.module === 'distribution-finance-requests'
+      ? 'Distribution_Finance_Submitted'
+      : 'HTX_Internal_Task',
+    relatedId: record._id,
+    relatedModel: 'HtxManagementRecord',
+    categoryLabel: record.module,
+  });
+};
+
 const notifyLinkedFarmers = async ({ req, record, farmerIds, action }) => {
   const ids = normalizeFarmerIds(farmerIds);
   if (!ids.length) return;
@@ -118,7 +166,7 @@ const notifyLinkedFarmers = async ({ req, record, farmerIds, action }) => {
     sender: req.user._id,
     title: action === 'updated' ? 'HTX cập nhật nội dung liên quan đến bạn' : 'HTX giao/cập nhật nội dung liên quan đến bạn',
     message: `${record.title} (${record.documentType || record.module})`,
-    type: 'HTX_Management_Assigned',
+    type: action === 'updated' ? 'HTX_Management_Updated' : 'HTX_Management_Assigned',
     relatedId: record._id,
     relatedModel: 'HtxManagementRecord',
     categoryLabel: record.module,
@@ -228,6 +276,7 @@ const createRecord = async (req, res) => {
     });
 
     await notifyLinkedFarmers({ req, record, farmerIds: scopedFarmerIds, action: 'created' });
+    await notifyInternalStakeholders({ req, record, action: 'created' });
 
     res.status(201).json({ success: true, data: record, message: 'Đã lưu dữ liệu HTX.' });
   } catch (error) {
@@ -287,6 +336,7 @@ const updateRecord = async (req, res) => {
     if (shouldNotifyFarmers && record.farmerIds?.length) {
       await notifyLinkedFarmers({ req, record, farmerIds: record.farmerIds, action: 'updated' });
     }
+    await notifyInternalStakeholders({ req, record, action: 'updated' });
 
     res.json({ success: true, data: record, message: 'Đã cập nhật dữ liệu HTX.' });
   } catch (error) {
@@ -379,6 +429,17 @@ const processDistributionFinanceRequest = async (req, res) => {
       nextMetadata.accountingRecordId = accountingRecord._id;
       nextMetadata.accountingModule = targetModule;
       await notifyLinkedFarmers({ req, record: accountingRecord, farmerIds: accountingRecord.farmerIds, action: 'created' });
+      await notifyHtxRoles({
+        htxId: source.htxId,
+        roles: [ROLES.HTX_DIRECTOR],
+        sender: req.user._id,
+        title: 'Kế toán đã tạo bản ghi tài chính',
+        message: `${accountingRecord.title} (${targetModule})`,
+        type: 'Accounting_Record_Created',
+        relatedId: accountingRecord._id,
+        relatedModel: 'HtxManagementRecord',
+        categoryLabel: targetModule,
+      });
     }
 
     source.status = status;
@@ -388,6 +449,27 @@ const processDistributionFinanceRequest = async (req, res) => {
     await source.save();
 
     await notifyLinkedFarmers({ req, record: source, farmerIds: source.farmerIds, action: 'updated' });
+    await notifyMany({
+      recipients: [source.createdBy],
+      sender: req.user._id,
+      title: 'Kế toán đã xử lý đối soát phân phối',
+      message: `${source.title}: ${status}${note ? ` - ${note}` : ''}`,
+      type: 'Distribution_Finance_Processed',
+      relatedId: source._id,
+      relatedModel: 'HtxManagementRecord',
+      categoryLabel: source.module,
+    });
+    await notifyHtxRoles({
+      htxId: source.htxId,
+      roles: [ROLES.HTX_DIRECTOR],
+      sender: req.user._id,
+      title: 'Đối soát phân phối đã được xử lý',
+      message: `${source.title}: ${status}`,
+      type: 'Distribution_Finance_Processed',
+      relatedId: source._id,
+      relatedModel: 'HtxManagementRecord',
+      categoryLabel: source.module,
+    });
 
     res.json({
       success: true,
@@ -472,8 +554,13 @@ const createFarmerSubmission = async (req, res) => {
       updatedBy: req.user._id,
     });
 
-    await createNotification({
-      recipient: htxId,
+    const targetRoles = TECHNICAL_FARMER_MODULES.includes(module)
+      ? [ROLES.HTX_DIRECTOR, ROLES.HTX_TECHNICAL]
+      : [ROLES.HTX_DIRECTOR];
+
+    await notifyHtxRoles({
+      htxId,
+      roles: targetRoles,
       sender: req.user._id,
       title: 'Nông dân gửi phản hồi/yêu cầu mới',
       message: `${req.user.fullname || req.user.username}: ${record.title}`,

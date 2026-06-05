@@ -2,6 +2,8 @@ const SupplyRequest = require('../models/SupplyRequest');
 const User = require('../models/User');
 const { InventoryItem, InventoryTransaction } = require('../models/Inventory');
 const { createNotification } = require('./notificationController');
+const { ROLES, isAdminRole, isFarmerRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+const { notifyHtxRoles } = require('../utils/notificationHelpers');
 
 // 1. Nông dân tạo yêu cầu mới
 const createRequest = async (req, res) => {
@@ -20,12 +22,13 @@ const createRequest = async (req, res) => {
     });
 
     // Thông báo cho HTX
-    await createNotification({
-      recipient: htxId,
+    await notifyHtxRoles({
+      htxId,
+      roles: [ROLES.HTX_DIRECTOR, ROLES.HTX_DISTRIBUTION, ROLES.HTX_TECHNICAL],
       sender: farmerId,
       title: 'Đơn xin cấp vật tư mới',
       message: `Nông dân ${req.user.fullname || req.user.username} vừa gửi đơn xin cấp vật tư.`,
-      type: 'System',
+      type: 'Supply_Request_Submitted',
       relatedId: request._id,
       relatedModel: 'SupplyRequest'
     });
@@ -39,15 +42,15 @@ const createRequest = async (req, res) => {
 // 2. Lấy danh sách yêu cầu (Nông dân hoặc HTX)
 const getRequests = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const role = req.user.role;
-    
     let query = {};
-    const roleUpper = (role || '').toUpperCase();
-    if (roleUpper === 'ADMIN' || roleUpper === 'HTX') {
-       query = { htx: userId };
+    if (isAdminRole(req.user.role)) {
+       query = {};
+    } else if (isHtxRole(req.user.role)) {
+       query = { htx: getHtxOwnerId(req.user) };
+    } else if (isFarmerRole(req.user.role)) {
+       query = { farmer: req.user._id };
     } else {
-       query = { farmer: userId };
+       query = { farmer: req.user._id };
     }
 
     const requests = await SupplyRequest.find(query)
@@ -66,7 +69,7 @@ const updateRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, htxFeedback, approvedItems } = req.body; // approvedItems contains mapping to inventoryItemId
-    const htxId = req.user._id;
+    const htxId = getHtxOwnerId(req.user);
 
     const request = await SupplyRequest.findById(id).populate('farmer');
     if (!request) return res.status(404).json({ success: false, message: 'Không tìm thấy yêu cầu.' });
@@ -170,7 +173,7 @@ const updateRequestStatus = async (req, res) => {
       message: status === 'Approved' 
         ? `HTX đã phê duyệt đơn xin cấp vật tư của bạn. Vật tư đã được cộng vào kho.` 
         : `Rất tiếc, đơn xin cấp vật tư của bạn bị từ chối. Lý do: ${htxFeedback}`,
-      type: 'System',
+      type: 'Supply_Request_Processed',
       relatedId: request._id,
       relatedModel: 'SupplyRequest'
     });

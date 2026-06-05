@@ -52,6 +52,7 @@ const HtxProductMgmt = () => {
   const [filterPortalStatus, setFilterPortalStatus] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [imageFileList, setImageFileList] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -82,15 +83,20 @@ const HtxProductMgmt = () => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
+      const payload = {
+        ...values,
+        images: imageFileList.map(file => file.url || file.response?.url).filter(Boolean),
+      };
       if (isEditMode && selectedProduct) {
-        await api.put(`/products/${selectedProduct._id}`, values);
+        await api.put(`/products/${selectedProduct._id}`, payload);
         message.success('Đã cập nhật sản phẩm thành công');
       } else {
-        await api.post('/products', values);
+        await api.post('/products', payload);
         message.success('Đã tạo sản phẩm thành công');
       }
       setIsModalVisible(false);
       form.resetFields();
+      setImageFileList([]);
       fetchProducts();
     } catch (e) {
       message.error(e.response?.data?.message || 'Lỗi khi lưu sản phẩm');
@@ -126,6 +132,12 @@ const HtxProductMgmt = () => {
       weight: product.weight,
       schemaId: product.schemaId?._id,
     });
+    setImageFileList((product.images || []).map((url, index) => ({
+      uid: `existing-${index}`,
+      name: `Ảnh sản phẩm ${index + 1}`,
+      status: 'done',
+      url,
+    })));
     setIsModalVisible(true);
   };
 
@@ -133,7 +145,29 @@ const HtxProductMgmt = () => {
     setSelectedProduct(null);
     setIsEditMode(false);
     form.resetFields();
+    setImageFileList([]);
     setIsModalVisible(true);
+  };
+
+  const uploadProductImage = async ({ file, onSuccess, onError }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      onSuccess({ url: response.data.url });
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể tải ảnh sản phẩm lên Cloudinary');
+      onError(error);
+    }
+  };
+
+  const handleImageListChange = ({ fileList }) => {
+    setImageFileList(fileList.map(file => ({
+      ...file,
+      url: file.url || file.response?.url,
+    })));
   };
 
   const filteredProducts = products.filter(p => {
@@ -349,7 +383,7 @@ const HtxProductMgmt = () => {
           </div>
         }
         open={isModalVisible}
-        onCancel={() => { setIsModalVisible(false); form.resetFields(); }}
+        onCancel={() => { setIsModalVisible(false); form.resetFields(); setImageFileList([]); }}
         onOk={() => form.submit()}
         confirmLoading={loading}
         okText={isEditMode ? 'Cập nhật' : 'Tạo sản phẩm'}
@@ -414,6 +448,27 @@ const HtxProductMgmt = () => {
           </Form.Item>
           <Form.Item name="description" label={<Text strong>Mô tả sản phẩm</Text>}>
             <TextArea rows={3} className="rounded-lg" placeholder="Mô tả ngắn về sản phẩm, đặc tính, vùng trồng..." />
+          </Form.Item>
+          <Form.Item
+            label={<Text strong>Hình ảnh sản phẩm</Text>}
+            extra="Tối đa 6 ảnh, mỗi ảnh không quá 10 MB. Ảnh được lưu trên Cloudinary."
+          >
+            <Upload
+              listType="picture-card"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              fileList={imageFileList}
+              customRequest={uploadProductImage}
+              onChange={handleImageListChange}
+              maxCount={6}
+              multiple
+            >
+              {imageFileList.length < 6 && (
+                <div>
+                  <PlusOutlined />
+                  <div className="mt-2">Tải ảnh</div>
+                </div>
+              )}
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
