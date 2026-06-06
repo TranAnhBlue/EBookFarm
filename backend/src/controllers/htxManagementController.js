@@ -96,6 +96,23 @@ const normalizeFarmerIds = (farmerIds) => {
   return [...new Set(farmerIds.filter(Boolean).map(id => String(id)))];
 };
 
+const normalizeAttachments = (attachments, userId) => {
+  if (!Array.isArray(attachments)) return [];
+  return attachments
+    .filter(item => item?.url)
+    .slice(0, 10)
+    .map(item => ({
+      url: String(item.url),
+      name: item.name ? String(item.name) : '',
+      type: item.type === 'image' ? 'image' : 'document',
+      mimeType: item.mimeType ? String(item.mimeType) : '',
+      size: Number(item.size) || 0,
+      caption: item.caption ? String(item.caption) : '',
+      uploadedBy: item.uploadedBy || userId,
+      uploadedAt: item.uploadedAt || new Date(),
+    }));
+};
+
 const validateScopedFarmers = async (req, farmerIds) => {
   const ids = normalizeFarmerIds(farmerIds);
   if (!ids.length) return [];
@@ -240,6 +257,7 @@ const createRecord = async (req, res) => {
       dueDate,
       documentType,
       tags,
+      attachments,
       farmerIds,
       metadata,
     } = req.body;
@@ -269,6 +287,7 @@ const createRecord = async (req, res) => {
       dueDate,
       documentType,
       tags,
+      attachments: normalizeAttachments(attachments, req.user._id),
       farmerIds: scopedFarmerIds,
       metadata,
       createdBy: req.user._id,
@@ -307,6 +326,7 @@ const updateRecord = async (req, res) => {
       'dueDate',
       'documentType',
       'tags',
+      'attachments',
       'farmerIds',
       'metadata',
     ];
@@ -319,6 +339,9 @@ const updateRecord = async (req, res) => {
     if (req.body.farmerIds !== undefined) {
       updates.farmerIds = await validateScopedFarmers(req, req.body.farmerIds);
     }
+    if (req.body.attachments !== undefined) {
+      updates.attachments = normalizeAttachments(req.body.attachments, req.user._id);
+    }
 
     const record = await HtxManagementRecord.findOneAndUpdate(
       { ...getScopedFilter(req, module), _id: req.params.id },
@@ -330,7 +353,7 @@ const updateRecord = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy dữ liệu để cập nhật.' });
     }
 
-    const farmerLinkedFields = ['status', 'description', 'priority', 'dueDate', 'endDate', 'documentType', 'metadata'];
+    const farmerLinkedFields = ['status', 'description', 'priority', 'dueDate', 'endDate', 'documentType', 'metadata', 'attachments'];
     const shouldNotifyFarmers = req.body.farmerIds !== undefined
       || farmerLinkedFields.some(field => req.body[field] !== undefined);
     if (shouldNotifyFarmers && record.farmerIds?.length) {
@@ -416,6 +439,7 @@ const processDistributionFinanceRequest = async (req, res) => {
         dueDate: source.dueDate,
         documentType: source.documentType,
         tags: source.tags,
+        attachments: source.attachments,
         farmerIds: source.farmerIds,
         metadata: {
           sourceModule: source.module,
@@ -529,6 +553,7 @@ const createFarmerSubmission = async (req, res) => {
       endDate,
       dueDate,
       metadata,
+      attachments,
     } = req.body;
 
     if (!title?.trim()) {
@@ -549,6 +574,7 @@ const createFarmerSubmission = async (req, res) => {
       endDate,
       dueDate,
       metadata,
+      attachments: normalizeAttachments(attachments, req.user._id),
       farmerIds: [req.user._id],
       createdBy: req.user._id,
       updatedBy: req.user._id,

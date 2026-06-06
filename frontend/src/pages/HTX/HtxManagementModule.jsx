@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Col, DatePicker, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Statistic, Table, Tag, Typography, message } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Image, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Statistic, Table, Tag, Tooltip, Typography, Upload, message } from 'antd';
 import {
   AuditOutlined,
   DeleteOutlined,
@@ -7,6 +7,7 @@ import {
   ExperimentOutlined,
   FileDoneOutlined,
   FileTextOutlined,
+  PaperClipOutlined,
   PlusOutlined,
   ReadOutlined,
   TeamOutlined,
@@ -489,6 +490,36 @@ const formatDate = (value) => value ? dayjs(value).format('DD/MM/YYYY') : '--';
 const financialModules = ['finance', 'distribution-finance-requests', 'accounting-transactions', 'accounting-receivables', 'accounting-payables'];
 const distributionFinanceProcessors = [ROLES.ADMIN, ROLES.HTX_DIRECTOR, ROLES.HTX_ACCOUNTANT];
 const distributionFinanceCreators = [ROLES.ADMIN, ROLES.HTX_DIRECTOR, ROLES.HTX_DISTRIBUTION];
+const attachmentEnabledModules = [
+  'documents',
+  'partners',
+  'training',
+  'technical-training',
+  'pest-control',
+  'product-inspections',
+  'nonconformities',
+  'material-supervision',
+  'distribution-shipments',
+  'customer-feedback',
+  'product-finalization',
+  'finance',
+  'distribution-finance-requests',
+  'accounting-transactions',
+  'accounting-receivables',
+  'accounting-payables',
+  'accounting-reports',
+  'tax-obligations',
+];
+
+const isImageAttachment = (file) => file?.type === 'image' || file?.mimeType?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(file?.url || file?.name || '');
+
+const fileToAttachment = (file) => file?.attachment || file?.response?.attachment || {
+  url: file.url || file.response?.url,
+  name: file.name,
+  type: isImageAttachment(file) ? 'image' : 'document',
+  mimeType: file.type || file.mimeType || '',
+  size: file.size || 0,
+};
 
 const HtxManagementModule = ({ moduleKey }) => {
   const { user } = useAuthStore();
@@ -506,8 +537,11 @@ const HtxManagementModule = ({ moduleKey }) => {
   const [processModalOpen, setProcessModalOpen] = useState(false);
   const [processingRecord, setProcessingRecord] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
+  const [attachmentFileList, setAttachmentFileList] = useState([]);
+  const [attachmentPreview, setAttachmentPreview] = useState({ open: false, url: '', title: '' });
   const [form] = Form.useForm();
   const [processForm] = Form.useForm();
+  const canUseAttachments = attachmentEnabledModules.includes(moduleKey);
 
   const statusMap = useMemo(() => Object.fromEntries(config.statusOptions.map(item => [item.value, item])), [config.statusOptions]);
 
@@ -537,6 +571,7 @@ const HtxManagementModule = ({ moduleKey }) => {
 
   const openCreate = () => {
     setEditingRecord(null);
+    setAttachmentFileList([]);
     form.resetFields();
     form.setFieldsValue({
       priority: 'Medium',
@@ -548,6 +583,16 @@ const HtxManagementModule = ({ moduleKey }) => {
 
   const openEdit = (record) => {
     setEditingRecord(record);
+    setAttachmentFileList((record.attachments || []).map((attachment, index) => ({
+      uid: attachment._id || `attachment-${index}`,
+      name: attachment.name || `Tệp đính kèm ${index + 1}`,
+      status: 'done',
+      url: isImageAttachment(attachment) ? undefined : attachment.url,
+      thumbUrl: isImageAttachment(attachment) ? attachment.url : undefined,
+      type: attachment.mimeType || (attachment.type === 'image' ? 'image/*' : 'application/octet-stream'),
+      size: attachment.size || 0,
+      attachment,
+    })));
     form.setFieldsValue({
       ...record,
       startDate: record.startDate ? dayjs(record.startDate) : null,
@@ -564,6 +609,9 @@ const HtxManagementModule = ({ moduleKey }) => {
       startDate: values.startDate?.toISOString(),
       endDate: values.endDate?.toISOString(),
       dueDate: values.dueDate?.toISOString(),
+      attachments: canUseAttachments
+        ? attachmentFileList.map(fileToAttachment).filter(item => item?.url)
+        : [],
     };
 
     if (!isFinancialModule) {
@@ -580,7 +628,63 @@ const HtxManagementModule = ({ moduleKey }) => {
     }
 
     setModalOpen(false);
+    setAttachmentFileList([]);
     fetchRecords();
+  };
+
+  const uploadAttachment = async ({ file, onSuccess, onError }) => {
+    try {
+      const isImage = file.type?.startsWith('image/');
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post(isImage ? '/upload/image' : '/upload/document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const uploaded = isImage
+        ? { url: response.data.url, name: file.name, type: 'image', mimeType: file.type, size: file.size }
+        : { url: response.data.data?.url, name: response.data.data?.filename || file.name, type: 'document', mimeType: file.type, size: response.data.data?.size || file.size };
+      onSuccess({ attachment: uploaded, url: uploaded.url });
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể tải tệp lên Cloudinary');
+      onError(error);
+    }
+  };
+
+  const validateAttachment = (file) => {
+    const isAllowedSize = file.size / 1024 / 1024 <= 10;
+    if (!isAllowedSize) {
+      message.error('Mỗi tệp đính kèm không được quá 10 MB');
+      return Upload.LIST_IGNORE;
+    }
+    return true;
+  };
+
+  const handleAttachmentChange = ({ fileList }) => {
+    setAttachmentFileList(fileList.map(file => {
+      const attachment = fileToAttachment(file);
+      const isImage = isImageAttachment(attachment || file);
+      return {
+        ...file,
+        url: isImage ? undefined : (attachment?.url || file.url),
+        thumbUrl: isImage ? (attachment?.url || file.thumbUrl || file.url) : undefined,
+        attachment,
+      };
+    }));
+  };
+
+  const handleAttachmentPreview = (file) => {
+    const attachment = fileToAttachment(file);
+    const url = attachment?.url || file.url || file.thumbUrl;
+    if (!url) return;
+    if (!isImageAttachment(attachment || file)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setAttachmentPreview({
+      open: true,
+      url,
+      title: attachment?.name || file.name || 'Ảnh đính kèm',
+    });
   };
 
   const handleDelete = async (record) => {
@@ -659,6 +763,35 @@ const HtxManagementModule = ({ moduleKey }) => {
         return (
           <Space wrap size={[0, 4]}>
             <Tag color="green" className="rounded-full">{linked.length} nông dân</Tag>
+          </Space>
+        );
+      },
+    },
+    canUseAttachments && {
+      title: 'Đính kèm',
+      key: 'attachments',
+      width: 140,
+      render: (_, record) => {
+        const attachments = record.attachments || [];
+        if (!attachments.length) return <Text className="text-gray-400">--</Text>;
+        const images = attachments.filter(isImageAttachment);
+        const documents = attachments.filter(item => !isImageAttachment(item));
+        return (
+          <Space size={4} wrap>
+            {!!images.length && (
+              <Image.PreviewGroup>
+                {images.slice(0, 3).map((item, index) => (
+                  <Image key={item.url || index} src={item.url} width={28} height={28} className="rounded-lg object-cover border" />
+                ))}
+              </Image.PreviewGroup>
+            )}
+            {!!documents.length && (
+              <Tooltip title={documents.map(item => item.name || 'Tài liệu').join(', ')}>
+                <Tag icon={<PaperClipOutlined />} className="rounded-full cursor-pointer" onClick={() => window.open(documents[0].url, '_blank')}>
+                  {documents.length}
+                </Tag>
+              </Tooltip>
+            )}
           </Space>
         );
       },
@@ -752,7 +885,7 @@ const HtxManagementModule = ({ moduleKey }) => {
           rowKey="_id"
           loading={loading}
           className="premium-table-refined"
-          scroll={{ x: 900 }}
+          scroll={{ x: canUseAttachments ? 1040 : 900 }}
           pagination={{ pageSize: 10, showSizeChanger: true, locale: { items_per_page: '/ trang' } }}
         />
       </Card>
@@ -760,7 +893,7 @@ const HtxManagementModule = ({ moduleKey }) => {
       <Modal
         title={editingRecord ? 'Cập nhật dữ liệu' : config.createText}
         open={modalOpen}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => { setModalOpen(false); setAttachmentFileList([]); }}
         onOk={() => form.submit()}
         okText="Lưu"
         cancelText="Hủy"
@@ -875,9 +1008,50 @@ const HtxManagementModule = ({ moduleKey }) => {
                 <TextArea rows={4} placeholder="Nhập nội dung chi tiết" />
               </Form.Item>
             </Col>
+            {canUseAttachments && (
+              <Col span={24}>
+                <Form.Item
+                  label="Ảnh/tài liệu đính kèm"
+                  extra="Ảnh hiển thị xem trước, tài liệu mở bằng liên kết Cloudinary. Hỗ trợ JPG, PNG, GIF, WebP, PDF, Word, Excel. Tối đa 10 tệp, mỗi tệp không quá 10 MB."
+                >
+                  <Upload
+                    listType="picture-card"
+                    fileList={attachmentFileList}
+                    beforeUpload={validateAttachment}
+                    customRequest={uploadAttachment}
+                    onChange={handleAttachmentChange}
+                    onPreview={handleAttachmentPreview}
+                    maxCount={10}
+                    multiple
+                    accept="image/jpeg,image/png,image/gif,image/webp,.pdf,.doc,.docx,.xls,.xlsx"
+                    showUploadList={{
+                      showPreviewIcon: true,
+                      showRemoveIcon: true,
+                    }}
+                  >
+                    {attachmentFileList.length < 10 && (
+                      <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
+                        <PlusOutlined className="text-xl" />
+                        <span className="text-xs font-semibold">Thêm tệp</span>
+                      </div>
+                    )}
+                  </Upload>
+                </Form.Item>
+              </Col>
+            )}
           </Row>
         </Form>
       </Modal>
+      <Image
+        src={attachmentPreview.url}
+        alt={attachmentPreview.title}
+        style={{ display: 'none' }}
+        preview={{
+          visible: attachmentPreview.open,
+          src: attachmentPreview.url,
+          onVisibleChange: (visible) => setAttachmentPreview(prev => ({ ...prev, open: visible })),
+        }}
+      />
       <Modal
         title="Xử lý đối soát phân phối"
         open={processModalOpen}

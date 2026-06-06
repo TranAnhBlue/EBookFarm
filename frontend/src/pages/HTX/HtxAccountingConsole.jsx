@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, List, Row, Skeleton, Space, Statistic, Tag, Typography, message } from 'antd';
-import { AuditOutlined, FileDoneOutlined, TeamOutlined, WalletOutlined } from '@ant-design/icons';
+import { AuditOutlined, FileDoneOutlined, WalletOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { formatCurrencyVND } from '../../utils/helpers';
@@ -9,62 +9,62 @@ const { Title, Text, Paragraph } = Typography;
 
 const accountingDuties = [
   {
-    title: 'Äá»‘i soÃ¡t phÃ¢n phá»‘i',
-    description: 'Nháº­n Ä‘á» nghá»‹ thu/chi, chi phÃ­ váº­n chuyá»ƒn, Ä‘Ã³ng gÃ³i vÃ  Ä‘á»‘i soÃ¡t Ä‘Æ¡n hÃ ng do Ban phÃ¢n phá»‘i chuyá»ƒn sang.',
+    title: 'Đối soát phân phối',
+    description: 'Nhận đề nghị thu/chi, chi phí vận chuyển, đóng gói và đối soát đơn hàng do Ban phân phối chuyển sang.',
     icon: <WalletOutlined />,
     actions: [
-      { label: 'Äá»‘i soÃ¡t phÃ¢n phá»‘i', path: '/htx/distribution-finance' },
-      { label: 'Giao dá»‹ch tÃ i chÃ­nh', path: '/htx/accounting-transactions' },
+      { label: 'Đối soát phân phối', path: '/htx/distribution-finance' },
+      { label: 'Giao dịch tài chính', path: '/htx/accounting-transactions' },
     ],
   },
   {
-    title: 'Giao dá»‹ch tÃ i chÃ­nh',
-    description: 'Ghi nháº­n thu, chi, bÃ¡n hÃ ng, mua hÃ ng, thanh toÃ¡n vÃ  cÃ¡c nghiá»‡p vá»¥ tiá»n tá»‡.',
+    title: 'Giao dịch tài chính',
+    description: 'Ghi nhận thu, chi, bán hàng, mua hàng, thanh toán và các nghiệp vụ tiền tệ.',
     icon: <WalletOutlined />,
     actions: [
-      { label: 'Giao dá»‹ch tÃ i chÃ­nh', path: '/htx/accounting-transactions' },
+      { label: 'Giao dịch tài chính', path: '/htx/accounting-transactions' },
     ],
   },
   {
-    title: 'CÃ´ng ná»£ pháº£i thu',
-    description: 'Theo dÃµi cÃ¡c khoáº£n khÃ¡ch hÃ ng, Ä‘á»‘i tÃ¡c hoáº·c nÃ´ng há»™ cÃ²n pháº£i thanh toÃ¡n.',
+    title: 'Công nợ phải thu',
+    description: 'Theo dõi các khoản khách hàng, đối tác hoặc nông hộ còn phải thanh toán.',
     icon: <WalletOutlined />,
     actions: [
-      { label: 'CÃ´ng ná»£ pháº£i thu', path: '/htx/accounting-receivables' },
+      { label: 'Công nợ phải thu', path: '/htx/accounting-receivables' },
     ],
   },
   {
-    title: 'CÃ´ng ná»£ pháº£i tráº£',
-    description: 'Theo dÃµi khoáº£n pháº£i tráº£ cho nhÃ  cung cáº¥p, nÃ´ng há»™, váº­n chuyá»ƒn vÃ  chi phÃ­ hoáº¡t Ä‘á»™ng.',
+    title: 'Công nợ phải trả',
+    description: 'Theo dõi khoản phải trả cho nhà cung cấp, nông hộ, vận chuyển và chi phí hoạt động.',
     icon: <WalletOutlined />,
     actions: [
-      { label: 'CÃ´ng ná»£ pháº£i tráº£', path: '/htx/accounting-payables' },
+      { label: 'Công nợ phải trả', path: '/htx/accounting-payables' },
     ],
   },
   {
-    title: 'Sá»• sÃ¡ch & bÃ¡o cÃ¡o',
-    description: 'LÆ°u bÃ¡o cÃ¡o tÃ i sáº£n, lá»£i nhuáº­n/lá»—, dÃ²ng tiá»n vÃ  tá»•ng há»£p thu chi.',
+    title: 'Sổ sách & báo cáo',
+    description: 'Lưu báo cáo tài sản, lợi nhuận/lỗ, dòng tiền và tổng hợp thu chi.',
     icon: <FileDoneOutlined />,
     actions: [
-      { label: 'Sá»• sÃ¡ch & bÃ¡o cÃ¡o', path: '/htx/accounting-reports' },
-      { label: 'BÃ¡o cÃ¡o & thá»‘ng kÃª', path: '/reports' },
+      { label: 'Sổ sách & báo cáo', path: '/htx/accounting-reports' },
+      { label: 'Báo cáo & thống kê', path: '/reports' },
     ],
   },
   {
-    title: 'Thuáº¿ & chi phÃ­ khÃ¡c',
-    description: 'Theo dÃµi thá»§ tá»¥c thuáº¿, phÃ­, lá»‡ phÃ­ vÃ  cÃ¡c khoáº£n chi phÃ­ báº¯t buá»™c.',
+    title: 'Thuế & chi phí khác',
+    description: 'Theo dõi thủ tục thuế, phí, lệ phí và các khoản chi phí bắt buộc.',
     icon: <FileDoneOutlined />,
     actions: [
-      { label: 'Thuáº¿ & chi phÃ­', path: '/htx/tax-obligations' },
-      { label: 'TÃ i chÃ­nh - thu chi', path: '/htx/finance' },
+      { label: 'Thuế & chi phí', path: '/htx/tax-obligations' },
+      { label: 'Tài chính - thu chi', path: '/htx/finance' },
     ],
   },
   {
-    title: 'Khuyáº¿n nghá»‹ tÃ i chÃ­nh',
-    description: 'Ghi nháº­n cáº£nh bÃ¡o vÃ  Ä‘á» xuáº¥t cáº£i thiá»‡n quáº£n lÃ½ tÃ i chÃ­nh HTX.',
+    title: 'Khuyến nghị tài chính',
+    description: 'Ghi nhận cảnh báo và đề xuất cải thiện quản lý tài chính HTX.',
     icon: <AuditOutlined />,
     actions: [
-      { label: 'Khuyáº¿n nghá»‹ tÃ i chÃ­nh', path: '/htx/financial-recommendations' },
+      { label: 'Khuyến nghị tài chính', path: '/htx/financial-recommendations' },
     ],
   },
 ];
@@ -95,7 +95,7 @@ const HtxAccountingConsole = () => {
         setReports(reportRes.data?.data || []);
         setDistributionFinance(distributionFinanceRes.data?.data || []);
       } catch (error) {
-        message.error('KhÃ´ng thá»ƒ táº£i dá»¯ liá»‡u káº¿ toÃ¡n HTX');
+        message.error('Không thể tải dữ liệu kế toán HTX');
       } finally {
         setLoading(false);
       }
@@ -114,31 +114,31 @@ const HtxAccountingConsole = () => {
   }, [transactions, receivables, payables, distributionFinance]);
 
   const summaryItems = [
-    { title: 'Tá»•ng thu', value: formatCurrencyVND(totals.txIncome), color: '#16a34a' },
-    { title: 'Tá»•ng chi', value: formatCurrencyVND(totals.txExpense), color: '#ef4444' },
-    { title: 'Pháº£i thu', value: formatCurrencyVND(totals.recPending), color: '#2563eb' },
-    { title: 'Pháº£i tráº£', value: formatCurrencyVND(totals.payPending), color: '#f97316' },
-    { title: 'Chá» phÃ¢n phá»‘i', value: totals.distributionPending, suffix: '', color: '#7c3aed' },
+    { title: 'Tổng thu', value: formatCurrencyVND(totals.txIncome), color: '#16a34a' },
+    { title: 'Tổng chi', value: formatCurrencyVND(totals.txExpense), color: '#ef4444' },
+    { title: 'Phải thu', value: formatCurrencyVND(totals.recPending), color: '#2563eb' },
+    { title: 'Phải trả', value: formatCurrencyVND(totals.payPending), color: '#f97316' },
+    { title: 'Chờ phân phối', value: totals.distributionPending, suffix: '', color: '#7c3aed' },
   ];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">Trung tÃ¢m káº¿ toÃ¡n HTX</Text>
+          <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">Trung tâm kế toán HTX</Text>
           <Title level={2} className="!mb-1 flex items-center gap-3">
-            <WalletOutlined className="text-green-600" /> Káº¿ toÃ¡n
+            <WalletOutlined className="text-green-600" /> Kế toán
           </Title>
           <Paragraph className="!mb-0 text-gray-500 max-w-3xl">
-            MÃ n nghiá»‡p vá»¥ cho Káº¿ toÃ¡n: quáº£n lÃ½ giao dá»‹ch tÃ i chÃ­nh, cÃ´ng ná»£, sá»• sÃ¡ch, bÃ¡o cÃ¡o, thuáº¿ vÃ  khuyáº¿n nghá»‹ tÃ i chÃ­nh.
+            Màn nghiệp vụ cho Kế toán: quản lý giao dịch tài chính, công nợ, sổ sách, báo cáo, thuế và khuyến nghị tài chính.
           </Paragraph>
         </div>
         <Space wrap>
           <Button type="primary" icon={<WalletOutlined />} onClick={() => navigate('/htx/accounting-transactions')} className="rounded-xl h-10">
-            Giao dá»‹ch
+            Giao dịch
           </Button>
           <Button icon={<WalletOutlined />} onClick={() => navigate('/htx/distribution-finance')} className="rounded-xl h-10">
-            Äá»‘i soÃ¡t phÃ¢n phá»‘i
+            Đối soát phân phối
           </Button>
         </Space>
       </div>
@@ -147,8 +147,8 @@ const HtxAccountingConsole = () => {
         type="info"
         showIcon
         className="rounded-2xl border-blue-100"
-        message="TÃ¡c Ä‘á»™ng tá»›i nÃ´ng dÃ¢n"
-        description="Káº¿ toÃ¡n cÃ³ thá»ƒ gáº¯n khoáº£n pháº£i thu, pháº£i tráº£, thanh toÃ¡n hoáº·c khuyáº¿n nghá»‹ tÃ i chÃ­nh vá»›i tá»«ng nÃ´ng dÃ¢n liÃªn quan. NÃ´ng dÃ¢n sáº½ nháº­n thÃ´ng bÃ¡o vÃ  xem táº¡i mÃ n YÃªu cáº§u tá»« HTX."
+        message="Tác động tới nông dân"
+        description="Kế toán có thể gắn khoản phải thu, phải trả, thanh toán hoặc khuyến nghị tài chính với từng nông dân liên quan. Nông dân sẽ nhận thông báo và xem tại màn Yêu cầu từ HTX."
       />
 
       <Row gutter={[16, 16]}>
@@ -187,16 +187,16 @@ const HtxAccountingConsole = () => {
       <Card className="rounded-2xl border-gray-100 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <Text strong className="block text-gray-900">Quyá»n háº¡n káº¿ toÃ¡n Ä‘Ã£ Ã¡p vÃ o há»‡ thá»‘ng</Text>
-            <Text className="text-gray-500 text-sm">Káº¿ toÃ¡n quáº£n lÃ½ giao dá»‹ch, cÃ´ng ná»£, sá»• sÃ¡ch, bÃ¡o cÃ¡o, thuáº¿ vÃ  Ä‘Æ°a ra khuyáº¿n nghá»‹ tÃ i chÃ­nh trong pháº¡m vi HTX.</Text>
+            <Text strong className="block text-gray-900">Quyền hạn kế toán đã áp vào hệ thống</Text>
+            <Text className="text-gray-500 text-sm">Kế toán quản lý giao dịch, công nợ, sổ sách, báo cáo, thuế và đưa ra khuyến nghị tài chính trong phạm vi HTX.</Text>
           </div>
           <Space wrap>
             <Tag color="green">Thu</Tag>
             <Tag color="red">Chi</Tag>
-            <Tag color="blue">Pháº£i thu</Tag>
-            <Tag color="orange">Pháº£i tráº£</Tag>
-            <Tag color="purple">BÃ¡o cÃ¡o</Tag>
-            <Tag color="gold">Äá»‘i soÃ¡t phÃ¢n phá»‘i</Tag>
+            <Tag color="blue">Phải thu</Tag>
+            <Tag color="orange">Phải trả</Tag>
+            <Tag color="purple">Báo cáo</Tag>
+            <Tag color="gold">Đối soát phân phối</Tag>
           </Space>
         </div>
       </Card>

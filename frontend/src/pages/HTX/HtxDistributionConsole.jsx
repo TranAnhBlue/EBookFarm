@@ -1,8 +1,7 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, List, Row, Skeleton, Space, Statistic, Tag, Typography, message } from 'antd';
 import {
   AuditOutlined,
-  CheckCircleOutlined,
   FileDoneOutlined,
   FileTextOutlined,
   GlobalOutlined,
@@ -18,19 +17,19 @@ const { Title, Text, Paragraph } = Typography;
 
 const distributionDuties = [
   {
-    title: 'ÄÆ¡n Ä‘áº·t hÃ ng',
-    description: 'Quáº£n lÃ½ sá»‘ lÆ°á»£ng Ä‘Æ¡n Ä‘áº·t hÃ ng, tráº¡ng thÃ¡i Ä‘iá»u phá»‘i vÃ  nhu cáº§u sáº£n pháº©m tá»« khÃ¡ch hÃ ng/Ä‘á»‘i tÃ¡c.',
+    title: 'Đơn đặt hàng',
+    description: 'Quản lý số lượng đơn đặt hàng, trạng thái điều phối và nhu cầu sản phẩm từ khách hàng/đối tác.',
     icon: <ShoppingOutlined />,
     actions: [
-      { label: 'ÄÆ¡n Ä‘áº·t hÃ ng', path: '/htx/distribution-orders' },
+      { label: 'Đơn đặt hàng', path: '/htx/distribution-orders' },
     ],
   },
   {
-    title: 'Váº­n chuyá»ƒn & giao hÃ ng',
-    description: 'Theo dÃµi thá»i gian, chi phÃ­ váº­n chuyá»ƒn, sáº¯p xáº¿p hÃ ng vÃ  tÃ¬nh tráº¡ng giao hÃ ng.',
+    title: 'Vận chuyển & giao hàng',
+    description: 'Theo dõi thời gian, chi phí vận chuyển, sắp xếp hàng và tình trạng giao hàng.',
     icon: <AuditOutlined />,
     actions: [
-      { label: 'Váº­n chuyá»ƒn & giao hÃ ng', path: '/htx/distribution-shipments' },
+      { label: 'Vận chuyển & giao hàng', path: '/htx/distribution-shipments' },
     ],
   },
   {
@@ -43,45 +42,45 @@ const distributionDuties = [
     ],
   },
   {
-    title: 'PhÃ¡t triá»ƒn thá»‹ trÆ°á»ng',
-    description: 'Theo dÃµi há»™i chá»£, kÃªnh bÃ¡n hÃ ng, sá»± kiá»‡n giá»›i thiá»‡u sáº£n pháº©m vÃ  cÆ¡ há»™i tiÃªu thá»¥.',
+    title: 'Phát triển thị trường',
+    description: 'Theo dõi hội chợ, kênh bán hàng, sự kiện giới thiệu sản phẩm và cơ hội tiêu thụ.',
     icon: <GlobalOutlined />,
     actions: [
-      { label: 'PhÃ¡t triá»ƒn thá»‹ trÆ°á»ng', path: '/htx/market-development' },
+      { label: 'Phát triển thị trường', path: '/htx/market-development' },
     ],
   },
   {
-    title: 'Pháº£n há»“i khÃ¡ch hÃ ng',
-    description: 'Tiáº¿p nháº­n vÃ  xá»­ lÃ½ Ã½ kiáº¿n khÃ¡ch hÃ ng/Ä‘á»‘i tÃ¡c vá» cháº¥t lÆ°á»£ng, bao gÃ³i, giao hÃ ng.',
+    title: 'Phản hồi khách hàng',
+    description: 'Tiếp nhận và xử lý ý kiến khách hàng/đối tác về chất lượng, bao gói, giao hàng.',
     icon: <FileTextOutlined />,
     actions: [
-      { label: 'Pháº£n há»“i khÃ¡ch hÃ ng', path: '/htx/customer-feedback' },
-      { label: 'HoÃ n thiá»‡n sáº£n pháº©m', path: '/htx/product-finalization' },
+      { label: 'Phản hồi khách hàng', path: '/htx/customer-feedback' },
+      { label: 'Hoàn thiện sản phẩm', path: '/htx/product-finalization' },
     ],
   },
   {
-    title: 'HoÃ n thiá»‡n sáº£n pháº©m',
-    description: 'GiÃ¡m sÃ¡t phÃ¢n loáº¡i, Ä‘Ã³ng gÃ³i, dÃ¡n tem QR, bÃ n giao trÆ°á»›c khi chuyá»ƒn cho khÃ¡ch hÃ ng.',
+    title: 'Hoàn thiện sản phẩm',
+    description: 'Giám sát phân loại, đóng gói, dán tem QR, bàn giao trước khi chuyển cho khách hàng.',
     icon: <FileDoneOutlined />,
     actions: [
-      { label: 'HoÃ n thiá»‡n sáº£n pháº©m', path: '/htx/product-finalization' },
+      { label: 'Hoàn thiện sản phẩm', path: '/htx/product-finalization' },
     ],
   },
   {
-    title: 'Äá»‘i soÃ¡t tÃ i chÃ­nh',
-    description: 'Táº­p há»£p doanh thu Ä‘Æ¡n hÃ ng, chi phÃ­ váº­n chuyá»ƒn/Ä‘Ã³ng gÃ³i vÃ  chuyá»ƒn sang Káº¿ toÃ¡n xá»­ lÃ½ thanh toÃ¡n hoáº·c cÃ´ng ná»£.',
+    title: 'Đối soát tài chính',
+    description: 'Tập hợp doanh thu đơn hàng, chi phí vận chuyển/đóng gói và chuyển sang Kế toán xử lý thanh toán hoặc công nợ.',
     icon: <WalletOutlined />,
     actions: [
-      { label: 'Äá»‘i soÃ¡t tÃ i chÃ­nh', path: '/htx/distribution-finance' },
-      { label: 'Chi phÃ­ váº­n chuyá»ƒn', path: '/htx/distribution-shipments' },
+      { label: 'Đối soát tài chính', path: '/htx/distribution-finance' },
+      { label: 'Chi phí vận chuyển', path: '/htx/distribution-shipments' },
     ],
   },
   {
-    title: 'LiÃªn káº¿t nÃ´ng dÃ¢n',
-    description: 'Gáº¯n Ä‘Æ¡n hÃ ng, pháº£n há»“i, yÃªu cáº§u hoÃ n thiá»‡n sáº£n pháº©m vá»›i cÃ¡c nÃ´ng há»™ liÃªn quan.',
+    title: 'Liên kết nông dân',
+    description: 'Gắn đơn hàng, phản hồi, yêu cầu hoàn thiện sản phẩm với các nông hộ liên quan.',
     icon: <TeamOutlined />,
     actions: [
-      { label: 'Äá»‘i soÃ¡t theo nÃ´ng há»™', path: '/htx/distribution-finance' },
+      { label: 'Đối soát theo nông hộ', path: '/htx/distribution-finance' },
     ],
   },
 ];
@@ -109,7 +108,7 @@ const HtxDistributionConsole = () => {
         setFeedback(feedbackRes.data?.data || []);
         setFinanceRequests(financeRes.data?.data || []);
       } catch (error) {
-        message.error('KhÃ´ng thá»ƒ táº£i dá»¯ liá»‡u phÃ¢n phá»‘i HTX');
+        message.error('Không thể tải dữ liệu phân phối HTX');
       } finally {
         setLoading(false);
       }
@@ -123,30 +122,30 @@ const HtxDistributionConsole = () => {
   const pendingFinance = useMemo(() => financeRequests.filter(item => ['Pending', 'Review'].includes(item.status)).length, [financeRequests]);
 
   const summaryItems = [
-    { title: 'ÄÆ¡n Ä‘ang xá»­ lÃ½', value: pendingOrders, icon: <ShoppingOutlined />, color: '#f97316' },
-    { title: 'Chuyáº¿n giao hÃ ng', value: activeShipments, icon: <AuditOutlined />, color: '#2563eb' },
+    { title: 'Đơn đang xử lý', value: pendingOrders, icon: <ShoppingOutlined />, color: '#f97316' },
+    { title: 'Chuyến giao hàng', value: activeShipments, icon: <AuditOutlined />, color: '#2563eb' },
     { title: 'Phản hồi khách hàng', value: feedback.length, icon: <FileTextOutlined />, color: '#16a34a' },
-    { title: 'Äá»‘i soÃ¡t tÃ i chÃ­nh', value: pendingFinance, icon: <WalletOutlined />, color: '#7c3aed' },
+    { title: 'Đối soát tài chính', value: pendingFinance, icon: <WalletOutlined />, color: '#7c3aed' },
   ];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">Trung tÃ¢m phÃ¢n phá»‘i HTX</Text>
+          <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">Trung tâm phân phối HTX</Text>
           <Title level={2} className="!mb-1 flex items-center gap-3">
-            <ShoppingOutlined className="text-green-600" /> Ban phÃ¢n phá»‘i
+            <ShoppingOutlined className="text-green-600" /> Ban phân phối
           </Title>
           <Paragraph className="!mb-0 text-gray-500 max-w-3xl">
-            MÃ n nghiá»‡p vá»¥ cho Ban phÃ¢n phá»‘i: quáº£n lÃ½ Ä‘Æ¡n hÃ ng, váº­n chuyá»ƒn, hoÃ n thiá»‡n sáº£n pháº©m, phÃ¡t triá»ƒn thá»‹ trÆ°á»ng vÃ  xá»­ lÃ½ pháº£n há»“i khÃ¡ch hÃ ng/Ä‘á»‘i tÃ¡c.
+            Màn nghiệp vụ cho Ban phân phối: quản lý đơn hàng, vận chuyển, hoàn thiện sản phẩm, phát triển thị trường và xử lý phản hồi khách hàng/đối tác.
           </Paragraph>
         </div>
         <Space wrap>
           <Button type="primary" icon={<ShoppingOutlined />} onClick={() => navigate('/htx/distribution-orders')} className="rounded-xl h-10">
-            ÄÆ¡n hÃ ng
+            Đơn hàng
           </Button>
           <Button icon={<WalletOutlined />} onClick={() => navigate('/htx/distribution-finance')} className="rounded-xl h-10">
-            Äá»‘i soÃ¡t
+            Đối soát
           </Button>
         </Space>
       </div>
@@ -155,8 +154,8 @@ const HtxDistributionConsole = () => {
         type="info"
         showIcon
         className="rounded-2xl border-blue-100"
-        message="TÃ¡c Ä‘á»™ng tá»›i nÃ´ng dÃ¢n"
-        description="Ban phÃ¢n phá»‘i cÃ³ thá»ƒ gáº¯n Ä‘Æ¡n hÃ ng, pháº£n há»“i khÃ¡ch hÃ ng, yÃªu cáº§u hoÃ n thiá»‡n sáº£n pháº©m hoáº·c váº­n chuyá»ƒn vá»›i tá»«ng nÃ´ng dÃ¢n liÃªn quan. NÃ´ng dÃ¢n sáº½ nháº­n thÃ´ng bÃ¡o vÃ  xem á»Ÿ mÃ n YÃªu cáº§u tá»« HTX."
+        message="Tác động tới nông dân"
+        description="Ban phân phối có thể gắn đơn hàng, phản hồi khách hàng, yêu cầu hoàn thiện sản phẩm hoặc vận chuyển với từng nông dân liên quan. Nông dân sẽ nhận thông báo và xem ở màn Yêu cầu từ HTX."
       />
 
       <Row gutter={[16, 16]}>
@@ -208,16 +207,16 @@ const HtxDistributionConsole = () => {
       <Card className="rounded-2xl border-gray-100 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <Text strong className="block text-gray-900">Quyá»n háº¡n phÃ¢n phá»‘i Ä‘Ã£ Ã¡p vÃ o há»‡ thá»‘ng</Text>
-            <Text className="text-gray-500 text-sm">Ban phÃ¢n phá»‘i quáº£n lÃ½ sáº£n pháº©m, lÃ´ hÃ ng, Ä‘Æ¡n hÃ ng, váº­n chuyá»ƒn, pháº£n há»“i khÃ¡ch hÃ ng vÃ  yÃªu cáº§u hoÃ n thiá»‡n sáº£n pháº©m trÆ°á»›c khi giao.</Text>
+            <Text strong className="block text-gray-900">Quyền hạn phân phối đã áp vào hệ thống</Text>
+            <Text className="text-gray-500 text-sm">Ban phân phối quản lý sản phẩm, lô hàng, đơn hàng, vận chuyển, phản hồi khách hàng và yêu cầu hoàn thiện sản phẩm trước khi giao.</Text>
           </div>
           <Space wrap>
-            <Tag color="green">ÄÆ¡n hÃ ng</Tag>
-            <Tag color="blue">Váº­n chuyá»ƒn</Tag>
-            <Tag color="purple">Thá»‹ trÆ°á»ng</Tag>
-            <Tag color="orange">Pháº£n há»“i</Tag>
-            <Tag color="cyan">HoÃ n thiá»‡n sáº£n pháº©m</Tag>
-            <Tag color="gold">Äá»‘i soÃ¡t tÃ i chÃ­nh</Tag>
+            <Tag color="green">Đơn hàng</Tag>
+            <Tag color="blue">Vận chuyển</Tag>
+            <Tag color="purple">Thị trường</Tag>
+            <Tag color="orange">Phản hồi</Tag>
+            <Tag color="cyan">Hoàn thiện sản phẩm</Tag>
+            <Tag color="gold">Đối soát tài chính</Tag>
           </Space>
         </div>
       </Card>
