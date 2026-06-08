@@ -3,6 +3,7 @@ const { createLog } = require('./logController');
 const { createNotification } = require('./notificationController');
 const { ROLES, isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 const { notifyHtxRoles } = require('../utils/notificationHelpers');
+const { validateJournalAgainstApprovedInputs } = require('../utils/journalCompliance');
 
 const createJournal = async (req, res) => {
   try {
@@ -30,6 +31,26 @@ const createJournal = async (req, res) => {
     if (req.body.entries) {
         journal.markModified('entries');
     }
+
+    if (['Submitted', 'Verified', 'Locked'].includes(journal.status)) {
+        const compliance = await validateJournalAgainstApprovedInputs(journal.entries, getHtxOwnerId(req.user));
+        journal.complianceIssues = [
+            ...compliance.warnings.map(message => ({ severity: 'warning', message })),
+            ...compliance.blockers.map(message => ({ severity: 'blocker', message })),
+        ];
+        journal.complianceStatus = compliance.ok
+            ? (compliance.warnings.length ? 'Warning' : 'Passed')
+            : 'Blocked';
+
+        if (!compliance.ok) {
+            return res.status(422).json({
+                success: false,
+                message: 'Nhật ký chưa đạt kiểm tra danh mục vật tư được phép hoặc thời gian cách ly thuốc BVTV.',
+                compliance,
+            });
+        }
+    }
+
     const createdJournal = await journal.save();
     
     // Log action
@@ -125,7 +146,7 @@ const updateJournal = async (req, res) => {
           // DATA IMMUTABILITY & STATUS ENFORCEMENT
           // Ngăn chặn chỉnh sửa nếu đã gửi duyệt hoặc đã duyệt (trừ Admin)
           const immutableStatuses = ['Submitted', 'Verified', 'Locked'];
-          if (immutableStatuses.includes(journal.status) && !isAdminRole(req.user.role)) {
+          if (immutableStatuses.includes(journal.status) && !isAdminRole(req.user.role) && req.body.entries) {
               let msg = `Sổ nhật ký đang ở trạng thái "${journal.status}". Không thể chỉnh sửa dữ liệu tại thời điểm này.`;
               if (journal.status === 'Submitted') msg = 'Sổ đã được gửi duyệt. Vui lòng liên hệ Admin/HTX nếu bạn cần sửa đổi.';
               if (journal.status === 'Verified') msg = 'Sổ đã được duyệt và xác minh thành công. Dữ liệu đã được khóa để đảm bảo truy xuất nguồn gốc.';
@@ -155,6 +176,25 @@ const updateJournal = async (req, res) => {
 
           if (req.body.images) {
               journal.images = req.body.images;
+          }
+
+          if (['Submitted', 'Verified', 'Locked'].includes(journal.status)) {
+              const compliance = await validateJournalAgainstApprovedInputs(journal.entries, getHtxOwnerId(req.user));
+              journal.complianceIssues = [
+                  ...compliance.warnings.map(message => ({ severity: 'warning', message })),
+                  ...compliance.blockers.map(message => ({ severity: 'blocker', message })),
+              ];
+              journal.complianceStatus = compliance.ok
+                  ? (compliance.warnings.length ? 'Warning' : 'Passed')
+                  : 'Blocked';
+
+              if (!compliance.ok) {
+                  return res.status(422).json({
+                      success: false,
+                      message: 'Nhật ký chưa đạt kiểm tra thời gian cách ly thuốc BVTV. Vui lòng xử lý trước khi gửi duyệt/duyệt.',
+                      compliance,
+                  });
+              }
           }
           
           journal.editCount = (journal.editCount || 0) + 1;

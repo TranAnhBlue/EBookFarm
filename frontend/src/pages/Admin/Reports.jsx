@@ -30,6 +30,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import { isHtx as isHtxRole } from '../../utils/roles';
 import logoEBookFarm from '../../assets/logo-ebookfarm.jpg';
 
 const { Title, Text } = Typography;
@@ -40,7 +41,7 @@ const COLORS = ['#22c55e', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
 const Reports = () => {
   const { user } = useAuthStore();
   const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
-  const isHtx = user?.role?.toUpperCase() === 'HTX';
+  const isHtx = isHtxRole(user?.role);
 
   // Fetch stats data
   const { data: stats, isLoading: statsLoading } = useQuery({

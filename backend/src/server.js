@@ -140,6 +140,12 @@ app.use('/api/htx/journals', htxJournalRoutes);
 const htxManagementRoutes = require('./routes/htxManagementRoutes.js');
 app.use('/api/htx/management', htxManagementRoutes);
 
+const plantingRegionRoutes = require('./routes/plantingRegionRoutes.js');
+app.use('/api/htx/planting-regions', plantingRegionRoutes);
+
+const approvedAgriInputRoutes = require('./routes/approvedAgriInputRoutes.js');
+app.use('/api/agri-inputs/approved', approvedAgriInputRoutes);
+
 // === TXNG Quá»‘c Gia ===
 const productRoutes = require('./routes/productRoutes.js');
 app.use('/api/products', productRoutes);

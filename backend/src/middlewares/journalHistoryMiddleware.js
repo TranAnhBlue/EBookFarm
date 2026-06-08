@@ -1,6 +1,7 @@
 const JournalHistory = require('../models/JournalHistory');
 const FarmJournal = require('../models/FarmJournal');
 const FormSchema = require('../models/FormSchema');
+const { ROLES, normalizeRole, isAdminRole } = require('../utils/roles');
 
 /**
  * Middleware to track journal changes
@@ -154,12 +155,20 @@ const checkEditPermission = async (req, res, next) => {
     const journalId = req.params.id;
     const userId = req.user.id;
     const userRole = req.user.role;
+    const hasEntryChange = Object.prototype.hasOwnProperty.call(req.body, 'entries');
 
     const journal = await FarmJournal.findById(journalId);
     if (!journal) {
       return res.status(404).json({
         success: false,
         message: 'Không tìm thấy nhật ký'
+      });
+    }
+
+    if (hasEntryChange && journal.status !== 'Draft' && !isAdminRole(userRole)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Dữ liệu nhật ký đã được nộp/duyệt nên không thể sửa nội dung. Nếu cần chỉnh sửa, HTX phải trả sổ về trạng thái nháp kèm lý do.'
       });
     }
 
@@ -174,7 +183,7 @@ const checkEditPermission = async (req, res, next) => {
     }
 
     // If editing Submitted/Verified, require reason
-    if (['Submitted', 'Verified'].includes(journal.status) && !req.body.reason) {
+    if (['Submitted', 'Verified'].includes(journal.status) && !req.body.reason && !req.body.feedback && !isAdminRole(userRole)) {
       return res.status(400).json({
         success: false,
         message: 'Vui lòng nhập lý do chỉnh sửa',
@@ -196,8 +205,10 @@ const checkEditPermission = async (req, res, next) => {
  * Check if user has permission to edit based on status and role
  */
 function checkPermission(status, role, ownerId, userId) {
+  const normalizedRole = normalizeRole(role);
+
   // Admin can edit anything except Archived
-  if (role === 'Admin' && status !== 'Archived') {
+  if (isAdminRole(role) && status !== 'Archived') {
     return true;
   }
 
@@ -208,12 +219,10 @@ function checkPermission(status, role, ownerId, userId) {
       return ownerId === userId;
     
     case 'Submitted':
-      // Owner and Technician can edit Submitted
-      return ownerId === userId || role === 'Technician';
+      return [ROLES.HTX_DIRECTOR, ROLES.HTX_TECHNICAL, ROLES.HTX_SUPERVISOR].includes(normalizedRole);
     
     case 'Verified':
-      // Only Technician and Admin can edit Verified
-      return role === 'Technician' || role === 'Admin';
+      return false;
     
     case 'Locked':
       // Only Admin can edit Locked

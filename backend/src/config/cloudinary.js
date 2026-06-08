@@ -42,8 +42,9 @@ const documentStorage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
     folder: 'ebookfarm/documents',
-    resource_type: 'auto',
-    public_id: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`,
+    resource_type: 'raw',
+    public_id: `${Date.now()}-${path.parse(file.originalname).name.replace(/[^a-zA-Z0-9._-]/g, '_')}`,
+    format: path.extname(file.originalname).replace('.', '').toLowerCase() || undefined,
   }),
 });
 

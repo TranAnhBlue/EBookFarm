@@ -10,6 +10,7 @@ import {
   BoxPlotOutlined,
   CheckCircleOutlined,
   CloudSyncOutlined,
+  EnvironmentOutlined,
   ExperimentOutlined,
   FileDoneOutlined,
   FileTextOutlined,
@@ -192,6 +193,7 @@ const MainLayout = () => {
   ];
 
   const traceabilityChildren = [
+    canViewTraceability(role) && { key: '/htx/planting-regions', icon: <EnvironmentOutlined />, label: 'Mã số vùng trồng' },
     canViewTraceability(role) && { key: '/htx/products', icon: <BarcodeOutlined />, label: 'Danh mục sản phẩm' },
     canViewTraceability(role) && { key: '/htx/batches', icon: <BoxPlotOutlined />, label: 'Quản lý lô & TXNG' },
     canManageTraceability(role) && { key: '/htx/portal-settings', icon: <CloudSyncOutlined />, label: 'Cấu hình Cổng QG' },
@@ -237,6 +239,7 @@ const MainLayout = () => {
         { key: '/htx/product-inspections', label: 'Kiểm tra đầu ra' },
         { key: '/htx/nonconformities', label: 'Không phù hợp' },
         { key: '/htx/material-supervision', label: 'Giám sát vật tư' },
+        { key: '/htx/approved-agri-inputs', label: 'Danh mục vật tư được phép' },
         { key: '/htx/technical-proposals', label: 'Đề xuất kỹ thuật' },
         { key: '/htx/technical-reports', label: 'Báo cáo kỹ thuật' },
         isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-reports', label: 'Báo cáo nông dân' },

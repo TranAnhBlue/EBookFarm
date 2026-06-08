@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
   farmCode: { type: String },
   farmArea: { type: Number }, // Diện tích (m²)
   farmType: { type: String, enum: ['Trồng trọt', 'Chăn nuôi', 'Thủy sản', 'Hỗn hợp'] },
+  plantingRegionId: { type: mongoose.Schema.Types.ObjectId, ref: 'PlantingRegion' },
+  plantingRegionCode: { type: String },
+  farmCoordinates: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
   certifications: [{
     name: String, // VietGAP, Hữu cơ, GlobalGAP...
     code: String, // Số hiệu chứng chỉ

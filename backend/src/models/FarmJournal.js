@@ -5,40 +5,35 @@ const farmJournalSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   schemaId: { type: mongoose.Schema.Types.ObjectId, ref: 'FormSchema', required: true },
   htxJournalId: { type: mongoose.Schema.Types.ObjectId, ref: 'HtxJournal' },
-  batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductionBatch' }, // Liên kết lô sản xuất
+  batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductionBatch' },
   qrCode: { type: String, default: () => uuidv4(), unique: true },
   entries: { type: mongoose.Schema.Types.Mixed, default: {} },
-  status: { 
-    type: String, 
-    enum: ['Draft', 'Submitted', 'Verified', 'Locked', 'Archived'], 
-    default: 'Draft' 
+  status: {
+    type: String,
+    enum: ['Draft', 'Submitted', 'Verified', 'Locked', 'Archived'],
+    default: 'Draft'
   },
-  // Images
-  images: [{ 
-    url: String, 
+  images: [{
+    url: String,
     caption: String,
     uploadedAt: { type: Date, default: Date.now }
   }],
-  // Documents (Attached files like PDF, Excel, etc.)
   documents: [{
     url: String,
     name: String,
     type: String,
     uploadedAt: { type: Date, default: Date.now }
   }],
-  // Certifications
   certifications: [{
-    name: String, // VietGAP, Organic, GlobalGAP, etc.
-    issuer: String, // Tổ chức cấp
-    number: String, // Số chứng nhận
+    name: String,
+    issuer: String,
+    number: String,
     issueDate: Date,
     expiryDate: Date,
     fileUrl: String
   }],
-  // View tracking
   viewCount: { type: Number, default: 0 },
   lastViewedAt: { type: Date },
-  // History tracking
   submittedAt: { type: Date },
   verifiedAt: { type: Date },
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -46,14 +41,22 @@ const farmJournalSchema = new mongoose.Schema({
   editCount: { type: Number, default: 0 },
   lastEditedAt: { type: Date },
   lastEditedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  feedback: { type: String }, // Nhận xét từ HTX
-  htxStatus: { type: String }, // Trạng thái đồng bộ từ HTX (Đã duyệt, Cần chỉnh sửa...)
-  progress: { type: Number, default: 0 }, // % tiến độ thực hiện
-  
-  // Quản lý thương hiệu HTX
-  brandAuthorized: { type: Boolean, default: false }, // Đã được HTX cấp quyền thương hiệu chưa
-  brandAuthorizedAt: { type: Date }, // Thời điểm cấp quyền
-  brandAuthorizedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Người cấp quyền
+  feedback: { type: String },
+  htxStatus: { type: String },
+  progress: { type: Number, default: 0 },
+  complianceStatus: {
+    type: String,
+    enum: ['Unchecked', 'Passed', 'Warning', 'Blocked'],
+    default: 'Unchecked'
+  },
+  complianceIssues: [{
+    severity: { type: String, enum: ['warning', 'blocker'], default: 'warning' },
+    message: String,
+    checkedAt: { type: Date, default: Date.now }
+  }],
+  brandAuthorized: { type: Boolean, default: false },
+  brandAuthorizedAt: { type: Date },
+  brandAuthorizedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 const FarmJournal = mongoose.model('FarmJournal', farmJournalSchema);

@@ -80,6 +80,8 @@ const HtxFarmerMgmt = lazy(() => import('./pages/HTX/HtxFarmerMgmt'));
 const HtxInventoryMgmt = lazy(() => import('./pages/HTX/HtxInventoryMgmt'));
 const HtxProductMgmt = lazy(() => import('./pages/HTX/HtxProductMgmt'));
 const HtxBatchMgmt = lazy(() => import('./pages/HTX/HtxBatchMgmt'));
+const HtxPlantingRegionMgmt = lazy(() => import('./pages/HTX/HtxPlantingRegionMgmt'));
+const HtxApprovedAgriInputMgmt = lazy(() => import('./pages/HTX/HtxApprovedAgriInputMgmt'));
 const HtxSupplyMgmt = lazy(() => import('./pages/HTX/HtxSupplyMgmt'));
 const HtxPortalSettings = lazy(() => import('./pages/HTX/HtxPortalSettings'));
 const HtxDirectorConsole = lazy(() => import('./pages/HTX/HtxDirectorConsole'));
@@ -210,6 +212,7 @@ const App = () => {
                     <Route path="htx/product-inspections" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxManagementModule moduleKey="product-inspections" /></ProtectedRoute>} />
                     <Route path="htx/nonconformities" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxManagementModule moduleKey="nonconformities" /></ProtectedRoute>} />
                     <Route path="htx/material-supervision" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxManagementModule moduleKey="material-supervision" /></ProtectedRoute>} />
+                    <Route path="htx/approved-agri-inputs" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxApprovedAgriInputMgmt /></ProtectedRoute>} />
                     <Route path="htx/technical-proposals" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxManagementModule moduleKey="technical-proposals" /></ProtectedRoute>} />
                     <Route path="htx/technical-reports" element={<ProtectedRoute htxOnly canAccess={canManageTechnicalOperations}><HtxManagementModule moduleKey="technical-reports" /></ProtectedRoute>} />
                     <Route path="htx/farmer-reports" element={<ProtectedRoute htxOnly canAccess={canHandleFarmerSubmissions}><HtxManagementModule moduleKey="farmer-reports" /></ProtectedRoute>} />
@@ -232,6 +235,7 @@ const App = () => {
                     <Route path="htx/approvals" element={<ProtectedRoute htxOnly canAccess={canManageHtxJournals}><HtxJournalApproval /></ProtectedRoute>} />
                     <Route path="htx/farmers" element={<ProtectedRoute htxOnly canAccess={canAccessHtxFarmerManagement}><HtxFarmerMgmt /></ProtectedRoute>} />
                     <Route path="htx/products" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxProductMgmt /></ProtectedRoute>} />
+                    <Route path="htx/planting-regions" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxPlantingRegionMgmt /></ProtectedRoute>} />
                     <Route path="htx/batches" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxBatchMgmt /></ProtectedRoute>} />
                     <Route path="htx/supplies" element={<ProtectedRoute htxOnly canAccess={canManageSupplies}><HtxSupplyMgmt /></ProtectedRoute>} />
                     <Route path="htx/portal-settings" element={<ProtectedRoute htxOnly canAccess={canManageTraceability}><HtxPortalSettings /></ProtectedRoute>} />
