@@ -1,6 +1,8 @@
 ﻿const User = require('../models/User');
 const { createLog } = require('./logController');
 const Otp = require('../models/Otp');
+const { createNotification } = require('./notificationController');
+const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 
 const getUsers = async (req, res) => {
   try {
@@ -314,9 +316,9 @@ const verifyCertification = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
     }
 
-    // Kiểm tra quyền hạn: Nếu là HTX thì chỉ được duyệt cho thành viên của mình
-    if (req.user.role?.toUpperCase() === 'HTX') {
-      if (!user.htxId || user.htxId.toString() !== req.user._id.toString()) {
+    // HTX chỉ được duyệt chứng nhận cho nông dân thuộc HTX của mình.
+    if (isHtxRole(req.user.role) && !isAdminRole(req.user.role)) {
+      if (!user.htxId || user.htxId.toString() !== String(getHtxOwnerId(req.user))) {
         return res.status(403).json({ 
           success: false, 
           message: 'Bạn không có quyền duyệt chứng chỉ cho người dùng không thuộc HTX của mình.' 
@@ -335,6 +337,19 @@ const verifyCertification = async (req, res) => {
     cert.verifiedAt = new Date();
 
     await user.save();
+
+    await createNotification({
+      recipient: user._id,
+      sender: req.user._id,
+      title: status === 'Approved' ? 'Chứng nhận đã được phê duyệt' : 'Chứng nhận bị từ chối',
+      message: status === 'Approved'
+        ? `Chứng nhận "${cert.name || cert.title || 'VietGAP'}" của bạn đã được HTX phê duyệt.`
+        : `Chứng nhận "${cert.name || cert.title || 'VietGAP'}" của bạn bị từ chối.${feedback ? ` Lý do: ${feedback}` : ''}`,
+      type: 'System',
+      relatedId: user._id,
+      relatedModel: 'User',
+      categoryLabel: 'certification'
+    });
 
     res.json({ 
       success: true, 

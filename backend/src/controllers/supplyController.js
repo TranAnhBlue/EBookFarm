@@ -205,6 +205,17 @@ const cancelRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Chỉ có thể hủy yêu cầu đang ở trạng thái chờ duyệt.' });
     }
 
+    await notifyHtxRoles({
+      htxId: request.htx,
+      roles: [ROLES.HTX_DIRECTOR, ROLES.HTX_DISTRIBUTION, ROLES.HTX_TECHNICAL],
+      sender: farmerId,
+      title: 'Nông dân đã hủy yêu cầu vật tư',
+      message: `${req.user.fullname || req.user.username} đã hủy một yêu cầu vật tư đang chờ xử lý.`,
+      type: 'Supply_Request_Processed',
+      relatedId: request._id,
+      relatedModel: 'SupplyRequest'
+    });
+
     await SupplyRequest.findByIdAndDelete(id);
 
     res.json({ success: true, message: 'Đã hủy yêu cầu vật tư thành công.' });

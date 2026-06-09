@@ -159,6 +159,24 @@ const HtxFarmerMgmt = () => {
     });
   }, [journals, selectedFarmer]);
 
+  const journalAssignOptions = useMemo(() => {
+    if (!selectedFarmer) return [];
+    return journals.map((journal) => {
+      const alreadyAssigned = journal.farmers?.some((item) => {
+        const id = item.farmerId?._id || item.farmerId;
+        return String(id) === String(selectedFarmer._id);
+      });
+      const schemaName = journal.schemaId?.name || journal.schemaId?.title || 'Biểu mẫu';
+      return {
+        value: journal._id,
+        label: `${journal.name} - ${schemaName}${alreadyAssigned ? ' (Đã gán)' : ''}`,
+        disabled: alreadyAssigned,
+        journal,
+        alreadyAssigned,
+      };
+    });
+  }, [journals, selectedFarmer]);
+
   const openProfile = (farmer) => {
     setSelectedFarmer(farmer);
     setProfileOpen(true);
@@ -538,7 +556,7 @@ const HtxFarmerMgmt = () => {
 
       <Modal title={<Space><DeploymentUnitOutlined className="text-green-600" /><Text strong>Gán sổ cho {selectedFarmer?.fullname || selectedFarmer?.username}</Text></Space>} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={handleAssignJournals} okText="Gán sổ" cancelText="Hủy" confirmLoading={assigning} width={720} centered>
         <div className="mt-4 space-y-3">
-          <Text className="block text-gray-500">Chọn một hoặc nhiều sổ HTX chưa gán cho nông dân này.</Text>
+          <Text className="block text-gray-500">Chọn một hoặc nhiều sổ HTX chưa gán cho nông dân này. Sổ đã gán sẽ chỉ hiển thị để đối chiếu.</Text>
           <Select
             mode="multiple"
             placeholder="Chọn sổ nhật ký HTX"
@@ -547,12 +565,24 @@ const HtxFarmerMgmt = () => {
             loading={journalLoading}
             className="w-full"
             optionFilterProp="label"
-            options={assignableJournals.map((journal) => ({
-              value: journal._id,
-              label: `${journal.name} - ${journal.schemaId?.name || 'Biểu mẫu'}`,
-            }))}
+            options={journalAssignOptions}
+            optionRender={(option) => {
+              const item = option.data;
+              return (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Text strong className="block truncate">{item.journal.name}</Text>
+                    <Text type="secondary" className="block text-xs truncate">{item.journal.schemaId?.name || item.journal.schemaId?.title || 'Biểu mẫu'}</Text>
+                  </div>
+                  {item.alreadyAssigned && <Tag color="green" className="shrink-0 rounded-full">Đã gán</Tag>}
+                </div>
+              );
+            }}
           />
-          {!assignableJournals.length && <Empty description="Không còn sổ HTX nào có thể gán thêm cho nông dân này" />}
+          {!journals.length && <Empty description="HTX chưa có sổ nhật ký nào" />}
+          {journals.length > 0 && !assignableJournals.length && (
+            <Empty description="Nông dân này đã được gán vào tất cả sổ HTX hiện có" />
+          )}
         </div>
       </Modal>
 

@@ -9,7 +9,9 @@ const {
   getFarmersForHtx,
   getHtxJournalSummary,
   authorizeBrand,
-  removeFarmerFromHtx
+  removeFarmerFromHtx,
+  getPendingJournalApprovals,
+  reviewFarmJournalApproval
 } = require('../controllers/htxJournalController');
 const { protect, admin, htx, htxOrAdmin } = require('../middlewares/authMiddleware');
 
@@ -27,6 +29,12 @@ router.route('/farmers/:farmerId')
 
 router.route('/my-journals')
   .get(protect, getMyHtxJournals); // Any authenticated user (Farmers) can call this
+
+router.route('/approvals/pending')
+  .get(protect, htxOrAdmin, getPendingJournalApprovals);
+
+router.route('/approvals/:farmJournalId/status')
+  .put(protect, htxOrAdmin, reviewFarmJournalApproval);
 
 router.route('/:id/farmers')
   .post(protect, htxOrAdmin, addFarmersToJournal);

@@ -23,6 +23,7 @@ const HtxJournalApproval = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filterJournal, setFilterJournal] = useState(null);
+  const [filterSource, setFilterSource] = useState(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [isFeedbackModalVisible, setIsFeedbackModalVisible] = useState(false);
@@ -36,22 +37,9 @@ const HtxJournalApproval = () => {
   const fetchPendingApprovals = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/htx/journals');
+      const res = await api.get('/htx/journals/approvals/pending');
       if (res.data.success) {
-        const allPending = [];
-        res.data.data.forEach(journal => {
-          journal.farmers.forEach(f => {
-            if (f.status === 'Chờ duyệt') {
-              allPending.push({
-                ...f,
-                journalId: journal._id,
-                journalName: journal.name,
-                schemaId: journal.schemaId
-              });
-            }
-          });
-        });
-        setPendingFarmers(allPending);
+        setPendingFarmers(res.data.data || []);
       }
     } catch (error) {
       message.error('Lỗi khi tải danh sách chờ duyệt');
@@ -60,10 +48,10 @@ const HtxJournalApproval = () => {
     }
   };
 
-  const handleUpdateStatus = async (journalId, farmerId, status, feedback) => {
+  const handleUpdateStatus = async (record, status, feedback) => {
     try {
       setLoading(true);
-      const res = await api.put(`/htx/journals/${journalId}/farmers/${farmerId}/status`, {
+      const res = await api.put(`/htx/journals/approvals/${record.farmJournalId}/status`, {
         status,
         feedback
       });
@@ -104,6 +92,17 @@ const HtxJournalApproval = () => {
       )
     },
     {
+      title: 'NGUỒN SỔ',
+      key: 'source',
+      width: 140,
+      align: 'center',
+      render: (_, record) => (
+        <Tag color={record.source === 'HTX_ASSIGNED' ? 'green' : 'purple'} className="rounded-full px-3 font-bold">
+          {record.sourceLabel}
+        </Tag>
+      )
+    },
+    {
       title: 'SỔ NHẬT KÝ GỐC',
       key: 'journal',
       render: (_, record) => (
@@ -115,9 +114,9 @@ const HtxJournalApproval = () => {
     },
     {
       title: 'THỜI GIAN NỘP',
-      dataIndex: 'updatedAt',
+      dataIndex: 'submittedAt',
       key: 'updatedAt',
-      render: (date) => <Text className="text-gray-500 text-xs">{dayjs(date).format('DD/MM/YYYY HH:mm')}</Text>
+      render: (date, record) => <Text className="text-gray-500 text-xs">{dayjs(date || record.updatedAt).format('DD/MM/YYYY HH:mm')}</Text>
     },
     {
       title: 'TRẠNG THÁI',
@@ -138,14 +137,16 @@ const HtxJournalApproval = () => {
                 setPreviewData(record);
                 setIsPreviewVisible(true);
               }}
-              className="rounded-lg border-gray-200"
+              className="h-10 w-10 rounded-xl border-gray-200 flex items-center justify-center"
+              style={{ borderRadius: 12 }}
             />
           </Tooltip>
           <Button 
             type="primary"
             icon={<CheckOutlined />}
-            onClick={() => handleUpdateStatus(record.journalId, record.farmerId?._id, 'Đã duyệt')}
-            className="bg-green-600 hover:bg-green-700 rounded-lg border-0 shadow-md shadow-green-100 font-bold"
+            onClick={() => handleUpdateStatus(record, 'Đã duyệt')}
+            className="h-10 rounded-xl bg-green-600 hover:bg-green-700 border-0 shadow-md shadow-green-100 font-bold px-5"
+            style={{ borderRadius: 12 }}
           >
             Duyệt
           </Button>
@@ -156,7 +157,8 @@ const HtxJournalApproval = () => {
               setSelectedItem(record);
               setIsFeedbackModalVisible(true);
             }}
-            className="rounded-lg font-bold"
+            className="h-10 rounded-xl font-bold px-5"
+            style={{ borderRadius: 12 }}
           >
             Từ chối
           </Button>
@@ -177,8 +179,9 @@ const HtxJournalApproval = () => {
     );
     
     const matchesJournal = filterJournal ? journal === filterJournal : true;
+    const matchesSource = filterSource ? item.source === filterSource : true;
     
-    return matchesSearch && matchesJournal;
+    return matchesSearch && matchesJournal && matchesSource;
   });
 
   return (
@@ -186,7 +189,7 @@ const HtxJournalApproval = () => {
       <div className="flex justify-between items-center">
         <div className="flex flex-col">
           <Title level={2} className="!mb-0 tracking-tight">Phê Duyệt Nhật Ký</Title>
-          <Text className="text-gray-400 font-medium">Danh sách các nông hộ đã hoàn tất ghi chép và đang đợi HTX thẩm định</Text>
+          <Text className="text-gray-400 font-medium">Danh sách nhật ký nông dân đã gửi duyệt, bao gồm sổ HTX giao và sổ nông dân tự tạo trong HTX</Text>
         </div>
         <div className="flex items-center gap-4">
            <Badge count={pendingFarmers.length} overflowCount={99} style={{ backgroundColor: '#f59e0b' }}>
@@ -218,6 +221,16 @@ const HtxJournalApproval = () => {
             {[...new Set(pendingFarmers.map(f => f.journalName))].map(name => (
               <Option key={name} value={name}>{name}</Option>
             ))}
+          </Select>
+          <Select
+            placeholder="Nguồn sổ"
+            allowClear
+            style={{ width: 180 }}
+            onChange={setFilterSource}
+            className="h-10"
+          >
+            <Option value="HTX_ASSIGNED">HTX giao</Option>
+            <Option value="FARMER_CREATED">Nông dân tự tạo</Option>
           </Select>
           <Text className="text-gray-400 text-xs italic ml-auto">
             Tìm thấy <Text strong className="text-orange-500">{filteredData.length}</Text> kết quả
@@ -265,7 +278,7 @@ const HtxJournalApproval = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button type="primary" onClick={() => { setIsPreviewVisible(false); handleUpdateStatus(previewData.journalId, previewData.farmerId?._id, 'Đã duyệt'); }} className="bg-green-600 border-0 rounded-lg font-bold">Duyệt Luôn</Button>
+                    <Button type="primary" onClick={() => { setIsPreviewVisible(false); handleUpdateStatus(previewData, 'Đã duyệt'); }} className="bg-green-600 border-0 rounded-lg font-bold">Duyệt Luôn</Button>
                     <Button danger onClick={() => { setIsPreviewVisible(false); setSelectedItem(previewData); setIsFeedbackModalVisible(true); }} className="rounded-lg font-bold">Từ Chối</Button>
                 </div>
              </div>
@@ -282,7 +295,7 @@ const HtxJournalApproval = () => {
         title="Yêu cầu chỉnh sửa"
         open={isFeedbackModalVisible}
         onCancel={() => setIsFeedbackModalVisible(false)}
-        onOk={() => handleUpdateStatus(selectedItem.journalId, selectedItem.farmerId?._id, 'Cần chỉnh sửa', feedbackText)}
+        onOk={() => handleUpdateStatus(selectedItem, 'Cần chỉnh sửa', feedbackText)}
         confirmLoading={loading}
         okText="Gửi yêu cầu"
         cancelText="Hủy"

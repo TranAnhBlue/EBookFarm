@@ -5,6 +5,23 @@ const { ROLES, isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles
 const { notifyHtxRoles } = require('../utils/notificationHelpers');
 const { validateJournalAgainstApprovedInputs } = require('../utils/journalCompliance');
 
+const notifyHtxAboutPersonalJournalSubmission = async (journal, farmer) => {
+  const htxId = farmer?.htxId;
+  if (!htxId) return;
+
+  const farmerName = farmer.fullname || farmer.username || 'Nông dân';
+  await notifyHtxRoles({
+    htxId,
+    roles: [ROLES.HTX_DIRECTOR, ROLES.HTX_TECHNICAL, ROLES.HTX_SUPERVISOR],
+    sender: farmer._id,
+    title: 'Nhật ký cá nhân gửi duyệt',
+    message: `${farmerName} vừa gửi duyệt sổ nhật ký cá nhân trong HTX.`,
+    type: 'Journal_Submitted',
+    relatedId: journal._id,
+    relatedModel: 'FarmJournal'
+  });
+};
+
 const createJournal = async (req, res) => {
   try {
     const journal = new FarmJournal({
@@ -73,6 +90,10 @@ const createJournal = async (req, res) => {
         relatedModel: 'FarmJournal'
       });
     }
+
+    if (createdJournal.status === 'Submitted') {
+      await notifyHtxAboutPersonalJournalSubmission(createdJournal, req.user);
+    }
     
     res.status(201).json({ success: true, data: createdJournal });
   } catch (error) {
@@ -87,7 +108,7 @@ const getJournals = async (req, res) => {
     // Lấy tất cả journals với category của schema
     const journals = await FarmJournal.find(filter)
       .populate('schemaId')
-      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization');
+      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization htxId');
 
     // Nếu có query ?category= thì lọc theo category của schema
     const { category } = req.query;
@@ -129,14 +150,23 @@ const updateJournal = async (req, res) => {
     try {
       const journal = await FarmJournal.findById(req.params.id);
       if(journal) {
+          const previousStatus = journal.status;
           let hasAccess = false;
           if (journal.userId.toString() === req.user._id.toString() || isAdminRole(req.user.role)) {
              hasAccess = true;
-          } else if (isHtxRole(req.user.role) && journal.htxJournalId) {
-             const HtxJournal = require('../models/HtxJournal');
-             const htxJournal = await HtxJournal.findById(journal.htxJournalId);
-             if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
-                hasAccess = true;
+          } else if (isHtxRole(req.user.role)) {
+             if (journal.htxJournalId) {
+                const HtxJournal = require('../models/HtxJournal');
+                const htxJournal = await HtxJournal.findById(journal.htxJournalId);
+                if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
+                   hasAccess = true;
+                }
+             } else {
+                const User = require('../models/User');
+                const owner = await User.findById(journal.userId).select('htxId');
+                if (owner?.htxId && String(owner.htxId) === String(getHtxOwnerId(req.user))) {
+                   hasAccess = true;
+                }
              }
           }
           if (!hasAccess) {
@@ -313,7 +343,7 @@ const updateJournal = async (req, res) => {
                      await htxJournal.save();
                  }
              }
-          } else if (updated.status === 'Submitted' && !updated.htxJournalId && req.user.role?.toUpperCase() === 'FARMER') {
+          } else if (updated.status === 'Submitted' && previousStatus !== 'Submitted' && !updated.htxJournalId && req.user.role?.toUpperCase() === 'FARMER') {
               // Thông báo cho ADMIN khi sổ CÁ NHÂN được gửi duyệt
               const User = require('../models/User');
               const admins = await User.find({ role: { $regex: /^admin$/i } });
@@ -328,6 +358,8 @@ const updateJournal = async (req, res) => {
                       relatedModel: 'FarmJournal'
                   });
               }
+
+              await notifyHtxAboutPersonalJournalSubmission(updated, req.user);
           }
 
           // Log action
@@ -349,7 +381,7 @@ const getJournalById = async (req, res) => {
   try {
     const journal = await FarmJournal.findById(req.params.id)
       .populate('schemaId')
-      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization');
+      .populate('userId', 'username fullname email avatar farmArea farmType certifications organization htxId');
     if (!journal) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký' });
     }
@@ -357,10 +389,14 @@ const getJournalById = async (req, res) => {
     let hasAccess = false;
     if (journal.userId._id.toString() === req.user._id.toString() || isAdminRole(req.user.role)) {
        hasAccess = true;
-    } else if (isHtxRole(req.user.role) && journal.htxJournalId) {
-       const HtxJournal = require('../models/HtxJournal');
-       const htxJournal = await HtxJournal.findById(journal.htxJournalId);
-       if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
+    } else if (isHtxRole(req.user.role)) {
+       if (journal.htxJournalId) {
+          const HtxJournal = require('../models/HtxJournal');
+          const htxJournal = await HtxJournal.findById(journal.htxJournalId);
+          if (htxJournal && htxJournal.htxId.toString() === String(getHtxOwnerId(req.user))) {
+             hasAccess = true;
+          }
+       } else if (journal.userId?.htxId && String(journal.userId.htxId) === String(getHtxOwnerId(req.user))) {
           hasAccess = true;
        }
     }

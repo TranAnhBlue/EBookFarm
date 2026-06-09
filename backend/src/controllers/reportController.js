@@ -4,6 +4,76 @@ const FarmJournal = require('../models/FarmJournal');
 const HtxJournal = require('../models/HtxJournal');
 const { InventoryItem } = require('../models/Inventory');
 const { isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
+
+const normalizeKey = (value) => String(value || '')
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]/g, '');
+
+const parseAreaValue = (value, fieldName = '') => {
+  if (value === null || value === undefined || value === '') return 0;
+  const raw = String(value).trim().replace(/\s+/g, '');
+  const numeric = Number(raw.replace(',', '.').replace(/[^\d.-]/g, ''));
+  if (!Number.isFinite(numeric) || numeric <= 0) return 0;
+
+  const normalizedName = normalizeKey(fieldName);
+  const rawLower = raw.toLowerCase();
+  const isHectare = normalizedName.includes('ha') || rawLower.includes('ha');
+  const isSquareMeter = normalizedName.includes('m2') || normalizedName.includes('m²') || rawLower.includes('m2') || rawLower.includes('m²');
+
+  return isHectare && !isSquareMeter ? numeric * 10000 : numeric;
+};
+
+const isAreaField = (fieldName) => {
+  const key = normalizeKey(fieldName);
+  return [
+    'area',
+    'pondarea',
+    'farmsize',
+    'cultivationarea',
+    'farmarea',
+    'farmaream2',
+    'areaoneha',
+    'areaha',
+    'dientich',
+    'dientichm2',
+    'dientichha',
+    'dientichao',
+    'dientichchuong',
+    'dientichchuongnuoi',
+    'dientichtoanbo',
+    'dientichcanhtac',
+    'dientichkhuvuc',
+    'dientichlo',
+  ].some(candidate => key === candidate || key.includes(candidate));
+};
+
+const extractAreaFromEntries = (entries) => {
+  let total = 0;
+
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+
+    Object.entries(node).forEach(([fieldName, value]) => {
+      if (value && typeof value === 'object') {
+        walk(value);
+        return;
+      }
+      if (isAreaField(fieldName)) {
+        total += parseAreaValue(value, fieldName);
+      }
+    });
+  };
+
+  walk(entries);
+  return total;
+};
+
 // Helper to get HTX filter
 const getHtxScopeFilter = async (user) => {
   if (!isHtxRole(user.role)) return null;
@@ -50,39 +120,22 @@ const getDashboardStats = async (req, res) => {
       const htxJournals = await HtxJournal.find({ htxId })
         .populate('farmers.farmerId')
         .populate('farmers.farmJournalId');
-      const farmers = await User.find({ role: { $regex: /^farmer$/i }, htxId }).select('farmArea');
+      const farmers = await User.find({ role: { $regex: /^farmer$/i }, htxId }).select('_id');
       const uniqueFarmerIds = new Set(farmers.map(farmer => farmer._id.toString()));
-      let totalArea = farmers.reduce((sum, farmer) => sum + Number(farmer.farmArea || 0), 0);
+      const countedFarmJournalIds = new Set();
+      let totalArea = 0;
       
       for (const hj of htxJournals) {
         for (const f of hj.farmers) {
           if (f.farmerId) {
             uniqueFarmerIds.add(f.farmerId._id.toString());
-            
-            let areaFound = false;
-            // Try to get area from dynamic journal entries first
-            if (f.farmJournalId && f.farmJournalId.entries) {
-              const entries = f.farmJournalId.entries;
-              for (const tableName in entries) {
-                const tableData = entries[tableName];
-                for (const fieldName in tableData) {
-                  const lowerName = fieldName.toLowerCase();
-                  if (['area', 'pond_area', 'farm_size', 'cultivation_area'].includes(lowerName)) {
-                    const val = Number(tableData[fieldName]);
-                    if (!isNaN(val) && val > 0) {
-                      totalArea += val;
-                      areaFound = true;
-                      break; 
-                    }
-                  }
-                }
-                if (areaFound) break;
-              }
-            }
-            
-            if (!areaFound && !farmers.some(farmer => farmer._id.toString() === f.farmerId._id.toString())) {
-              totalArea += (f.farmerId.farmArea || 0);
-            }
+          }
+
+          if (f.farmJournalId && f.farmJournalId.entries) {
+            const farmJournalId = f.farmJournalId._id.toString();
+            if (countedFarmJournalIds.has(farmJournalId)) continue;
+            countedFarmJournalIds.add(farmJournalId);
+            totalArea += extractAreaFromEntries(f.farmJournalId.entries);
           }
         }
       }

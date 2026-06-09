@@ -4,6 +4,7 @@ const User = require('../models/User');
 const { createNotification } = require('./notificationController');
 const { ROLES, isAdminRole, isHtxRole, getHtxOwnerId } = require('../utils/roles');
 const { notifyHtxRoles } = require('../utils/notificationHelpers');
+const { validateJournalAgainstApprovedInputs } = require('../utils/journalCompliance');
 
 const cp1252ByteMap = new Map([
   [0x2018, 0x91],
@@ -349,6 +350,153 @@ const getFarmersForHtx = async (req, res) => {
   }
 };
 
+const canAccessFarmJournalForHtx = async (farmJournal, user) => {
+  if (isAdminRole(user.role)) return true;
+  if (!isHtxRole(user.role)) return false;
+
+  const htxId = String(getHtxOwnerId(user));
+  const ownerHtxId = farmJournal.userId?.htxId ? String(farmJournal.userId.htxId) : null;
+  if (ownerHtxId === htxId) return true;
+
+  if (farmJournal.htxJournalId) {
+    const htxJournalId = farmJournal.htxJournalId?._id || farmJournal.htxJournalId;
+    const htxJournal = await HtxJournal.findById(htxJournalId).select('htxId');
+    if (htxJournal && String(htxJournal.htxId) === htxId) return true;
+  }
+
+  return false;
+};
+
+const getPendingJournalApprovals = async (req, res) => {
+  try {
+    const htxId = isHtxRole(req.user.role) ? getHtxOwnerId(req.user) : null;
+    const query = { status: 'Submitted' };
+
+    if (!isAdminRole(req.user.role)) {
+      const htxJournals = await HtxJournal.find({ htxId }).select('_id');
+      const htxJournalIds = htxJournals.map(journal => journal._id);
+      const farmers = await User.find({ role: { $regex: /^farmer$/i }, htxId }).select('_id');
+      const farmerIds = farmers.map(farmer => farmer._id);
+
+      query.$or = [
+        { htxJournalId: { $in: htxJournalIds } },
+        { userId: { $in: farmerIds } },
+      ];
+    }
+
+    const farmJournals = await FarmJournal.find(query)
+      .populate('userId', 'fullname username email phone avatar htxId')
+      .populate('schemaId', 'name title category')
+      .populate('htxJournalId', 'name htxId')
+      .sort({ submittedAt: -1, updatedAt: -1 });
+
+    const data = farmJournals
+      .filter(journal => isAdminRole(req.user.role) || journal.userId?.htxId || journal.htxJournalId)
+      .map(journal => ({
+        farmJournalId: journal._id,
+        farmerId: journal.userId,
+        journalId: journal.htxJournalId?._id || null,
+        journalName: journal.htxJournalId?.name || journal.schemaId?.name || 'Sổ nông dân tự tạo',
+        schemaId: journal.schemaId,
+        source: journal.htxJournalId ? 'HTX_ASSIGNED' : 'FARMER_CREATED',
+        sourceLabel: journal.htxJournalId ? 'HTX giao' : 'Nông dân tự tạo',
+        status: 'Chờ duyệt',
+        farmJournalStatus: journal.status,
+        submittedAt: journal.submittedAt,
+        updatedAt: journal.updatedAt,
+        progress: journal.progress,
+        complianceStatus: journal.complianceStatus,
+        complianceIssues: journal.complianceIssues || [],
+      }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const reviewFarmJournalApproval = async (req, res) => {
+  try {
+    const { farmJournalId } = req.params;
+    const { status, feedback } = req.body;
+    const normalizedStatus = normalizeFarmerStatus(status);
+
+    if (!['Đã duyệt', 'Cần chỉnh sửa', 'Không đạt'].includes(normalizedStatus)) {
+      return res.status(400).json({ success: false, message: 'Trạng thái phê duyệt không hợp lệ.' });
+    }
+
+    const farmJournal = await FarmJournal.findById(farmJournalId)
+      .populate('userId', 'fullname username htxId')
+      .populate('schemaId', 'name category');
+    if (!farmJournal) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy nhật ký.' });
+    }
+
+    const hasAccess = await canAccessFarmJournalForHtx(farmJournal, req.user);
+    if (!hasAccess) {
+      return res.status(403).json({ success: false, message: 'Không có quyền phê duyệt nhật ký này.' });
+    }
+
+    if (normalizedStatus === 'Đã duyệt') {
+      const compliance = await validateJournalAgainstApprovedInputs(farmJournal.entries, getHtxOwnerId(req.user));
+      farmJournal.complianceIssues = [
+        ...compliance.warnings.map(message => ({ severity: 'warning', message })),
+        ...compliance.blockers.map(message => ({ severity: 'blocker', message })),
+      ];
+      farmJournal.complianceStatus = compliance.ok
+        ? (compliance.warnings.length ? 'Warning' : 'Passed')
+        : 'Blocked';
+
+      if (!compliance.ok) {
+        return res.status(422).json({
+          success: false,
+          message: 'Nhật ký chưa đạt kiểm tra danh mục vật tư được phép hoặc thời gian cách ly thuốc BVTV.',
+          compliance,
+        });
+      }
+
+      farmJournal.status = 'Verified';
+      farmJournal.verifiedAt = new Date();
+      farmJournal.verifiedBy = req.user._id;
+      farmJournal.htxStatus = 'Đã duyệt';
+    } else {
+      farmJournal.status = 'Draft';
+      farmJournal.htxStatus = normalizedStatus;
+      farmJournal.feedback = feedback || '';
+    }
+
+    await farmJournal.save();
+
+    if (farmJournal.htxJournalId) {
+      const htxJournal = await HtxJournal.findById(farmJournal.htxJournalId);
+      if (htxJournal) {
+        const entry = htxJournal.farmers.find(item => String(item.farmJournalId) === String(farmJournal._id));
+        if (entry) {
+          entry.status = normalizedStatus;
+          entry.feedback = feedback || entry.feedback;
+          await htxJournal.save();
+        }
+      }
+    }
+
+    await createNotification({
+      recipient: farmJournal.userId._id,
+      sender: req.user._id,
+      title: normalizedStatus === 'Đã duyệt' ? 'Nhật ký đã được HTX duyệt' : 'HTX yêu cầu chỉnh sửa nhật ký',
+      message: normalizedStatus === 'Đã duyệt'
+        ? `Sổ "${farmJournal.schemaId?.name || 'nhật ký'}" của bạn đã được HTX phê duyệt.`
+        : `HTX yêu cầu bạn chỉnh sửa sổ "${farmJournal.schemaId?.name || 'nhật ký'}". Lý do: ${feedback || 'Không có'}`,
+      type: normalizedStatus === 'Đã duyệt' ? 'Journal_Verified' : 'Journal_Revision_Requested',
+      relatedId: farmJournal._id,
+      relatedModel: 'FarmJournal',
+    });
+
+    res.json({ success: true, message: normalizedStatus === 'Đã duyệt' ? 'Đã phê duyệt nhật ký.' : 'Đã gửi yêu cầu chỉnh sửa.', data: farmJournal });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const getHtxJournalSummary = async (req, res) => {
   try {
     const { id } = req.params;
@@ -512,6 +660,8 @@ module.exports = {
   getFarmersForHtx,
   getHtxJournalSummary,
   authorizeBrand,
-  removeFarmerFromHtx
+  removeFarmerFromHtx,
+  getPendingJournalApprovals,
+  reviewFarmJournalApproval
 };
 
