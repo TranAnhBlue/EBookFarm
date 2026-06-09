@@ -15,11 +15,11 @@ const registerUser = async (req, res) => {
     const { username, email, password, role, fullname, phone, otp } = req.body;
     
     if (!email) {
-      return res.status(400).json({ success: false, message: 'Email lÃ  báº¯t buá»™c' });
+      return res.status(400).json({ success: false, message: 'Email là bắt buộc' });
     }
 
     if (phone && !/^[0-9]{10,11}$/.test(phone)) {
-      return res.status(400).json({ success: false, message: 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡. Vui lÃ²ng nháº­p tá»« 10-11 chá»¯ sá»‘.' });
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ. Vui lòng nhập từ 10-11 chữ số.' });
     }
 
     const userExists = await User.findOne({ 
@@ -31,10 +31,10 @@ const registerUser = async (req, res) => {
     });
 
     if (userExists) {
-      return res.status(400).json({ success: false, message: 'Email hoáº·c Sá»‘ Ä‘iá»‡n thoáº¡i (TÃªn tÃ i khoáº£n) Ä‘Ã£ tá»“n táº¡i' });
+      return res.status(400).json({ success: false, message: 'Email hoặc Số điện thoại (Tên tài khoản) đã tồn tại' });
     }
 
-    // ÄÄƒng kÃ½ trá»±c tiáº¿p, khÃ´ng check OTP
+    // Đăng ký trực tiếp, không check OTP
     console.log(`[AUTH] Registering user with phone: ${phone}`);
 
     const user = await User.create({
@@ -54,8 +54,8 @@ const registerUser = async (req, res) => {
         await createNotification({
           recipient: admin._id,
           sender: user._id,
-          title: 'TÃ i khoáº£n Ä‘Äƒng kÃ½ má»›i',
-          message: `NgÆ°á»i dÃ¹ng ${fullname || username} (${email}) vá»«a táº¡o tÃ i khoáº£n vá»›i vai trÃ² ${role || 'Farmer'}.`,
+          title: 'Tài khoản đăng ký mới',
+          message: `Người dùng ${fullname || username} (${email}) vừa tạo tài khoản với vai trò ${role || 'Farmer'}.`,
           type: 'System',
           relatedId: user._id,
           relatedModel: 'User'
@@ -70,13 +70,13 @@ const registerUser = async (req, res) => {
         }
       });
     } else {
-      res.status(400).json({ success: false, message: 'Dá»¯ liá»‡u khÃ´ng há»£p lá»‡.' });
+      res.status(400).json({ success: false, message: 'Dữ liệu không hợp lệ.' });
     }
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: 'Email hoáº·c tÃªn Ä‘Äƒng nháº­p Ä‘Ã£ tá»“n táº¡i.' });
+      return res.status(400).json({ success: false, message: 'Email hoặc tên đăng nhập đã tồn tại.' });
     }
-    res.status(500).json({ success: false, message: 'Lá»—i mÃ¡y chá»§ khi Ä‘Äƒng kÃ½ tÃ i khoáº£n.' });
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đăng ký tài khoản.' });
   }
 };
 
@@ -93,18 +93,18 @@ const loginUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Email hoáº·c tÃªn Ä‘Äƒng nháº­p khÃ´ng tá»“n táº¡i' });
+      return res.status(401).json({ success: false, message: 'Email hoặc tên đăng nhập không tồn tại' });
     }
 
     if (user.status !== 'Active') {
-      return res.status(401).json({ success: false, message: 'TÃ i khoáº£n Ä‘Ã£ bá»‹ khÃ³a' });
+      return res.status(401).json({ success: false, message: 'Tài khoản đã bị khóa' });
     }
 
     // Check if user has a password (might be a Google-only account)
     if (!user.password) {
       return res.status(401).json({ 
         success: false, 
-        message: 'TÃ i khoáº£n nÃ y Ä‘Æ°á»£c Ä‘Äƒng kÃ½ qua Google. Vui lÃ²ng sá»­ dá»¥ng tÃ­nh nÄƒng ÄÄƒng nháº­p Google hoáº·c QuÃªn máº­t kháº©u Ä‘á»ƒ thiáº¿t láº­p máº­t kháº©u má»›i.' 
+        message: 'Tài khoản này được đăng ký qua Google. Vui lòng sử dụng tính năng Đăng nhập Google hoặc Quên mật khẩu để thiết lập mật khẩu mới.' 
       });
     }
 
@@ -112,7 +112,7 @@ const loginUser = async (req, res) => {
     if (isMatch) {
       // Log successful login
       const { createLog } = require('./logController');
-      await createLog(user._id, 'ÄÄƒng nháº­p há»‡ thá»‘ng', user._id, 'User', { 
+      await createLog(user._id, 'Đăng nhập hệ thống', user._id, 'User', { 
         username: user.username,
         email: user.email,
         ip: req.ip || req.connection.remoteAddress
@@ -126,7 +126,7 @@ const loginUser = async (req, res) => {
         }
       });
     } else {
-      res.status(401).json({ success: false, message: 'Email hoáº·c máº­t kháº©u khÃ´ng chÃ­nh xÃ¡c' });
+      res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác' });
     }
   } catch (error) {
     console.error('Login error:', error);
@@ -143,13 +143,13 @@ const forceChangePassword = async (req, res) => {
     const user = await User.findById(req.user.id);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'NgÆ°á»i dÃ¹ng khÃ´ng tá»“n táº¡i' });
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
     }
 
     // Verify current password
     const isMatch = await user.matchPassword(currentPassword);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Máº­t kháº©u hiá»‡n táº¡i khÃ´ng chÃ­nh xÃ¡c' });
+      return res.status(401).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
     }
 
     user.password = newPassword;
@@ -159,7 +159,7 @@ const forceChangePassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Máº­t kháº©u Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t thÃ nh cÃ´ng. ChÃ o má»«ng báº¡n Ä‘áº¿n vá»›i EBookFarm!',
+      message: 'Mật khẩu đã được cập nhật thành công. Chào mừng bạn đến với EBookFarm!',
       data: updatedUser
     });
   } catch (error) {
@@ -173,7 +173,7 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Email khÃ´ng tá»“n táº¡i trÃªn há»‡ thá»‘ng' });
+      return res.status(404).json({ success: false, message: 'Email không tồn tại trên hệ thống' });
     }
 
     const resetToken = user.getResetPasswordToken();
@@ -186,34 +186,34 @@ const forgotPassword = async (req, res) => {
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #16a34a; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">EBookFarm</h1>
-          <p style="color: #666; margin: 5px 0 0 0; font-weight: bold;">GIáº¢I PHÃP NÃ”NG NGHIá»†P Sá»</p>
+          <p style="color: #666; margin: 5px 0 0 0; font-weight: bold;">GIẢI PHÁP NÔNG NGHIỆP SỐ</p>
         </div>
         
         <div style="background-color: #f0fdf4; border-radius: 16px; padding: 30px; border: 1px solid #dcfce7;">
-          <h2 style="margin-top: 0; color: #16a34a;">YÃªu cáº§u Ä‘áº·t láº¡i máº­t kháº©u</h2>
-          <p>ChÃ o ${user.fullname}</p>
-          <p>ChÃºng tÃ´i nháº­n Ä‘Æ°á»£c yÃªu cáº§u Ä‘áº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n <strong>${user.email}</strong> trÃªn há»‡ thá»‘ng EBookFarm.</p>
-          <p>Äá»ƒ tiáº¿p tá»¥c, vui lÃ²ng nháº¥n vÃ o nÃºt bÃªn dÆ°á»›i:</p>
+          <h2 style="margin-top: 0; color: #16a34a;">Yêu cầu đặt lại mật khẩu</h2>
+          <p>Chào ${user.fullname}</p>
+          <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>${user.email}</strong> trên hệ thống EBookFarm.</p>
+          <p>Để tiếp tục, vui lòng nhấn vào nút bên dưới:</p>
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="${resetUrl}" style="background-color: #16a34a; color: white; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-              Äáº·t láº¡i máº­t kháº©u ngay
+              Đặt lại mật khẩu ngay
             </a>
           </div>
           
           <p style="font-size: 13px; color: #666;">
-            Náº¿u báº¡n khÃ´ng thá»±c hiá»‡n yÃªu cáº§u nÃ y, vui lÃ²ng bá» qua email nÃ y. TÃ i khoáº£n cá»§a báº¡n váº«n an toÃ n.
+            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn.
           </p>
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcfce7; font-size: 11px; color: #999;">
-            <p>LiÃªn káº¿t nÃ y sáº½ háº¿t háº¡n sau <strong>10 phÃºt</strong> vÃ¬ lÃ½ do báº£o máº­t.</p>
-            <p>Náº¿u nÃºt báº¥m khÃ´ng hoáº¡t Ä‘á»™ng, hÃ£y copy Ä‘Æ°á»ng dáº«n sau vÃ o trÃ¬nh duyá»‡t:</p>
+            <p>Liên kết này sẽ hết hạn sau <strong>10 phút</strong> vì lý do bảo mật.</p>
+            <p>Nếu nút bấm không hoạt động, hãy copy đường dẫn sau vào trình duyệt:</p>
             <p style="word-break: break-all; color: #16a34a;">${resetUrl}</p>
           </div>
         </div>
         
         <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #aaa;">
-          <p>Â© 2026 EBookFarm. Táº¥t cáº£ quyá»n Ä‘Æ°á»£c báº£o lÆ°u.</p>
+          <p>© 2026 EBookFarm. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
     `;
@@ -223,7 +223,7 @@ const forgotPassword = async (req, res) => {
       // Send email in background to avoid blocking the response
       sendEmail({
         email: user.email,
-        subject: '[EBookFarm] YÃªu cáº§u khÃ´i phá»¥c máº­t kháº©u tÃ i khoáº£n',
+        subject: '[EBookFarm] Yêu cầu khôi phục mật khẩu tài khoản',
         html: html
       }).catch(err => {
         console.error('Background Email send error:', err);
@@ -232,14 +232,14 @@ const forgotPassword = async (req, res) => {
       // Return success immediately
       res.status(200).json({ 
         success: true, 
-        message: 'YÃªu cáº§u Ä‘Ã£ Ä‘Æ°á»£c ghi nháº­n. Há»‡ thá»‘ng Ä‘ang gá»­i link khÃ´i phá»¥c vÃ o Email cá»§a báº¡n (vui lÃ²ng kiá»ƒm tra cáº£ hÃ²m thÆ° rÃ¡c).'
+        message: 'Yêu cầu đã được ghi nhận. Hệ thống đang gửi link khôi phục vào Email của bạn (vui lòng kiểm tra cả hòm thư rác).'
       });
     } catch (err) {
       console.error('Initial Email send logic error:', err);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save({ validateBeforeSave: false });
-      return res.status(500).json({ success: false, message: 'KhÃ´ng thá»ƒ xá»­ lÃ½ yÃªu cáº§u lÃºc nÃ y. Vui lÃ²ng thá»­ láº¡i sau.' });
+      return res.status(500).json({ success: false, message: 'Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau.' });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -304,8 +304,8 @@ const googleLogin = async (req, res) => {
         await createNotification({
           recipient: admin._id,
           sender: user._id,
-          title: 'TÃ i khoáº£n Ä‘Äƒng nháº­p Google má»›i',
-          message: `NgÆ°á»i dÃ¹ng ${name} (${email}) vá»«a Ä‘Äƒng nháº­p láº§n Ä‘áº§u báº±ng Google.`,
+          title: 'Tài khoản đăng nhập Google mới',
+          message: `Người dùng ${name} (${email}) vừa đăng nhập lần đầu bằng Google.`,
           type: 'System',
           relatedId: user._id,
           relatedModel: 'User'
@@ -334,7 +334,7 @@ const googleLogin = async (req, res) => {
 const logoutUser = async (req, res) => {
   try {
     const { createLog } = require('./logController');
-    await createLog(req.user.id, 'ÄÄƒng xuáº¥t há»‡ thá»‘ng', req.user.id, 'User', { 
+    await createLog(req.user.id, 'Đăng xuất hệ thống', req.user.id, 'User', { 
       username: req.user.username,
       email: req.user.email,
       ip: req.ip || req.connection.remoteAddress
@@ -342,7 +342,7 @@ const logoutUser = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'ÄÄƒng xuáº¥t thÃ nh cÃ´ng'
+      message: 'Đăng xuất thành công'
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -354,7 +354,7 @@ const sendOtp = async (req, res) => {
     const { phone, type } = req.body;
     
     if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
-      return res.status(400).json({ success: false, message: 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡' });
+      return res.status(400).json({ success: false, message: 'Số điện thoại không hợp lệ' });
     }
 
     // Generate 6-digit OTP

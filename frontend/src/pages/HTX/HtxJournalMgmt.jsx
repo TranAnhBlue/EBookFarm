@@ -464,6 +464,7 @@ const HtxJournalMgmt = () => {
       key: 'approval_progress',
       width: 180,
       render: (_, record) => {
+        const writingCount = record.farmers?.filter(f => f.status === 'Đang nhập').length || 0;
         const pendingCount = record.farmers?.filter(f => f.status === 'Chờ duyệt').length || 0;
         const approvedCount = record.farmers?.filter(f => f.status === 'Đã duyệt').length || 0;
         const total = record.farmers?.length || 0;
@@ -474,7 +475,29 @@ const HtxJournalMgmt = () => {
               <Text className="text-[10px] text-gray-400 font-bold uppercase">Tiến độ:</Text>
               <Text className="text-[10px] font-bold text-green-600">{approvedCount}/{total}</Text>
             </div>
+            <div className="flex flex-wrap gap-1 mb-2">
+              {writingCount > 0 && (
+                <Tag color="orange" className="border-0 rounded-md text-[9px] font-bold px-2 py-0">
+                  {writingCount} ĐANG VIẾT
+                </Tag>
+              )}
+              {pendingCount > 0 && (
+                <Tag color="gold" className="border-0 rounded-md text-[9px] font-bold px-2 py-0">
+                  {pendingCount} CHỜ DUYỆT
+                </Tag>
+              )}
+              {approvedCount > 0 && (
+                <Tag color="green" className="border-0 rounded-md text-[9px] font-bold px-2 py-0">
+                  {approvedCount} ĐÃ DUYỆT
+                </Tag>
+              )}
+            </div>
             <div className="flex gap-1">
+              {writingCount > 0 && (
+                <Tooltip title={`${writingCount} đang viết`}>
+                  <div className="h-1.5 rounded-full bg-orange-400" style={{ width: `${total ? (writingCount / total) * 100 : 0}%` }}></div>
+                </Tooltip>
+              )}
               <Tooltip title={`${approvedCount} đã duyệt`}>
                 <div className="h-1.5 rounded-full bg-green-500" style={{ width: `${total ? (approvedCount / total) * 100 : 0}%` }}></div>
               </Tooltip>
@@ -485,11 +508,6 @@ const HtxJournalMgmt = () => {
               )}
               <div className="h-1.5 rounded-full bg-gray-100 flex-1"></div>
             </div>
-            {pendingCount > 0 && (
-              <Tag color="orange" className="mt-2 border-0 rounded-md text-[9px] font-bold px-2 py-0">
-                {pendingCount} HỘ CHỜ DUYỆT
-              </Tag>
-            )}
           </Space>
         );
       }
@@ -575,6 +593,9 @@ const HtxJournalMgmt = () => {
   const stats = {
     total: journals.length,
     active: journals.filter(j => j.status === 'Active').length,
+    writingFarmJournals: journals.reduce((acc, curr) => acc + (curr.farmers?.filter(f => f.status === 'Đang nhập').length || 0), 0),
+    pendingFarmJournals: journals.reduce((acc, curr) => acc + (curr.farmers?.filter(f => f.status === 'Chờ duyệt').length || 0), 0),
+    approvedFarmJournals: journals.reduce((acc, curr) => acc + (curr.farmers?.filter(f => f.status === 'Đã duyệt').length || 0), 0),
     totalFarmers: journals.reduce((acc, curr) => acc + (curr.farmers?.length || 0), 0)
   };
 
@@ -603,7 +624,7 @@ const HtxJournalMgmt = () => {
 
       {/* Statistics Cards */}
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} xl={6}>
           <Card className="rounded-2xl border-0 shadow-sm bg-gradient-to-br from-green-500 to-green-600">
             <Statistic
               title={<Text className="text-white/80 uppercase text-xs font-bold">Tổng số sổ nhật ký</Text>}
@@ -613,7 +634,7 @@ const HtxJournalMgmt = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} xl={6}>
           <Card className="rounded-2xl border-gray-100 shadow-sm">
             <Statistic
               title={<Text className="text-gray-400 uppercase text-xs font-bold">Sổ đang hoạt động</Text>}
@@ -623,7 +644,17 @@ const HtxJournalMgmt = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} xl={6}>
+          <Card className="rounded-2xl border-gray-100 shadow-sm">
+            <Statistic
+              title={<Text className="text-gray-400 uppercase text-xs font-bold">Sổ nông dân đang viết</Text>}
+              value={stats.writingFarmJournals}
+              prefix={<ClockCircleOutlined className="text-orange-500" />}
+              valueStyle={{ color: '#f97316', fontSize: '32px', fontWeight: 'bold' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} xl={6}>
           <Card className="rounded-2xl border-gray-100 shadow-sm">
             <Statistic
               title={<Text className="text-gray-400 uppercase text-xs font-bold">Tổng nông dân tham gia</Text>}
@@ -877,6 +908,7 @@ const HtxJournalMgmt = () => {
                       let color = 'default';
                       if (status === 'Đã duyệt') color = 'success';
                       if (status === 'Chờ duyệt') color = 'processing';
+                      if (status === 'Đang nhập') color = 'orange';
                       if (status === 'Cần chỉnh sửa') color = 'warning';
                       if (status === 'Không đạt') color = 'error';
                       return <Tag color={color} className="rounded-full px-3">{status}</Tag>;
@@ -899,76 +931,89 @@ const HtxJournalMgmt = () => {
                     title: 'HÀNH ĐỘNG',
                     key: 'action',
                     align: 'center',
-                    render: (_, record) => (
-                      <Space>
-                        {record.farmJournalId ? (
-                          <Tooltip title="Xem chi tiết nhật ký">
-                            <Button
-                              size="small"
-                              icon={<EyeOutlined />}
-                              onClick={() => {
-                                setPreviewJournalId(record.farmJournalId?._id || record.farmJournalId);
-                                setIsPreviewVisible(true);
-                              }}
-                              className="rounded-lg bg-green-50 text-green-600 border-0"
-                            />
-                          </Tooltip>
-                        ) : (
-                          <Button size="small" icon={<EyeOutlined />} disabled className="rounded-lg" />
-                        )}
-                        <Tooltip title="Duyệt">
-                          <Button
-                            size="small"
-                            type="primary"
-                            icon={<CheckCircleOutlined />}
-                            onClick={() => handleUpdateStatus(selectedJournal._id, record.farmerId._id, 'Đã duyệt', '')}
-                            className="bg-green-600 border-0 rounded-lg"
-                          />
-                        </Tooltip>
-                        <Tooltip title="Yêu cầu sửa">
-                          <Button
-                            size="small"
-                            danger
-                            icon={<CloseCircleOutlined />}
-                            onClick={() => {
-                              setFeedbackTarget({ journalId: selectedJournal._id, farmerId: record.farmerId._id });
-                              setFeedbackText('');
-                              setIsFeedbackModalVisible(true);
-                            }}
-                            className="rounded-lg"
-                          />
-                        </Tooltip>
-                        {record.farmJournalId && record.status === 'Đã duyệt' && (
-                          <Tooltip title={record.farmJournalId?.brandAuthorized ? "Thu hồi thương hiệu" : "Cấp quyền thương hiệu HTX"}>
-                            <Button
-                              size="small"
-                              icon={<SafetyCertificateOutlined />}
-                              onClick={() => handleToggleBrandAuth(record.farmJournalId?._id || record.farmJournalId, !record.farmJournalId?.brandAuthorized)}
-                              className={`rounded-lg border-0 ${record.farmJournalId?.brandAuthorized ? 'bg-gold-50 text-gold-600' : 'bg-gray-100 text-gray-400'}`}
-                              style={record.farmJournalId?.brandAuthorized ? { backgroundColor: '#fff7e6', color: '#faad14' } : {}}
-                            />
-                          </Tooltip>
-                        )}
-                        {record.farmJournalId && (
-                          <Tooltip title="QR Truy xuất">
-                            <Button
-                              size="small"
-                              icon={<QrcodeOutlined />}
-                              onClick={() => {
-                                setQrCodeData({
-                                  id: record.farmJournalId?._id || record.farmJournalId,
-                                  qrCode: record.farmJournalId?.qrCode,
-                                  farmerName: record.farmerId?.fullname || record.farmerId?.username,
-                                  journalName: selectedJournal.name
-                                });
-                                setIsQrModalVisible(true);
-                              }}
-                              className="border-green-500 text-green-600 rounded-lg"
-                            />
-                          </Tooltip>
-                        )}
-                      </Space>
-                    )
+                    render: (_, record) => {
+                      const status = record.status;
+                      const farmJournalId = record.farmJournalId?._id || record.farmJournalId;
+                      const canReview = status === 'Chờ duyệt';
+                      const isApproved = status === 'Đã duyệt';
+
+                      return (
+                        <Space>
+                          {farmJournalId ? (
+                            <Tooltip title="Xem chi tiết nhật ký">
+                              <Button
+                                size="small"
+                                icon={<EyeOutlined />}
+                                onClick={() => {
+                                  setPreviewJournalId(farmJournalId);
+                                  setIsPreviewVisible(true);
+                                }}
+                                className="rounded-lg bg-green-50 text-green-600 border-0"
+                              />
+                            </Tooltip>
+                          ) : (
+                            <Button size="small" icon={<EyeOutlined />} disabled className="rounded-lg" />
+                          )}
+
+                          {canReview && (
+                            <>
+                              <Tooltip title="Duyệt nhật ký">
+                                <Button
+                                  size="small"
+                                  type="primary"
+                                  icon={<CheckCircleOutlined />}
+                                  onClick={() => handleUpdateStatus(selectedJournal._id, record.farmerId._id, 'Đã duyệt', '')}
+                                  className="bg-green-600 border-0 rounded-lg"
+                                />
+                              </Tooltip>
+                              <Tooltip title="Yêu cầu sửa">
+                                <Button
+                                  size="small"
+                                  danger
+                                  icon={<CloseCircleOutlined />}
+                                  onClick={() => {
+                                    setFeedbackTarget({ journalId: selectedJournal._id, farmerId: record.farmerId._id });
+                                    setFeedbackText('');
+                                    setIsFeedbackModalVisible(true);
+                                  }}
+                                  className="rounded-lg"
+                                />
+                              </Tooltip>
+                            </>
+                          )}
+
+                          {farmJournalId && isApproved && (
+                            <>
+                              <Tooltip title={record.farmJournalId?.brandAuthorized ? 'Thu hồi thương hiệu' : 'Cấp quyền thương hiệu HTX'}>
+                                <Button
+                                  size="small"
+                                  icon={<SafetyCertificateOutlined />}
+                                  onClick={() => handleToggleBrandAuth(farmJournalId, !record.farmJournalId?.brandAuthorized)}
+                                  className={`rounded-lg border-0 ${record.farmJournalId?.brandAuthorized ? 'bg-gold-50 text-gold-600' : 'bg-gray-100 text-gray-400'}`}
+                                  style={record.farmJournalId?.brandAuthorized ? { backgroundColor: '#fff7e6', color: '#faad14' } : {}}
+                                />
+                              </Tooltip>
+                              <Tooltip title="QR truy xuất">
+                                <Button
+                                  size="small"
+                                  icon={<QrcodeOutlined />}
+                                  onClick={() => {
+                                    setQrCodeData({
+                                      id: farmJournalId,
+                                      qrCode: record.farmJournalId?.qrCode,
+                                      farmerName: record.farmerId?.fullname || record.farmerId?.username,
+                                      journalName: selectedJournal.name
+                                    });
+                                    setIsQrModalVisible(true);
+                                  }}
+                                  className="border-green-500 text-green-600 rounded-lg"
+                                />
+                              </Tooltip>
+                            </>
+                          )}
+                        </Space>
+                      );
+                    }
                   }
                 ]}
               />
@@ -990,6 +1035,7 @@ const HtxJournalMgmt = () => {
         style={{ top: 20 }}
         bodyStyle={{ padding: 0, height: '85vh', overflowY: 'auto', backgroundColor: '#f8fafc' }}
         className="premium-modal"
+        closable={false}
         destroyOnClose
       >
         <div className="sticky top-0 z-50 bg-white p-4 border-b flex justify-between items-center">
