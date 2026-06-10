@@ -29,6 +29,7 @@ import SupplyScreen      from './src/screens/SupplyScreen';
 import AIScreen          from './src/screens/AIScreen';
 import TCVNScreen        from './src/screens/TCVNScreen';
 import ProfileScreen     from './src/screens/ProfileScreen';
+import ReportsScreen     from './src/screens/ReportsScreen';
 
 // Stack Screens
 import ScannerScreen       from './src/screens/ScannerScreen';
@@ -217,6 +218,11 @@ export default function App() {
               <Stack.Screen
                 name="Settings"
                 component={SettingsScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Reports"
+                component={ReportsScreen}
                 options={{ headerShown: false }}
               />
             </>

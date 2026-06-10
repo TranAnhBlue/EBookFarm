@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer, Grid } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer, Grid, Badge } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   AppstoreOutlined,
   AuditOutlined,
@@ -64,7 +65,31 @@ const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
 
-const label = (text) => <span className="font-medium">{text}</span>;
+const label = (text, count = 0) => (
+  <span className="font-medium inline-flex items-center gap-2 min-w-0">
+    <span className="truncate">{text}</span>
+    {count > 0 && (
+      <Badge
+        count={count}
+        overflowCount={99}
+        size="small"
+        styles={{
+          indicator: {
+            backgroundColor: '#16a34a',
+            color: '#fff',
+            boxShadow: '0 0 0 2px #ecfdf5',
+            borderRadius: 999,
+            fontWeight: 700,
+          },
+        }}
+      />
+    )}
+  </span>
+);
+
+const actionStatuses = new Set(['Pending', 'Review', 'InProgress', 'Chờ duyệt', 'Cần chỉnh sửa', 'Chưa nhập', 'Đang nhập']);
+const countActionRecords = (records = []) => records.filter(item => actionStatuses.has(item.status)).length;
+const sumPathCounts = (counts, paths = []) => paths.reduce((total, path) => total + (counts[path] || 0), 0);
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -75,6 +100,108 @@ const MainLayout = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
   const role = normalizeRole(user?.role);
+
+  const { data: sidebarCounts = {} } = useQuery({
+    queryKey: ['sidebar-badges', user?._id, role],
+    enabled: !!user,
+    refetchInterval: 15000,
+    queryFn: async () => {
+      const counts = {};
+      const readData = (result) => result.status === 'fulfilled' ? (result.value?.data?.data || []) : [];
+
+      if (isHtx(role)) {
+        const moduleRouteMap = {
+          documents: '/htx/documents',
+          tasks: '/htx/tasks',
+          finance: '/htx/finance',
+          partners: '/htx/partners',
+          training: '/htx/training',
+          'technical-guidance': '/htx/technical-guidance',
+          'technical-training': '/htx/technical-training',
+          'pest-control': '/htx/pest-control',
+          'product-inspections': '/htx/product-inspections',
+          nonconformities: '/htx/nonconformities',
+          'material-supervision': '/htx/material-supervision',
+          'technical-proposals': '/htx/technical-proposals',
+          'technical-reports': '/htx/technical-reports',
+          'farmer-reports': '/htx/farmer-reports',
+          'farmer-suggestions': '/htx/farmer-suggestions',
+          'farmer-equipment-requests': '/htx/farmer-equipment-requests',
+          'farmer-duty-confirmations': '/htx/farmer-duty-confirmations',
+          'distribution-orders': '/htx/distribution-orders',
+          'distribution-shipments': '/htx/distribution-shipments',
+          'market-development': '/htx/market-development',
+          'customer-feedback': '/htx/customer-feedback',
+          'product-finalization': '/htx/product-finalization',
+          'distribution-finance-requests': '/htx/distribution-finance',
+          'accounting-transactions': '/htx/accounting-transactions',
+          'accounting-receivables': '/htx/accounting-receivables',
+          'accounting-payables': '/htx/accounting-payables',
+          'accounting-reports': '/htx/accounting-reports',
+          'tax-obligations': '/htx/tax-obligations',
+          'financial-recommendations': '/htx/financial-recommendations',
+        };
+
+        const modules = [];
+        const addModules = (items) => items.forEach(item => {
+          if (!modules.includes(item)) modules.push(item);
+        });
+
+        if (isHtxDirector(role)) addModules(['documents', 'tasks', 'finance', 'partners', 'training']);
+        if (canManageTechnicalOperations(role) && (isHtxDirector(role) || isHtxTechnical(role))) {
+          addModules(['technical-guidance', 'technical-training', 'pest-control', 'product-inspections', 'nonconformities', 'material-supervision', 'technical-proposals', 'technical-reports']);
+        }
+        if ((isHtxDirector(role) || isHtxTechnical(role)) && canHandleFarmerSubmissions(role)) {
+          addModules(['farmer-reports', 'farmer-suggestions', 'farmer-equipment-requests', 'farmer-duty-confirmations']);
+        }
+        if (canManageDistributionOperations(role) && (isHtxDirector(role) || isHtxDistribution(role))) {
+          addModules(['distribution-orders', 'distribution-shipments', 'market-development', 'customer-feedback', 'product-finalization', 'distribution-finance-requests']);
+        }
+        if (canManageAccountingOperations(role) && (isHtxDirector(role) || isHtxAccountant(role))) {
+          addModules(['distribution-finance-requests', 'accounting-transactions', 'accounting-receivables', 'accounting-payables', 'accounting-reports', 'tax-obligations', 'financial-recommendations']);
+        }
+
+        const [approvalsRes, suppliesRes, inventoryRes, journalsRes, ...moduleResponses] = await Promise.allSettled([
+          canManageHtxJournals(role) ? api.get('/htx/journals/approvals/pending') : Promise.resolve({ data: { data: [] } }),
+          canManageSupplies(role) ? api.get('/supply-requests') : Promise.resolve({ data: { data: [] } }),
+          canViewInventory(role) ? api.get('/inventory') : Promise.resolve({ data: { data: [] } }),
+          canViewHtxJournals(role) ? api.get('/htx/journals') : Promise.resolve({ data: { data: [] } }),
+          ...modules.map(moduleKey => api.get(`/htx/management/${moduleKey}`)),
+        ]);
+
+        counts['/htx/approvals'] = readData(approvalsRes).length;
+        counts['/htx/supplies'] = readData(suppliesRes).filter(item => item.status === 'Pending').length;
+        counts['/inventory'] = readData(inventoryRes).filter(item => Number(item.quantity || 0) <= Number(item.minQuantity || 10)).length;
+        counts['/htx/journals'] = readData(journalsRes).reduce((total, journal) => {
+          const farmers = Array.isArray(journal.farmers) ? journal.farmers : [];
+          return total + farmers.filter(farmer => actionStatuses.has(farmer.status)).length;
+        }, 0);
+
+        modules.forEach((moduleKey, index) => {
+          counts[moduleRouteMap[moduleKey]] = countActionRecords(readData(moduleResponses[index]));
+        });
+      }
+
+      if (!isHtx(role) && !isAdmin(role)) {
+        const [assignmentsRes, submissionsRes, suppliesRes, inventoryRes] = await Promise.allSettled([
+          api.get('/htx/management/farmer/assignments'),
+          api.get('/htx/management/farmer/submissions'),
+          api.get('/supply-requests'),
+          api.get('/inventory'),
+        ]);
+
+        counts['/htx-assignments'] = countActionRecords(readData(assignmentsRes));
+        counts['/htx-feedback'] = countActionRecords(readData(submissionsRes));
+        counts['/supplies/farmer'] = readData(suppliesRes).filter(item => item.status === 'Pending').length;
+        counts['/inventory/farmer'] = readData(inventoryRes).filter(item => Number(item.quantity || 0) <= Number(item.minQuantity || 10)).length;
+      }
+
+      return counts;
+    },
+  });
+
+  const badge = (path) => sidebarCounts[path] || 0;
+  const groupBadge = (paths) => sumPathCounts(sidebarCounts, paths);
 
   const handleLogout = async () => {
     try {
@@ -177,10 +304,10 @@ const MainLayout = () => {
         { key: '/thongminh/chan-nuoi', label: 'Chăn nuôi' },
       ],
     },
-    { key: '/htx-assignments', icon: <FileDoneOutlined />, label: label('Yêu cầu từ HTX') },
-    { key: '/htx-feedback', icon: <FileTextOutlined />, label: label('Báo cáo & đề xuất') },
-    { key: '/inventory/farmer', icon: <InboxOutlined />, label: label('Tồn kho vật tư') },
-    { key: '/supplies/farmer', icon: <ShoppingOutlined />, label: label('Xin cấp vật tư') },
+    { key: '/htx-assignments', icon: <FileDoneOutlined />, label: label('Yêu cầu từ HTX', badge('/htx-assignments')) },
+    { key: '/htx-feedback', icon: <FileTextOutlined />, label: label('Báo cáo & đề xuất', badge('/htx-feedback')) },
+    { key: '/inventory/farmer', icon: <InboxOutlined />, label: label('Tồn kho vật tư', badge('/inventory/farmer')) },
+    { key: '/supplies/farmer', icon: <ShoppingOutlined />, label: label('Xin cấp vật tư', badge('/supplies/farmer')) },
     {
       key: 'docs-submenu',
       icon: <ReadOutlined />,
@@ -199,6 +326,12 @@ const MainLayout = () => {
     canManageTraceability(role) && { key: '/htx/portal-settings', icon: <CloudSyncOutlined />, label: 'Cấu hình Cổng QG' },
   ].filter(Boolean);
 
+  const directorAdminPaths = ['/htx/documents', '/htx/tasks', '/htx/finance', '/htx/partners', '/htx/training'];
+  const farmerSubmissionPaths = ['/htx/farmer-reports', '/htx/farmer-suggestions', '/htx/farmer-equipment-requests', '/htx/farmer-duty-confirmations'];
+  const technicalPaths = ['/htx/technical-guidance', '/htx/technical-training', '/htx/pest-control', '/htx/product-inspections', '/htx/nonconformities', '/htx/material-supervision', '/htx/approved-agri-inputs', '/htx/technical-proposals', '/htx/technical-reports', '/htx/farmer-reports', '/htx/farmer-suggestions', '/htx/farmer-duty-confirmations'];
+  const distributionPaths = ['/htx/distribution-orders', '/htx/distribution-shipments', '/htx/market-development', '/htx/customer-feedback', '/htx/product-finalization', '/htx/distribution-finance'];
+  const accountingPaths = ['/htx/accounting-transactions', '/htx/distribution-finance', '/htx/accounting-receivables', '/htx/accounting-payables', '/htx/accounting-reports', '/htx/tax-obligations', '/htx/financial-recommendations'];
+
   const htxItems = [
     isHtxDirector(role) && { key: '/htx/director', icon: <AuditOutlined />, label: label('Điều hành HTX') },
     isHtxTechnical(role) && { key: '/htx/technical', icon: <ExperimentOutlined />, label: label('Ban kỹ thuật') },
@@ -208,78 +341,78 @@ const MainLayout = () => {
     isHtxDirector(role) && {
       key: 'director-admin',
       icon: <FileDoneOutlined />,
-      label: label('Quản trị điều hành'),
+      label: label('Quản trị điều hành', groupBadge(directorAdminPaths)),
       children: [
-        { key: '/htx/documents', label: 'Văn bản & thủ tục' },
-        { key: '/htx/tasks', label: 'Phân công nhiệm vụ' },
-        { key: '/htx/finance', label: 'Tài chính - thu chi' },
-        { key: '/htx/partners', label: 'Đối tác & hợp đồng' },
-        { key: '/htx/training', label: 'Đào tạo & tập huấn' },
+        { key: '/htx/documents', label: label('Văn bản & thủ tục', badge('/htx/documents')) },
+        { key: '/htx/tasks', label: label('Phân công nhiệm vụ', badge('/htx/tasks')) },
+        { key: '/htx/finance', label: label('Tài chính - thu chi', badge('/htx/finance')) },
+        { key: '/htx/partners', label: label('Đối tác & hợp đồng', badge('/htx/partners')) },
+        { key: '/htx/training', label: label('Đào tạo & tập huấn', badge('/htx/training')) },
       ],
     },
     isHtxDirector(role) && {
       key: 'farmer-submissions',
       icon: <FileTextOutlined />,
-      label: label('Phản hồi nông dân'),
+      label: label('Phản hồi nông dân', groupBadge(farmerSubmissionPaths)),
       children: [
-        { key: '/htx/farmer-reports', label: 'Báo cáo sự cố' },
-        { key: '/htx/farmer-suggestions', label: 'Đề xuất chuyên môn' },
-        { key: '/htx/farmer-equipment-requests', label: 'Dụng cụ & bảo hộ' },
-        { key: '/htx/farmer-duty-confirmations', label: 'Xác nhận nhiệm vụ' },
+        { key: '/htx/farmer-reports', label: label('Báo cáo sự cố', badge('/htx/farmer-reports')) },
+        { key: '/htx/farmer-suggestions', label: label('Đề xuất chuyên môn', badge('/htx/farmer-suggestions')) },
+        { key: '/htx/farmer-equipment-requests', label: label('Dụng cụ & bảo hộ', badge('/htx/farmer-equipment-requests')) },
+        { key: '/htx/farmer-duty-confirmations', label: label('Xác nhận nhiệm vụ', badge('/htx/farmer-duty-confirmations')) },
       ],
     },
     canManageTechnicalOperations(role) && (isHtxDirector(role) || isHtxTechnical(role)) && {
       key: 'technical-admin',
       icon: <ExperimentOutlined />,
-      label: label('Nghiệp vụ kỹ thuật'),
+      label: label('Nghiệp vụ kỹ thuật', groupBadge(technicalPaths)),
       children: [
-        { key: '/htx/technical-guidance', label: 'Hướng dẫn kỹ thuật' },
-        { key: '/htx/technical-training', label: 'Đào tạo xã viên' },
-        { key: '/htx/pest-control', label: 'Sâu bệnh & xử lý' },
-        { key: '/htx/product-inspections', label: 'Kiểm tra đầu ra' },
-        { key: '/htx/nonconformities', label: 'Không phù hợp' },
-        { key: '/htx/material-supervision', label: 'Giám sát vật tư' },
-        { key: '/htx/approved-agri-inputs', label: 'Danh mục vật tư được phép' },
-        { key: '/htx/technical-proposals', label: 'Đề xuất kỹ thuật' },
-        { key: '/htx/technical-reports', label: 'Báo cáo kỹ thuật' },
-        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-reports', label: 'Báo cáo nông dân' },
-        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-suggestions', label: 'Đề xuất nông dân' },
-        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-duty-confirmations', label: 'Xác nhận nhiệm vụ' },
+        { key: '/htx/technical-guidance', label: label('Hướng dẫn kỹ thuật', badge('/htx/technical-guidance')) },
+        { key: '/htx/technical-training', label: label('Đào tạo xã viên', badge('/htx/technical-training')) },
+        { key: '/htx/pest-control', label: label('Sâu bệnh & xử lý', badge('/htx/pest-control')) },
+        { key: '/htx/product-inspections', label: label('Kiểm tra đầu ra', badge('/htx/product-inspections')) },
+        { key: '/htx/nonconformities', label: label('Không phù hợp', badge('/htx/nonconformities')) },
+        { key: '/htx/material-supervision', label: label('Giám sát vật tư', badge('/htx/material-supervision')) },
+        { key: '/htx/approved-agri-inputs', label: label('Danh mục vật tư được phép', badge('/htx/approved-agri-inputs')) },
+        { key: '/htx/technical-proposals', label: label('Đề xuất kỹ thuật', badge('/htx/technical-proposals')) },
+        { key: '/htx/technical-reports', label: label('Báo cáo kỹ thuật', badge('/htx/technical-reports')) },
+        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-reports', label: label('Báo cáo nông dân', badge('/htx/farmer-reports')) },
+        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-suggestions', label: label('Đề xuất nông dân', badge('/htx/farmer-suggestions')) },
+        isHtxTechnical(role) && canHandleFarmerSubmissions(role) && { key: '/htx/farmer-duty-confirmations', label: label('Xác nhận nhiệm vụ', badge('/htx/farmer-duty-confirmations')) },
       ].filter(Boolean),
     },
     canManageDistributionOperations(role) && (isHtxDirector(role) || isHtxDistribution(role)) && {
       key: 'distribution-admin',
       icon: <ShoppingOutlined />,
-      label: label('Nghiệp vụ phân phối'),
+      label: label('Nghiệp vụ phân phối', groupBadge(distributionPaths)),
       children: [
-        { key: '/htx/distribution-orders', label: 'Đơn đặt hàng' },
-        { key: '/htx/distribution-shipments', label: 'Vận chuyển' },
-        { key: '/htx/market-development', label: 'Phát triển thị trường' },
-        { key: '/htx/customer-feedback', label: 'Phản hồi khách hàng' },
-        { key: '/htx/product-finalization', label: 'Hoàn thiện sản phẩm' },
-        { key: '/htx/distribution-finance', label: 'Đối soát tài chính' },
+        { key: '/htx/distribution-orders', label: label('Đơn đặt hàng', badge('/htx/distribution-orders')) },
+        { key: '/htx/distribution-shipments', label: label('Vận chuyển', badge('/htx/distribution-shipments')) },
+        { key: '/htx/market-development', label: label('Phát triển thị trường', badge('/htx/market-development')) },
+        { key: '/htx/customer-feedback', label: label('Phản hồi khách hàng', badge('/htx/customer-feedback')) },
+        { key: '/htx/product-finalization', label: label('Hoàn thiện sản phẩm', badge('/htx/product-finalization')) },
+        { key: '/htx/distribution-finance', label: label('Đối soát tài chính', badge('/htx/distribution-finance')) },
       ],
     },
     canManageAccountingOperations(role) && (isHtxDirector(role) || isHtxAccountant(role)) && {
       key: 'accounting-admin',
       icon: <WalletOutlined />,
-      label: label('Nghiệp vụ kế toán'),
+      label: label('Nghiệp vụ kế toán', groupBadge(accountingPaths)),
       children: [
-        { key: '/htx/accounting-transactions', label: 'Giao dịch tài chính' },
-        isHtxAccountant(role) && canManageDistributionFinance(role) && { key: '/htx/distribution-finance', label: 'Đối soát phân phối' },
-        { key: '/htx/accounting-receivables', label: 'Công nợ phải thu' },
-        { key: '/htx/accounting-payables', label: 'Công nợ phải trả' },
-        { key: '/htx/accounting-reports', label: 'Sổ sách & báo cáo' },
-        { key: '/htx/tax-obligations', label: 'Thuế & chi phí' },
-        { key: '/htx/financial-recommendations', label: 'Khuyến nghị tài chính' },
+        { key: '/htx/accounting-transactions', label: label('Giao dịch tài chính', badge('/htx/accounting-transactions')) },
+        isHtxAccountant(role) && canManageDistributionFinance(role) && { key: '/htx/distribution-finance', label: label('Đối soát phân phối', badge('/htx/distribution-finance')) },
+        { key: '/htx/accounting-receivables', label: label('Công nợ phải thu', badge('/htx/accounting-receivables')) },
+        { key: '/htx/accounting-payables', label: label('Công nợ phải trả', badge('/htx/accounting-payables')) },
+        { key: '/htx/accounting-reports', label: label('Sổ sách & báo cáo', badge('/htx/accounting-reports')) },
+        { key: '/htx/tax-obligations', label: label('Thuế & chi phí', badge('/htx/tax-obligations')) },
+        { key: '/htx/financial-recommendations', label: label('Khuyến nghị tài chính', badge('/htx/financial-recommendations')) },
       ].filter(Boolean),
     },
     canAccessHtxFarmerManagement(role) && canViewHtxMembers(role) && { key: '/htx/farmers', icon: <TeamOutlined />, label: label('Quản lý nông dân') },
-    canViewHtxJournals(role) && (isHtxDirector(role) || isHtxTechnical(role) || isHtxSupervisor(role)) && { key: '/htx/journals', icon: <SettingOutlined />, label: label('Quản lý sổ HTX') },
-    canManageHtxJournals(role) && { key: '/htx/approvals', icon: <CheckCircleOutlined />, label: label('Phê duyệt nhật ký') },
-    canManageSupplies(role) && { key: '/htx/supplies', icon: <ShoppingOutlined />, label: label('Phê duyệt vật tư') },
+    canViewHtxJournals(role) && (isHtxDirector(role) || isHtxTechnical(role) || isHtxSupervisor(role)) && { key: '/htx/journals', icon: <SettingOutlined />, label: label('Quản lý sổ HTX', badge('/htx/journals')) },
+    canManageHtxJournals(role) && { key: '/htx/approvals', icon: <CheckCircleOutlined />, label: label('Phê duyệt nhật ký', badge('/htx/approvals')) },
+    canManageSupplies(role) && { key: '/htx/supplies', icon: <ShoppingOutlined />, label: label('Phê duyệt vật tư', badge('/htx/supplies')) },
     traceabilityChildren.length > 0 && { key: 'traceability', icon: <GlobalOutlined />, label: label('Truy xuất nguồn gốc'), children: traceabilityChildren },
-    canViewInventory(role) && (isHtxDirector(role) || isHtxTechnical(role) || isHtxDistribution(role) || isHtxSupervisor(role)) && { key: '/inventory', icon: <InboxOutlined />, label: label('Kho vật tư tập trung') },
+    canViewInventory(role) && (isHtxDirector(role) || isHtxTechnical(role) || isHtxDistribution(role) || isHtxSupervisor(role)) && { key: '/inventory', icon: <InboxOutlined />, label: label('Kho vật tư tập trung', badge('/inventory')) },
   ].filter(Boolean);
 
   const items = isAdmin(role) ? adminItems : isHtx(role) ? htxItems : farmerItems;

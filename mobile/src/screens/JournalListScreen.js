@@ -6,6 +6,14 @@ import {
 import { Feather } from '@expo/vector-icons';
 import api from '../api/api';
 import { useAuthStore } from '../store/authStore';
+import {
+  CATEGORY_GROUPS,
+  STATUS_OPTIONS,
+  SORT_OPTIONS,
+  getCategoryGroup,
+  getFullCategoryName,
+  getCategoryLabel,
+} from '../constants/categories';
 
 const STATUS_CONFIG = {
   Draft:    { label: 'Lưu nháp',   color: '#3b82f6', bg: '#eff6ff' },
@@ -35,13 +43,22 @@ function StatusBadge({ status, feedback }) {
 export default function JournalListScreen({ navigation }) {
   const user = useAuthStore((state) => state.user);
 
+  // ─── Category State ───
+  const [activeGroup, setActiveGroup]     = useState('vietgap');
+  const [activeCategory, setActiveCategory] = useState('trongtrot');
+
+  // ─── Data State ───
   const [journals, setJournals]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // ─── Filter State ───
   const [search, setSearch]         = useState('');
-  const [statusFilter, setStatus]   = useState('all');
-  const [typeFilter, setType]       = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy]         = useState('newest');
+  const [showFilters, setShowFilters] = useState(false);
 
+  // ─── Modal State ───
   const [detailVisible, setDetailVisible] = useState(false);
   const [detailJournal, setDetailJournal] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -52,7 +69,21 @@ export default function JournalListScreen({ navigation }) {
 
   const fetchJournals = async () => {
     try {
-      const { data } = await api.get('/journals');
+      const params = {};
+      if (activeCategory && activeCategory !== 'all') {
+        params.category = activeCategory;
+      }
+      if (statusFilter && statusFilter !== 'all') {
+        params.status = statusFilter;
+      }
+      // Add sorting
+      const sortOption = SORT_OPTIONS.find(s => s.key === sortBy);
+      if (sortOption) {
+        params.sortBy = sortOption.field;
+        params.sortOrder = sortOption.order;
+      }
+
+      const { data } = await api.get('/journals', { params });
       if (data.success) setJournals(data.data || []);
     } catch (e) {
       console.error(e);
@@ -64,7 +95,11 @@ export default function JournalListScreen({ navigation }) {
 
   const fetchSchemas = async () => {
     try {
-      const { data } = await api.get('/schemas');
+      const params = {};
+      if (activeCategory && activeCategory !== 'all') {
+        params.category = activeCategory;
+      }
+      const { data } = await api.get('/schemas', { params });
       if (data.success) setSchemas(data.data || []);
     } catch (e) {
       console.error(e);
@@ -73,10 +108,28 @@ export default function JournalListScreen({ navigation }) {
 
   useEffect(() => {
     fetchJournals();
+  }, [activeCategory, statusFilter, sortBy]);
+
+  useEffect(() => {
     fetchSchemas();
-  }, []);
+  }, [activeCategory]);
 
   const onRefresh = () => { setRefreshing(true); fetchJournals(); };
+
+  // ─── Helper Functions ───
+  const handleGroupChange = (groupKey) => {
+    setActiveGroup(groupKey);
+    const group = Object.values(CATEGORY_GROUPS).find(g => g.key === groupKey);
+    if (group && group.categories.length > 0) {
+      setActiveCategory(group.categories[0].key);
+    }
+  };
+
+  const cycleSortOption = () => {
+    const currentIndex = SORT_OPTIONS.findIndex(s => s.key === sortBy);
+    const nextIndex = (currentIndex + 1) % SORT_OPTIONS.length;
+    setSortBy(SORT_OPTIONS[nextIndex].key);
+  };
 
   // ─── Filter ───
   const filtered = journals.filter(j => {
@@ -84,9 +137,6 @@ export default function JournalListScreen({ navigation }) {
     const qr    = (j.qrCode || '').toLowerCase();
     const sText = search.toLowerCase();
     if (search && !name.includes(sText) && !qr.includes(sText)) return false;
-    if (statusFilter !== 'all' && j.status !== statusFilter) return false;
-    if (typeFilter === 'personal' &&  j.htxJournalId) return false;
-    if (typeFilter === 'htx'     && !j.htxJournalId) return false;
     return true;
   });
 
@@ -126,34 +176,35 @@ export default function JournalListScreen({ navigation }) {
   // ─── Navigate to create new journal ───
   const handleCreate = (schemaId) => {
     setSchemaModal(false);
-    // Navigate to JournalEntryScreen to fill the form
-    navigation.navigate('JournalEntry', { schemaId });
-  };
-
-  const CATEGORY_COLORS = {
-    trongtrot:       { color: '#16a34a', label: 'VietGAP Trồng trọt' },
-    channuoi:        { color: '#f97316', label: 'VietGAHP Chăn nuôi' },
-    thuysan:         { color: '#3b82f6', label: 'VietGAP Thủy sản'   },
-    huuco:           { color: '#8b5cf6', label: 'Hữu cơ'             },
-    huuco_caytrong:  { color: '#7c3aed', label: 'Hữu cơ - Cây trồng' },
-    huuco_channuoi:  { color: '#db2777', label: 'Hữu cơ - Chăn nuôi' },
-    huuco_thuysan:   { color: '#0284c7', label: 'Hữu cơ - Thủy sản'  },
-    thongminh:       { color: '#0891b2', label: 'Nông nghiệp Thông minh' },
+    navigation.navigate('JournalEntry', { 
+      schemaId,
+      category: activeCategory,
+      group: activeGroup
+    });
   };
 
   const renderJournal = ({ item }) => {
-    const cat = CATEGORY_COLORS[item.schemaId?.category] || { color: '#16a34a', label: '' };
+    const group = getCategoryGroup(item.schemaId?.category);
+    const categoryName = getFullCategoryName(item.schemaId?.category);
+    const groupColor = group?.color || '#16a34a';
+    
     return (
       <TouchableOpacity style={styles.card} onPress={() => openDetail(item._id)} activeOpacity={0.85}>
         {/* Left accent bar */}
-        <View style={[styles.cardAccent, { backgroundColor: cat.color }]} />
+        <View style={[styles.cardAccent, { backgroundColor: groupColor }]} />
 
         <View style={styles.cardBody}>
-          {/* Header row */}
+          {/* Header row with icon */}
           <View style={styles.cardHeaderRow}>
-            <Text style={[styles.cardSchemaName, { color: cat.color }]} numberOfLines={1}>
-              {item.schemaId?.name || 'Nhật ký'}
-            </Text>
+            <View style={[styles.cardIcon, { backgroundColor: `${groupColor}18` }]}>
+              <Feather name={group?.icon || 'book'} size={20} color={groupColor} />
+            </View>
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardSchemaName} numberOfLines={2}>
+                {item.schemaId?.name || 'Nhật ký'}
+              </Text>
+              <Text style={styles.cardCategory}>{categoryName}</Text>
+            </View>
             <StatusBadge status={item.status} feedback={item.feedback} />
           </View>
 
@@ -161,7 +212,7 @@ export default function JournalListScreen({ navigation }) {
           <View style={styles.metaRow}>
             <Feather name={item.htxJournalId ? 'users' : 'user'} size={12} color="#94a3b8" />
             <Text style={styles.metaText}>
-              {item.htxJournalId ? 'Sổ HTX liên kết' : 'Sổ cá nhân'}
+              {item.htxJournalId ? 'Sổ HTX' : 'Sổ cá nhân'}
             </Text>
             <Text style={styles.metaDot}>·</Text>
             <Feather name="calendar" size={12} color="#94a3b8" />
@@ -181,7 +232,7 @@ export default function JournalListScreen({ navigation }) {
           {/* Progress bar */}
           <View style={styles.progressRow}>
             <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${item.progress || 0}%`, backgroundColor: cat.color }]} />
+              <View style={[styles.progressFill, { width: `${item.progress || 0}%`, backgroundColor: groupColor }]} />
             </View>
             <Text style={styles.progressLabel}>{item.progress || 0}%</Text>
           </View>
@@ -194,7 +245,8 @@ export default function JournalListScreen({ navigation }) {
                   style={[styles.actionBtn, { backgroundColor: '#dbeafe' }]}
                   onPress={() => navigation.navigate('JournalEntry', { 
                     journalId: item._id, 
-                    schemaId: item.schemaId?._id 
+                    schemaId: item.schemaId?._id,
+                    category: item.schemaId?.category
                   })}
                 >
                   <Feather name="edit-3" size={13} color="#3b82f6" />
@@ -244,8 +296,66 @@ export default function JournalListScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Search + Filter row */}
-      <View style={styles.filterArea}>
+      {/* Category Group Tabs */}
+      <View style={styles.groupTabsContainer}>
+        {Object.values(CATEGORY_GROUPS).map(group => {
+          const isActive = activeGroup === group.key;
+          return (
+            <TouchableOpacity
+              key={group.key}
+              style={[
+                styles.groupTab,
+                isActive && { borderBottomColor: group.color, borderBottomWidth: 3 }
+              ]}
+              onPress={() => handleGroupChange(group.key)}
+            >
+              <Feather name={group.icon} size={18} color={isActive ? group.color : '#9ca3af'} />
+              <Text style={[
+                styles.groupTabText,
+                isActive && { color: group.color, fontWeight: '700' }
+              ]}>
+                {group.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Category Chips */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoryChipsScroll}
+        contentContainerStyle={styles.categoryChipsContent}
+      >
+        {CATEGORY_GROUPS[activeGroup].categories.map(cat => {
+          const isActive = activeCategory === cat.key;
+          const group = CATEGORY_GROUPS[activeGroup];
+          return (
+            <TouchableOpacity
+              key={cat.key}
+              style={[
+                styles.categoryChip,
+                isActive && { 
+                  backgroundColor: `${group.color}20`,
+                  borderColor: group.color 
+                }
+              ]}
+              onPress={() => setActiveCategory(cat.key)}
+            >
+              <Text style={[
+                styles.categoryChipText,
+                isActive && { color: group.color, fontWeight: '700' }
+              ]}>
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      {/* Search + Filter Bar */}
+      <View style={styles.filterBar}>
         <View style={styles.searchBox}>
           <Feather name="search" size={16} color="#94a3b8" />
           <TextInput
@@ -255,21 +365,60 @@ export default function JournalListScreen({ navigation }) {
             onChangeText={setSearch}
           />
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-          {['all','Draft','Submitted','Verified','Locked'].map(s => (
-            <TouchableOpacity
-              key={s}
-              style={[styles.chip, statusFilter === s && styles.chipActive]}
-              onPress={() => setStatus(s)}
-            >
-              <Text style={[styles.chipText, statusFilter === s && styles.chipTextActive]}>
-                {s === 'all' ? 'Tất cả' : STATUS_CONFIG[s]?.label || s}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          <View style={{ width: 16 }} />
-        </ScrollView>
+        
+        <View style={styles.filterButtons}>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => setShowFilters(!showFilters)}
+          >
+            <Feather name="filter" size={18} color="#6b7280" />
+            <Text style={styles.filterButtonText}>Lọc</Text>
+            {statusFilter !== 'all' && <View style={styles.filterBadge} />}
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={cycleSortOption}
+          >
+            <Feather name="arrow-down" size={18} color="#6b7280" />
+            <Text style={styles.filterButtonText}>
+              {SORT_OPTIONS.find(s => s.key === sortBy)?.label || 'Sắp xếp'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Filters Panel (Collapsible) */}
+      {showFilters && (
+        <View style={styles.filtersPanel}>
+          <Text style={styles.filtersPanelTitle}>Trạng thái</Text>
+          <View style={styles.statusFilters}>
+            {STATUS_OPTIONS.map(status => (
+              <TouchableOpacity
+                key={status.key}
+                style={[
+                  styles.statusChip,
+                  statusFilter === status.key && {
+                    backgroundColor: `${status.color}20`,
+                    borderColor: status.color
+                  }
+                ]}
+                onPress={() => setStatusFilter(status.key)}
+              >
+                <Text style={[
+                  styles.statusChipText,
+                  statusFilter === status.key && { 
+                    color: status.color,
+                    fontWeight: '700'
+                  }
+                ]}>
+                  {status.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* List */}
       {loading ? (
@@ -307,18 +456,21 @@ export default function JournalListScreen({ navigation }) {
               data={schemas}
               keyExtractor={s => s._id}
               renderItem={({ item: s }) => {
-                const cat = CATEGORY_COLORS[s.category] || { color: '#16a34a' };
+                const group = getCategoryGroup(s.category);
+                const groupColor = group?.color || '#16a34a';
+                const categoryLabel = getFullCategoryName(s.category);
+                
                 return (
                   <TouchableOpacity
                     style={styles.schemaItem}
                     onPress={() => handleCreate(s._id)}
                   >
-                    <View style={[styles.schemaIcon, { backgroundColor: cat.color + '18' }]}>
-                      <Feather name="file-text" size={20} color={cat.color} />
+                    <View style={[styles.schemaIcon, { backgroundColor: `${groupColor}18` }]}>
+                      <Feather name={group?.icon || 'file-text'} size={20} color={groupColor} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.schemaName}>{s.name}</Text>
-                      <Text style={styles.schemaCat}>{cat.label || s.category || 'Quy trình canh tác'}</Text>
+                      <Text style={styles.schemaCat}>{categoryLabel || 'Quy trình canh tác'}</Text>
                     </View>
                     <Feather name="chevron-right" size={18} color="#cbd5e1" />
                   </TouchableOpacity>
@@ -439,21 +591,130 @@ const styles = StyleSheet.create({
     shadowColor: '#16a34a', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
 
-  /* Filter */
-  filterArea: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingBottom: 10 },
+  /* Category Group Tabs */
+  groupTabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  groupTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    gap: 8,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  groupTabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#9ca3af',
+  },
+
+  /* Category Chips */
+  categoryChipsScroll: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  categoryChipsContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  categoryChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+
+  /* Filter Bar */
+  filterBar: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+    gap: 12,
+  },
   searchBox: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9',
-    borderRadius: 10, marginHorizontal: 16, marginTop: 12, paddingHorizontal: 12, height: 42,
+    borderRadius: 10, paddingHorizontal: 12, height: 42,
   },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 14, color: '#1e293b' },
-  chipScroll:  { paddingLeft: 16, paddingTop: 10 },
-  chip: {
-    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
-    backgroundColor: '#f1f5f9', marginRight: 8,
+  filterButtons: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  chipActive:     { backgroundColor: '#16a34a' },
-  chipText:       { fontSize: 12, color: '#64748b', fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
+  filterButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+    gap: 6,
+  },
+  filterButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  filterBadge: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#22c55e',
+    marginLeft: 4,
+  },
+
+  /* Filters Panel */
+  filtersPanel: {
+    backgroundColor: '#f9fafb',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  filtersPanelTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    marginBottom: 10,
+    letterSpacing: 0.5,
+  },
+  statusFilters: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statusChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+  },
+  statusChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
 
   /* Card */
   list: { padding: 14 },
@@ -464,8 +725,35 @@ const styles = StyleSheet.create({
   },
   cardAccent: { width: 4 },
   cardBody:   { flex: 1, padding: 14 },
-  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  cardSchemaName: { fontSize: 15, fontWeight: 'bold', flex: 1, marginRight: 8 },
+  cardHeaderRow: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    marginBottom: 8 
+  },
+  cardIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  cardInfo: {
+    flex: 1,
+    marginRight: 8,
+  },
+  cardSchemaName: { 
+    fontSize: 15, 
+    fontWeight: 'bold', 
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  cardCategory: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '600',
+  },
 
   badge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
   badgeText: { fontSize: 10, fontWeight: 'bold', marginLeft: 3 },

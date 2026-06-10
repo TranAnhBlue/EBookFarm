@@ -179,6 +179,14 @@ export default function HomeScreen({ navigation }) {
       title: 'Báo cáo',
       items: [
         {
+          id: 'reports',
+          title: 'Báo cáo thống kê',
+          icon: 'bar-chart-2',
+          route: 'Reports',
+          color: '#8b5cf6',
+          iconBg: '#faf5ff',
+        },
+        {
           id: 'trace',
           title: 'Truy xuất QR',
           icon: 'grid',
