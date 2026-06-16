@@ -1,0 +1,32 @@
+fix: Sửa lỗi encoding UTF-8 cho tiếng Việt
+
+## Vấn đề
+- Chữ tiếng Việt bị hiển thị sai dấu trong database và ứng dụng
+- Ví dụ: "Sẵn nhật ký HTX mới" → "Sáº¯n nhẫº¯t kÃ½ HTX máº›i"
+
+## Thay đổi
+
+### Backend
+- Thêm middleware force UTF-8 encoding cho tất cả API responses
+- File: `backend/src/server.js`
+- Header: `Content-Type: application/json; charset=utf-8`
+
+### Scripts
+- Tạo `check-encoding-issue.js` - Kiểm tra vấn đề encoding
+- Tạo `fix-encoding.js` - Tự động sửa lỗi encoding trong DB
+
+### Documentation
+- `ENCODING_FIX_GUIDE.md` - Hướng dẫn chi tiết
+- `FIX_ENCODING_QUICK.md` - Hướng dẫn nhanh
+
+## Testing
+- [x] Kiểm tra API response headers
+- [x] Test hiển thị tiếng Việt trong UI
+- [x] Test tạo/sửa dữ liệu mới
+- [x] Kiểm tra mobile app
+
+## Breaking Changes
+Không có
+
+## Migration Required
+Cần chạy script `fix-encoding.js` để sửa dữ liệu cũ trong database

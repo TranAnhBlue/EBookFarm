@@ -1,0 +1,2068 @@
+{
+  "timestamp": "2026-06-16T09:25:14.241Z",
+  "totalFixed": 136,
+  "totalChecked": 282,
+  "changes": [
+    {
+      "collection": "users",
+      "_id": "69e650f04d356bb06e2da8c4",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "H�p t�c x�",
+          "after": "Hợp tác xã"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed00c",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn \u0010Ông Dừ Hạ, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed00d",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "C�n b� Ban k� thu�t",
+          "after": "Cán bộ Ban kỹ thuật"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed00e",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "C�n b� Ban ph�n ph�i",
+          "after": "Cán bộ Ban phân phối"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed00f",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "K� to�n HTX",
+          "after": "Kế toán HTX"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed010",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "C�n b� Ban ki�m so�t",
+          "after": "Cán bộ Ban kiểm soát"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed011",
+      "changes": [
+        {
+          "field": "address",
+          "before": "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Xã \u0011Ông ngoài Bãi, \u0010Ông Dừ Hạ, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c3",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c4",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c5",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c6",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c7",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c8",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c9",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5ca",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cb",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cc",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cd",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5ce",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cf",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d0",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d1",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d2",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d3",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d4",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d5",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d6",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d7",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d8",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d9",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5da",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5db",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5dc",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5dd",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5de",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5df",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e0",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e1",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e2",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e3",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e4",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e5",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e6",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e7",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e8",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e9",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5ea",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5eb",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ec",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ed",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ee",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ef",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f0",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "Ho�ng Th� H�t",
+          "after": "HoÔng Th� Hạt"
+        },
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f1",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f2",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f3",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f4",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f5",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f6",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f7",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f8",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f9",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "Nguy�n V\u0003n S�ng",
+          "after": "Nguy�n V\u0003n SÔng"
+        },
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5fa",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fb",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fc",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fd",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fe",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5ff",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac600",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac601",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 1, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac602",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac603",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac604",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac605",
+      "changes": [
+        {
+          "field": "fullname",
+          "before": "Vi Ng�c �n",
+          "after": "Vi Ngàc �n"
+        },
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac606",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac607",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac608",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac609",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac60a",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60b",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60c",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60d",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60e",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60f",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac610",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac611",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac612",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac613",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac614",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac615",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac616",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac617",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac618",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac619",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac61a",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61b",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61c",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61d",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61e",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61f",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac620",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac621",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac622",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac623",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac624",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac625",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac626",
+      "changes": [
+        {
+          "field": "organization",
+          "before": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+          "after": "Hợp tác xã Dịch vụ Nông nghiệp \u0010Ông Dừ"
+        },
+        {
+          "field": "address",
+          "before": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+          "after": "Thôn 2, xã \u0011Ông Bãi ven sông, xã Bát Tràng, thảnh hưởng phố Hà Nội"
+        }
+      ]
+    },
+    {
+      "collection": "htxmanagementrecords",
+      "_id": "6a19b9e16db826103e20efb0",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�nh c�o",
+          "after": "Cảnh hưởng cáo"
+        }
+      ]
+    },
+    {
+      "collection": "htxmanagementrecords",
+      "_id": "6a1e413994c16bba4198b47d",
+      "changes": [
+        {
+          "field": "title",
+          "before": "B�n h�ng",
+          "after": "Bản hạng"
+        },
+        {
+          "field": "description",
+          "before": "B�n h�ng h�a",
+          "after": "Bản hạng hóa"
+        }
+      ]
+    },
+    {
+      "collection": "htxmanagementrecords",
+      "_id": "6a1e44dca649ee1000e2d6c5",
+      "changes": [
+        {
+          "field": "title",
+          "before": "B�n h�ng",
+          "after": "Bản hạng"
+        },
+        {
+          "field": "description",
+          "before": "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d",
+          "after": "Bản hạng hóa\nTạo tờ \u0011trình soát phân phối: 6a1e413994c16bba4198b47d"
+        }
+      ]
+    },
+    {
+      "collection": "htxjournals",
+      "_id": "69fc111815374e1ff9237b0d",
+      "changes": [
+        {
+          "field": "name",
+          "before": "c� tra",
+          "after": "cá tra"
+        }
+      ]
+    },
+    {
+      "collection": "groups",
+      "_id": "6a1cf63d9ce8ce001e6b4c04",
+      "changes": [
+        {
+          "field": "name",
+          "before": "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� ",
+          "after": "HỢP TÁC XÃ DỊCH VỤ NÔNG NGHIỆP \u0010ÔNG DỪ "
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "69fb116842dbf1b3b6f1cadd",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "69fbfc7ef73a2f2edaadf671",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "69fe1536c5f2fb9cb6f8e217",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "69feb36fbfa93c09909050fc",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a0151ec920ba207b5e5575b",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a019d8b5335febf4ca1c1a0",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a058604a822595b9e4e70eb",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a05929c662a8234ee1cc960",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a0596065d0a8c0ab098f906",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a0597aa5d0a8c0ab0994ec3",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a1cf9435092c5398e930c32",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a27797ae6f1b3e6c70d83d9",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký HTX m�:i",
+          "after": "Sổ\" nhật ký HTX mới"
+        },
+        {
+          "field": "message",
+          "before": "HTX Nguy�n Quang Huy vừa tạo s�\" kế hoạch m�:i: Bo mua he",
+          "after": "HTX Nguy�n Quang Huy vừa tạo sổ\" kế hoạch mới: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277984e6f1b3e6c70d842b",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277986e6f1b3e6c70d847b",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277987e6f1b3e6c70d84cb",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277988e6f1b3e6c70d851b",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277989e6f1b3e6c70d856b",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277990e6f1b3e6c70d85bb",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277aba7c00590a9e6a9705",
+      "changes": [
+        {
+          "field": "title",
+          "before": "S�\" nhật ký m�:i",
+          "after": "Sổ\" nhật ký mới"
+        },
+        {
+          "field": "message",
+          "before": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+          "after": "Bạn �\u0018ã �\u0018ược phân công tham gia sổ\" [VietGAHP ChĒn nuôi]: Bo mua he"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277e80fbc0efcdfa23e36f",
+      "changes": [
+        {
+          "field": "title",
+          "before": "Nh�t k� c� nh�n g�i duy�t",
+          "after": "Nhật ký cá nhân gài duyệt"
+        }
+      ]
+    },
+    {
+      "collection": "notifications",
+      "_id": "6a277ef2fbc0efcdfa2468ce",
+      "changes": [
+        {
+          "field": "title",
+          "before": "C�p nh�t tr�ng th�i s�",
+          "after": "Cập nhật trạng thái sổ"
+        }
+      ]
+    },
+    {
+      "collection": "news",
+      "_id": "69e3c9d6e476c1874ba1cb77",
+      "changes": [
+        {
+          "field": "title",
+          "before": "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+          "after": "Hợp tác xã Krông Păk \u0011uy mãnh xuất khẩu sầu riêng sang thị trường Trung Quốc"
+        }
+      ]
+    },
+    {
+      "collection": "news",
+      "_id": "69e3c9d6e476c1874ba1cb79",
+      "changes": [
+        {
+          "field": "title",
+          "before": "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code",
+          "after": "Nâng cao giá trị nông sản qua tem truy xuất nguồn gốc QR Code"
+        }
+      ]
+    },
+    {
+      "collection": "news",
+      "_id": "69e3c9d6e476c1874ba1cb7a",
+      "changes": [
+        {
+          "field": "title",
+          "before": "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua",
+          "after": "Bản tin thị trường: Giá cà phê và sầu riêng \u0011ít \u0011ảnh hưởng trong tuần qua"
+        }
+      ]
+    }
+  ]
+}

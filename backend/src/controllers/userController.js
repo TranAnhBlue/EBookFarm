@@ -23,7 +23,7 @@ const getProfile = async (req, res) => {
 const getPublicHtxList = async (req, res) => {
   try {
     const htxs = await User.find({ 
-      role: { $regex: /^htx$/i }, 
+      role: { $in: ['HTX', 'Htx', 'htx', 'HTX_DIRECTOR'] },
       status: 'Active' 
     })
       .select('fullname username phone avatar email province district ward address');

@@ -1,0 +1,1143 @@
+{
+  "timestamp": "2026-06-16T09:32:25.186Z",
+  "totalFixed": 101,
+  "totalChecked": 256,
+  "changes": [
+    {
+      "collection": "users",
+      "_id": "6a1957245045e4a3a18ed00c",
+      "changes": [
+        {
+          "field": "bio",
+          "before": "t�i l� gi�m \u0011�c",
+          "after": "ti l gim \u0011Đức"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c3",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c4",
+      "changes": [
+        {
+          "field": "farmName",
+          "before": "H� tr�ng �i VietGAP - Nguy�n \u0010�c \u0010�p",
+          "after": "H trẤng i VũetGAP - Nguyễn \u0010Đức \u0010Áp"
+        },
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c5",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c6",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c7",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c8",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5c9",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc0275b92db49dac5ca",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cb",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cc",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cd",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5ce",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5cf",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d0",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d1",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc1275b92db49dac5d2",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d3",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d4",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d5",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d6",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d7",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d8",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5d9",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc2275b92db49dac5da",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5db",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5dc",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5dd",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5de",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5df",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e0",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e1",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc3275b92db49dac5e2",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e3",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e4",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e5",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e6",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e7",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e8",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5e9",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc4275b92db49dac5ea",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5eb",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ec",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ed",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ee",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5ef",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f0",
+      "changes": [
+        {
+          "field": "farmName",
+          "before": "H� tr�ng �i VietGAP - Ho�ng Th� H�t",
+          "after": "H trẤng i VũetGAP - HoẤng Thị Ht"
+        },
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f1",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc5275b92db49dac5f2",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f3",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f4",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f5",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f6",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f7",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f8",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5f9",
+      "changes": [
+        {
+          "field": "farmName",
+          "before": "H� tr�ng �i VietGAP - Nguy�n V\u0003n S�ng",
+          "after": "H trẤng i VũetGAP - Nguyễn V\u0003n SẤng"
+        },
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc6275b92db49dac5fa",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fb",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fc",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fd",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5fe",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac5ff",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac600",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac601",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc7275b92db49dac602",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac603",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac604",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac605",
+      "changes": [
+        {
+          "field": "farmName",
+          "before": "H� tr�ng �i VietGAP - Vi Ng�c �n",
+          "after": "H trẤng i VũetGAP - Vũ NgĐức Ấn"
+        },
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac606",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac607",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac608",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac609",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc8275b92db49dac60a",
+      "changes": [
+        {
+          "field": "farmName",
+          "before": "H� tr�ng �i VietGAP - Nguy�n Th� \u0010�o",
+          "after": "H trẤng i VũetGAP - Nguyễn Thị \u0010Ảo"
+        },
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60b",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60c",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60d",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60e",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac60f",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac610",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac611",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dc9275b92db49dac612",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac613",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac614",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac615",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac616",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac617",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac618",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac619",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dca275b92db49dac61a",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61b",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61c",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61d",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61e",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac61f",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac620",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac621",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcb275b92db49dac622",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac623",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac624",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac625",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    },
+    {
+      "collection": "users",
+      "_id": "6a195dcc275b92db49dac626",
+      "changes": [
+        {
+          "field": "ward",
+          "before": "X� B�t Tr�ng",
+          "after": "X Bt TrẤng"
+        }
+      ]
+    }
+  ]
+}

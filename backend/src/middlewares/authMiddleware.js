@@ -8,7 +8,10 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-      req.user = await User.findById(decoded.id).select('-password');
+      req.user = await User.findById(decoded.id)
+        .select('-password')
+        .populate('htxId', 'fullname username email phone')
+        .populate('groupId', 'name');
       
       if (!req.user) {
         console.error('❌ User not found in database');

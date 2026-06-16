@@ -227,6 +227,21 @@ export default function AccountInfoScreen({ navigation }) {
 
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
+          
+          {/* Hiển thị HTX liên kết cho Farmer/User và các vai trò HTX */}
+          {(isFarmerLike || ['HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'].includes(user?.role?.toUpperCase())) && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>HTX liên kết</Text>
+              <View style={[styles.input, styles.inputDisabled, { justifyContent: 'center' }]}>
+                <Text style={styles.inputDisabled}>
+                  {user?.htxId ? 
+                    (typeof user.htxId === 'object' ? (user.htxId.fullname || user.htxId.username) : user.htxId) 
+                    : 'Chưa liên kết HTX'}
+                </Text>
+              </View>
+            </View>
+          )}
+          
           {renderInput({ label: 'Họ và tên *', field: 'fullname', placeholder: 'Ví dụ: Nguyễn Văn A' })}
 
           <View style={styles.inputGroup}>

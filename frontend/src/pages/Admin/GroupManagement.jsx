@@ -43,7 +43,7 @@ const GroupManagement = () => {
       return api.post('/groups', values);
     },
     onSuccess: () => {
-      message.success(`${editingGroup ? 'Cập nhật' : 'Tạo mới'} HTX thành công!`);
+      message.success(`${editingGroup ? 'Cập nhật' : 'Tạo mới'} nhóm sản xuất thành công!`);
       setIsModalOpen(false);
       form.resetFields();
       setEditingGroup(null);
@@ -58,14 +58,14 @@ const GroupManagement = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/groups/${id}`),
     onSuccess: () => {
-      message.success('Đã xóa HTX!');
+      message.success('Đã xóa nhóm sản xuất!');
       queryClient.invalidateQueries(['groups']);
     }
   });
 
   const columns = [
     {
-      title: 'Tên HTX',
+      title: 'Tên nhóm sản xuất',
       dataIndex: 'name',
       key: 'name',
       render: (text) => <Text strong className="text-gray-800">{text}</Text>

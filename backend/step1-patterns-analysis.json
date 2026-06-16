@@ -1,0 +1,1228 @@
+{
+  "timestamp": "2026-06-16T09:16:01.284Z",
+  "totalCorrupted": 136,
+  "totalPatterns": 156,
+  "patterns": [
+    {
+      "pattern": "x�",
+      "frequency": 303,
+      "examples": [
+        "H�p t�c x�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "�ng",
+      "frequency": 205,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "D�",
+      "frequency": 104,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "H�p",
+      "frequency": 103,
+      "examples": [
+        "H�p t�c x�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "t�c",
+      "frequency": 103,
+      "examples": [
+        "H�p t�c x�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "H�",
+      "frequency": 103,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "v�",
+      "frequency": 102,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "N�ng",
+      "frequency": 102,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "ph�",
+      "frequency": 102,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "D�ch",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "nghi�p",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "H�p t�c x� D�ch",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "v� N�ng nghi�p",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "�ng D�",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+      "frequency": 101,
+      "examples": [
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�",
+        "H�p t�c x� D�ch v� N�ng nghi�p \u0010�ng D�"
+      ]
+    },
+    {
+      "pattern": "B�t",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Tr�ng",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "th�nh",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "N�i",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "x� B�t Tr�ng",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "th�nh ph� H� N�i",
+      "frequency": 101,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Th�n",
+      "frequency": 100,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "B�i",
+      "frequency": 100,
+      "examples": [
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "s�ng",
+      "frequency": 99,
+      "examples": [
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "�ng B�i ven",
+      "frequency": 99,
+      "examples": [
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Th�n 1",
+      "frequency": 62,
+      "examples": [
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+      "frequency": 62,
+      "examples": [
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 1, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Th�n 2",
+      "frequency": 37,
+      "examples": [
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+      "frequency": 37,
+      "examples": [
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "Th�n 2, x� \u0011�ng B�i ven s�ng, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "s�",
+      "frequency": 15,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "m�",
+      "frequency": 9,
+      "examples": [
+        "S�\" nhật ký HTX m�:i",
+        "HTX Nguy�n Quang Huy vừa tạo s�\" kế hoạch m�:i: Bo mua he",
+        "S�\" nhật ký m�:i"
+      ]
+    },
+    {
+      "pattern": "c�",
+      "frequency": 8,
+      "examples": [
+        "c� tra",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "S�",
+      "frequency": 8,
+      "examples": [
+        "S�\" nhật ký HTX m�:i",
+        "S�\" nhật ký m�:i",
+        "S�\" nhật ký m�:i"
+      ]
+    },
+    {
+      "pattern": "k�",
+      "frequency": 7,
+      "examples": [
+        "C�n b� Ban k� thu�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "C�p",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "nh�t",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "tr�ng",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "th�i",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "C�p nh�t tr�ng th�i",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "C�p nh�t tr�ng th�i s�",
+      "frequency": 7,
+      "examples": [
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�",
+        "C�p nh�t tr�ng th�i s�"
+      ]
+    },
+    {
+      "pattern": "S�\" nhật ký m�:i",
+      "frequency": 7,
+      "examples": [
+        "S�\" nhật ký m�:i",
+        "S�\" nhật ký m�:i",
+        "S�\" nhật ký m�:i"
+      ]
+    },
+    {
+      "pattern": "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+      "frequency": 7,
+      "examples": [
+        "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+        "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he",
+        "Bạn �\u0018ã �\u0018ược phân công tham gia s�\" [VietGAHP ChĒn nuôi]: Bo mua he"
+      ]
+    },
+    {
+      "pattern": "Nh�t",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "nh�n",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "g�i",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "duy�t",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "Nh�t k� c� nh�n",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "g�i duy�t",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "Nh�t k� c� nh�n g�i duy�t",
+      "frequency": 6,
+      "examples": [
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t",
+        "Nh�t k� c� nh�n g�i duy�t"
+      ]
+    },
+    {
+      "pattern": "Nguy�n",
+      "frequency": 5,
+      "examples": [
+        "Nguy�n \u0010�c \u0010�p",
+        "Nguy�n \u0010�c \u0010�p",
+        "Nguy�n V\u0003n S�ng"
+      ]
+    },
+    {
+      "pattern": "B�n",
+      "frequency": 5,
+      "examples": [
+        "B�n h�ng",
+        "B�n h�ng h�a",
+        "B�n h�ng"
+      ]
+    },
+    {
+      "pattern": "h�ng",
+      "frequency": 4,
+      "examples": [
+        "B�n h�ng",
+        "B�n h�ng h�a",
+        "B�n h�ng"
+      ]
+    },
+    {
+      "pattern": "C�n",
+      "frequency": 3,
+      "examples": [
+        "C�n b� Ban k� thu�t",
+        "C�n b� Ban ph�n ph�i",
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "b�",
+      "frequency": 3,
+      "examples": [
+        "C�n b� Ban k� thu�t",
+        "C�n b� Ban ph�n ph�i",
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "C�n b� Ban",
+      "frequency": 3,
+      "examples": [
+        "C�n b� Ban k� thu�t",
+        "C�n b� Ban ph�n ph�i",
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "tr�",
+      "frequency": 3,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code",
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "H�p t�c x�",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x�",
+        "H�p t�c x�"
+      ]
+    },
+    {
+      "pattern": "�ng D� H�",
+      "frequency": 2,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "ph�n",
+      "frequency": 2,
+      "examples": [
+        "C�n b� Ban ph�n ph�i",
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "ph�i",
+      "frequency": 2,
+      "examples": [
+        "C�n b� Ban ph�n ph�i",
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "K� to�n HTX",
+      "frequency": 2,
+      "examples": [
+        "K� to�n HTX",
+        "K� to�n HTX"
+      ]
+    },
+    {
+      "pattern": "so�t",
+      "frequency": 2,
+      "examples": [
+        "C�n b� Ban ki�m so�t",
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "X�",
+      "frequency": 2,
+      "examples": [
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "Th�",
+      "frequency": 2,
+      "examples": [
+        "Ho�ng Th� H�t",
+        "Nguy�n Th� \u0010�o"
+      ]
+    },
+    {
+      "pattern": "Ho�ng Th� H�t",
+      "frequency": 2,
+      "examples": [
+        "Ho�ng Th� H�t",
+        "Ho�ng Th� H�t"
+      ]
+    },
+    {
+      "pattern": "B�n h�ng",
+      "frequency": 2,
+      "examples": [
+        "B�n h�ng",
+        "B�n h�ng"
+      ]
+    },
+    {
+      "pattern": "h�a",
+      "frequency": 2,
+      "examples": [
+        "B�n h�ng h�a",
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "B�n h�ng h�a",
+      "frequency": 2,
+      "examples": [
+        "B�n h�ng h�a",
+        "B�n h�ng h�a"
+      ]
+    },
+    {
+      "pattern": "xu�t",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "s�u",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "ri�ng",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "th�",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "th� tr�",
+      "frequency": 2,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+      "frequency": 1,
+      "examples": [
+        "Th�n \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "thu�t",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban k� thu�t"
+      ]
+    },
+    {
+      "pattern": "k� thu�t",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban k� thu�t"
+      ]
+    },
+    {
+      "pattern": "C�n b� Ban k� thu�t",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban k� thu�t"
+      ]
+    },
+    {
+      "pattern": "ph�n ph�i",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban ph�n ph�i"
+      ]
+    },
+    {
+      "pattern": "C�n b� Ban ph�n ph�i",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban ph�n ph�i"
+      ]
+    },
+    {
+      "pattern": "K�",
+      "frequency": 1,
+      "examples": [
+        "K� to�n HTX"
+      ]
+    },
+    {
+      "pattern": "to�n",
+      "frequency": 1,
+      "examples": [
+        "K� to�n HTX"
+      ]
+    },
+    {
+      "pattern": "ki�m",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "ki�m so�t",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "C�n b� Ban ki�m so�t",
+      "frequency": 1,
+      "examples": [
+        "C�n b� Ban ki�m so�t"
+      ]
+    },
+    {
+      "pattern": "ngo�i",
+      "frequency": 1,
+      "examples": [
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "�ng ngo�i B�i",
+      "frequency": 1,
+      "examples": [
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i",
+      "frequency": 1,
+      "examples": [
+        "X� \u0011�ng ngo�i B�i, \u0010�ng D� H�, x� B�t Tr�ng, th�nh ph� H� N�i"
+      ]
+    },
+    {
+      "pattern": "�c",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n \u0010�c \u0010�p"
+      ]
+    },
+    {
+      "pattern": "�p",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n \u0010�c \u0010�p"
+      ]
+    },
+    {
+      "pattern": "Nguy�n \u0010�c \u0010�p",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n \u0010�c \u0010�p"
+      ]
+    },
+    {
+      "pattern": "Ho�ng",
+      "frequency": 1,
+      "examples": [
+        "Ho�ng Th� H�t"
+      ]
+    },
+    {
+      "pattern": "H�t",
+      "frequency": 1,
+      "examples": [
+        "Ho�ng Th� H�t"
+      ]
+    },
+    {
+      "pattern": "S�ng",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n V\u0003n S�ng"
+      ]
+    },
+    {
+      "pattern": "Nguy�n V",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n V\u0003n S�ng"
+      ]
+    },
+    {
+      "pattern": "Nguy�n V\u0003n S�ng",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n V\u0003n S�ng"
+      ]
+    },
+    {
+      "pattern": "Ng�c",
+      "frequency": 1,
+      "examples": [
+        "Vi Ng�c �n"
+      ]
+    },
+    {
+      "pattern": "�n",
+      "frequency": 1,
+      "examples": [
+        "Vi Ng�c �n"
+      ]
+    },
+    {
+      "pattern": "Ng�c �n",
+      "frequency": 1,
+      "examples": [
+        "Vi Ng�c �n"
+      ]
+    },
+    {
+      "pattern": "Vi Ng�c �n",
+      "frequency": 1,
+      "examples": [
+        "Vi Ng�c �n"
+      ]
+    },
+    {
+      "pattern": "�o",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n Th� \u0010�o"
+      ]
+    },
+    {
+      "pattern": "Nguy�n Th�",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n Th� \u0010�o"
+      ]
+    },
+    {
+      "pattern": "Nguy�n Th� \u0010�o",
+      "frequency": 1,
+      "examples": [
+        "Nguy�n Th� \u0010�o"
+      ]
+    },
+    {
+      "pattern": "C�nh",
+      "frequency": 1,
+      "examples": [
+        "C�nh c�o"
+      ]
+    },
+    {
+      "pattern": "c�o",
+      "frequency": 1,
+      "examples": [
+        "C�nh c�o"
+      ]
+    },
+    {
+      "pattern": "C�nh c�o",
+      "frequency": 1,
+      "examples": [
+        "C�nh c�o"
+      ]
+    },
+    {
+      "pattern": "T�o",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "t�",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "�i",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "B�n h�ng h�a\nT�o",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "�i so�t ph�n ph�i",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d",
+      "frequency": 1,
+      "examples": [
+        "B�n h�ng h�a\nT�o t� \u0011�i so�t ph�n ph�i: 6a1e413994c16bba4198b47d"
+      ]
+    },
+    {
+      "pattern": "c� tra",
+      "frequency": 1,
+      "examples": [
+        "c� tra"
+      ]
+    },
+    {
+      "pattern": "H�P",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "T�C",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "D�CH",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "V�",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "N�NG",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "NGHI�P",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "�NG",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "H�P T�C X� D�CH",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "V� N�NG NGHI�P",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "�NG D�",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D� "
+      ]
+    },
+    {
+      "pattern": "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D�",
+      "frequency": 1,
+      "examples": [
+        "H�P T�C X� D�CH V� N�NG NGHI�P \u0010�NG D�"
+      ]
+    },
+    {
+      "pattern": "S�\" nhật ký HTX m�:i",
+      "frequency": 1,
+      "examples": [
+        "S�\" nhật ký HTX m�:i"
+      ]
+    },
+    {
+      "pattern": "Nguy�n Quang",
+      "frequency": 1,
+      "examples": [
+        "HTX Nguy�n Quang Huy vừa tạo s�\" kế hoạch m�:i: Bo mua he"
+      ]
+    },
+    {
+      "pattern": "HTX Nguy�n Quang Huy vừa tạo s�\" kế hoạch m�:i: Bo mua he",
+      "frequency": 1,
+      "examples": [
+        "HTX Nguy�n Quang Huy vừa tạo s�\" kế hoạch m�:i: Bo mua he"
+      ]
+    },
+    {
+      "pattern": "Kr�ng",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "P�c",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "�y",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "m�nh",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "kh�u",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "Qu�c",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "H�p t�c x� Kr�ng",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "�y m�nh xu�t kh�u",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "s�u ri�ng sang",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "�ng Trung",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c",
+      "frequency": 1,
+      "examples": [
+        "H�p t�c x� Kr�ng P�c \u0011�y m�nh xu�t kh�u s�u ri�ng sang th� tr��ng Trung Qu�c"
+      ]
+    },
+    {
+      "pattern": "gi�",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "n�ng",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "s�n",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "ngu�n",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "g�c",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "N�ng cao",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "gi� tr� n�ng s�n",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "xu�t ngu�n g�c QR",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code",
+      "frequency": 1,
+      "examples": [
+        "N�ng cao gi� tr� n�ng s�n qua tem truy xu�t ngu�n g�c QR Code"
+      ]
+    },
+    {
+      "pattern": "Gi�",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "�t",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "�nh",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "tu�n",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "B�n tin",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "Gi� c� ph� v�",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "s�u ri�ng",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "�nh trong",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "tu�n qua",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    },
+    {
+      "pattern": "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua",
+      "frequency": 1,
+      "examples": [
+        "B�n tin th� tr��ng: Gi� c� ph� v� s�u ri�ng \u0011�t \u0011�nh trong tu�n qua"
+      ]
+    }
+  ]
+}

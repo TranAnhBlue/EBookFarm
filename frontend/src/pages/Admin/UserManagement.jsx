@@ -40,9 +40,12 @@ const UserManagement = () => {
     queryFn: () => api.get('/groups').then(res => res.data.data)
   });
 
-  // Fetch HTX list for selection
+  // Fetch HTX list for selection (chỉ lấy HTX_DIRECTOR - tổ chức chính)
   const htxList = useMemo(() => {
-    return users?.filter(u => u.role?.toUpperCase() === 'HTX') || [];
+    return users?.filter(u => {
+      const roleUpper = u.role?.toUpperCase();
+      return roleUpper === 'HTX' || roleUpper === 'HTX_DIRECTOR';
+    }) || [];
   }, [users]);
 
   const importMutation = useMutation({
@@ -124,8 +127,15 @@ const UserManagement = () => {
       render: (role) => {
         const roleMap = {
           'Admin': { label: 'Quản trị viên', color: 'purple' },
+          'ADMIN': { label: 'Quản trị viên', color: 'purple' },
+          'HTX_DIRECTOR': { label: 'Giám đốc HTX', color: 'gold' },
+          'HTX': { label: 'Giám đốc HTX', color: 'gold' },
+          'HTX_TECHNICAL': { label: 'Ban Kỹ thuật', color: 'blue' },
+          'HTX_DISTRIBUTION': { label: 'Ban Phân phối', color: 'green' },
+          'HTX_ACCOUNTANT': { label: 'Kế toán', color: 'volcano' },
+          'HTX_SUPERVISOR': { label: 'Ban Kiểm soát', color: 'magenta' },
           'Farmer': { label: 'Nông dân', color: 'cyan' },
-          'HTX': { label: 'Hợp tác xã', color: 'gold' },
+          'FARMER': { label: 'Nông dân', color: 'cyan' },
           'User': { label: 'Người dùng', color: 'blue' }
         };
         const mapped = roleMap[role] || { label: role, color: 'default' };
@@ -136,7 +146,27 @@ const UserManagement = () => {
       title: 'Đơn vị / HTX',
       key: 'htxId',
       render: (_, record) => {
-        if (record.role?.toUpperCase() === 'HTX') return <Tag color="gold">Tổ chức quản lý</Tag>;
+        const roleUpper = record.role?.toUpperCase();
+        
+        // HTX_DIRECTOR là tổ chức chính
+        if (roleUpper === 'HTX_DIRECTOR' || roleUpper === 'HTX') {
+          return <Tag color="gold" className="rounded-md font-bold">Tổ chức HTX chính</Tag>;
+        }
+        
+        // Các vai trò HTX khác thuộc HTX_DIRECTOR
+        if (['HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'].includes(roleUpper)) {
+          const htx = htxList?.find(h => h._id === (record.htxId?._id || record.htxId));
+          return (
+            <div className="flex items-center gap-2">
+              <Tag color="orange" className="rounded-md">Thành viên ban</Tag>
+              <Text italic className="text-gray-500 text-xs">
+                {htx ? `→ ${htx.fullname || htx.username}` : 'Chưa gán HTX'}
+              </Text>
+            </div>
+          );
+        }
+        
+        // Farmer/User
         const htx = htxList?.find(h => h._id === (record.htxId?._id || record.htxId));
         return (
           <Text italic className="text-gray-500">
@@ -322,9 +352,17 @@ const UserManagement = () => {
             >
               <Select className="h-11 w-full" dropdownClassName="rounded-xl">
                 <Select.Option value="Admin">Quản trị viên</Select.Option>
-                <Select.Option value="HTX">Hợp tác xã</Select.Option>
-                <Select.Option value="Farmer">Nông dân</Select.Option>
-                <Select.Option value="User">Người dùng</Select.Option>
+                <Select.OptGroup label="🏢 Vai trò HTX">
+                  <Select.Option value="HTX_DIRECTOR">Giám đốc HTX</Select.Option>
+                  <Select.Option value="HTX_TECHNICAL">Ban Kỹ thuật</Select.Option>
+                  <Select.Option value="HTX_DISTRIBUTION">Ban Phân phối</Select.Option>
+                  <Select.Option value="HTX_ACCOUNTANT">Kế toán</Select.Option>
+                  <Select.Option value="HTX_SUPERVISOR">Ban Kiểm soát</Select.Option>
+                </Select.OptGroup>
+                <Select.OptGroup label="👨‍🌾 Thành viên">
+                  <Select.Option value="Farmer">Nông dân</Select.Option>
+                  <Select.Option value="User">Người dùng</Select.Option>
+                </Select.OptGroup>
               </Select>
             </Form.Item>
 
@@ -344,21 +382,38 @@ const UserManagement = () => {
             noStyle
             shouldUpdate={(prevValues, currentValues) => prevValues.role !== currentValues.role}
           >
-            {({ getFieldValue }) =>
-              getFieldValue('role') === 'Farmer' ? (
+            {({ getFieldValue }) => {
+              const currentRole = getFieldValue('role');
+              const roleUpper = currentRole?.toUpperCase();
+              
+              // Hiển thị cho Farmer hoặc các vai trò HTX (trừ HTX_DIRECTOR)
+              const shouldShowHtxSelect = currentRole === 'Farmer' || 
+                ['HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'].includes(roleUpper);
+              
+              if (!shouldShowHtxSelect) return null;
+              
+              const isHtxRole = ['HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'].includes(roleUpper);
+              
+              return (
                 <Form.Item
                   name="htxId"
-                  label="Hợp tác xã liên kết"
-                  tooltip="Gán nông dân này vào một HTX cụ thể để họ quản lý"
+                  label={isHtxRole ? "HTX liên kết" : "Hợp tác xã liên kết"}
+                  tooltip={isHtxRole ? "Gán thành viên này vào HTX để họ quản lý" : "Gán nông dân này vào một HTX cụ thể để họ quản lý"}
+                  rules={isHtxRole ? [{ required: true, message: 'Vui lòng chọn HTX!' }] : []}
                 >
-                  <Select placeholder="Chọn HTX quản lý..." className="h-11 w-full" dropdownClassName="rounded-xl" allowClear>
+                  <Select 
+                    placeholder={isHtxRole ? "Chọn HTX..." : "Chọn HTX quản lý..."} 
+                    className="h-11 w-full" 
+                    dropdownClassName="rounded-xl" 
+                    allowClear={!isHtxRole}
+                  >
                     {htxList?.map(h => (
                       <Select.Option key={h._id} value={h._id}>{h.fullname || h.username}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
-              ) : null
-            }
+              );
+            }}
           </Form.Item>
 
           <Form.Item

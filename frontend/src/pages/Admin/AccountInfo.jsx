@@ -17,10 +17,10 @@ const getDisplayRole = (role) => {
     if (normalized === 'ADMIN') return 'Quản trị viên';
     if (normalized === 'FARMER' || normalized === 'USER') return 'Thành viên VietGAP';
     if (normalized === 'HTX' || normalized === 'HTX_DIRECTOR') return 'Giám đốc HTX';
-    if (normalized === 'HTX_TECHNICAL') return 'Ban kỹ thuật';
-    if (normalized === 'HTX_DISTRIBUTION') return 'Ban phân phối';
+    if (normalized === 'HTX_TECHNICAL') return 'Ban Kỹ thuật';
+    if (normalized === 'HTX_DISTRIBUTION') return 'Ban Phân phối';
     if (normalized === 'HTX_ACCOUNTANT') return 'Kế toán';
-    if (normalized === 'HTX_SUPERVISOR') return 'Ban kiểm soát';
+    if (normalized === 'HTX_SUPERVISOR') return 'Ban Kiểm soát';
     return role || 'Thành viên';
 };
 
@@ -394,10 +394,27 @@ const AccountInfo = () => {
                                 <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Giới tính</Text><Text strong className="text-sm">{user?.gender || 'Chưa cập nhật'}</Text></div>
                             </div>
 
+                            {/* Thông tin HTX liên kết (Cho Farmer/User và các vai trò HTX) */}
+                            {((['Farmer', 'User'].includes(user?.role)) || ['HTX_TECHNICAL', 'HTX_DISTRIBUTION', 'HTX_ACCOUNTANT', 'HTX_SUPERVISOR'].includes(user?.role?.toUpperCase())) && (
+                                <>
+                                    <Divider className="!my-2 border-gray-100" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-400"><ShopOutlined /></div>
+                                        <div className="flex-1 min-w-0">
+                                            <Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">HTX liên kết</Text>
+                                            <Text strong className="text-sm block">
+                                                {user?.htxId ? 
+                                                    (typeof user.htxId === 'object' ? (user.htxId.fullname || user.htxId.username) : user.htxId) 
+                                                    : 'Chưa liên kết HTX'}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
                             {/* Thông tin nông trại (Cho Farmer/User) */}
                             {['Farmer', 'User'].includes(user?.role) && (user?.farmName || user?.farmCode || user?.farmArea) && (
                                 <>
-                                    <Divider className="!my-2 border-gray-100" />
                                     <div className="flex items-center gap-4">
                                         <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-400"><HomeOutlined /></div>
                                         <div className="flex-1 min-w-0"><Text type="secondary" className="text-[9px] uppercase font-bold block opacity-60">Nông trại</Text><Text strong className="text-sm block">{user.farmName || 'Tên chưa đặt'}</Text><Text className="text-[10px] text-gray-400">Mã: {user.farmCode || 'N/A'}</Text></div>

@@ -41,6 +41,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Middleware: Force UTF-8 encoding for all responses
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
+
 // Middleware to ensure DB connection for each request
 app.use(async (req, res, next) => {
   try {

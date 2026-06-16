@@ -14,7 +14,8 @@ const { createNotification } = require('./notificationController');
 const createBatch = async (req, res) => {
   try {
     const role = req.user.role?.toUpperCase();
-    if (role !== 'HTX' && role !== 'ADMIN') {
+    const isHtxDirector = role === 'HTX' || role === 'HTX_DIRECTOR';
+    if (!isHtxDirector && role !== 'ADMIN') {
       return res.status(403).json({ success: false, message: 'Chỉ HTX hoặc Admin mới có thể tạo lô sản xuất.' });
     }
 
@@ -88,7 +89,8 @@ const getBatches = async (req, res) => {
     const role = req.user.role?.toUpperCase();
     let filter = {};
 
-    if (role === 'HTX') {
+    const isHtxDirector = role === 'HTX' || role === 'HTX_DIRECTOR';
+    if (isHtxDirector) {
       // Chỉ lấy lô của HTX này (qua sản phẩm thuộc HTX)
       filter.createdBy = req.user._id;
     }
@@ -171,7 +173,8 @@ const syncBatchToNationalPortal = async (req, res) => {
     if (!batch) return res.status(404).json({ success: false, message: 'Không tìm thấy lô sản xuất.' });
 
     const role = req.user.role?.toUpperCase();
-    if (role !== 'HTX' && role !== 'ADMIN') {
+    const isHtxDirector = role === 'HTX' || role === 'HTX_DIRECTOR';
+    if (!isHtxDirector && role !== 'ADMIN') {
       return res.status(403).json({ success: false, message: 'Chỉ HTX hoặc Admin mới có thể đồng bộ.' });
     }
 

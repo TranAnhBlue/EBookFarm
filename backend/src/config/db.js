@@ -22,9 +22,10 @@ const connectDB = async () => {
         
         console.log('Attempting to connect to MongoDB...');
         await mongoose.connect(uri, {
-            serverSelectionTimeoutMS: 15000, // Tăng lên 15s
+            serverSelectionTimeoutMS: 15000,
             connectTimeoutMS: 15000,
         });
+        
         isConnected = true;
         console.log('MongoDB connection SUCCESS');
     } catch (error) {
@@ -35,7 +36,7 @@ const connectDB = async () => {
         if (error.message.includes('Authentication failed')) {
             console.error('Hint: Check your MongoDB username and password');
         }
-        throw error; // Re-throw to be caught by the middleware in server.js
+        throw error;
     }
 };
 

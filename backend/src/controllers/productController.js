@@ -9,7 +9,8 @@ const { createLog } = require('./logController');
 const createProduct = async (req, res) => {
   try {
     const role = req.user.role?.toUpperCase();
-    if (role !== 'HTX' && role !== 'ADMIN') {
+    const isHtxDirector = role === 'HTX' || role === 'HTX_DIRECTOR';
+    if (!isHtxDirector && role !== 'ADMIN') {
       return res.status(403).json({ success: false, message: 'Chỉ HTX hoặc Admin mới có thể tạo sản phẩm.' });
     }
 
