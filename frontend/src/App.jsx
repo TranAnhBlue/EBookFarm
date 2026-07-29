@@ -90,6 +90,8 @@ const HtxTechnicalConsole = lazy(() => import('./pages/HTX/HtxTechnicalConsole')
 const HtxDistributionConsole = lazy(() => import('./pages/HTX/HtxDistributionConsole'));
 const HtxAccountingConsole = lazy(() => import('./pages/HTX/HtxAccountingConsole'));
 const HtxManagementModule = lazy(() => import('./pages/HTX/HtxManagementModule'));
+const HtxGisMap = lazy(() => import('./pages/HTX/HtxGisMap'));
+const HtxIotDashboard = lazy(() => import('./pages/HTX/HtxIotDashboard'));
 const Reports = lazy(() => import('./pages/Admin/Reports'));
 const FarmerSupplyMgmt = lazy(() => import('./pages/Journal/FarmerSupplyMgmt'));
 const FarmerHtxAssignments = lazy(() => import('./pages/Journal/FarmerHtxAssignments'));
@@ -238,6 +240,8 @@ const App = () => {
                     <Route path="htx/farmers" element={<ProtectedRoute htxOnly canAccess={canAccessHtxFarmerManagement}><HtxFarmerMgmt /></ProtectedRoute>} />
                     <Route path="htx/products" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxProductMgmt /></ProtectedRoute>} />
                     <Route path="htx/planting-regions" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxPlantingRegionMgmt /></ProtectedRoute>} />
+                    <Route path="htx/gis-map" element={<ProtectedRoute htxOnly><HtxGisMap /></ProtectedRoute>} />
+                    <Route path="htx/iot-dashboard" element={<ProtectedRoute htxOnly><HtxIotDashboard /></ProtectedRoute>} />
                     <Route path="htx/batches" element={<ProtectedRoute htxOnly canAccess={canViewTraceability}><HtxBatchMgmt /></ProtectedRoute>} />
                     <Route path="htx/supplies" element={<ProtectedRoute htxOnly canAccess={canManageSupplies}><HtxSupplyMgmt /></ProtectedRoute>} />
                     <Route path="htx/portal-settings" element={<ProtectedRoute htxOnly canAccess={canManageTraceability}><HtxPortalSettings /></ProtectedRoute>} />

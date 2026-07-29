@@ -1,4 +1,4 @@
-﻿// EBookFarm Backend API - v1.0.2 - Render Deploy Fix
+// EBookFarm Backend API - v1.0.2 - Render Deploy Fix
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -148,6 +148,9 @@ app.use('/api/htx/management', htxManagementRoutes);
 
 const plantingRegionRoutes = require('./routes/plantingRegionRoutes.js');
 app.use('/api/htx/planting-regions', plantingRegionRoutes);
+
+const iotRoutes = require('./routes/iotRoutes.js');
+app.use('/api/iot', iotRoutes);
 
 const approvedAgriInputRoutes = require('./routes/approvedAgriInputRoutes.js');
 app.use('/api/agri-inputs/approved', approvedAgriInputRoutes);

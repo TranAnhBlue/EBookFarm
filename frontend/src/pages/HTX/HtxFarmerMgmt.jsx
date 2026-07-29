@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Avatar,
   Badge,
@@ -513,7 +513,7 @@ const HtxFarmerMgmt = () => {
                   <div className="space-y-3">
                     <div><Text type="secondary">Tên nông trại</Text><Text strong className="block">{selectedFarmer.farmName || '--'}</Text></div>
                     <div><Text type="secondary">Loại hình</Text><Text strong className="block">{selectedFarmer.farmType || '--'}</Text></div>
-                    <div><Text type="secondary">HTX quản lý</Text><Text strong className="block">Hợp tác xã dịch vụ nông nghiệp Đông Dư</Text></div>
+                    <div><Text type="secondary">HTX quản lý</Text><Text strong className="block">{selectedFarmer.organization || selectedFarmer.htxId?.organization || selectedFarmer.htxId?.fullname || 'HỢP TÁC XÃ SẦU RIÊNG TÂN QUAN ECOFARM'}</Text></div>
                     <div><Text type="secondary">Số sổ đã gán</Text><Text strong className="block">{selectedFarmerHistory.length}</Text></div>
                   </div>
                 </Card>

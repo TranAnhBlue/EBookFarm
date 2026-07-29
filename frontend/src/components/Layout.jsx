@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer, Grid, Badge } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -216,6 +216,8 @@ const MainLayout = () => {
 
   const adminItems = [
     { key: '/dashboard', icon: <AppstoreOutlined />, label: label('Tổng quan') },
+    { key: '/htx/gis-map', icon: <EnvironmentOutlined />, label: label('Bản đồ số GIS 100ha') },
+    { key: '/htx/iot-dashboard', icon: <ThunderboltOutlined />, label: label('Giám sát thông minh IoT') },
     { key: '/reports', icon: <BarChartOutlined />, label: label('Báo cáo & Thống kê') },
     { key: '/account-info', icon: <UserOutlined />, label: label('Thông tin tài khoản') },
     { key: '/form-builder', icon: <FileTextOutlined />, label: label('Biểu mẫu nhật ký') },
@@ -321,6 +323,8 @@ const MainLayout = () => {
   ];
 
   const traceabilityChildren = [
+    { key: '/htx/gis-map', icon: <EnvironmentOutlined />, label: 'Bản đồ số GIS 100ha' },
+    { key: '/htx/iot-dashboard', icon: <ThunderboltOutlined />, label: 'Giám sát thông minh IoT' },
     canViewTraceability(role) && { key: '/htx/planting-regions', icon: <EnvironmentOutlined />, label: 'Mã số vùng trồng' },
     canViewTraceability(role) && { key: '/htx/products', icon: <BarcodeOutlined />, label: 'Danh mục sản phẩm' },
     canViewTraceability(role) && { key: '/htx/batches', icon: <BoxPlotOutlined />, label: 'Quản lý lô & TXNG' },
