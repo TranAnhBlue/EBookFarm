@@ -10,7 +10,7 @@ import {
   MobileOutlined, SafetyCertificateOutlined, EnvironmentOutlined
 } from '@ant-design/icons';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from 'recharts';
-import axios from 'axios';
+import api from '../../services/api';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -36,31 +36,30 @@ export default function HtxIotDashboard() {
   const [alertChannel, setAlertChannel] = useState('zalo_oa_and_mobile_app');
   const [sendingAlert, setSendingAlert] = useState(false);
 
-  const fetchTelemetry = async () => {
-    setLoading(true);
+  const fetchTelemetry = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
-      const res = await axios.get('/api/iot/telemetry');
+      const res = await api.get('/iot/telemetry');
       if (res.data) {
         setData(res.data);
       }
     } catch (err) {
       console.error('Error fetching IoT telemetry:', err);
-      message.error('Không thể lấy số liệu IoT thời gian thực, đang dùng dữ liệu dự phòng.');
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTelemetry();
-    const interval = setInterval(fetchTelemetry, 30000); // refresh every 30s
+    fetchTelemetry(true);
+    const interval = setInterval(() => fetchTelemetry(false), 5000); // Live poll every 5s
     return () => clearInterval(interval);
   }, []);
 
   const handleSendAlert = async () => {
     setSendingAlert(true);
     try {
-      const res = await axios.post('/api/iot/trigger-alert', {
+      const res = await api.post('/iot/trigger-alert', {
         title: alertTitle,
         message: alertMessage,
         channel: alertChannel

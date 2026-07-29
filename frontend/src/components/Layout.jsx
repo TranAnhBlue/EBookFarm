@@ -325,7 +325,6 @@ const MainLayout = () => {
   const traceabilityChildren = [
     { key: '/htx/gis-map', icon: <EnvironmentOutlined />, label: 'Bản đồ số GIS 100ha' },
     { key: '/htx/iot-dashboard', icon: <ThunderboltOutlined />, label: 'Giám sát thông minh IoT' },
-    canViewTraceability(role) && { key: '/htx/planting-regions', icon: <EnvironmentOutlined />, label: 'Mã số vùng trồng' },
     canViewTraceability(role) && { key: '/htx/products', icon: <BarcodeOutlined />, label: 'Danh mục sản phẩm' },
     canViewTraceability(role) && { key: '/htx/batches', icon: <BoxPlotOutlined />, label: 'Quản lý lô & TXNG' },
     canManageTraceability(role) && { key: '/htx/portal-settings', icon: <CloudSyncOutlined />, label: 'Cấu hình Cổng QG' },
@@ -342,6 +341,8 @@ const MainLayout = () => {
     isHtxTechnical(role) && { key: '/htx/technical', icon: <ExperimentOutlined />, label: label('Ban kỹ thuật') },
     isHtxDistribution(role) && { key: '/htx/distribution', icon: <ShoppingOutlined />, label: label('Ban phân phối') },
     isHtxAccountant(role) && { key: '/htx/accounting', icon: <WalletOutlined />, label: label('Kế toán') },
+    (isHtxDirector(role) || canViewTraceability(role)) && { key: '/htx/planting-regions', icon: <EnvironmentOutlined />, label: label('Quản lý vùng trồng') },
+
     canViewHtxReports(role) && { key: '/reports', icon: <BarChartOutlined />, label: label('Báo cáo & Thống kê') },
     isHtxDirector(role) && {
       key: 'director-admin',
