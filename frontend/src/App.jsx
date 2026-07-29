@@ -29,6 +29,7 @@ import AdminJournalMgmt from './pages/Admin/AdminJournalMgmt';
 import RolesManagement from './pages/Admin/RolesManagement';
 import ChangePassword from './pages/Admin/ChangePassword';
 import GroupManagement from './pages/Admin/GroupManagement';
+import VietGAPHouseholds from './pages/Admin/VietGAPHouseholds';
 import BackupMgmt from './pages/Admin/BackupMgmt';
 import NewsManagement from './pages/Admin/NewsManagement';
 import ConsultationManagement from './pages/Admin/ConsultationManagement';
@@ -186,6 +187,7 @@ const App = () => {
                     <Route path="admin/journals" element={<ProtectedRoute requireAdmin><AdminJournalMgmt /></ProtectedRoute>} />
                     <Route path="admin/accounts-mgmt" element={<ProtectedRoute requireAdmin><AccountInfo /></ProtectedRoute>} />
                     <Route path="admin/groups" element={<ProtectedRoute requireAdmin><GroupManagement /></ProtectedRoute>} />
+                    <Route path="admin/vietgap-households" element={<ProtectedRoute requireAdmin><VietGAPHouseholds /></ProtectedRoute>} />
                     <Route path="admin/roles" element={<ProtectedRoute requireAdmin><RolesManagement /></ProtectedRoute>} />
                     <Route path="admin/news" element={<ProtectedRoute requireAdmin><NewsManagement /></ProtectedRoute>} />
                     <Route path="admin/consultations" element={<ProtectedRoute requireAdmin><ConsultationManagement /></ProtectedRoute>} />

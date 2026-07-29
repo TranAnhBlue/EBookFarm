@@ -7,6 +7,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
 import { useAuthStore } from '../../store/authStore';
+import HouseholdSelector from '../../components/HouseholdSelector';
+import { shouldDisableField, clearHouseholdFields } from '../../utils/householdAutoFill';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -2411,29 +2413,59 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
             const lowerLabel = field.label.toLowerCase();
             const lowerName = field.name.toLowerCase();
 
-            // Tên cơ sở: Ưu tiên farmName, sau đó đến fullname
-            if (lowerLabel.includes('tên cơ sở') || lowerName.includes('tencoso')) {
-              autoFillData[tableName][field.name] = user.farmName || user.fullname || user.username;
-            }
-            // Chủ hộ/Họ tên: fullname
-            if (lowerLabel.includes('chủ hộ') || lowerLabel.includes('họ và tên') || lowerName.includes('hoten')) {
+            // Họ và tên người ghi chép
+            if (lowerLabel.includes('người ghi chép') || lowerName.includes('nguoighichep')) {
               autoFillData[tableName][field.name] = user.fullname || user.username;
             }
-            // Mã số nông hộ: farmCode
+            // Trưởng nhóm - để trống hoặc lấy từ HTX leader nếu có
+            if (lowerLabel.includes('trưởng nhóm') || lowerName.includes('truongnhom')) {
+              autoFillData[tableName][field.name] = user.htxLeader || '';
+            }
+            // Mã số nông hộ
             if (lowerLabel.includes('mã số nông hộ') || lowerName.includes('masonongho')) {
               autoFillData[tableName][field.name] = user.farmCode || '';
             }
-            // Diện tích: farmArea
-            if (lowerLabel.includes('diện tích') || lowerName.includes('dientich')) {
+            // Địa chỉ sản xuất
+            if (lowerLabel.includes('địa chỉ sản xuất') || lowerName.includes('diachisanxuat')) {
+              autoFillData[tableName][field.name] = user.address || user.ward || '';
+            }
+            // Diện tích (m2)
+            if ((lowerLabel.includes('diện tích') || lowerName.includes('dientich')) && 
+                !lowerLabel.includes('hộ') && !lowerName.includes('ho')) {
               autoFillData[tableName][field.name] = user.farmArea || '';
             }
-            // Địa chỉ: Ưu tiên địa chỉ nông trại/user
-            if (lowerLabel.includes('địa chỉ') || lowerName.includes('diachi')) {
-              autoFillData[tableName][field.name] = user.address || '';
-            }
-            // Cây trồng: Schema name (Ví dụ: Chè búp)
+            // Cây trồng - Lấy từ schema name
             if (lowerLabel.includes('cây trồng') || lowerName.includes('caytrong')) {
-              autoFillData[tableName][field.name] = schema.name;
+              autoFillData[tableName][field.name] = schema.name.replace(' VietGAP', '').replace(' TCVN', '');
+            }
+            // Quy trình sản xuất - Auto-fill nếu có trong schema
+            if (lowerLabel.includes('quy trình') || lowerName.includes('quytrinh')) {
+              if (schema.name.includes('VietGAP')) {
+                autoFillData[tableName][field.name] = 'Tiêu chuẩn VietGAP';
+              } else if (schema.name.includes('TCVN')) {
+                autoFillData[tableName][field.name] = 'Tiêu chuẩn TCVN';
+              } else {
+                autoFillData[tableName][field.name] = '';
+              }
+            }
+            // Năm sản xuất - Năm hiện tại
+            if (lowerLabel.includes('năm sản xuất') || lowerName.includes('namsanxuat')) {
+              autoFillData[tableName][field.name] = new Date().getFullYear();
+            }
+
+            // === BACKWARD COMPATIBILITY - Các trường cũ (nếu schema cũ vẫn còn) ===
+            // Tên cơ sở
+            if (lowerLabel.includes('tên cơ sở') || lowerName.includes('tencoso')) {
+              autoFillData[tableName][field.name] = user.farmName || user.fullname || user.username;
+            }
+            // Chủ hộ/Họ tên
+            if (lowerLabel.includes('chủ hộ') || (lowerLabel.includes('họ và tên') && !lowerLabel.includes('ghi chép'))) {
+              autoFillData[tableName][field.name] = user.fullname || user.username;
+            }
+            // Địa chỉ chung (không phải sản xuất)
+            if ((lowerLabel.includes('địa chỉ') && !lowerLabel.includes('sản xuất')) || 
+                (lowerName.includes('diachi') && !lowerName.includes('sanxuat'))) {
+              autoFillData[tableName][field.name] = user.address || '';
             }
           });
         }
@@ -2493,11 +2525,30 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     }
   };
 
+  // No longer need to look for producer table since households are managed separately
+  // All tables with household fields will use VietGAPHousehold database lookup
+
   if (schemaLoading || (isEditing && journalLoading)) return <Skeleton active />;
   if (!schema) return <div>Schema not found</div>;
 
   const renderField = (field, tableName, namePath, recordIndex = null) => {
     const options = getInventoryOptions(field.label);
+    const table = schema.tables.find(t => t.tableName === tableName);
+    
+    // Detect if this table has household fields (VietGAP household auto-fill feature)
+    // These fields will use HouseholdSelector to fetch from VietGAPHousehold database
+    const hasHouseholdFields = recordIndex !== null &&
+      table?.fields?.some(f => f.name === 'tt' || f.name === 'ttHo') &&
+      table?.fields?.some(f => f.name === 'tenHo') &&
+      table?.fields?.some(f => f.name === 'dienTichHo') &&
+      table?.fields?.some(f => f.name === 'maSoNongHo');
+    
+    const isHouseholdSelectorField = hasHouseholdFields && (field.name === 'tt' || field.name === 'ttHo');
+    const isHouseholdAutoFilledField = hasHouseholdFields && ['tenHo', 'dienTichHo', 'maSoNongHo'].includes(field.name);
+    
+    // Get current TT value to determine if auto-filled fields should be disabled
+    const currentTTValue = recordIndex !== null ? form.getFieldValue([tableName, recordIndex, 'tt']) || form.getFieldValue([tableName, recordIndex, 'ttHo']) : null;
+    
     const isSupplyField = (
       field.label.toLowerCase().includes('phân bón') ||
       field.label.toLowerCase().includes('thuốc') ||
@@ -2529,7 +2580,35 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
     };
 
     let inputNode;
-    if (field.type === 'text') {
+    if (isHouseholdSelectorField) {
+      // Use HouseholdSelector component for VietGAP household selection
+      inputNode = (
+        <HouseholdSelector
+          value={currentTTValue}
+          onChange={(selectedHouseholdId) => {
+            // Update TT field
+            form.setFieldValue([tableName, recordIndex, field.name], selectedHouseholdId);
+            
+            // If cleared, clear auto-filled fields
+            if (!selectedHouseholdId) {
+              clearHouseholdFields(form, [tableName, recordIndex, field.name], table.fields);
+            }
+          }}
+          onSelect={(household) => {
+            // Auto-fill related fields when household is selected
+            if (household) {
+              form.setFieldValue([tableName, recordIndex, 'tenHo'], household.tenHo);
+              form.setFieldValue([tableName, recordIndex, 'dienTichHo'], household.dienTich);
+              form.setFieldValue([tableName, recordIndex, 'maSoNongHo'], household.maSoNongHo);
+              
+              message.success(`Đã tự động điền thông tin cho hộ: ${household.tenHo}`);
+            }
+          }}
+          disabled={isReadOnly}
+          className="w-full rounded-xl border-gray-200 px-3 py-2 text-base"
+        />
+      );
+    } else if (field.type === 'text') {
       if (isSupplyField && options.length > 0) {
         inputNode = (
           <AutoComplete
@@ -2575,6 +2654,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
         inputNode = (
           <Input
             {...commonProps}
+            disabled={isReadOnly || (isHouseholdAutoFilledField && shouldDisableField(field.name, currentTTValue))}
             maxLength={field.name.includes('diaChi') ? 200 : field.name.includes('hoTen') ? 100 : 50}
             showCount={field.name.includes('diaChi') || field.name.includes('hoTen')}
           />
@@ -2586,6 +2666,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           {...commonProps}
           className="w-full rounded-xl border-gray-200"
           min={0}
+          disabled={isReadOnly || (isHouseholdAutoFilledField && shouldDisableField(field.name, currentTTValue))}
         />
       );
     } else if (field.type === 'date') {

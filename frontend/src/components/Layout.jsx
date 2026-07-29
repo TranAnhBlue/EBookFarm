@@ -240,6 +240,7 @@ const MainLayout = () => {
       children: [
         { key: '/admin/users', label: 'Danh sách tài khoản' },
         { key: '/admin/groups', label: 'Quản lý HTX' },
+        { key: '/admin/vietgap-households', label: 'Hộ sản xuất VietGAP' },
         { key: '/admin/roles', label: 'Phân quyền & vai trò' },
       ],
     },
