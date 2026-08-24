@@ -149,14 +149,23 @@ const App = () => {
             token: {
               colorPrimary: '#22c55e',
               borderRadius: 12,
-              fontFamily: "'Roboto', sans-serif",
+              fontFamily: "'Be Vietnam Pro', Roboto, sans-serif",
+              fontSize: 14,
               colorSuccess: '#16a34a',
               colorLink: '#15803d',
               colorLinkHover: '#22c55e',
             },
             components: {
-              Button: { controlHeight: 40, fontWeight: 600 },
-              Menu: { itemHeight: 50, itemSelectedBg: '#f0fdf4', itemSelectedColor: '#15803d' },
+              Button:     { controlHeight: 40, fontWeight: 600, fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Menu:       { itemHeight: 50, itemSelectedBg: '#f0fdf4', itemSelectedColor: '#15803d', fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Table:      { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Select:     { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Input:      { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Modal:      { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Form:       { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Typography: { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Tabs:       { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
+              Tag:        { fontFamily: "'Be Vietnam Pro', Roboto, sans-serif" },
             },
           }}
         >

@@ -161,7 +161,7 @@ export default function HtxGisMap() {
 
       // Popup on click
       const popupContent = `
-        <div style="font-family: Arial, sans-serif; padding: 4px; max-width: 240px;">
+        <div style="font-family: Roboto, sans-serif; padding: 4px; max-width: 240px;">
           <h4 style="margin: 0 0 6px 0; color: #15803d; font-size: 14px; font-weight: bold;">
             🌿 ${parcel.name}
           </h4>

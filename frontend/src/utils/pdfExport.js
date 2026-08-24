@@ -211,6 +211,17 @@ export const generateJournalPdfHtml = (book) => {
   `;
 };
 
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  const chunkSize = 8192;
+  for (let i = 0; i < len; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(i + chunkSize, len)));
+  }
+  return btoa(binary);
+}
+
 /**
  * Exports the journal book directly as a vector PDF with Times New Roman font
  */
@@ -236,15 +247,17 @@ export const exportJournalPdf = async (selectedBook) => {
 
       for (const font of fonts) {
         const response = await fetch(font.url);
-        const buffer = await response.arrayBuffer();
-        const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-        doc.addFileToVFS(font.name, base64);
-        doc.addFont(font.name, 'TimesNewRoman', font.style);
+        if (response.ok) {
+          const buffer = await response.arrayBuffer();
+          const base64 = arrayBufferToBase64(buffer);
+          doc.addFileToVFS(font.name, base64);
+          doc.addFont(font.name, 'TimesNewRoman', font.style);
+        }
       }
       doc.setFont('TimesNewRoman', 'normal');
       activeFont = 'TimesNewRoman';
     } catch (fontErr) {
-      console.warn('Font loading fallback:', fontErr);
+      console.warn('Font loading fallback to system font:', fontErr);
     }
 
     const pageWidth = doc.internal.pageSize.getWidth(); // ~297 mm
@@ -297,13 +310,29 @@ export const exportJournalPdf = async (selectedBook) => {
     doc.setLineWidth(0.2);
     doc.rect(15.5, 29.5, pageWidth - 31, pageHeight - 45);
 
-    doc.setFontSize(11);
-    doc.setFont(activeFont, 'normal');
-    doc.setTextColor(120, 120, 120);
-    if (selectedBook.soDoVuon) {
-      doc.text(`📄 Sơ đồ đính kèm: ${selectedBook.soDoVuon}`, pageWidth / 2, 110, { align: 'center' });
+    if (selectedBook.soDoVuon && selectedBook.soDoVuon.startsWith('data:image/')) {
+      try {
+        const imgX = 20;
+        const imgY = 33;
+        const imgW = pageWidth - 40;
+        const imgH = pageHeight - 52;
+        doc.addImage(selectedBook.soDoVuon, 'JPEG', imgX, imgY, imgW, imgH, undefined, 'FAST');
+      } catch (imgErr) {
+        console.warn('Could not embed image to PDF:', imgErr);
+        doc.setFontSize(11);
+        doc.setFont(activeFont, 'normal');
+        doc.setTextColor(120, 120, 120);
+        doc.text(`📄 Sơ đồ vườn trồng đính kèm`, pageWidth / 2, 110, { align: 'center' });
+      }
     } else {
-      doc.text('(Khu vực sơ đồ vườn trồng / bản đồ phân lô)', pageWidth / 2, 110, { align: 'center' });
+      doc.setFontSize(11);
+      doc.setFont(activeFont, 'normal');
+      doc.setTextColor(120, 120, 120);
+      if (selectedBook.soDoVuon) {
+        doc.text(`📄 Sơ đồ đính kèm: ${selectedBook.soDoVuon}`, pageWidth / 2, 110, { align: 'center' });
+      } else {
+        doc.text('(Khu vực sơ đồ vườn trồng / bản đồ phân lô)', pageWidth / 2, 110, { align: 'center' });
+      }
     }
     doc.setTextColor(0, 0, 0);
 

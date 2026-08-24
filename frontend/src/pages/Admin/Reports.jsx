@@ -621,7 +621,7 @@ const Reports = () => {
 
       <style jsx>{`
         .ai-report-content {
-          font-family: 'Roboto', sans-serif;
+          font-family: inherit;
           line-height: 1.6;
           color: #374151;
         }
