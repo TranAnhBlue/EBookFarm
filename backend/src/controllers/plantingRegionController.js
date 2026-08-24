@@ -43,11 +43,27 @@ const validateFarmers = async (req, farmerIds = []) => {
 
 const listPlantingRegions = async (req, res) => {
   try {
-    if (!canManageRegions(req.user.role)) {
-      return res.status(403).json({ success: false, message: 'Bạn không có quyền xem hồ sơ vùng trồng.' });
+    let filter = {};
+    if (isAdminRole(req.user.role)) {
+      filter = {};
+    } else if (canManageRegions(req.user.role)) {
+      filter = { htxId: getHtxOwnerId(req.user) };
+    } else {
+      const userHtxId = req.user.htxId;
+      const conditions = [
+        { farmerIds: req.user._id },
+        { createdBy: req.user._id },
+      ];
+      if (req.user.plantingRegionCode) {
+        conditions.push({ code: req.user.plantingRegionCode });
+      }
+      if (userHtxId) {
+        conditions.push({ htxId: userHtxId });
+      }
+      filter = { $or: conditions };
     }
 
-    const regions = await PlantingRegion.find(getScopedRegionFilter(req))
+    const regions = await PlantingRegion.find(filter)
       .populate('farmerIds', 'fullname username farmCode farmArea phone address province ward')
       .populate('createdBy', 'fullname username')
       .sort({ createdAt: -1 });

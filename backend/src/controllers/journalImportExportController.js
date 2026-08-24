@@ -36,16 +36,15 @@ const upload = multer({
   }
 });
 
-// Export journal data to Excel
+// Export journal data to Excel (Chuẩn hóa theo form Sổ nhật ký sản xuất VietGAP)
 const exportJournal = async (req, res) => {
   try {
     const { id } = req.params;
     const { format = 'xlsx' } = req.query;
 
-    // Find the journal with schema details
     const journal = await FarmJournal.findById(id)
       .populate('schemaId')
-      .populate('userId', 'username fullname');
+      .populate('userId', 'username fullname farmName organization farmCode farmArea address ward province');
 
     if (!journal) {
       return res.status(404).json({
@@ -54,8 +53,6 @@ const exportJournal = async (req, res) => {
       });
     }
 
-    // Check if user owns this journal or is admin
-    // Check if user owns this journal or is admin
     const journalUserId = journal.userId ? journal.userId._id.toString() : null;
     if (journalUserId && journalUserId !== req.user.id && req.user.role !== 'Admin') {
       return res.status(403).json({
@@ -64,118 +61,232 @@ const exportJournal = async (req, res) => {
       });
     }
 
-    // Create workbook
     const workbook = XLSX.utils.book_new();
-    const schemaName = journal.schemaId ? journal.schemaId.name : 'Unknown Schema';
-    const schemaDesc = journal.schemaId ? journal.schemaId.description : '';
-    const creatorName = journal.userId ? (journal.userId.fullname || journal.userId.username) : 'Unknown User';
+    const schemaName = journal.schemaId ? journal.schemaId.name : 'Nhật ký sản xuất';
+    const entries = journal.entries || {};
+    const user = journal.userId || {};
 
-    // Add journal info sheet
-    const journalInfo = [
-      ['Thông tin nhật ký'],
-      ['Tên schema:', schemaName],
-      ['Mô tả:', schemaDesc],
-      ['Người tạo:', creatorName],
-      ['Ngày tạo:', new Date(journal.createdAt).toLocaleDateString('vi-VN')],
-      ['Trạng thái:', journal.status === 'Completed' ? 'Đã hoàn thành' : 'Đang thực hiện'],
-      ['Mã QR:', journal.qrCode || ''],
-      []
+    const infoGeneral = entries['Thông tin chung'] || entries['thongTinChung'] || {};
+    const tenCoSo = infoGeneral.tenCoSo || user.farmName || user.organization || user.fullname || user.username || 'TRẦN QUỐC HUY';
+    const diaChiCoSo = infoGeneral.diaChiCoSo || user.address || (user.ward ? `${user.ward}, ${user.province || ''}` : '') || '';
+    const hoTen = infoGeneral.hoTen || user.fullname || user.username || tenCoSo;
+    const maSoNongHo = infoGeneral.maSoNongHo || user.farmCode || 'VG/TX-H.01';
+    const dienTich = infoGeneral.dienTich || user.farmArea || '5000';
+    const cayTrong = infoGeneral.cayTrong || schemaName;
+    const diaChiSanXuat = infoGeneral.diaChiSanXuat || diaChiCoSo;
+    const namSanXuat = infoGeneral.namSanXuat || new Date(journal.createdAt).getFullYear();
+
+    // 1. Sheet Thông tin chung (Trang 1)
+    const coverInfo = [
+      ['Tên cơ sở: ' + tenCoSo],
+      ['Địa chỉ: ' + diaChiCoSo],
+      [],
+      ['SỔ NHẬT KÝ SẢN XUẤT'],
+      [],
+      ['THÔNG TIN CHUNG'],
+      ['1. Họ và tên tổ chức/cá nhân sản xuất:', hoTen],
+      ['2. Mã số nông hộ:', maSoNongHo],
+      ['3. Diện tích (m2):', dienTich],
+      ['4. Cây trồng:', cayTrong],
+      ['5. Địa chỉ sản xuất:', diaChiSanXuat],
+      ['6. Năm sản xuất:', namSanXuat],
+      [],
+      ['Mã QR truy xuất:', journal.qrCode || ''],
+      ['Trạng thái:', journal.status === 'Verified' ? 'Đã duyệt' : (journal.status === 'Locked' ? 'Đã khóa' : 'Lưu nháp')]
     ];
+    const coverSheet = XLSX.utils.aoa_to_sheet(coverInfo);
+    coverSheet['!cols'] = [{ wch: 35 }, { wch: 45 }];
+    XLSX.utils.book_append_sheet(workbook, coverSheet, 'Thông tin chung');
 
-    const infoSheet = XLSX.utils.aoa_to_sheet(journalInfo);
-    XLSX.utils.book_append_sheet(workbook, infoSheet, 'Thông tin chung');
-
-    // Add data sheets for each table
-    if (journal.schemaId && journal.schemaId.tables) {
-      const usedSheetNames = new Set(['Thông tin chung']);
-      
-      journal.schemaId.tables.forEach((table, index) => {
-        // Check if data is multi-row
-        const tableData = journal.entries[table.tableName];
-        let rows = [];
-
-        if (table.isMultiRow) {
-          // Horizontal format for Multi-row
-          const headers = table.fields.map(f => f.label);
-          rows.push(headers);
-
-          const dataArray = Array.isArray(tableData) ? tableData : (tableData ? [tableData] : []);
-
-          dataArray.forEach(rowData => {
-            const row = table.fields.map(field => {
-              const value = rowData[field.name];
-              if (value === undefined || value === null) return '';
-              if (field.type === 'date') return new Date(value).toLocaleDateString('vi-VN');
-              if (field.type === 'boolean') return value ? 'Có' : 'Không';
-              if (field.type === 'signature') {
-                 // For signatures (Base64 images), do not output the massive string to Excel
-                 return (typeof value === 'string' && value.startsWith('data:image')) ? '[Chữ ký điện tử]' : value.toString();
-              }
-              return value.toString();
-            });
-            rows.push(row);
-          });
-        } else {
-          // Vertical format for Single-row (Legacy/Default)
-          const headers = ['Trường', 'Giá trị', 'Loại dữ liệu'];
-          rows.push(headers);
-          // Convert to object in case it was accidentally saved as an array with custom properties
-          const dataObj = tableData ? Object.assign({}, tableData) : {};
-
-          table.fields.forEach(field => {
-            const value = dataObj[field.name];
-            let displayValue = '';
-
-            if (value !== undefined && value !== null) {
-              if (field.type === 'date') displayValue = new Date(value).toLocaleDateString('vi-VN');
-              else if (field.type === 'boolean') displayValue = value ? 'Có' : 'Không';
-              else if (field.type === 'signature') {
-                displayValue = (typeof value === 'string' && value.startsWith('data:image')) ? '[Chữ ký điện tử]' : value.toString();
-              }
-              else displayValue = value.toString();
-            }
-
-            rows.push([field.label, displayValue, field.type]);
-          });
+    const getTableData = (tableKeySubstrings) => {
+      for (const key of Object.keys(entries)) {
+        const lower = key.toLowerCase();
+        if (tableKeySubstrings.some(sub => lower.includes(sub.toLowerCase()))) {
+          const val = entries[key];
+          if (Array.isArray(val)) return val;
+          if (typeof val === 'object' && val !== null) return [val];
         }
+      }
+      return [];
+    };
 
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        
-        // Auto-size columns
-        const colWidths = [
-          { wch: 30 }, // Field name
-          { wch: 20 }, // Value
-          { wch: 15 }  // Type
-        ];
-        worksheet['!cols'] = colWidths;
+    const formatDateVal = (v) => {
+      if (!v) return '';
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString('vi-VN');
+    };
 
-        // Sanitize sheet name: remove invalid characters : \ / ? * [ ]
-        let sheetName = table.tableName
-          .replace(/[:\\\/\?\*\[\]]/g, '-') // Replace invalid chars with dash
-          .replace(/\s+/g, ' ')              // Normalize spaces
-          .trim();                            // Remove leading/trailing spaces
-        
-        // Limit sheet name to 31 characters (Excel limit)
-        if (sheetName.length > 31) {
-          sheetName = sheetName.substring(0, 28) + '...';
-        }
+    // 2. Sheet Bảng 1: Đánh giá chỉ tiêu ATTP
+    const table1Data = getTableData(['Bảng 1', 'Đánh giá', 'ATTP']);
+    const b1Rows = [
+      ['Bảng 1. Đánh giá các chỉ tiêu gây mất ATTP trong đất/giá thể, nước tưới, nước phục vụ sơ chế và sản phẩm'],
+      [],
+      ['Ngày tháng', 'Điều kiện', 'Tác nhân gây ô nhiễm', 'Đánh giá hiện tại', 'Biện pháp xử lý']
+    ];
+    table1Data.forEach(r => {
+      b1Rows.push([
+        formatDateVal(r.ngayThang || r.thoiGian || r.date),
+        r.dieuKien || '',
+        Array.isArray(r.tacNhan) ? r.tacNhan.join(', ') : (r.tacNhan || ''),
+        r.danhGia || 'Đạt',
+        r.bienPhap || ''
+      ]);
+    });
+    const b1Sheet = XLSX.utils.aoa_to_sheet(b1Rows);
+    b1Sheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 25 }, { wch: 18 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(workbook, b1Sheet, 'Bảng 1-Đánh giá ATTP');
 
-        // Prevent duplicate sheet names
-        let counter = 1;
-        let originalSheetName = sheetName;
-        while (usedSheetNames.has(sheetName)) {
-           sheetName = originalSheetName.substring(0, 27) + ` (${counter})`;
-           counter++;
-        }
-        usedSheetNames.add(sheetName);
-        
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-      });
-    }
+    // 3. Sheet Bảng 2.1 & 2.2: Vật tư đầu vào
+    const table2Raw = getTableData(['Bảng 2', 'vật tư', 'Đầu vào']);
+    const table2_1Data = getTableData(['Bảng 2.1', 'Mua'])?.length > 0
+      ? getTableData(['Bảng 2.1', 'Mua'])
+      : table2Raw.filter(item => !item.nguyenLieuTuSanXuat && !item.phuongPhapXuLy && !item.isSelfProduced);
+
+    const b21Rows = [
+      ['Bảng 2.1 Bảng theo dõi vật tư đầu vào - Mua'],
+      [],
+      ['Ngày tháng', 'Tên vật tư', 'Đơn vị tính', 'Số lượng', 'Tên và địa chỉ mua vật tư', 'Hạn sử dụng']
+    ];
+    table2_1Data.forEach(r => {
+      b21Rows.push([
+        formatDateVal(r.ngayThang || r.thoiGian || r.date),
+        r.tenVatTu || r.name || '',
+        r.donViTinh || r.dvt || r.unit || 'Kg',
+        r.soLuong !== undefined ? r.soLuong : '',
+        r.diaChiMua || r.tenVaDiaChiMua || '',
+        formatDateVal(r.hanSuDung)
+      ]);
+    });
+    const b21Sheet = XLSX.utils.aoa_to_sheet(b21Rows);
+    b21Sheet['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 35 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(workbook, b21Sheet, 'Bảng 2.1-Vật tư Mua');
+
+    const table2_2Data = getTableData(['Bảng 2.2', 'Tự sản xuất'])?.length > 0
+      ? getTableData(['Bảng 2.2', 'Tự sản xuất'])
+      : table2Raw.filter(item => item.nguyenLieuTuSanXuat || item.phuongPhapXuLy || item.isSelfProduced);
+
+    const b22Rows = [
+      ['Bảng 2.2 Bảng theo dõi vật tư đầu vào - Tự sản xuất'],
+      [],
+      ['Ngày tháng', 'Tên vật tư', 'Đơn vị tính', 'Số lượng', 'Tên và địa chỉ mua vật tư', 'Hạn sử dụng', 'Nguyên liệu sản xuất', 'Phương pháp xử lý', 'Hóa chất xử lý', 'Người xử lý']
+    ];
+    table2_2Data.forEach(r => {
+      b22Rows.push([
+        formatDateVal(r.ngayThang || r.thoiGian || r.date),
+        r.tenVatTu || r.name || '',
+        r.donViTinh || r.dvt || 'Kg',
+        r.soLuong !== undefined ? r.soLuong : '',
+        r.diaChiMua || '',
+        formatDateVal(r.hanSuDung),
+        r.nguyenLieuTuSanXuat || r.nguyenLieu || '',
+        r.phuongPhapXuLy || '',
+        r.hoaChatXuLy || '',
+        r.nguoiXuLy || ''
+      ]);
+    });
+    const b22Sheet = XLSX.utils.aoa_to_sheet(b22Rows);
+    b22Sheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(workbook, b22Sheet, 'Bảng 2.2-Vật tư Tự SX');
+
+    // 4. Sheet Bảng 3.1 & 3.2: Canh tác
+    const table3Raw = getTableData(['Bảng 3', 'canh tác', 'chăm sóc']);
+    const table3_1Data = getTableData(['Bảng 3.1', 'Bón phân'])?.length > 0
+      ? getTableData(['Bảng 3.1', 'Bón phân'])
+      : table3Raw.filter(item => item.tenPhanBon || item.luongPhanBon || (!item.tenThuocBVTV && !item.tenThuoc));
+
+    const b31Rows = [
+      ['Bảng 3.1 Nhật ký canh tác - Bón phân'],
+      [],
+      ['Thời gian thực hiện', 'Tên phân bón', 'Lượng sử dụng (Kg)', 'Đơn vị tính', 'Ghi chú']
+    ];
+    table3_1Data.forEach(r => {
+      b31Rows.push([
+        formatDateVal(r.thoiGian || r.thoiGianThucHien || r.ngayThang || r.date),
+        r.tenPhanBon || r.tenVatTu || r.name || '',
+        r.luongPhanBon !== undefined ? r.luongPhanBon : (r.luongSuDung !== undefined ? r.luongSuDung : (r.soLuong || '')),
+        r.donViTinh || r.dvt || 'Kg',
+        r.ghiChu || ''
+      ]);
+    });
+    const b31Sheet = XLSX.utils.aoa_to_sheet(b31Rows);
+    b31Sheet['!cols'] = [{ wch: 18 }, { wch: 25 }, { wch: 20 }, { wch: 12 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(workbook, b31Sheet, 'Bảng 3.1-Bón phân');
+
+    const table3_2Data = getTableData(['Bảng 3.2', 'Thuốc BVTV', 'BVTV'])?.length > 0
+      ? getTableData(['Bảng 3.2', 'Thuốc BVTV'])
+      : table3Raw.filter(item => item.tenThuocBVTV || item.tenThuoc || item.nongDoPha || item.thoiGianCachLy);
+
+    const b32Rows = [
+      ['Bảng 3.2 Nhật ký canh tác - Thuốc BVTV'],
+      [],
+      ['Ngày tháng', 'Tên thuốc', 'Nồng độ pha', 'Lượng sử dụng', 'Thời gian cách ly (ngày)', 'Ghi chú', 'Đơn vị tính']
+    ];
+    table3_2Data.forEach(r => {
+      b32Rows.push([
+        formatDateVal(r.ngayThang || r.thoiGian || r.thoiGianThucHien || r.date),
+        r.tenThuocBVTV || r.tenThuoc || r.name || '',
+        r.nongDoPha || '',
+        r.luongThuocSuDung !== undefined ? r.luongThuocSuDung : (r.luongSuDung !== undefined ? r.luongSuDung : (r.soLuong || '')),
+        r.thoiGianCachLy !== undefined ? r.thoiGianCachLy : '',
+        r.ghiChu || '',
+        r.donViTinh || r.dvt || 'mililit'
+      ]);
+    });
+    const b32Sheet = XLSX.utils.aoa_to_sheet(b32Rows);
+    b32Sheet['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(workbook, b32Sheet, 'Bảng 3.2-Thuốc BVTV');
+
+    // 5. Sheet Bảng 4.1 & 4.2: Thu hoạch & tiêu thụ
+    const table4Raw = getTableData(['Bảng 4', 'thu hoạch', 'tiêu thụ']);
+    const table4_1Data = getTableData(['Bảng 4.1', 'Thu hoạch'])?.length > 0
+      ? getTableData(['Bảng 4.1', 'Thu hoạch'])
+      : (table4Raw.length > 0 ? table4Raw : []);
+
+    const b41Rows = [
+      ['Bảng 4.1. Thu hoạch sản phẩm'],
+      [],
+      ['Thời gian thu hoạch', 'Mã số lô thu hoạch', 'Tên sản phẩm', 'Đơn vị tính', 'Sản lượng']
+    ];
+    table4_1Data.forEach(r => {
+      b41Rows.push([
+        formatDateVal(r.thoiGianThuHoach || r.thoiGian || r.ngayThang || r.date),
+        r.maSoLo || r.maLo || r.batchCode || '',
+        r.tenSanPham || cayTrong || '',
+        r.donViTinh || r.dvt || 'Kg',
+        r.sanLuong !== undefined ? r.sanLuong : ''
+      ]);
+    });
+    const b41Sheet = XLSX.utils.aoa_to_sheet(b41Rows);
+    b41Sheet['!cols'] = [{ wch: 18 }, { wch: 20 }, { wch: 25 }, { wch: 12 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(workbook, b41Sheet, 'Bảng 4.1-Thu hoạch');
+
+    const table4_2Data = getTableData(['Bảng 4.2', 'Tiêu thụ'])?.length > 0
+      ? getTableData(['Bảng 4.2', 'Tiêu thụ'])
+      : table4Raw.filter(item => item.ngayBan || item.soLuongBan || item.donViMua);
+
+    const b42Rows = [
+      ['Bảng 4.2 Tiêu thụ sản phẩm'],
+      [],
+      ['Ngày bán', 'Mã số lô thu hoạch', 'Tên sản phẩm', 'Số lượng bán', 'Đơn vị tính', 'Đơn vị thu mua/ Địa chỉ', 'Ghi chú']
+    ];
+    table4_2Data.forEach(r => {
+      b42Rows.push([
+        formatDateVal(r.ngayBan || r.thoiGian || r.date),
+        r.maSoLo || r.maLo || r.batchCode || '',
+        r.tenSanPham || cayTrong || '',
+        r.soLuongBan !== undefined ? r.soLuongBan : '',
+        r.donViTinh || r.dvt || 'Kg',
+        r.donViMua || r.donViThuMua || 'Tư thương',
+        r.ghiChu || ''
+      ]);
+    });
+    const b42Sheet = XLSX.utils.aoa_to_sheet(b42Rows);
+    b42Sheet['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 30 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(workbook, b42Sheet, 'Bảng 4.2-Tiêu thụ');
 
     // Generate filename
     const timestamp = new Date().toISOString().slice(0, 10);
-    const filename = `nhat-ky-${schemaName.replace(/\s+/g, '-')}-${timestamp}.${format}`;
+    const filename = `so-nhat-ky-${hoTen.replace(/\s+/g, '-')}-${timestamp}.${format}`;
 
     // Set response headers
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

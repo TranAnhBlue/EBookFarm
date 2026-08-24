@@ -77,7 +77,7 @@ const PublicFooter = () => {
                                 <Text strong className="text-white block uppercase tracking-widest text-xs">Liên kết nhanh</Text>
                                 <Space direction="vertical" className="text-gray-200">
                                     <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/reference/tcvn')}>
-                                        Tra cứu TCVN
+                                        Tra cứu Văn bản
                                     </Text>
                                     {isLoggedIn ? (
                                         <Text className="text-gray-200 hover:text-green-400 cursor-pointer transition-colors" onClick={() => navigate('/dashboard')}>

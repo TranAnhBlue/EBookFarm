@@ -18,13 +18,15 @@ import {
   UserOutlined,
   FilePdfOutlined,
   BarChartOutlined,
-  FileExcelOutlined
+  FileExcelOutlined,
+  PrinterOutlined
 } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import dayjs from 'dayjs';
 import JournalEntry from '../Journal/JournalEntry';
+import JournalExportPrintModal from '../../components/JournalExportPrintModal';
 import { getAvatarUrl, getInitialAvatar } from '../../utils/helpers';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -39,6 +41,8 @@ const HtxJournalMgmt = () => {
   const [schemas, setSchemas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [printModalVisible, setPrintModalVisible] = useState(false);
+  const [printJournal, setPrintJournal] = useState(null);
   const [form] = Form.useForm();
   const { user } = useAuthStore();
 
@@ -940,17 +944,37 @@ const HtxJournalMgmt = () => {
                       return (
                         <Space>
                           {farmJournalId ? (
-                            <Tooltip title="Xem chi tiết nhật ký">
-                              <Button
-                                size="small"
-                                icon={<EyeOutlined />}
-                                onClick={() => {
-                                  setPreviewJournalId(farmJournalId);
-                                  setIsPreviewVisible(true);
-                                }}
-                                className="rounded-lg bg-green-50 text-green-600 border-0"
-                              />
-                            </Tooltip>
+                            <>
+                              <Tooltip title="Xem chi tiết nhật ký">
+                                <Button
+                                  size="small"
+                                  icon={<EyeOutlined />}
+                                  onClick={() => {
+                                    setPreviewJournalId(farmJournalId);
+                                    setIsPreviewVisible(true);
+                                  }}
+                                  className="rounded-lg bg-green-50 text-green-600 border-0"
+                                />
+                              </Tooltip>
+                              <Tooltip title="In / Xuất sổ nhật ký chuẩn (PDF)">
+                                <Button
+                                  size="small"
+                                  icon={<PrinterOutlined />}
+                                  onClick={async () => {
+                                    try {
+                                      const res = await api.get(`/journals/${farmJournalId}`);
+                                      if (res.data?.data) {
+                                        setPrintJournal(res.data.data);
+                                        setPrintModalVisible(true);
+                                      }
+                                    } catch (err) {
+                                      message.error('Không thể tải dữ liệu nhật ký');
+                                    }
+                                  }}
+                                  className="rounded-lg bg-emerald-50 text-emerald-600 border-0"
+                                />
+                              </Tooltip>
+                            </>
                           ) : (
                             <Button size="small" icon={<EyeOutlined />} disabled className="rounded-lg" />
                           )}
@@ -1266,6 +1290,16 @@ const HtxJournalMgmt = () => {
           <Empty description="Không có dữ liệu tổng hợp" />
         )}
       </Modal>
+
+      {/* Print / Export Standard PDF Modal */}
+      <JournalExportPrintModal
+        visible={printModalVisible}
+        onClose={() => {
+          setPrintModalVisible(false);
+          setPrintJournal(null);
+        }}
+        journal={printJournal}
+      />
     </div>
   );
 };

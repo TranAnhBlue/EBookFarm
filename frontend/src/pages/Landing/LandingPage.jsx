@@ -183,24 +183,24 @@ const LandingPage = () => {
                                 </Button>
                                 <Button
                                     size="large"
-                                    className="h-16 px-10 rounded-2xl font-bold text-lg border-2 border-gray-100 hover:border-green-500 hover:text-green-600 transition-all shadow-sm hover-lift"
+                                    className="h-16 px-10 rounded-2xl font-bold text-lg border-2 border-amber-100 hover:border-amber-500 hover:text-amber-600 transition-all shadow-sm hover-lift"
                                     onClick={() => navigate('/reference/tcvn')}
                                 >
-                                    Tra cứu tiêu chuẩn <SearchOutlined />
+                                    Tra cứu Văn bản <SearchOutlined />
                                 </Button>
                             </Space>
                             <div className="flex flex-wrap items-center gap-x-12 gap-y-6 pt-12 scroll-reveal">
                                 <div className="flex flex-col count-up">
                                     <span className="text-3xl font-black text-gray-900">500+</span>
-                                    <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Nông trại</span>
+                                    <span className="text-amber-500 font-bold text-xs uppercase tracking-widest">Nông trại</span>
                                 </div>
                                 <div className="flex flex-col count-up" style={{ animationDelay: '0.2s' }}>
                                     <span className="text-3xl font-black text-gray-900">35+</span>
-                                    <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Tiêu chuẩn TCVN</span>
+                                    <span className="text-amber-500 font-bold text-xs uppercase tracking-widest">Tiêu chuẩn VietGAP/Hữu cơ</span>
                                 </div>
                                 <div className="flex flex-col count-up" style={{ animationDelay: '0.4s' }}>
                                     <span className="text-3xl font-black text-gray-900">100%</span>
-                                    <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Minh bạch</span>
+                                    <span className="text-amber-500 font-bold text-xs uppercase tracking-widest">Minh bạch</span>
                                 </div>
                             </div>
                         </Col>
@@ -347,68 +347,237 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* TCVN Highlight Section */}
-            <section className="bg-white py-16 md:py-20 px-6">
+            {/* Journal Types Section – 4 loại nhật ký × 2 tiêu chuẩn */}
+            <section className="bg-white py-16 md:py-24 px-6 overflow-hidden">
                 <div className="max-w-7xl mx-auto">
-                    <Row gutter={[48, 48]} align="middle">
-                        <Col xs={24} md={12}>
-                            <div className="relative scroll-reveal">
-                                <div className="absolute -inset-10 bg-blue-100/30 blur-[100px] rounded-full blob-animate"></div>
-                                <Card variant="borderless" className="shadow-2xl rounded-[40px] p-6 border-gray-50 glass-card relative z-10 hover-lift">
+                    <div className="text-center mb-16 scroll-reveal">
+                        <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 px-5 py-2 rounded-full mb-6">
+                            <span className="text-green-600 text-lg">📒</span>
+                            <Text className="text-green-700 font-black text-xs uppercase tracking-widest">Nhật Ký Điện Tử</Text>
+                        </div>
+                        <Title level={2} className="!text-gray-900 !mb-4 md:!text-5xl font-black">
+                            4 Loại Nhật Ký – 2 Tiêu Chuẩn
+                        </Title>
+                        <Paragraph className="text-gray-500 text-lg max-w-2xl mx-auto">
+                            Ghi chép chuẩn xác theo đúng mẫu báo cáo <strong className="text-green-700">VietGAP</strong> và <strong className="text-amber-600">Nông nghiệp Hữu cơ</strong>. Mỗi trường đều bắt buộc, đảm bảo hồ sơ đầy đủ.
+                        </Paragraph>
+                    </div>
+
+                    <Row gutter={[24, 24]} className="scroll-reveal">
+                        {[
+                            {
+                                emoji: '🌿', type: 'Trồng trọt', 
+                                vietgap: 'VietGAP Trồng trọt (TCVN 11892-1)',
+                                huuco: 'Hữu cơ Cây trồng (TCVN 11041)',
+                                color: 'green', bg: '#f0fdf4', border: '#bbf7d0', accent: '#16a34a'
+                            },
+                            {
+                                emoji: '🐄', type: 'Chăn nuôi',
+                                vietgap: 'VietGAHP Chăn nuôi',
+                                huuco: 'Hữu cơ Chăn nuôi (TCVN 11041-3)',
+                                color: 'orange', bg: '#fff7ed', border: '#fed7aa', accent: '#f97316'
+                            },
+                            {
+                                emoji: '🐟', type: 'Thủy sản',
+                                vietgap: 'VietGAP Thủy sản',
+                                huuco: 'Hữu cơ Thủy sản (TCVN 11041-4)',
+                                color: 'blue', bg: '#eff6ff', border: '#bfdbfe', accent: '#2563eb'
+                            },
+                        ].map((item, idx) => (
+                            <Col xs={24} md={8} key={idx}>
+                                <Card
+                                    className="h-full rounded-[32px] border-0 hover:shadow-2xl transition-all duration-500 hover-lift scroll-reveal overflow-hidden group"
+                                    style={{ background: item.bg, border: `2px solid ${item.border}` }}
+                                    styles={{ body: { padding: '2rem' } }}
+                                >
                                     <div className="space-y-6">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-white/80 transition-all border border-transparent hover:border-blue-50 hover-lift">
-                                                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
-                                                    <SafetyCertificateFilled className="text-white text-xl" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <Text className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Tiêu chuẩn {i}</Text>
-                                                    <Text strong className="text-gray-800 text-base line-clamp-1">
-                                                        {i === 1 ? 'TCVN 12827:2023 - Rau quả tươi' : i === 2 ? 'TCVN 13166-4:2020 - Thịt lợn' : 'TCVN 13840:2023 - Cà phê'}
-                                                    </Text>
-                                                </div>
-                                                <ArrowRightOutlined className="text-gray-300" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shadow-lg" style={{ background: item.accent + '15' }}>
+                                                {item.emoji}
                                             </div>
-                                        ))}
-                                        <Button
-                                            block
-                                            size="large"
-                                            className="h-14 rounded-xl border-blue-100 text-blue-600 font-bold hover:bg-blue-50 transition-all shine-effect"
-                                            onClick={() => navigate('/reference/tcvn')}
-                                        >
-                                            Tra cứu toàn bộ 35 tiêu chuẩn <ArrowRightOutlined />
-                                        </Button>
+                                            <div>
+                                                <Text className="text-[10px] font-black uppercase tracking-widest block" style={{ color: item.accent }}>Nhật ký</Text>
+                                                <Title level={4} className="!mb-0 !text-gray-900 font-black">{item.type}</Title>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="flex items-start gap-3 p-3 bg-white/80 rounded-2xl border border-white shadow-sm">
+                                                <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <CheckCircleFilled className="text-green-600 text-sm" />
+                                                </div>
+                                                <div>
+                                                    <Text className="text-[10px] font-black text-green-600 uppercase tracking-wider block">VietGAP</Text>
+                                                    <Text className="text-gray-700 text-sm font-semibold">{item.vietgap}</Text>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3 p-3 bg-white/80 rounded-2xl border border-white shadow-sm">
+                                                <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <CheckCircleFilled className="text-amber-600 text-sm" />
+                                                </div>
+                                                <div>
+                                                    <Text className="text-[10px] font-black text-amber-600 uppercase tracking-wider block">Hữu cơ</Text>
+                                                    <Text className="text-gray-700 text-sm font-semibold">{item.huuco}</Text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="pt-2 border-t border-white/60">
+                                            <Text className="text-[11px] text-gray-400 flex items-center gap-1">
+                                                <SafetyOutlined className="text-gray-400" /> Tất cả trường bắt buộc – đủ điều kiện xuất báo cáo
+                                            </Text>
+                                        </div>
                                     </div>
                                 </Card>
-                            </div>
+                            </Col>
+                        ))}
+                    </Row>
+
+                    <div className="mt-10 text-center scroll-reveal">
+                        <Button
+                            type="primary"
+                            size="large"
+                            className="h-14 px-10 rounded-2xl font-bold border-0 shadow-xl"
+                            style={{ background: 'linear-gradient(135deg, #16a34a 0%, #eab308 100%)' }}
+                            onClick={handleGetStarted}
+                        >
+                            Bắt đầu ghi nhật ký ngay <ArrowRightOutlined />
+                        </Button>
+                    </div>
+                </div>
+            </section>
+
+            {/* User Types Section – Đối tượng sử dụng */}
+            <section className="py-20 md:py-28 px-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a2e1a 0%, #14532d 50%, #1a2e1a 100%)' }}>
+                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(#22c55e 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 blur-[150px] rounded-full"></div>
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-400/10 blur-[150px] rounded-full"></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center mb-16 scroll-reveal">
+                        <Tag className="rounded-full px-5 py-1.5 mb-6 border-0 font-black text-xs uppercase tracking-widest" style={{ background: '#eab30820', color: '#fbbf24' }}>
+                            Đối tượng sử dụng
+                        </Tag>
+                        <Title level={2} className="!text-white !mb-4 md:!text-5xl font-black">
+                            EBookFarm phù hợp với <span style={{ color: '#fbbf24' }}>ai?</span>
+                        </Title>
+                        <Paragraph className="text-gray-400 text-lg max-w-2xl mx-auto">
+                            Hệ thống được thiết kế linh hoạt cho cả hộ sản xuất nhỏ lẻ lẫn hợp tác xã quy mô lớn
+                        </Paragraph>
+                    </div>
+
+                    <Row gutter={[32, 32]}>
+                        {/* HTX Card */}
+                        <Col xs={24} md={12}>
+                            <Card className="h-full rounded-[40px] border-0 hover-lift scroll-reveal overflow-hidden group"
+                                style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', border: '1px solid rgba(34,197,94,0.2)' }}
+                                styles={{ body: { padding: '2.5rem' } }}
+                            >
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl" style={{ background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}>
+                                            🏛️
+                                        </div>
+                                        <div>
+                                            <Text className="text-green-400 font-black text-xs uppercase tracking-widest block mb-1">Tổ chức</Text>
+                                            <Title level={3} className="!text-white !mb-0 font-black">HTX / Hợp tác xã</Title>
+                                        </div>
+                                    </div>
+
+                                    <Paragraph className="text-gray-300 text-base leading-relaxed">
+                                        Quản lý tập trung nhiều hộ thành viên, nhiều vườn/trang trại, nhiều loại cây trồng và vật nuôi. Cán bộ HTX giám sát, phê duyệt và xuất báo cáo tổng hợp.
+                                    </Paragraph>
+
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {[
+                                            { icon: '🏘️', label: 'Nhiều Hộ', sub: 'Thành viên' },
+                                            { icon: '🌳', label: 'Nhiều Vườn', sub: 'Vùng trồng' },
+                                            { icon: '🌾', label: 'Nhiều Loại', sub: 'Cây trồng' },
+                                        ].map((s, i) => (
+                                            <div key={i} className="text-center p-4 rounded-2xl" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)' }}>
+                                                <div className="text-2xl mb-1">{s.icon}</div>
+                                                <Text className="text-white font-black text-sm block">{s.label}</Text>
+                                                <Text className="text-gray-400 text-[10px] uppercase">{s.sub}</Text>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {['Quản lý mã vùng trồng (MSVT) tập trung', 'Phê duyệt nhật ký từng hộ thành viên', 'Báo cáo tổng hợp toàn HTX', 'Phân công kỹ thuật viên hỗ trợ'].map((f, i) => (
+                                            <div key={i} className="flex items-center gap-3">
+                                                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                                                    <CheckOutlined className="text-white text-[10px]" />
+                                                </div>
+                                                <Text className="text-gray-300 text-sm">{f}</Text>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <Button block size="large" className="h-14 rounded-2xl font-black border-0 text-white"
+                                        style={{ background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}
+                                        onClick={handleGetStarted}>
+                                        Đăng ký dành cho HTX <ArrowRightOutlined />
+                                    </Button>
+                                </div>
+                            </Card>
                         </Col>
-                        <Col xs={24} md={12} className="space-y-6 scroll-reveal">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                                    <SafetyCertificateFilled className="text-2xl text-blue-600" />
+
+                        {/* Hộ kinh doanh Card */}
+                        <Col xs={24} md={12}>
+                            <Card className="h-full rounded-[40px] border-0 hover-lift scroll-reveal overflow-hidden group"
+                                style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', border: '1px solid rgba(234,179,8,0.2)' }}
+                                styles={{ body: { padding: '2.5rem' } }}
+                            >
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl" style={{ background: 'linear-gradient(135deg, #d97706, #eab308)' }}>
+                                            🏡
+                                        </div>
+                                        <div>
+                                            <Text className="text-amber-400 font-black text-xs uppercase tracking-widest block mb-1">Cá nhân / Hộ gia đình</Text>
+                                            <Title level={3} className="!text-white !mb-0 font-black">Hộ Kinh Doanh</Title>
+                                        </div>
+                                    </div>
+
+                                    <Paragraph className="text-gray-300 text-base leading-relaxed">
+                                        Hộ sản xuất độc lập, trực tiếp ghi nhật ký cho vườn/trang trại của mình. Đơn giản, nhanh chóng, đúng chuẩn báo cáo để xuất bán và chứng nhận.
+                                    </Paragraph>
+
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {[
+                                            { icon: '📍', label: 'Vùng trồng', sub: 'Của gia đình' },
+                                            { icon: '📋', label: 'Nhật ký', sub: 'Riêng tư' },
+                                            { icon: '📊', label: 'Báo cáo', sub: 'Xuất ngay' },
+                                        ].map((s, i) => (
+                                            <div key={i} className="text-center p-4 rounded-2xl" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
+                                                <div className="text-2xl mb-1">{s.icon}</div>
+                                                <Text className="text-white font-black text-sm block">{s.label}</Text>
+                                                <Text className="text-gray-400 text-[10px] uppercase">{s.sub}</Text>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {['Ghi chép nhanh bằng điện thoại', 'Nhật ký VietGAP & Hữu cơ chuẩn mẫu', 'Xuất PDF/Excel báo cáo tức thì', 'Quản lý thông tin vườn & cây trồng'].map((f, i) => (
+                                            <div key={i} className="flex items-center gap-3">
+                                                <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shrink-0">
+                                                    <CheckOutlined className="text-white text-[10px]" />
+                                                </div>
+                                                <Text className="text-gray-300 text-sm">{f}</Text>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <Button block size="large" className="h-14 rounded-2xl font-black border-0 text-white"
+                                        style={{ background: 'linear-gradient(135deg, #d97706, #eab308)' }}
+                                        onClick={handleGetStarted}>
+                                        Đăng ký dành cho Hộ <ArrowRightOutlined />
+                                    </Button>
                                 </div>
-                                <Tag color="blue" className="rounded-full px-4 font-black uppercase text-xs tracking-widest py-1 pulse-badge">Tuân thủ</Tag>
-                            </div>
-                            <Title className="!text-gray-900 !mb-6 leading-tight md:!text-5xl gradient-text">Gốc gác rõ ràng,<br />Niềm tin vững chắc.</Title>
-                            <Paragraph className="text-gray-500 text-lg leading-relaxed">
-                                Hệ thống của chúng tôi được xây dựng dựa trên danh mục đầy đủ các tiêu chuẩn quốc gia về truy xuất nguồn gốc (TCVN).
-                                Giúp sản phẩm của bạn dễ dàng vượt qua các rào cản kỹ thuật và tiến xa ra thị trường quốc tế.
-                            </Paragraph>
-                            <Divider className="my-10" />
-                            <div className="grid grid-cols-2 gap-8">
-                                <div className="space-y-2 count-up">
-                                    <Text className="text-blue-600 font-black text-4xl block">100%</Text>
-                                    <Text className="text-gray-600 font-medium">Phù hợp quy định nhà nước</Text>
-                                </div>
-                                <div className="space-y-2 count-up" style={{ animationDelay: '0.2s' }}>
-                                    <Text className="text-blue-600 font-black text-4xl block">24/7</Text>
-                                    <Text className="text-gray-600 font-medium">Tra cứu & Kiểm soát</Text>
-                                </div>
-                            </div>
+                            </Card>
                         </Col>
                     </Row>
                 </div>
             </section>
+
 
             {/* Feature Cards Section */}
             <section className="bg-slate-50 py-24 md:py-32 px-6">

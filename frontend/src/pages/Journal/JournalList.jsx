@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Table, Typography, Button, Space, Modal, Drawer, Select, QRCode, Tag, Badge, Row, Col, Form, Descriptions, Steps, Upload, message, Tooltip, Grid, Pagination, Progress, Input, Divider } from 'antd';
-import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined, SearchOutlined, ExclamationCircleOutlined, BarcodeOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, QrcodeOutlined, EyeOutlined, BarsOutlined, AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, ProfileOutlined, TagOutlined, RightOutlined, FileOutlined, FileTextOutlined, DownloadOutlined, UploadOutlined, FileExcelOutlined, HistoryOutlined, CheckCircleOutlined, ClockCircleOutlined, UserOutlined, TeamOutlined, SearchOutlined, ExclamationCircleOutlined, BarcodeOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import JournalHistoryModal from '../../components/JournalHistoryModal';
+import JournalExportPrintModal from '../../components/JournalExportPrintModal';
 import { useAuthStore } from '../../store/authStore';
 
 const { Title, Text } = Typography;
@@ -47,6 +48,8 @@ const JournalList = () => {
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedJournalId, setSelectedJournalId] = useState(null);
+  const [printModalVisible, setPrintModalVisible] = useState(false);
+  const [printJournal, setPrintJournal] = useState(null);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [importSchemaId, setImportSchemaId] = useState(null);
@@ -637,13 +640,25 @@ const JournalList = () => {
             icon={<EditOutlined />}
             onClick={() => navigate(`${location.pathname}/edit/${record._id}`)}
           />
-          <Button
-            type="text"
-            className="flex items-center justify-center hover:bg-blue-50 text-blue-600 rounded-lg"
-            icon={<DownloadOutlined />}
-            onClick={() => handleExportSingle(record._id)}
-            title="Xuất Excel"
-          />
+          <Tooltip title="In / Xuất sổ nhật ký chuẩn (PDF)">
+            <Button
+              type="text"
+              className="flex items-center justify-center hover:bg-emerald-50 text-emerald-600 rounded-lg"
+              icon={<PrinterOutlined />}
+              onClick={() => {
+                setPrintJournal(record);
+                setPrintModalVisible(true);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Xuất Excel">
+            <Button
+              type="text"
+              className="flex items-center justify-center hover:bg-blue-50 text-blue-600 rounded-lg"
+              icon={<DownloadOutlined />}
+              onClick={() => handleExportSingle(record._id)}
+            />
+          </Tooltip>
           {(record.status === 'Verified' || record.status === 'Locked') && (
             <Button
               type="text"
@@ -891,6 +906,17 @@ const JournalList = () => {
                             onClick={() => navigate(`${location.pathname}/edit/${journal._id}`)}
                           >
                             <Text className="text-green-600 font-medium">Vào sổ <RightOutlined className="text-[10px] ml-1" /></Text>
+                          </div>
+                          <div
+                            className="w-12 p-3 text-center hover:bg-emerald-50 transition-colors cursor-pointer flex items-center justify-center border-r border-gray-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPrintJournal(journal);
+                              setPrintModalVisible(true);
+                            }}
+                            title="In / Xuất sổ nhật ký chuẩn (PDF)"
+                          >
+                            <PrinterOutlined className="text-emerald-600 text-base" />
                           </div>
                           {(journal.status === 'Verified' || journal.status === 'Locked') && (
                             <div
@@ -1444,6 +1470,16 @@ const JournalList = () => {
           setHistoryJournalId(null);
         }}
         journalId={historyJournalId}
+      />
+
+      {/* Print / Export Standard PDF Modal */}
+      <JournalExportPrintModal
+        visible={printModalVisible}
+        onClose={() => {
+          setPrintModalVisible(false);
+          setPrintJournal(null);
+        }}
+        journal={printJournal}
       />
     </div>
   );

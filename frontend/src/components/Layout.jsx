@@ -14,6 +14,7 @@ import {
   EnvironmentOutlined,
   ExperimentOutlined,
   FileDoneOutlined,
+  FileExcelOutlined,
   FileTextOutlined,
   GlobalOutlined,
   InboxOutlined,
@@ -221,7 +222,7 @@ const MainLayout = () => {
     { key: '/reports', icon: <BarChartOutlined />, label: label('Báo cáo & Thống kê') },
     { key: '/account-info', icon: <UserOutlined />, label: label('Thông tin tài khoản') },
     { key: '/form-builder', icon: <FileTextOutlined />, label: label('Biểu mẫu nhật ký') },
-    { key: '/tcvn', icon: <ReadOutlined />, label: label('Tra cứu TCVN') },
+    { key: '/tcvn', icon: <ReadOutlined />, label: label('Tra cứu Văn bản') },
     { key: '/admin/news', icon: <FileTextOutlined />, label: label('Quản lý tin tức') },
     { key: '/admin/consultations', icon: <PhoneOutlined />, label: label('Yêu cầu tư vấn') },
     { key: '/agriculture-models', icon: <GlobalOutlined />, label: label('Mô hình nông nghiệp') },
@@ -317,7 +318,7 @@ const MainLayout = () => {
       label: label('Tiêu chuẩn & quy trình'),
       children: [
         { key: '/docs', label: 'Quy trình kỹ thuật' },
-        { key: '/tcvn', label: 'Tra cứu TCVN' },
+        { key: '/tcvn', label: 'Tra cứu Văn bản' },
       ],
     },
   ];

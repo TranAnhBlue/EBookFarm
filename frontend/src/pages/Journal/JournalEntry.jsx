@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Form, Input, InputNumber, Button, DatePicker, Select, AutoComplete, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image } from 'antd';
+import { Card, Form, Input, InputNumber, Button, DatePicker, Select, AutoComplete, Typography, message, Skeleton, Space, Tabs, Upload, Tag, Modal, Image, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { InboxOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, DeleteOutlined, EditOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import VoiceInput from '../../components/VoiceInput';
 import { useAuthStore } from '../../store/authStore';
 import HouseholdSelector from '../../components/HouseholdSelector';
+import JournalExportPrintModal from '../../components/JournalExportPrintModal';
 import { shouldDisableField, clearHouseholdFields } from '../../utils/householdAutoFill';
 
 const { Title } = Typography;
@@ -156,6 +157,7 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
   });
 
   const [isFinalSubmit, setIsFinalSubmit] = useState(false);
+  const [printModalVisible, setPrintModalVisible] = useState(false);
 
   const isReadOnly = isEditing && journalData && (
     journalData.status === 'Verified' ||
@@ -2850,7 +2852,17 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           </Title>
           <p className="text-gray-500 mt-1 mb-0">{schema.description}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {isEditing && journalData && (
+            <Button
+              size="large"
+              icon={<PrinterOutlined />}
+              onClick={() => setPrintModalVisible(true)}
+              className="rounded-xl border-emerald-500 text-emerald-700 hover:bg-emerald-50 font-medium"
+            >
+              In / Xuất sổ (PDF)
+            </Button>
+          )}
           <Button size="large" onClick={() => {
             // Quay lại trang danh sách dựa trên URL hiện tại
             const pathParts = location.pathname.split('/');
@@ -2981,6 +2993,15 @@ const JournalEntry = ({ schemaId: propsSchemaId, id: propsId }) => {
           preview={false}
         />
       </Modal>
+
+      {/* Print / Export Standard PDF Modal */}
+      {journalData && (
+        <JournalExportPrintModal
+          visible={printModalVisible}
+          onClose={() => setPrintModalVisible(false)}
+          journal={journalData}
+        />
+      )}
     </div>
   );
 };

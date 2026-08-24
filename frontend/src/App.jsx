@@ -44,8 +44,10 @@ import JournalEntry from './pages/Journal/JournalEntry';
 import JournalTrace from './pages/Journal/JournalTrace';
 import ProductionTech from './pages/Journal/ProductionTech';
 import FarmerInventory from './pages/Journal/FarmerInventory';
+import DurianJournalPage from './pages/Journal/DurianJournalPage';
 import HtxJournalMgmt from './pages/HTX/HtxJournalMgmt';
 import HtxJournalApproval from './pages/HTX/HtxJournalApproval';
+import DurianElectronicJournal from './pages/HTX/DurianElectronicJournal';
 import NewsListAll from './pages/News/NewsListAll';
 import NewsDetail from './pages/News/NewsDetail';
 import TCVNReference from './pages/Reference/TCVNReference';
@@ -96,6 +98,13 @@ const Reports = lazy(() => import('./pages/Admin/Reports'));
 const FarmerSupplyMgmt = lazy(() => import('./pages/Journal/FarmerSupplyMgmt'));
 const FarmerHtxAssignments = lazy(() => import('./pages/Journal/FarmerHtxAssignments'));
 const FarmerHtxFeedback = lazy(() => import('./pages/Journal/FarmerHtxFeedback'));
+const JournalTypeSelector = lazy(() => import('./pages/Journal/JournalTypeSelector'));
+const VietGAPTrongTrot = lazy(() => import('./pages/Journal/VietGAP/VietGAPTrongTrot'));
+const VietGAPChanNuoi = lazy(() => import('./pages/Journal/VietGAP/VietGAPChanNuoi'));
+const VietGAPThuySan = lazy(() => import('./pages/Journal/VietGAP/VietGAPThuySan'));
+const HuuCoCayTrong = lazy(() => import('./pages/Journal/HuuCo/HuuCoCayTrong'));
+const HuuCoChanNuoi = lazy(() => import('./pages/Journal/HuuCo/HuuCoChanNuoi'));
+const HuuCoThuySan = lazy(() => import('./pages/Journal/HuuCo/HuuCoThuySan'));
 
 dayjs.locale('vi');
 
@@ -256,12 +265,24 @@ const App = () => {
                       <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
                       <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                       <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
+                      <Route path="durian" element={<ProtectedRoute farmerOnly><DurianJournalPage /></ProtectedRoute>} />
+                      <Route path="durian/:id" element={<ProtectedRoute farmerOnly><DurianJournalPage /></ProtectedRoute>} />
                     </Route>
+                    <Route path="farmer/durian-journal" element={<ProtectedRoute farmerOnly><DurianElectronicJournal /></ProtectedRoute>} />
                     <Route path="huuco/:subCategory">
                       <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
                       <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                       <Route path="edit/:id" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />
                     </Route>
+
+                    {/* === Nhật ký chuẩn VietGAP & Hữu cơ === */}
+                    <Route path="journal/select" element={<ProtectedRoute><JournalTypeSelector /></ProtectedRoute>} />
+                    <Route path="vietgap/trong-trot" element={<ProtectedRoute farmerOnly><VietGAPTrongTrot /></ProtectedRoute>} />
+                    <Route path="vietgap/chan-nuoi" element={<ProtectedRoute farmerOnly><VietGAPChanNuoi /></ProtectedRoute>} />
+                    <Route path="vietgap/thuy-san" element={<ProtectedRoute farmerOnly><VietGAPThuySan /></ProtectedRoute>} />
+                    <Route path="huuco/cay-trong" element={<ProtectedRoute farmerOnly><HuuCoCayTrong /></ProtectedRoute>} />
+                    <Route path="huuco/chan-nuoi" element={<ProtectedRoute farmerOnly><HuuCoChanNuoi /></ProtectedRoute>} />
+                    <Route path="huuco/thuy-san" element={<ProtectedRoute farmerOnly><HuuCoThuySan /></ProtectedRoute>} />
                     <Route path="thongminh/:subCategory">
                       <Route index element={<ProtectedRoute farmerOnly><JournalList /></ProtectedRoute>} />
                       <Route path="new/:schemaId" element={<ProtectedRoute farmerOnly><JournalEntry /></ProtectedRoute>} />

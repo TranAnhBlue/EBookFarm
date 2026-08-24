@@ -148,6 +148,7 @@ app.use('/api/htx/management', htxManagementRoutes);
 
 const plantingRegionRoutes = require('./routes/plantingRegionRoutes.js');
 app.use('/api/htx/planting-regions', plantingRegionRoutes);
+app.use('/api/planting-regions', plantingRegionRoutes);
 
 const iotRoutes = require('./routes/iotRoutes.js');
 app.use('/api/iot', iotRoutes);

@@ -1,25 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Roboto:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --primary-green: #22c55e;
-  --dark-green: #15803d;
-  --light-green: #f0fdf4;
-  --border-color: #f1f5f9;
+  /* === EBookFarm Brand Palette === */
+  --primary-green:    #16a34a;  /* xanh lá chủ đạo */
+  --dark-green:       #14532d;  /* xanh lá đậm */
+  --medium-green:     #22c55e;  /* xanh lá vừa */
+  --light-green:      #f0fdf4;  /* xanh lá nhạt */
+  --accent-yellow:    #eab308;  /* vàng nhấn */
+  --light-yellow:     #fefce8;  /* vàng nhạt */
+  --accent-orange:    #f97316;  /* cam nhấn */
+  --light-orange:     #fff7ed;  /* cam nhạt */
+  --white:            #ffffff;
+  --off-white:        #f8fafc;
+  --border-color:     #f1f5f9;
+  --text-dark:        #1a2e1a;  /* xanh đen */
+
+  /* Gradients */
+  --gradient-main:  linear-gradient(135deg, #16a34a 0%, #eab308 50%, #f97316 100%);
+  --gradient-green: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  --gradient-warm:  linear-gradient(135deg, #f97316 0%, #eab308 100%);
 }
 
 body {
   margin: 0;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
+  font-family: 'Be Vietnam Pro', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
-  color: #1e293b;
+  color: #1a2e1a;
 }
 
 /* Custom Scrollbar */
@@ -57,17 +71,18 @@ body {
 /* Ant Design Customizations */
 .ant-btn-primary {
   background-color: var(--primary-green) !important;
-  box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39) !important;
+  box-shadow: 0 4px 14px 0 rgba(22, 163, 74, 0.35) !important;
   border: none !important;
-  font-weight: 500 !important;
+  font-weight: 700 !important;
   height: auto !important;
   padding: 8px 20px !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
 }
 
 .ant-btn-primary:hover {
   background-color: var(--dark-green) !important;
   transform: translateY(-1px);
+  box-shadow: 0 8px 20px 0 rgba(22, 163, 74, 0.4) !important;
 }
 
 .ant-layout-sider {
@@ -121,7 +136,15 @@ body {
 }
 
 .premium-gradient {
-  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  background: var(--gradient-green);
+}
+
+.premium-gradient-warm {
+  background: var(--gradient-warm);
+}
+
+.premium-gradient-main {
+  background: var(--gradient-main);
 }
 
 .weather-gradient {
@@ -129,9 +152,39 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(to right, #22c55e, #15803d);
+  background: var(--gradient-green);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Brand accent badges */
+.brand-badge-green {
+  background: var(--light-green);
+  color: var(--primary-green);
+  border: 1px solid #bbf7d0;
+  font-weight: 700;
+}
+
+.brand-badge-yellow {
+  background: var(--light-yellow);
+  color: #92400e;
+  border: 1px solid #fef08a;
+  font-weight: 700;
+}
+
+.brand-badge-orange {
+  background: var(--light-orange);
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+  font-weight: 700;
 }
 
 /* Custom Farmer Submenu Styling matching reference */
